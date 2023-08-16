@@ -3,9 +3,11 @@ import Footer from "./footer";
 import Navbar from "./navbar";
 const Body = ({ children }: { children: React.ReactNode }) => {
   return (
-    <main className="flex h-screen flex-col">
+    <main className="flex min-h-screen flex-col">
       <Navbar />
-      <Container className=" h-full  p-8">{children}</Container>
+      <Container className=" flex h-full flex-grow flex-col items-stretch p-8">
+        {children}
+      </Container>
       <Footer />
     </main>
   );
