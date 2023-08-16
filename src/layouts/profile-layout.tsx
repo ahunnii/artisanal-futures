@@ -1,13 +1,20 @@
+import { Store } from "@prisma/client";
 import Head from "next/head";
+import { useMemo } from "react";
 
 import Body from "~/components/body";
 import { SidebarNav } from "~/components/profile/sidebar-nav";
 import { Separator } from "~/components/ui/separator";
+import { api } from "~/utils/api";
 
 const sidebarNavItems = [
   {
     title: "Profile",
     href: "/profile",
+  },
+  {
+    title: "Store",
+    href: "/profile/store",
   },
   {
     title: "Account",
@@ -32,6 +39,42 @@ interface SettingsLayoutProps {
 }
 
 export default function ProfileLayout({ children }: SettingsLayoutProps) {
+  const store = api.store.getCurrentUserStore.useQuery();
+
+  const navItems = useMemo(() => {
+    return [
+      {
+        title: "Profile",
+        href: "/profile",
+      },
+      store && store.data
+        ? {
+            title: "Store",
+            href: "/profile/store/" + store.data.id,
+          }
+        : {
+            title: "Store",
+            href: "/profile/store",
+          },
+      {
+        title: "Account",
+        href: "/profile/account",
+      },
+      {
+        title: "Appearance",
+        href: "/profile/appearance",
+      },
+      {
+        title: "Notifications",
+        href: "/profile/notifications",
+      },
+      {
+        title: "Display",
+        href: "/profile/display",
+      },
+    ];
+  }, [store]);
+
   return (
     <>
       <Head>
@@ -50,7 +93,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
           <Separator className="my-6" />
           <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
             <aside className="-mx-4 lg:w-1/5">
-              <SidebarNav items={sidebarNavItems} />
+              <SidebarNav items={navItems} />
             </aside>
             <div className="flex-1 lg:max-w-2xl">{children}</div>
           </div>

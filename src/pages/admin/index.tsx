@@ -1,11 +1,13 @@
 import { useOrganizationList } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
-
 import { buildClerkProps, clerkClient, getAuth } from "@clerk/nextjs/server";
 import type { GetServerSidePropsContext } from "next";
+import { redirect } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { ProfileForm } from "~/components/profile/profile-form";
 import PageLoader from "~/components/ui/page-loader";
+import { Separator } from "~/components/ui/separator";
+import AdminLayout from "~/layouts/admin-layout";
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const { userId } = getAuth(ctx.req);
@@ -50,7 +52,18 @@ const AdminPage = () => {
       {showLoader && <PageLoader />}
       {!showLoader && (
         <>
-          <h1>Admin Page</h1>
+          <AdminLayout>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium">Admin</h3>
+                <p className="text-sm text-muted-foreground">
+                  This is how others will see you on the site.
+                </p>
+              </div>
+              <Separator />
+              <ProfileForm />
+            </div>
+          </AdminLayout>
         </>
       )}
     </>
