@@ -1,5 +1,10 @@
-"use client";
-
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/nextjs";
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,22 +19,24 @@ const NavbarActions = () => {
     setIsMounted(true);
   }, []);
 
-  const router = useRouter();
-  //   const cart = useCart();
-
   if (!isMounted) {
     return null;
   }
 
   return (
     <div className="ml-auto flex items-center gap-x-4">
-      <Button
-        onClick={() => router.push("/cart")}
-        className="flex items-center rounded-full bg-black px-4 py-2"
-      >
-        <ShoppingBag size={20} color="white" />
-        <span className="ml-2 text-sm font-medium text-white">3</span>
-      </Button>
+      <SignedIn>
+        {/* Mount the UserButton component */}
+        <UserButton
+          afterSignOutUrl="/"
+          userProfileUrl="/profile"
+          userProfileMode="navigation"
+        />
+      </SignedIn>
+      <SignedOut>
+        {/* Signed out users get sign in button */}
+        <SignInButton />
+      </SignedOut>
     </div>
   );
 };
