@@ -15,12 +15,12 @@ export const authenticateSession = async (ctx: GetServerSidePropsContext) => {
     };
   }
 
-  const store = await prisma.store.findFirst({
+  const shop = await prisma.shop.findFirst({
     where: {
-      id: ctx.query.storeId as string,
+      id: ctx.query.shopId as string,
       ownerId: userId,
     },
   });
 
-  return store;
+  return shop;
 };

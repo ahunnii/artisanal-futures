@@ -68,28 +68,29 @@ model VerificationToken {
 
 model Survey {
   id          String @id @default(cuid())
-  processes   String
-  materials   String
-  principles  String
+  processes   String?
+  materials   String?
+  principles  String?
   unmoderatedForm Boolean @default(false)
   moderatedForm Boolean @default(false)
   hiddenForm   Boolean @default(false)
   privateForm  Boolean @default(false)
   supplyChain Boolean @default(false)
   ownerId     String 
-  storeId     String
+  shopId     String
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 }
 
-model Store {
+model Shop {
   id         String @id @default(cuid())
-  name       String
-  owner      String
+  shopName       String
+  ownerName      String
   bio        String?
   description String?
-  ownerImage String?
-  logoImage  String?
+  ownerPhoto String?
+  logoPhoto  String?
+  coverPhoto  String?
   address    String?
   city       String?
   state      String?

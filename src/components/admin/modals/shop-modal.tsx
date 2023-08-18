@@ -17,19 +17,19 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Modal } from "~/components/ui/modal";
-import { useStoreModal } from "~/hooks/use-store-modal";
+import { useShopModal } from "~/hooks/use-shop-modal";
 import { api } from "~/utils/api";
 
 const formSchema = z.object({
-  name: z.string().min(1),
+  shopName: z.string().min(1),
 });
 
-export const StoreModal = () => {
-  const storeModal = useStoreModal();
+export const ShopModal = () => {
+  const ShopModal = useShopModal();
 
-  const { mutate } = api.store.createStore.useMutation({
+  const { mutate } = api.shops.createShop.useMutation({
     onSuccess: ({ id }) => {
-      window.location.assign(`/profile/store/${id}`);
+      window.location.assign(`/profile/shop/${id}`);
       setLoading(false);
     },
     onError: (error) => {
@@ -46,7 +46,7 @@ export const StoreModal = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      shopName: "",
     },
   });
 
@@ -56,10 +56,10 @@ export const StoreModal = () => {
 
   return (
     <Modal
-      title="Create store"
-      description="Add a new store to manage products and categories."
-      isOpen={storeModal.isOpen}
-      onClose={storeModal.onClose}
+      title="Create shop"
+      description="Add a new shop to manage products and categories."
+      isOpen={ShopModal.isOpen}
+      onClose={ShopModal.onClose}
     >
       <div>
         <div className="space-y-4 py-2 pb-4">
@@ -68,7 +68,7 @@ export const StoreModal = () => {
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="shopName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
@@ -87,7 +87,8 @@ export const StoreModal = () => {
                   <Button
                     disabled={loading}
                     variant="outline"
-                    onClick={storeModal.onClose}
+                    type="button"
+                    onClick={ShopModal.onClose}
                   >
                     Cancel
                   </Button>{" "}

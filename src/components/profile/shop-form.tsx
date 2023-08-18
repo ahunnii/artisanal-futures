@@ -1,8 +1,8 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Store } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import axios from "axios";
+import { pickBy } from "lodash";
 import { Trash } from "lucide-react";
 
 import { useState } from "react";
@@ -32,11 +32,11 @@ import LogoUpload from "../ui/logo-upload";
 import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
-  name: z.string().min(2),
-  owner: z.string(),
-  bio: z.string().optional(),
+  shopName: z.string().min(2),
+  ownerName: z.string(),
+  bio: z.string().optional().or(z.literal("")),
   description: z.string().optional(),
-  logoImage: z.string().optional(),
+  logoPhoto: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -50,10 +50,10 @@ const formSchema = z.object({
 type SettingsFormValues = z.infer<typeof formSchema>;
 
 interface SettingsFormProps {
-  initialData: Store | null;
+  initialData: Shop | null;
 }
 
-export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
+export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const params = useRouter();
   const router = useNavigationRouter();
   const origin = useOrigin();
@@ -63,13 +63,28 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: initialData
+      ? initialData
+      : {
+          shopName: "",
+          ownerName: "",
+          bio: "",
+          description: "",
+          logoPhoto: "",
+          address: "",
+          city: "",
+          state: "",
+          zip: "",
+          country: "",
+          phone: "",
+          email: "",
+          website: "",
+        },
   });
 
-  const { mutate: updateStore } = api.store.updateStore.useMutation({
+  const { mutate: updateShop } = api.shops.updateShop.useMutation({
     onSuccess: () => {
-      router.refresh();
-      toast.success("Store updated.");
+      toast.success("Shop updated.");
     },
     onError: (error) => {
       toast.error("Something went wrong");
@@ -83,10 +98,10 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     },
   });
 
-  const { mutate: deleteStore } = api.store.deleteStore.useMutation({
+  const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
     onSuccess: () => {
-      router.push("/admin");
-      toast.success("Store deleted.");
+      router.push("/profile");
+      toast.success("Shop deleted.");
     },
     onError: (error) => {
       toast.error("Make sure you removed all products using this color first.");
@@ -102,15 +117,15 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   });
 
   const onSubmit = (data: SettingsFormValues) => {
-    updateStore({
+    updateShop({
       ...data,
-      storeId: params.query.storeId as string,
+      shopId: params.query.shopId as string,
     });
   };
 
   const onDelete = () => {
-    deleteStore({
-      storeId: params.query.storeId as string,
+    deleteShop({
+      shopId: params.query.shopId as string,
     });
   };
 
@@ -124,14 +139,16 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       />
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium">{initialData?.name} Dashboard</h3>
+          <h3 className="text-lg font-medium">
+            {initialData?.shopName} Dashboard
+          </h3>
           <p className="text-sm text-muted-foreground">
             Configure how your store is shown to visitors
           </p>
         </div>
 
         {/* <Heading
-          title="Store settings"
+          title="Shop settings"
           description="Manage store preferences"
         /> */}
         <Button
@@ -147,19 +164,20 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
+          onChange={() => console.log(form.getValues())}
           className="w-full space-y-8"
         >
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <FormField
               control={form.control}
-              name="name"
+              name="shopName"
               render={({ field }) => (
                 <FormItem className="sm:col-span-3">
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Store name"
+                      placeholder="Shop name"
                       {...field}
                     />
                   </FormControl>
@@ -169,7 +187,7 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
             />{" "}
             <FormField
               control={form.control}
-              name="owner"
+              name="ownerName"
               render={({ field }) => (
                 <FormItem className="sm:col-span-3">
                   <FormLabel>Owner</FormLabel>
@@ -179,6 +197,27 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                       placeholder="Owner's name"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="logoPhoto"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-3">
+                  <FormLabel>Logo</FormLabel>
+                  <FormControl>
+                    {/* <>
+                  {!initialData?.images && <ImageLoader />} */}
+                    <LogoUpload
+                      value={field.value ?? ""}
+                      disabled={loading}
+                      onChange={(url) => field.onChange(url)}
+                      onRemove={() => field.onChange("")}
+                    />
+                    {/* </> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -206,11 +245,62 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
               name="description"
               render={({ field }) => (
                 <FormItem className="col-span-full">
-                  <FormLabel>Store Description</FormLabel>
+                  <FormLabel>Shop Description</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="e.g. Store is the best!"
+                      placeholder="e.g. Shop is the best!"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-3">
+                  <FormLabel>Phone</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="e.g. 123-456-7890"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-4">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="e.g. emaail@test.co"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-4">
+                  <FormLabel>Website</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="e.g. https://test.co"
                       {...field}
                     />
                   </FormControl>
@@ -303,90 +393,12 @@ export const StoreForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. 123-456-7890"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-4">
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. emaail@test.co"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-4">
-                  <FormLabel>Website</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. https://test.co"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="logoImage"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Logo</FormLabel>
-                  <FormControl>
-                    {/* <>
-                    {!initialData?.images && <ImageLoader />} */}
-                    <LogoUpload
-                      value={field.value ?? ""}
-                      disabled={loading}
-                      onChange={(url) => field.onChange(url)}
-                      onRemove={() => field.onChange("")}
-                    />
-                    {/* </> */}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />{" "}
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             Save changes
           </Button>
         </form>
       </Form>
-      <Separator />
-      <ApiAlert
-        title="NEXT_PUBLIC_API_URL"
-        variant="public"
-        description={`${origin}/api/${params.query.storeId as string}`}
-      />
     </>
   );
 };

@@ -1,31 +1,39 @@
 import { getAuth } from "@clerk/nextjs/server";
+import { PlusCircle } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import { useEffect } from "react";
 import { ProfileForm } from "~/components/profile/profile-form";
+import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { useStoreModal } from "~/hooks/use-store-modal";
+import { useShopModal } from "~/hooks/use-shop-modal";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
-export default function ProfileStorePage() {
-  const onOpen = useStoreModal((state) => state.onOpen);
-  const isOpen = useStoreModal((state) => state.isOpen);
+export default function ProfileShopPage() {
+  const onOpen = useShopModal((state) => state.onOpen);
+  const isOpen = useShopModal((state) => state.isOpen);
   useEffect(() => {
-    if (!isOpen) {
-      onOpen();
-    }
-  }, [isOpen, onOpen]);
+    onOpen();
+  }, [onOpen]);
 
   return (
     <ProfileLayout>
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Store</h3>
+          <h3 className="text-lg font-medium">Shop Dashboard</h3>
           <p className="text-sm text-muted-foreground">
-            Add your store details to Artisanal Futures
+            Configure how your store is shown to visitors
           </p>
         </div>
         <Separator />
-        <ProfileForm />
+        <p>
+          You currently don't have a shop setup yet. Create one to promote your
+          business to visitors on the site!
+        </p>
+
+        <Button onClick={onOpen} type="button">
+          <PlusCircle className="mr-2 h-5 w-5" />
+          Create Store
+        </Button>
       </div>
     </ProfileLayout>
   );
@@ -42,18 +50,18 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     };
   }
 
-  const store = await prisma.store.findFirst({
+  const shop = await prisma.shop.findFirst({
     where: {
       ownerId: userId,
     },
   });
 
-  if (store) {
-    console.log("redirecting to store", store.id);
+  if (shop) {
+    console.log("redirecting to shop", shop.id);
 
     return {
       redirect: {
-        destination: `/profile/store/${store.id.toString()}`,
+        destination: `/profile/shop/${shop.id.toString()}`,
         permanent: false,
       },
     };

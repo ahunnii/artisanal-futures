@@ -2,15 +2,17 @@ import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { FC } from "react";
 
+import type { Shop } from "@prisma/client";
 import Body from "~/components/body";
-import ArtisanCard from "~/components/shops/artisan-card";
-import { Shop } from "~/types";
+import ShopCard from "~/components/shops/shop-card";
+import { prisma } from "~/server/db";
 
 interface IProps {
   artisans: Shop[];
 }
 
 const ShopsPage: FC<IProps> = ({ artisans }) => {
+  console.log(artisans);
   return (
     <>
       <Head>
@@ -24,11 +26,20 @@ const ShopsPage: FC<IProps> = ({ artisans }) => {
           Browse our featured artisans&apos; stores
         </p>
         <div className="flex h-fit w-full flex-col md:flex-row md:flex-wrap">
-          <div className=" flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
-            {artisans?.map((artisan: Shop, index: number) => (
-              <ArtisanCard key={index} {...artisan} />
-            ))}
-          </div>{" "}
+          {artisans?.map((artisan: Shop, index: number) => (
+            <div
+              className=" flex basis-full p-4 md:basis-1/2 lg:basis-1/4 "
+              key={index}
+            >
+              <ShopCard {...artisan} />
+            </div>
+          ))}
+          {artisans?.length === 0 && (
+            <p>
+              There seems to be an issue fetching the shops. Please try again
+              later.
+            </p>
+          )}
         </div>
       </Body>
     </>
@@ -36,19 +47,17 @@ const ShopsPage: FC<IProps> = ({ artisans }) => {
 };
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const artisans = [
-    {
-      id: "dabls",
-      owner_name: "Olayami Dabls",
-      business_name: "Dabls' MBAD African Bead Museum",
-      website: "http://www.mbad.org/",
-      cover_photo: "/img/demo/cover_dabls.jpg",
+  const shops = await prisma.shop.findMany({
+    where: {
+      shopName: { not: "" },
+      logoPhoto: { not: "" },
+      website: { not: "" },
     },
-  ];
+  });
 
   return {
     props: {
-      artisans,
+      artisans: [...JSON.parse(JSON.stringify(shops))],
     },
   };
 };

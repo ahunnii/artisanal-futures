@@ -8,7 +8,7 @@ import Container from "~/components/ui/container";
 
 const Navbar = () => {
   //   const { data: categories } = api.categories.getAllCategories.useQuery({
-  //     storeId: process.env.NEXT_PUBLIC_STORE_ID!,
+  //     shopId: process.env.NEXT_PUBLIC_STORE_ID!,
   //   });
 
   const categories = [

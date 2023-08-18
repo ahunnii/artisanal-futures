@@ -1,4 +1,4 @@
-import { Store } from "@prisma/client";
+import { Shop } from "@prisma/client";
 import Head from "next/head";
 import { useMemo } from "react";
 
@@ -7,39 +7,14 @@ import { SidebarNav } from "~/components/profile/sidebar-nav";
 import { Separator } from "~/components/ui/separator";
 import { api } from "~/utils/api";
 
-const sidebarNavItems = [
-  {
-    title: "Profile",
-    href: "/profile",
-  },
-  {
-    title: "Store",
-    href: "/profile/store",
-  },
-  {
-    title: "Account",
-    href: "/profile/account",
-  },
-  {
-    title: "Appearance",
-    href: "/profile/appearance",
-  },
-  {
-    title: "Notifications",
-    href: "/profile/notifications",
-  },
-  {
-    title: "Display",
-    href: "/profile/display",
-  },
-];
-
 interface SettingsLayoutProps {
   children: React.ReactNode;
 }
 
 export default function ProfileLayout({ children }: SettingsLayoutProps) {
-  const store = api.store.getCurrentUserStore.useQuery();
+  const shop = api.shops.getCurrentUserShop.useQuery();
+
+  const survey = api.surveys.getCurrentUserSurvey.useQuery();
 
   const navItems = useMemo(() => {
     return [
@@ -47,33 +22,38 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         title: "Profile",
         href: "/profile",
       },
-      store && store.data
+      shop && shop.data
         ? {
-            title: "Store",
-            href: "/profile/store/" + store.data.id,
+            title: "Shop",
+            href: "/profile/shop/" + shop.data.id,
           }
         : {
-            title: "Store",
-            href: "/profile/store",
+            title: "Shop",
+            href: "/profile/shop",
           },
       {
-        title: "Account",
-        href: "/profile/account",
+        title: "Survey",
+        href: "/profile/survey",
       },
-      {
-        title: "Appearance",
-        href: "/profile/appearance",
-      },
-      {
-        title: "Notifications",
-        href: "/profile/notifications",
-      },
-      {
-        title: "Display",
-        href: "/profile/display",
-      },
+
+      // {
+      //   title: "Account",
+      //   href: "/profile/account",
+      // },
+      // {
+      //   title: "Appearance",
+      //   href: "/profile/appearance",
+      // },
+      // {
+      //   title: "Notifications",
+      //   href: "/profile/notifications",
+      // },
+      // {
+      //   title: "Display",
+      //   href: "/profile/display",
+      // },
     ];
-  }, [store]);
+  }, [shop, survey]);
 
   return (
     <>

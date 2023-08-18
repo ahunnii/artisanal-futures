@@ -10,8 +10,8 @@ const sidebarNavItems = [
     href: "/admin",
   },
   {
-    title: "Stores",
-    href: "/admin/stores",
+    title: "Shops",
+    href: "/admin/shops",
   },
 ];
 
