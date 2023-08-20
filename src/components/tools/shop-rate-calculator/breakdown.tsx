@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
 
-import CalculateUtil from "~/utils/calculations";
+import { formatPrice } from "~/utils/calculations";
 
 interface IProps {
   monthlyCost: number;
@@ -20,14 +20,12 @@ const Breakdown: FC<IProps> = ({
 
   const calculatedPrices = useMemo(() => {
     return {
-      fixed_monthly: CalculateUtil.formatPrice(monthlyCost),
-      fixed_hourly: CalculateUtil.formatPrice(monthlyHourly),
-      material_monthly: CalculateUtil.formatPrice(materialCost),
-      material_hourly: CalculateUtil.formatPrice(materialHourly),
-      labor_hourly: CalculateUtil.formatPrice(laborHourly),
-      subtotal: CalculateUtil.formatPrice(
-        monthlyHourly + materialHourly + laborHourly
-      ),
+      fixed_monthly: formatPrice(monthlyCost),
+      fixed_hourly: formatPrice(monthlyHourly),
+      material_monthly: formatPrice(materialCost),
+      material_hourly: formatPrice(materialHourly),
+      labor_hourly: formatPrice(laborHourly),
+      subtotal: formatPrice(monthlyHourly + materialHourly + laborHourly),
     };
   }, [monthlyCost, monthlyHourly, materialCost, materialHourly, laborHourly]);
 

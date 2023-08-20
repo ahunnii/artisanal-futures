@@ -24,7 +24,7 @@ export default function ToolsPage() {
               subtitle="Calculates per hour cost of your shop"
               type="Finance"
               image="img/shop_rate.png"
-              url={"/shop-rate-calculator"}
+              url={"/tools/shop-rate-calculator"}
             />{" "}
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
@@ -43,7 +43,7 @@ export default function ToolsPage() {
               subtitle="Break down an image into its bill of materials"
               type="Logistics"
               image="img/craft_composition.png"
-              url={"/craft-recomposition"}
+              url={"/tools/craft-recomposition"}
             />{" "}
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
@@ -52,7 +52,7 @@ export default function ToolsPage() {
               subtitle="Generate cloth patterns using AI"
               type="Design"
               image="img/ai_cloth.png"
-              url={"/pattern-generator"}
+              url={"/tools/pattern-generator"}
             />
           </div>
         </div>

@@ -21,61 +21,59 @@ import { Input } from "~/components/ui/input";
 import { toast } from "~/components/ui/use-toast";
 import {
   useShopCalculator,
-  type MaterialCosts,
+  type MonthlyCosts,
 } from "~/hooks/use-shop-calculator";
 
 const accountFormSchema = z.object({
-  hours: z.number().optional(),
-  expenses: z
-    .array(
-      z
-        .object({
-          name: z.string(),
-          amount: z.number(),
-        })
-        .optional()
-    )
-    .optional(),
+  rent: z.number(),
+  gas: z.number(),
+  electric: z.number(),
+  maintenance: z.number(),
+  cart: z.array(
+    z
+      .object({
+        name: z.string(),
+        amount: z.number(),
+      })
+      .optional()
+  ),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-export function MaterialsCostForm() {
-  const { materialExpenses, setMaterials, setMaterialExpenses } =
-    useShopCalculator((state) => state);
+export function MonthlyCostForm() {
+  const { monthlyExpenses, setMonthly, setMonthlyExpenses } = useShopCalculator(
+    (state) => state
+  );
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues: materialExpenses,
+    defaultValues: monthlyExpenses,
   });
   const { fields, append, remove } = useFieldArray({
-    name: "expenses",
+    name: "cart",
     control: form.control,
     rules: {
-      required: "Please add at least 1 item",
+      required: "Please append at least 1 item",
     },
   });
 
   const getTotal = useCallback(() => {
     const values = form.getValues();
 
-    const materialExpenses =
-      values.expenses && values.expenses.length > 0
-        ? values.expenses.reduce((total, item) => {
-            return (
-              total + (Number.isNaN(item?.amount ?? 0) ? 0 : item?.amount ?? 0)
-            );
-          }, 0)
-        : 0;
+    const extraValues = form.getValues().cart.reduce((total, item) => {
+      return total + (Number.isNaN(item?.amount ?? 0) ? 0 : item?.amount ?? 0);
+    }, 0);
 
-    const hours = values.hours ?? 1;
+    const baseValues =
+      values.rent + values.gas + values.electric + values.maintenance;
 
-    return materialExpenses / hours;
+    return extraValues + baseValues;
   }, [form]);
 
   function onSubmit(data: AccountFormValues) {
-    setMaterialExpenses(data as MaterialCosts);
-    setMaterials(getTotal());
+    setMonthlyExpenses(data as MonthlyCosts);
+    setMonthly(getTotal());
 
     toast({
       title: "You submitted the following values:",
@@ -96,21 +94,81 @@ export function MaterialsCostForm() {
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <FormField
             control={form.control}
-            name="hours"
+            name="rent"
             render={({ field }) => (
               <FormItem className="sm:col-span-full">
-                <FormLabel>Hours</FormLabel>
+                <FormLabel>Monthly Rent</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter hours per project"
+                    placeholder="Enter rent per month"
                     {...field}
                     onChange={(e) => {
-                      form.setValue(`hours`, parseInt(e.target.value));
+                      form.setValue(`rent`, parseInt(e.target.value));
                     }}
                     type="number"
                   />
                 </FormControl>
 
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gas"
+            render={({ field }) => (
+              <FormItem className="sm:col-span-full">
+                <FormLabel>Monthly Gas</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter gas per month"
+                    {...field}
+                    onChange={(e) => {
+                      form.setValue(`gas`, parseInt(e.target.value));
+                    }}
+                    type="number"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="electric"
+            render={({ field }) => (
+              <FormItem className="sm:col-span-full">
+                <FormLabel>Monthly Electric</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter electric per month"
+                    {...field}
+                    onChange={(e) => {
+                      form.setValue(`electric`, parseInt(e.target.value));
+                    }}
+                    type="number"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />{" "}
+          <FormField
+            control={form.control}
+            name="maintenance"
+            render={({ field }) => (
+              <FormItem className="sm:col-span-full">
+                <FormLabel>Monthly maintenance</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter maintenance per month"
+                    {...field}
+                    onChange={(e) => {
+                      form.setValue(`maintenance`, parseInt(e.target.value));
+                    }}
+                    type="number"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -123,7 +181,7 @@ export function MaterialsCostForm() {
               >
                 <FormField
                   control={form.control}
-                  name={`expenses.${index}.name`}
+                  name={`cart.${index}.name`}
                   render={({ field }) => (
                     <FormItem className="w-1/2">
                       <FormLabel>Expense</FormLabel>
@@ -138,7 +196,7 @@ export function MaterialsCostForm() {
 
                 <FormField
                   control={form.control}
-                  name={`expenses.${index}.amount`}
+                  name={`cart.${index}.amount`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cost</FormLabel>
@@ -149,7 +207,7 @@ export function MaterialsCostForm() {
                           type="number"
                           onChange={(e) => {
                             form.setValue(
-                              `expenses.${index}.amount`,
+                              `cart.${index}.amount`,
                               parseInt(e.target.value)
                             );
                           }}
