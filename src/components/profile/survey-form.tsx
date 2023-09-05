@@ -43,6 +43,7 @@ const formSchema = z.object({
   hiddenForm: z.boolean().default(false),
   privateForm: z.boolean().default(false),
   supplyChain: z.boolean().default(false),
+  messagingOptIn: z.boolean().default(false),
 });
 
 type SettingsFormValues = z.infer<typeof formSchema>;
@@ -307,6 +308,28 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                     <FormDescription>
                       This marks that you are interested in becoming part of the
                       artisan supply chain.
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="messagingOptIn"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Opt In to Text Messages</FormLabel>
+                    <FormDescription>
+                      This marks that you are opting in to the messaging service
+                      aspect of our routing app and will receive text messages
+                      from us.
                     </FormDescription>
                   </div>
                 </FormItem>

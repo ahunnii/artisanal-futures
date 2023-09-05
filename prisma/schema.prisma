@@ -76,6 +76,7 @@ model Survey {
   hiddenForm   Boolean @default(false)
   privateForm  Boolean @default(false)
   supplyChain Boolean @default(false)
+  messagingOptIn Boolean @default(false)
   ownerId     String 
   shopId     String
   createdAt  DateTime   @default(now())

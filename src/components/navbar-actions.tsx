@@ -6,6 +6,7 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -35,7 +36,8 @@ const NavbarActions = () => {
       </SignedIn>
       <SignedOut>
         {/* Signed out users get sign in button */}
-        <SignInButton />
+        {/* <SignInButton /> */}
+        <Link href="/sign-in">Sign In</Link>
       </SignedOut>
     </div>
   );

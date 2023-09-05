@@ -53,6 +53,7 @@ export const surveysRouter = createTRPCRouter({
         hiddenForm: z.boolean().default(false),
         privateForm: z.boolean().default(false),
         supplyChain: z.boolean().default(false),
+        messagingOptIn: z.boolean().default(false),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -90,6 +91,8 @@ export const surveysRouter = createTRPCRouter({
               moderatedForm: input.moderatedForm,
               hiddenForm: input.hiddenForm,
               privateForm: input.privateForm,
+              supplyChain: input.supplyChain,
+              messagingOptIn: input.messagingOptIn,
             },
           });
         })
