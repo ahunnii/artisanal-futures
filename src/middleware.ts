@@ -9,6 +9,8 @@ export const config = {
 };
 
 const isPasswordEnabled = !!process.env.NEXT_PUBLIC_PASSWORD_PROTECT;
+
+
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith("/sign-up")) {
     const isLoggedIn = req.cookies.has("login");

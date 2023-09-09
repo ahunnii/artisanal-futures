@@ -26,7 +26,7 @@ import {
 import { Heading } from "~/components/ui/heading";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
-import { useOrigin } from "~/hooks/use-origin";
+
 import { api } from "~/utils/api";
 import LogoUpload from "../ui/logo-upload";
 import { Textarea } from "../ui/textarea";
@@ -56,7 +56,6 @@ interface SettingsFormProps {
 export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const params = useRouter();
   const router = useNavigationRouter();
-  const origin = useOrigin();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

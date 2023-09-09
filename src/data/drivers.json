@@ -1,0 +1,41 @@
+[
+	{
+		"name": "David Martinez",
+		"address": "2555 Oak Valley Dr, Ann Arbor, MI 48103",
+		"coordinates": { "latitude": 42.24977, "longitude": -83.77077 },
+		"time_window": { "startTime": "08:00", "endTime": "18:00" },
+		"max_travel_time": 30,
+		"max_stops": 5,
+		"break_slots": [{ "time_windows": [{ "startTime": "09:00", "endTime": "10:00" }], "service": 30 }]
+	},
+	{
+		"name": "Dorio Lucas",
+		"address": "3300 Ann Arbor Saline Rd, Ann Arbor, MI 48103",
+		"coordinates": { "latitude": 42.23938, "longitude": -83.77182 },
+		"time_window": { "startTime": "08:00", "endTime": "18:00" },
+		"max_travel_time": 60,
+		"max_stops": 3,
+		"break_slots": [
+			{
+				"time_windows": [{ "startTime": "11:30", "endTime": "12:00" }],
+				"service": 30
+			},
+			{
+				"time_windows": [
+					{ "startTime": "14:00", "endTime": "16:00" },
+					{ "startTime": "19:00", "endTime": "20:00" }
+				],
+				"service": 15
+			}
+		]
+	},
+	{
+		"name": "Lucy Smith",
+		"address": "3400 Nixon Rd, Ann Arbor, MI 48105",
+		"coordinates": { "latitude": 42.323231, "longitude": -83.707939 },
+		"time_window": { "startTime": "08:00", "endTime": "18:00" },
+		"max_travel_time": 45,
+		"max_stops": 6,
+		"break_slots": [{ "time_windows": [{ "startTime": "14:00", "endTime": "15:00" }], "service": 30 }]
+	}
+]

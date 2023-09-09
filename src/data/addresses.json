@@ -1,0 +1,71 @@
+[
+	{
+		"customer_name": "Bob Ross",
+		"address": "2121 Oak Valley Dr, Ann Arbor, MI 48103, United States",
+		"coordinates": { "latitude": 42.2542447, "longitude": -83.7778416 },
+		"drop_off_duration": 30,
+		"priority": 1,
+		"time_windows": [
+			{ "startTime": "09:00", "endTime": "10:00" },
+			{ "startTime": "12:00", "endTime": "14:00" }
+		]
+	},
+	{
+		"customer_name": "Tonya Harding",
+		"address": "767 N University Ave, Ann Arbor, MI 48109, United States",
+		"coordinates": { "latitude": 42.2787389, "longitude": -83.7401024 },
+		"drop_off_duration": 5,
+		"priority": 87,
+		"time_windows": [{ "startTime": "09:00", "endTime": "10:00" }]
+	},
+	{
+		"customer_name": "Carlos Santana",
+		"address": "1201 S Main St, Ann Arbor, MI 48104, United States",
+		"coordinates": { "latitude": 42.2666423, "longitude": -83.7499573 },
+		"drop_off_duration": 5,
+		"priority": 23,
+		"time_windows": [{ "startTime": "08:00", "endTime": "18:00" }]
+	},
+	{
+		"customer_name": "Megan Wolf",
+		"address": "220 E Ann St, Ann Arbor, MI 48104, United States",
+		"coordinates": { "latitude": 42.2819481, "longitude": -83.7465398 },
+		"drop_off_duration": 20,
+		"priority": 15,
+		"time_windows": [
+			{ "startTime": "12:30", "endTime": "13:45" },
+			{ "startTime": "16:00", "endTime": "18:00" },
+			{ "startTime": "08:00", "endTime": "10:00" }
+		]
+	},
+	{
+		"customer_name": "Albert Einstein",
+		"address": "1800 N Dixboro Rd, Ann Arbor, MI 48105, United States",
+		"coordinates": { "latitude": 42.2991074, "longitude": -83.6658018 },
+		"drop_off_duration": 3,
+		"priority": 59,
+		"time_windows": [{ "startTime": "14:00", "endTime": "16:00" }]
+	},
+	{
+		"customer_name": "Kat Williams",
+		"address": "304 S Ashley St, Ann Arbor, MI 48104, United States",
+		"coordinates": { "latitude": 42.2794184, "longitude": -83.7500808 },
+		"drop_off_duration": 40,
+		"priority": 99,
+		"time_windows": [
+			{ "startTime": "14:00", "endTime": "15:00" },
+			{ "startTime": "09:00", "endTime": "10:00" }
+		]
+	},
+	{
+		"customer_name": "Tim Allen",
+		"address": "8801 N Territorial Rd, Dexter, MI 48130, United States",
+		"coordinates": { "latitude": 42.3846897, "longitude": -83.9069447 },
+		"drop_off_duration": 14,
+		"priority": 7,
+		"time_windows": [
+			{ "startTime": "09:00", "endTime": "12:00" },
+			{ "startTime": "14:00", "endTime": "16:00" }
+		]
+	}
+]

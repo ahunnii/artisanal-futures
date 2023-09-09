@@ -1,0 +1,4 @@
+name,address,latitude,longitude,time_window,max_travel_time,max_stops,break_slots
+David Martinez,"2555 Oak Valley Dr, Ann Arbor, MI 48103",42.24977,-83.77077,08:00-18:00,30,5,09:00-10:00 (30 min)
+Dorio Lucas,"3300 Ann Arbor Saline Rd, Ann Arbor, MI 48103",42.23938,-83.77182,08:00-18:00,60,3,11:30-12:00 (30 min)
+Lucy Smith,"3400 Nixon Rd, Ann Arbor, MI 48105",42.323231,-83.707939,08:00-18:00,45,6,14:00-15:00 (30 min)

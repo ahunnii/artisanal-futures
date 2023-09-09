@@ -27,7 +27,7 @@ import {
 import { Heading } from "~/components/ui/heading";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
-import { useOrigin } from "~/hooks/use-origin";
+
 import { api } from "~/utils/api";
 import { Checkbox } from "../ui/checkbox";
 import LogoUpload from "../ui/logo-upload";
@@ -57,7 +57,6 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     shopId: initialData.shopId,
   });
   const router = useNavigationRouter();
-  const origin = useOrigin();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

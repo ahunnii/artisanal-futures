@@ -1,0 +1,13 @@
+customer_name,address,coordinates,drop_off_duration,priority,startTime,endTime
+Bob Ross,"2121 Oak Valley Dr, Ann Arbor, MI 48103, United States","{'latitude': 42.2542447, 'longitude': -83.7778416}",30,1,09:00,10:00
+Bob Ross,"2121 Oak Valley Dr, Ann Arbor, MI 48103, United States","{'latitude': 42.2542447, 'longitude': -83.7778416}",30,1,12:00,14:00
+Tonya Harding,"767 N University Ave, Ann Arbor, MI 48109, United States","{'latitude': 42.2787389, 'longitude': -83.7401024}",5,87,09:00,10:00
+Carlos Santana,"1201 S Main St, Ann Arbor, MI 48104, United States","{'latitude': 42.2666423, 'longitude': -83.7499573}",5,23,08:00,18:00
+Megan Wolf,"220 E Ann St, Ann Arbor, MI 48104, United States","{'latitude': 42.2819481, 'longitude': -83.7465398}",20,15,12:30,13:45
+Megan Wolf,"220 E Ann St, Ann Arbor, MI 48104, United States","{'latitude': 42.2819481, 'longitude': -83.7465398}",20,15,16:00,18:00
+Megan Wolf,"220 E Ann St, Ann Arbor, MI 48104, United States","{'latitude': 42.2819481, 'longitude': -83.7465398}",20,15,08:00,10:00
+Albert Einstein,"1800 N Dixboro Rd, Ann Arbor, MI 48105, United States","{'latitude': 42.2991074, 'longitude': -83.6658018}",3,59,14:00,16:00
+Kat Williams,"304 S Ashley St, Ann Arbor, MI 48104, United States","{'latitude': 42.2794184, 'longitude': -83.7500808}",40,99,14:00,15:00
+Kat Williams,"304 S Ashley St, Ann Arbor, MI 48104, United States","{'latitude': 42.2794184, 'longitude': -83.7500808}",40,99,09:00,10:00
+Tim Allen,"8801 N Territorial Rd, Dexter, MI 48130, United States","{'latitude': 42.3846897, 'longitude': -83.9069447}",14,7,09:00,12:00
+Tim Allen,"8801 N Territorial Rd, Dexter, MI 48130, United States","{'latitude': 42.3846897, 'longitude': -83.9069447}",14,7,14:00,16:00

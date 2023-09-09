@@ -34,7 +34,8 @@ export default function ToolsPage() {
               subtitle="Optimize your delivery route"
               type="Logistics"
               image="img/route_optimization.png"
-              url={"https://af-routing-app.vercel.app/"}
+              url={"/tools/routing"}
+              // url={"https://af-routing-app.vercel.app/"}
             />{" "}
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">

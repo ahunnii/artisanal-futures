@@ -127,8 +127,6 @@ const EmailForm = ({ loading }: { loading: boolean }) => {
   });
 
   const onSubmit = async (values: EmailFormValues) => {
-    console.log(values);
-
     const req = await fetch("/api/send-inquiry", {
       method: "POST",
       headers: {
