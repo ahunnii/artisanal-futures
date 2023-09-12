@@ -25,7 +25,7 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
     SUPABASE_URL: z.string().url(),
     SUPABASE_API_KEY: z.string().min(1),
-    NEXT_OPEN_ROUTE_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_OPEN_ROUTE_API_KEY: z.string().min(1),
     // GOOGLE_MAP_API_KEY: z.string().min(1),
   },
 
@@ -37,7 +37,7 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_GOOGLE_MAP_API_KEY: z.string().min(1),
-    NEXT_OPEN_ROUTE_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_OPEN_ROUTE_API_KEY: z.string().min(1),
   },
 
   /**
@@ -55,7 +55,7 @@ export const env = createEnv({
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_API_KEY: process.env.SUPABASE_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAP_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-    NEXT_OPEN_ROUTE_API_KEY: process.env.NEXT_OPEN_ROUTE_API_KEY,
+    NEXT_PUBLIC_OPEN_ROUTE_API_KEY: process.env.NEXT_PUBLIC_OPEN_ROUTE_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

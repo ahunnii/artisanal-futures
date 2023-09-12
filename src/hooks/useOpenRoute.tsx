@@ -10,7 +10,7 @@ import { Break, Coordinates, Location, TimeWindow } from "../types";
 const ROOT_URL = "https://api.openrouteservice.org";
 const PROFILE = "driving-car";
 
-const API_KEY = env.NEXT_OPEN_ROUTE_API_KEY;
+const API_KEY = env.NEXT_PUBLIC_OPEN_ROUTE_API_KEY;
 
 const getUniqueKey = async (obj: Object) => {
   // Convert the object to a string using JSON.stringify
@@ -198,6 +198,8 @@ const useOpenRoute = () => {
         g: true,
       },
     };
+
+    console.log(params);
 
     const headers = {
       Accept:

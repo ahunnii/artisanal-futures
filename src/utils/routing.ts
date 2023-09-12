@@ -43,7 +43,8 @@ export const parseDriver = (data: any) => ({
       const [startTime, endTime] = tw.split("-");
       return { startTime, endTime };
     });
-    const breakLength = service.split(")")[0];
+    const breakLength = service.split(")")[0]?.split("min")[0];
+    console.log(breakLength);
     return {
       id: parseInt(uniqueId()),
       time_windows: window,
@@ -83,6 +84,8 @@ export const parseCSVFile = (
 
       if (type === "driver") onComplete(parsedData as Driver[]);
       else if (type === "stop") onComplete(parsedData as Location[]);
+
+      console.log(parsedData);
     },
   });
 };
