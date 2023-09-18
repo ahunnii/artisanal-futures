@@ -49,11 +49,11 @@ export default function ToolsPage() {
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
             <ToolCard
-              title="AI for Cloth"
+              title="Sankofa Sizer"
               subtitle="Generate cloth patterns using AI"
               type="Design"
               image="img/ai_cloth.png"
-              url={"/tools/pattern-generator"}
+              url={"/tools/sankofa-sizer"}
             />
           </div>
         </div>

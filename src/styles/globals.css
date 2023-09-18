@@ -81,3 +81,7 @@ body,
 #app {
   min-height: 100vh;
 }
+
+.moveable-resizable {
+  opacity: 0;
+}

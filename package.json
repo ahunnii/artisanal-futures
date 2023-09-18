@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.23.2",
+    "@daybrush/utils": "^1.13.0",
     "@headlessui/react": "^1.7.16",
     "@hookform/resolvers": "^3.2.0",
     "@mapbox/polyline": "^1.2.0",
@@ -47,6 +48,7 @@
     "fs": "^0.0.1-security",
     "fs.promises": "^0.1.2",
     "geojson-bbox": "^0.0.1",
+    "interactjs": "^1.10.18",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^3.8.0",
     "lodash": "^4.17.21",
@@ -63,6 +65,7 @@
     "react-hot-toast": "^2.4.1",
     "react-leaflet": "^4.2.1",
     "react-minimal-pie-chart": "^8.4.0",
+    "react-moveable": "^0.54.1",
     "react-phone-number-input": "^3.3.6",
     "react-spinners": "^0.13.8",
     "recharts": "^2.7.3",

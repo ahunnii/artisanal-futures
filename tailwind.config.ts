@@ -16,6 +16,18 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: {
+        femaleForm:
+          "url('https://media.githubusercontent.com/media/robinsonkwame/af-parametric-sewing/main/static/model-breasts-standing.jpg')",
+        shoulderToWrist: "url('/img/shoulder_to_wrist.svg')",
+        bicep: "url('/img/biceps.svg')",
+        wrist: "url('/img/wrist.svg')",
+        ankle: "url('/img/ankle.svg')",
+        inseam: "url('/img/inseam.svg')",
+        knee: "url('/img/knee.svg')",
+        seatBack: "url('/img/seat_back.svg')",
+        blank: "url('/img/blank.svg')",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

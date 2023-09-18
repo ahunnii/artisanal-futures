@@ -183,3 +183,116 @@ export const useTableStore = create<LocationTableState>((set) => ({
   rows: [],
   setRows: (rows) => set({ rows }),
 }));
+
+// Sankofa Sizer
+
+// Define the state type
+
+export type Part = {
+  name: string;
+  id: number;
+  x: number;
+  y: number;
+  lineX: number;
+  lineY: number;
+  virtual_length: number;
+  actual_length: number;
+  selected: boolean;
+  type: "vertical" | "horizontal";
+};
+type SizerState = {
+  actual_pattern: {
+    blob: unknown;
+    width: number | null;
+    height: number | null;
+  };
+  show_popup_pattern: boolean;
+  pixels_per_inch: number;
+  toggle_overlay: string | null;
+  box_to_checkbox: {
+    bodyPart: string | null;
+    toggle: boolean;
+  };
+  add_image_toggle: boolean;
+  parts: Part[];
+  updateParts: (lengthUpdates: Part[] | Partial<Part>[]) => void;
+  addModifiedParts: (lengthUpdates: Part[] | Partial<Part>[]) => void;
+  updateValue: (key: string, value: unknown) => void;
+};
+
+export const useSizerStore = create<SizerState>((set) => ({
+  actual_pattern: {
+    blob: null,
+    width: null,
+    height: null,
+  },
+  show_popup_pattern: false,
+  pixels_per_inch: 12,
+  toggle_overlay: null,
+  box_to_checkbox: {
+    bodyPart: null,
+    toggle: false,
+  },
+  add_image_toggle: false,
+  parts: [
+    {
+      name: "Shoulder to wrist (arm)",
+      id: 1,
+      x: 0,
+      y: 0,
+      lineX: 0,
+      lineY: 0,
+      virtual_length: 21, // inches
+      actual_length: 21,
+      selected: false,
+      type: "vertical",
+    },
+    {
+      name: "Biceps",
+      id: 2,
+      x: 0,
+      y: 0,
+      lineX: 0,
+      lineY: 0,
+      virtual_length: 16, // inches
+      actual_length: 16,
+      selected: false,
+      type: "horizontal",
+    },
+    {
+      name: "Wrist width",
+      id: 3,
+      x: 0,
+      y: 0,
+      lineX: 0,
+      lineY: 0,
+      virtual_length: 8, // inches
+      actual_length: 8,
+      selected: false,
+      type: "horizontal",
+    },
+  ],
+
+  updateParts: (lengthUpdates) => {
+    set((state) => {
+      if (state.parts && state.parts.length > 0)
+        for (let i = 0; i < lengthUpdates.length; i++) {
+          state.parts[i].virtual_length = lengthUpdates[i]["length"];
+          state.parts[i].actual_length = lengthUpdates[i]["length"];
+        }
+      return { parts: state.parts };
+    });
+  },
+  addModifiedParts: (lengthUpdates) => {
+    set((state) => {
+      const modifiedParts = state.parts.map((part, index) => ({
+        ...part,
+        name: `${part.name} (new)`,
+        length: lengthUpdates[index].length,
+      }));
+      return { parts: [...state.parts, ...modifiedParts] };
+    });
+  },
+
+  updateValue: (key, value) => set({ [key]: value }),
+}));
