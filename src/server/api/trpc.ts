@@ -113,6 +113,7 @@ const isAuthed = t.middleware(({ next, ctx }) => {
   return next({
     ctx: {
       auth: ctx.auth,
+      isUserAdmin: ctx.auth.orgRole === "ADMIN",
     },
   });
 });

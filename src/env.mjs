@@ -26,6 +26,10 @@ export const env = createEnv({
     SUPABASE_URL: z.string().url(),
     SUPABASE_API_KEY: z.string().min(1),
     NEXT_PUBLIC_OPEN_ROUTE_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD: z.string().default("false"),
+    ENABLE_SLACK_POSTING: z.string().optional(),
+    SLACK_WEBHOOK_URL: z.string().optional(),
+    NEXT_APP_URL: z.string().url(),
     // GOOGLE_MAP_API_KEY: z.string().min(1),
   },
 
@@ -38,6 +42,7 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_GOOGLE_MAP_API_KEY: z.string().min(1),
     NEXT_PUBLIC_OPEN_ROUTE_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD: z.string().default("false"),
   },
 
   /**
@@ -56,6 +61,11 @@ export const env = createEnv({
     SUPABASE_API_KEY: process.env.SUPABASE_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAP_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
     NEXT_PUBLIC_OPEN_ROUTE_API_KEY: process.env.NEXT_PUBLIC_OPEN_ROUTE_API_KEY,
+    NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD:
+      process.env.NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD,
+    ENABLE_SLACK_POSTING: process.env.ENABLE_SLACK_POSTING,
+    SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL,
+    NEXT_APP_URL: process.env.NEXT_APP_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
