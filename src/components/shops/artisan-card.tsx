@@ -11,8 +11,8 @@ const ArtisanCard: FC<Shop> = ({
 }) => {
   return (
     <div className="w-full rounded bg-slate-50 p-4 shadow">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={cover_photo} alt="" className="aspect-square object-cover" />
-
       <div className="flex w-full items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold">{owner_name}</h3>

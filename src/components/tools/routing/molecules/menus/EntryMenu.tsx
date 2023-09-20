@@ -1,5 +1,5 @@
 import { Menu, Transition } from "@headlessui/react";
-import { EyeIcon, EyeOffIcon, Pencil } from "lucide-react";
+import { EyeIcon, Pencil } from "lucide-react";
 
 import { Fragment, type FC } from "react";
 

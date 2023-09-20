@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Body from "~/components/body";
 import Camera from "~/components/tools/style-transfer/camera";
 import CombineTwoStyles from "~/components/tools/style-transfer/combine-two-styles";
@@ -17,6 +16,7 @@ const StyleTransfer = () => {
           id="file-select"
           className="hidden"
           accept="image/x-png,image/gif,image/jpeg"
+          aria-label="File upload"
         />
         {/* <!-- As a heading --> */}
         <div
@@ -34,8 +34,8 @@ const StyleTransfer = () => {
             className="alert alert-warning"
             role="alert"
           >
-            This site may have problems functioning on mobile devices. Don't
-            worry, you can still read the description below!
+            This site may have problems functioning on mobile devices.
+            Don&apos;t worry, you can still read the description below!
           </div>
 
           <Tabs defaultValue="stylize" className="w-full">

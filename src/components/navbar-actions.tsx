@@ -1,17 +1,8 @@
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
-import { ShoppingBag } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
-import { Button } from "~/components/ui/button";
-// import useCart from "~/hooks/app/use-cart";
+import Link from "next/link";
+
+import { useEffect, useState } from "react";
 
 const NavbarActions = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -36,7 +27,7 @@ const NavbarActions = () => {
       </SignedIn>
       <SignedOut>
         {/* Signed out users get sign in button */}
-        {/* <SignInButton /> */}
+
         <Link href="/sign-in">Sign In</Link>
       </SignedOut>
     </div>

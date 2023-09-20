@@ -18,8 +18,10 @@ const CalculationsTab = () => {
   const setOptimization = useRequestStore((state) => state.setOptimization);
 
   const getRoutes = () => {
+    console.log("yeeta");
     getOptimization()
       .then((data) => {
+        console.log(data);
         setOptimization(data);
       })
       .catch((err) => {

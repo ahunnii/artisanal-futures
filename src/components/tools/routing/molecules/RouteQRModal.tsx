@@ -1,32 +1,31 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import PhoneInputWithCountry from "react-phone-number-input";
+// import PhoneInputWithCountry from "react-phone-number-input";
+import { toast } from "react-hot-toast";
 import "react-phone-number-input/style.css";
-// import { supabase } from "~/utils/db";
-import { jsonToFile } from "~/utils/routing";
-
-// import * as twilio from "twilio";
-import { NextApiResponse } from "next";
+// import type { NextApiResponse } from "next";
 import Link from "next/link";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import type { VehicleInfo } from "~/types";
 import RouteQRCode from "./RouteQRCode";
 
-const validE164 = (num: string) => {
-  return /^\+?[1-9]\d{1,14}$/.test(num);
-};
+// const validE164 = (num: string) => {
+//   return /^\+?[1-9]\d{1,14}$/.test(num);
+// };
 
 interface IProps {
   data: VehicleInfo;
 }
 
-interface SupabaseData {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-}
+// interface SupabaseData {
+//   id: string;
+//   name: string;
+//   created_at: string;
+//   updated_at: string;
+// }
 
-type TestType = SupabaseData | NextApiResponse;
+// type TestType = SupabaseData | NextApiResponse;
 
 const RouteQRModal = ({ data }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,30 +89,53 @@ const RouteQRModal = ({ data }: IProps) => {
     }
   };
 
-  const sendLink = async () => {
-    if (!value) return;
-    if (!validE164(value)) {
-      alert("Please enter a valid phone number");
-      return;
-    }
+  // const sendLink = async () => {
+  //   if (!value) return;
+  //   if (!validE164(value)) {
+  //     alert("Please enter a valid phone number");
+  //     return;
+  //   }
 
-    const res = await fetch("/api/sendMessage", {
+  //   const res = await fetch("/api/sendMessage", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       to: value,
+  //       body: `Here is your route for today: https://af-routing-app.vercel.app/route?data=${fileID}`,
+  //     }),
+  //   });
+
+  //   const data = await res.json();
+
+  //   if (data.success) {
+  //     alert("Message was sent successfully!");
+  //   } else {
+  //     alert("There seems to be an error. Please try again later.");
+  //   }
+  // };
+  const sendEmail = async () => {
+    if (!value) return;
+
+    const res = await fetch("/api/send-inquiry", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: value,
+        email: value,
         body: `Here is your route for today: https://af-routing-app.vercel.app/route?data=${fileID}`,
       }),
     });
 
     const data = await res.json();
 
-    if (data.success) {
-      alert("Message was sent successfully!");
+    if (data.id) {
+      toast.success("Message was sent successfully!");
     } else {
-      alert("There seems to be an error. Please try again later.");
+      console.log(data);
+      toast.error("There seems to be an error. Please try again later.");
     }
   };
 
@@ -191,9 +213,9 @@ const RouteQRModal = ({ data }: IProps) => {
 
                   <div className="py-5">
                     <label className="block py-2 text-lg font-medium text-slate-700">
-                      Driver&apos;s Phone Number
+                      Driver&apos;s Email
                     </label>
-                    <div className="  flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
+                    {/* <div className="  flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
                       <PhoneInputWithCountry
                         className="flex flex-1 text-sm"
                         placeholder="Enter phone number"
@@ -213,6 +235,22 @@ const RouteQRModal = ({ data }: IProps) => {
                       >
                         Send Link
                       </button>
+                    </div> */}
+
+                    <div className=" flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
+                      <Input
+                        className="flex flex-1 text-sm"
+                        placeholder="Enter email address"
+                        type="email"
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                      />
+                      <Button
+                        className="rounded bg-green-500 px-2 font-semibold text-white"
+                        onClick={() => void sendEmail()}
+                      >
+                        Send Link
+                      </Button>
                     </div>
                   </div>
                   <div className="mt-4 flex w-full gap-x-2">

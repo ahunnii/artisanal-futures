@@ -17,8 +17,8 @@ export const calculateMaterial = (
   additionalCosts: number,
   rate: number
 ) => {
-  let total = initialTotal + additionalCosts;
-  let hourly = (initialTotal + additionalCosts) / rate || 0;
+  const total = initialTotal + additionalCosts;
+  const hourly = (initialTotal + additionalCosts) / rate || 0;
 
   return {
     hourly: isFinite(hourly) ? hourly : 0,
@@ -32,13 +32,13 @@ export const calculateLabor = (laborTotal: number) => {
 };
 
 export const calculateHourlyRatio = (cost: number, hours: number) => {
-  let calc = (cost / hours) * 100;
+  const calc = (cost / hours) * 100;
 
   if (isFinite(calc)) return calc;
   return 0;
 };
 
-export const CalculateUtil = {
+const CalculateUtil = {
   formatPrice,
   calculateMonthly,
   calculateMaterial,
@@ -46,4 +46,4 @@ export const CalculateUtil = {
   calculateHourlyRatio,
 };
 
-// export default CalculateUtil;
+export default CalculateUtil;

@@ -1,7 +1,7 @@
 import { SignUp } from "@clerk/nextjs";
 import Head from "next/head";
 import Image from "next/image";
-import Body from "~/components/body";
+
 import AuthLayout from "~/layouts/auth-layout";
 const SignUpPage = () => (
   <>

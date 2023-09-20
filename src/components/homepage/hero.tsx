@@ -37,6 +37,7 @@ const Hero: FC = () => {
         </div>
       </div>{" "}
       <div className="block border border-solid border-transparent lg:absolute lg:bottom-0 lg:right-0 lg:top-0 lg:w-1/2">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="img/hero.jpg"
           alt="Hero image of man from African Futurist Collective"

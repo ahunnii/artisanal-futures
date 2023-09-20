@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Loader } from "~/components/ui/loader";
 import {
   Select,
@@ -14,8 +14,7 @@ const TransformerSelector = () => {
   const {
     modelType,
     isModelLoading,
-    modelData,
-    transformerData,
+
     transformerType,
     isTransformerLoading,
     setValue,

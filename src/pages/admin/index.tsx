@@ -1,7 +1,7 @@
 import { useOrganizationList } from "@clerk/nextjs";
-import { buildClerkProps, clerkClient, getAuth } from "@clerk/nextjs/server";
+import { getAuth } from "@clerk/nextjs/server";
 import type { GetServerSidePropsContext } from "next";
-import { redirect } from "next/navigation";
+
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ProfileForm } from "~/components/profile/profile-form";
@@ -9,7 +9,7 @@ import PageLoader from "~/components/ui/page-loader";
 import { Separator } from "~/components/ui/separator";
 import AdminLayout from "~/layouts/admin-layout";
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps = (ctx: GetServerSidePropsContext) => {
   const { userId } = getAuth(ctx.req);
 
   if (!userId) {

@@ -22,12 +22,13 @@ const MoveableInput: FC<IProps> = ({
   bodyPart,
   // handleOnInput,
 }) => {
-  const [height, setHeight] = useState(10);
-  const [width, setWidth] = useState(10);
+  const [, setHeight] = useState(10);
+  const [, setWidth] = useState(10);
   const [inputValue, setInputValue] = useState("");
-  const targetRef = useRef(null);
-  const { bodyParts, updateBodyPart, pixels_per_inch, actual_pattern } =
-    useSizerStore((state) => state);
+  const targetRef = useRef<HTMLDivElement>(null);
+  const { bodyParts, updateBodyPart, pixels_per_inch } = useSizerStore(
+    (state) => state
+  );
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -66,22 +67,10 @@ const MoveableInput: FC<IProps> = ({
         style={{
           width: "200px",
           position: "absolute",
-          //   border: "1px solid red",
+
           display: "flex",
         }}
       >
-        {/* <div
-          style={{
-            width: "20px",
-            backgroundColor: "#e0e0e0",
-            cursor: "move",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ≡
-        </div> */}
         <div className="flex flex-col">
           <div className="flex flex-col">
             <span className="part-name">{bodyPart.name}</span>
@@ -96,16 +85,8 @@ const MoveableInput: FC<IProps> = ({
           </div>
 
           <div
-            // style={{
-            //   width: "100%",
-            //   height: `${height}px`,
-            //   backgroundColor: "lightgray",
-            // }}
-
             style={{
               backgroundColor: "lightgray",
-              // height: `${height}px`,
-              // width: `${width}px`,
 
               width: `${
                 bodyPart.type === "horizontal"

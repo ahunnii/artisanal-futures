@@ -1,4 +1,3 @@
-import { CreditCard, DollarSign, Package } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import type { FC } from "react";
@@ -7,11 +6,6 @@ import { authenticateSession } from "~/utils/auth";
 
 import type { Shop } from "@prisma/client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Heading } from "~/components/ui/heading";
-import { Separator } from "~/components/ui/separator";
-
-import { clerkClient, currentUser, getAuth } from "@clerk/nextjs/server";
 import { ShopForm } from "~/components/profile/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import ProfileLayout from "~/layouts/profile-layout";

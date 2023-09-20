@@ -1,12 +1,9 @@
 import React, {
-  ChangeEvent,
-  Dispatch,
-  FC,
-  FormEvent,
-  FormEventHandler,
-  SetStateAction,
   useCallback,
   useState,
+  type Dispatch,
+  type FC,
+  type SetStateAction,
 } from "react";
 import NewExpense from "./form/new-expense";
 
@@ -33,23 +30,25 @@ const AddNewExpenses: FC<Props> = ({ handleCost }) => {
         return acc + parseFloat(`${current.price || 0}`);
       }, 0)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const target = e.target;
-    if (["name", "price"].includes(target.name)) {
-      const newExpenseDetails = [...expenseDetails];
-      const id = Number(target.dataset.id);
-      if (!isNaN(id)) {
-        newExpenseDetails[id] = {
-          ...newExpenseDetails[id],
-          [target.name]: target.value,
-        };
-        calculateCost(newExpenseDetails); // Calculate cost with newExpenseDetails
-        setExpenseDetails(newExpenseDetails);
-      }
-    }
-  };
+  // const handleStateChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   console.log(e);
+  //   const target = e.target;
+  //   if (["name", "price"].includes(target.name)) {
+  //     const newExpenseDetails = [...expenseDetails];
+  //     const id = Number(target.dataset.id);
+  //     if (!isNaN(id)) {
+  //       newExpenseDetails[id] = {
+  //         ...newExpenseDetails[id],
+  //         [target.name]: target.value,
+  //       };
+  //       calculateCost(newExpenseDetails); // Calculate cost with newExpenseDetails
+  //       setExpenseDetails(newExpenseDetails);
+  //     }
+  //   }
+  // };
 
   const addNewRow = () => {
     setExpenseDetails((prevState) => [
@@ -83,7 +82,9 @@ const AddNewExpenses: FC<Props> = ({ handleCost }) => {
         <NewExpense
           deleteCost={clickOnDelete}
           expenseDetails={expenseDetails}
-          handleChange={handleStateChange}
+          handleChange={(e) => {
+            console.log(e);
+          }}
         />
       </form>
     </>

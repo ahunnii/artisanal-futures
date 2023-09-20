@@ -1,25 +1,28 @@
-import { useEffect, useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { useSizerStore } from "~/components/tools/sankofa-sizer/store";
 const PatternSetter = () => {
-  const { actual_pattern, updateValue } = useSizerStore((state) => state);
+  const { updateValue } = useSizerStore((state) => state);
 
   const [imageUrl, setImageUrl] = useState<string>("");
 
-  function setSleeveBlock() {
-    setImageUrl("/img/sankofa-sizer-demo.jpg");
+  // function setSleeveBlock() {
+  //   setImageUrl("/img/sankofa-sizer-demo.jpg");
 
-    updateValue("actual_pattern", {
-      ...actual_pattern,
-      blob: "/img/sankofa-sizer-demo.jpg",
-    });
-  }
+  //   updateValue("actual_pattern", {
+  //     ...actual_pattern,
+  //     blob: "/img/sankofa-sizer-demo.jpg",
+  //   });
+  // }
 
-  function handleFileUpload(event) {
+  function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
+    if (!event?.target.files) return;
     const file = event.target.files[0]; // Get the uploaded file
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImageUrl(e.target.result); // Set the image URL to base64 data
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target) {
+          setImageUrl(e.target.result as string); // Set the image URL to base64 data
+        }
       };
       reader.readAsDataURL(file);
     }

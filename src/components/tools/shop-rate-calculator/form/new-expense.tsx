@@ -1,5 +1,5 @@
 import { Trash } from "lucide-react";
-import { FC } from "react";
+import type { ChangeEvent, FC } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import EditableLabel from "./editable-label";
@@ -13,7 +13,7 @@ type ExpenseDetail = {
 interface IProps {
   expenseDetails: ExpenseDetail[];
   deleteCost: (record: ExpenseDetail) => void;
-  handleChange: (e: any) => void;
+  handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 const NewExpense: FC<IProps> = ({
   expenseDetails,

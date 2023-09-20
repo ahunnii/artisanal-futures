@@ -1,8 +1,5 @@
-import fsPromises from "fs/promises";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "~/server/supabase/client";
-import type { VehicleInfo } from "~/types";
-import { jsonToFile } from "~/utils/routing";
 
 const routingHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {

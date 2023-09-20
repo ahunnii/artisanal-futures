@@ -1,6 +1,5 @@
-import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import { FC } from "react";
+import type { FC } from "react";
 
 import type { Shop } from "@prisma/client";
 import Body from "~/components/body";
@@ -46,7 +45,7 @@ const ShopsPage: FC<IProps> = ({ artisans }) => {
   );
 };
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps = async () => {
   const shops = await prisma.shop.findMany({
     where: {
       shopName: { not: "" },

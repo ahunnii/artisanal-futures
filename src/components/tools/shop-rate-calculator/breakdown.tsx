@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { useMemo, type FC } from "react";
 
 import { formatPrice } from "~/utils/calculations";
 
@@ -16,8 +16,6 @@ const Breakdown: FC<IProps> = ({
   materialHourly,
   laborHourly,
 }) => {
-  const gradient = "linear(to-r, blue.400,green.400)";
-
   const calculatedPrices = useMemo(() => {
     return {
       fixed_monthly: formatPrice(monthlyCost),

@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/tooltip";
 
 import { Shuffle } from "lucide-react";
-import { useEffect } from "react";
+
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {

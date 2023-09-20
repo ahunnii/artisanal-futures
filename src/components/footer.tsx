@@ -19,11 +19,11 @@ const Footer = () => {
           </div>
           <div className="flex-start flex flex-col gap-2">
             <h5 className="pb-2 text-lg font-semibold">Legal</h5>
-            <a href="/legal/collective-agreement">
+            <Link href="/legal/collective-agreement">
               The Artisanal Futures Collective Agreement
-            </a>
-            <a href="/legal/privacy">Privacy Policy</a>
-            <a href="/legal/terms-of-service">Terms of Service</a>
+            </Link>
+            <Link href="/legal/privacy">Privacy Policy</Link>
+            <Link href="/legal/terms-of-service">Terms of Service</Link>
           </div>
           <div className="flex-start flex flex-col gap-2">
             <h5 className="pb-2 text-lg font-semibold">Follow Us</h5>

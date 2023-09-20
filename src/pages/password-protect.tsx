@@ -11,7 +11,6 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,7 +34,7 @@ type PassCodeFormValues = z.infer<typeof formSchema>;
 type EmailFormValues = z.infer<typeof emailSchema>;
 
 const PasswordProtectPage = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const [emailView, setEmailView] = useState(false);
 
@@ -114,7 +113,6 @@ const AuthForm = ({ loading }: { loading: boolean }) => {
   );
 };
 const EmailForm = ({ loading }: { loading: boolean }) => {
-  const router = useRouter();
   const navigate = useNavigationRouter();
 
   const form = useForm<EmailFormValues>({

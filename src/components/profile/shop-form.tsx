@@ -1,8 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Shop } from "@prisma/client";
-import axios from "axios";
-import { pickBy } from "lodash";
+
 import { Trash } from "lucide-react";
 
 import { useState } from "react";
@@ -13,7 +12,7 @@ import * as z from "zod";
 import { useRouter as useNavigationRouter } from "next/navigation";
 import { useRouter } from "next/router";
 import { AlertModal } from "~/components/admin/modals/alert-modal";
-import { ApiAlert } from "~/components/ui/api-alert";
+
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -23,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Heading } from "~/components/ui/heading";
+
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
@@ -162,7 +161,7 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       <Separator />
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
           onChange={() => console.log(form.getValues())}
           className="w-full space-y-8"
         >

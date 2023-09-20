@@ -2,37 +2,16 @@ import Head from "next/head";
 
 import Body from "~/components/body";
 
-import type { Product } from "~/types";
-
 import { Popover, Transition } from "@headlessui/react";
 
-import axios from "axios";
 import { ChevronDown } from "lucide-react";
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import AiSort from "~/components/products/ai-sort";
 import ArtisanField from "~/components/products/artisan-field";
 import AttributeField from "~/components/products/attribute-field";
 import ProductCard from "~/components/products/product-card";
 import SearchBar from "~/components/products/search-bar";
 import useProducts from "~/hooks/useProducts";
-
-interface Product {
-  name: string;
-  description: string;
-  principles: string;
-  the_artisan: string;
-  url: string;
-  image: string;
-  craftID: string;
-  assessment: any;
-}
 
 const ProductsPage: React.FC = () => {
   const {
@@ -75,6 +54,7 @@ const ProductsPage: React.FC = () => {
       the_artisan: selectedArtisans,
       query: searchTerm,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPrinciples, selectedArtisans, searchTerm]);
 
   useEffect(() => {

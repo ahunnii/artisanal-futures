@@ -9,8 +9,8 @@ interface IProps {
   image: string;
   description: string;
   principles: string;
-  // materials: string;
-  assessment: Array<any>;
+
+  assessment: Array<unknown>;
   children: React.ReactNode;
   url: string;
 }
@@ -25,12 +25,6 @@ const ProductDetails: FC<IProps> = ({ children, ...product }) => {
   function openModal() {
     setIsOpen(true);
   }
-  //   const [assessmentReference, setAssessmentReference] = useState(
-  //     JSON.parse(product.assessment[0].data_reference).calculation
-  //   );
-  //   const [assessmentData, setAssessmentData] = useState(
-  //     JSON.parse(product.assessment[0].data).calculation
-  //   );
 
   return (
     <>
@@ -89,24 +83,19 @@ const ProductDetails: FC<IProps> = ({ children, ...product }) => {
                             </Disclosure.Button>
                             <Disclosure.Panel className="px-4 pb-2 pt-4 text-sm text-gray-500">
                               <ul className="list-disc px-4">
-                                {product.principles &&
-                                  product.principles
-                                    .split(",")
-
-                                    .map((attribute) => (
-                                      <li
-                                        key={attribute}
-                                        className="capitalize"
-                                      >
-                                        {attribute}
-                                      </li>
-                                    ))}
+                                {product.principles
+                                  ?.split(",")
+                                  .map((attribute) => (
+                                    <li key={attribute} className="capitalize">
+                                      {attribute}
+                                    </li>
+                                  ))}
                               </ul>
                             </Disclosure.Panel>
                           </>
                         )}
                       </Disclosure>
-                      <Disclosure as="div" className="mt-2">
+                      {/* <Disclosure as="div" className="mt-2">
                         {({ open }) => (
                           <>
                             <Disclosure.Button className="flex w-full justify-between rounded-lg bg-indigo-100 px-4 py-2 text-left text-sm font-medium text-indigo-900 hover:bg-indigo-200 focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75">
@@ -161,8 +150,9 @@ const ProductDetails: FC<IProps> = ({ children, ...product }) => {
                             </Disclosure.Panel>
                           </>
                         )}
-                      </Disclosure>
+                      </Disclosure> */}
                     </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={product.image}
                       alt=""

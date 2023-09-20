@@ -1,11 +1,14 @@
 import React, {
-  FC,
-  FocusEvent,
-  KeyboardEvent,
-  MouseEvent,
   useCallback,
+  type FC,
+  type FocusEvent,
+  type KeyboardEvent,
+  type MouseEvent,
 } from "react";
-import { Part, useSizerStore } from "~/components/tools/sankofa-sizer/store";
+import {
+  useSizerStore,
+  type Part,
+} from "~/components/tools/sankofa-sizer/store";
 
 interface IProps {
   handleOnHover: (overlay?: string) => void;

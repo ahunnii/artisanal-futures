@@ -1,68 +1,76 @@
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
 import type { Driver, DriverCSVData, Location, StopCSVData } from "~/types";
+
+import axios from "axios";
+import type { MutableRefObject } from "react";
 // address: row.address.replace(/\\,/g, ",") was used to replace all the commas in the address with a backslash
 
-type PossibleData = Driver | Location;
+export const parseDriver = (data: DriverCSVData) =>
+  ({
+    id: parseInt(uniqueId()),
+    address: data.address,
+    name: data.name,
+    max_travel_time: data.max_travel_time,
+    time_window: {
+      startTime: data.time_window.split("-")[0],
+      endTime: data.time_window.split("-")[1],
+    },
+    max_stops: data.max_stops,
 
-export const parseDriver = (data: DriverCSVData) => ({
-  id: parseInt(uniqueId()),
-  address: data.address,
-  name: data.name,
-  max_travel_time: data.max_travel_time,
-  time_window: {
-    startTime: data.time_window.split("-")[0],
-    endTime: data.time_window.split("-")[1],
-  },
-  max_stops: data.max_stops,
+    break_slots: data.break_slots.split(";").map((bs: string) => {
+      const [time, service] = bs.split("(");
+      const window = time?.split(",").map((tw: string) => {
+        const [startTime, endTime] = tw.split("-");
+        return { startTime, endTime };
+      });
+      const breakLength = service?.split(")")[0]?.split("min")[0];
 
-  break_slots: data.break_slots.split(";").map((bs: string) => {
-    const [time, service] = bs.split("(");
-    const window = time?.split(",").map((tw: string) => {
+      return {
+        id: parseInt(uniqueId()),
+        time_windows: window,
+        service: breakLength,
+      };
+    }),
+    coordinates: { latitude: data.latitude, longitude: data.longitude },
+  } as unknown as Driver);
+
+export const parseStop = (data: StopCSVData) =>
+  ({
+    id: parseInt(uniqueId()),
+    customer_name: data?.customer_name,
+    address: data.address,
+    drop_off_duration: data.drop_off_duration,
+    time_windows: data.time_windows.split(",").map((tw: string) => {
       const [startTime, endTime] = tw.split("-");
       return { startTime, endTime };
-    });
-    const breakLength = service?.split(")")[0]?.split("min")[0];
-
-    return {
-      id: parseInt(uniqueId()),
-      time_windows: window,
-      service: breakLength,
-    };
-  }),
-  coordinates: { latitude: data.latitude, longitude: data.longitude },
-});
-
-export const parseStop = (data: StopCSVData) => ({
-  id: parseInt(uniqueId()),
-  customer_name: data?.customer_name,
-  address: data.address,
-  drop_off_duration: data.drop_off_duration,
-  time_windows: data.time_windows.split(",").map((tw: string) => {
-    const [startTime, endTime] = tw.split("-");
-    return { startTime, endTime };
-  }),
-  priority: data.priority,
-  coordinates: { latitude: data.latitude, longitude: data.longitude },
-});
+    }),
+    priority: data.priority,
+    coordinates: { latitude: data.latitude, longitude: data.longitude },
+  } as Location);
 
 export const parseCSVFile = (
   file: File,
   type: string,
-  onComplete: (data: unknown) => void
+  onComplete: (data: Driver[] | Location[]) => void
 ) => {
   Papa.parse(file, {
     header: true,
     dynamicTyping: true,
     skipEmptyLines: true,
     complete: (results) => {
-      const parse = type === "driver" ? parseDriver : parseStop;
-      const parsedData: unknown[] = results.data.map((row: unknown) =>
-        parse(row)
-      );
+      if (type === "driver") {
+        const parsedData: Partial<Driver>[] = results.data.map((row) =>
+          parseDriver(row as DriverCSVData)
+        );
 
-      if (type === "driver") onComplete(parsedData as Driver[]);
-      else if (type === "stop") onComplete(parsedData as Location[]);
+        onComplete(parsedData as unknown as Driver[]);
+      } else if (type === "stop") {
+        const parsedData: Partial<Location>[] = results.data.map((row) =>
+          parseDriver(row as DriverCSVData)
+        );
+        onComplete(parsedData as unknown as Location[]);
+      }
     },
   });
 };
@@ -286,8 +294,11 @@ const getColor = (id: number) => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getStyle = (feature: any) => {
-  const textColorClass = getColor(feature.geometry.properties.color).fill;
+  const textColorClass = getColor(
+    feature?.geometry?.properties?.color as number
+  ).fill;
   return {
     fillColor: "transparent",
     weight: 5,
@@ -301,8 +312,8 @@ export { getColor, getStyle };
 // Convert time string from 24hr to 12hr
 export const convertTime = (time: string) => {
   const [hours, minutes] = time.split(":");
-  return `${parseInt(hours) % 12 || 12}:${minutes} ${
-    parseInt(hours) >= 12 ? "PM" : "AM"
+  return `${parseInt(hours!) % 12 || 12}:${minutes} ${
+    parseInt(hours!) >= 12 ? "PM" : "AM"
   }`;
 };
 export const formatTime = (seconds: number): string => {
@@ -314,29 +325,22 @@ export const formatTime = (seconds: number): string => {
   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
   return `${formattedHours}:${formattedMinutes} ${amOrPm}`;
 };
-function convertHMS(timeString: string) {
-  const arr: string[] = timeString.split(":");
-  const seconds: number = parseInt(arr[0]) * 3600 + parseInt(arr[1]) * 60;
-  return seconds;
-}
 
 // convert seconds to minutes
 export const convertMinutes = (seconds: number) => {
-  let minutes = Math.floor(seconds / 60);
+  const minutes = Math.floor(seconds / 60);
   return minutes;
 };
 export const convertSecondsToTime = (seconds: number) => {
   let hours = Math.floor(seconds / 3600);
-  let minutes = Math.floor((seconds % 3600) / 60);
-  let ampm = hours >= 12 ? "PM" : "AM";
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
-  let minutesStr = minutes < 10 ? "0" + minutes : minutes;
-  let strTime = hours + ":" + minutesStr + " " + ampm;
+  const minutesStr = minutes < 10 ? "0" + minutes : minutes;
+  const strTime = hours + ":" + minutesStr + " " + ampm;
   return strTime;
 };
-
-import axios from "axios";
 
 const fetchAddressData = async (query: string) => {
   const response = await axios.get(
@@ -372,18 +376,16 @@ const lookupAddress = async (lat: string, lon: string) => {
 };
 export { fetchAddressData, lookupAddress };
 
-import { MutableRefObject } from "react";
-
 export const getFormValues = (
   formRef: MutableRefObject<HTMLFormElement | null>
 ) => {
   const form = formRef.current;
   const inputs = form ? Array.from(form.elements) : [];
 
-  const values: any = {};
+  const values: Record<string, unknown> = {};
   inputs.forEach((element: Element) => {
     if (element instanceof HTMLInputElement) {
-      const input = element as HTMLInputElement;
+      const input = element;
       if (input.name) {
         values[input.name] = input.value;
       }
@@ -395,7 +397,7 @@ export const getFormValues = (
 
   return values;
 };
-export const getUniqueKey = async (obj: Object) => {
+export const getUniqueKey = async (obj: unknown) => {
   // Convert the object to a string using JSON.stringify
   const objString = JSON.stringify(obj);
 

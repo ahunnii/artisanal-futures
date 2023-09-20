@@ -1,16 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 
-// import getCategories from "~/actions/app/get-categories";
 import MainNav from "~/components/main-nav";
 import NavbarActions from "~/components/navbar-actions";
 import Container from "~/components/ui/container";
-// import { api } from "~/utils/api";
 
 const Navbar = () => {
-  //   const { data: categories } = api.categories.getAllCategories.useQuery({
-  //     shopId: process.env.NEXT_PUBLIC_STORE_ID!,
-  //   });
-
   const categories = [
     {
       id: "artisans",

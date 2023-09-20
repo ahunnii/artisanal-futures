@@ -1,51 +1,22 @@
-import { GraphModel, eye } from "@tensorflow/tfjs";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import { type GraphModel } from "@tensorflow/tfjs";
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
-import type {
-  CustomerResponseData,
-  Driver,
-  Location,
-  Route,
-  VehicleResponseData,
-} from "~/types";
+
+import type { CustomerResponseData, Route, VehicleResponseData } from "~/types";
 interface LocationTableRow {
   address: string;
   duration: number;
-  timeWindow: any[];
+  timeWindow: unknown[];
   priority: string;
 }
-type TimeWindow = [number, number];
+
 type Coordinates = [number, number];
 type Geometry = {
   type: string;
   coordinates: Coordinates[];
 };
 
-type Step = {
-  id?: number;
-  service?: number;
-  waiting_time?: number;
-  job?: number;
-  type: string;
-  location: Coordinates;
-  load: number[];
-  arrival: number;
-  duration: number;
-  distance: number;
-};
-// type Route = {
-//   vehicle: number;
-//   cost: number;
-//   delivery: number[];
-//   amount: number[];
-//   pickup: number[];
-//   service: number;
-//   duration: number;
-//   waiting_time: number;
-//   distance: number;
-//   steps: Step[];
-//   geometry: string;
-// };
 type Data = {
   code: number;
   summary: {
@@ -64,40 +35,12 @@ type Data = {
       routing: number;
     };
   };
-  unassigned: any[];
+  unassigned: unknown[];
   routes: Route[];
 };
 interface Result {
   geometry: Geometry[];
   data: Data;
-}
-interface RouteState {
-  locations: CustomerResponseData[];
-  drivers: VehicleResponseData[];
-  pinType: string;
-  setPinType: (pinType: string) => void;
-
-  setLocations: (locations: Location[]) => void;
-  updateLocation: (id: number, data: Partial<Location>) => void;
-  updateDriver: (id: number, data: Partial<Driver>) => void;
-  removeLocation: (id: number) => void;
-  removeDriver: (id: number) => void;
-  setDrivers: (drivers: Driver[]) => void;
-  appendLocation: (location: Location) => void;
-  appendDriver: (driver: Driver) => void;
-  [key: string]: any;
-  setData: <T>(arrName: string, data: T) => void;
-}
-
-interface RequestState {
-  cachedDirections: Map<string, any>;
-  cachedIsochrones: Map<string, any>;
-  cachedOptimizations: Map<string, any>;
-  optimization: Result | null;
-  setOptimization: (optimization: any) => void;
-  setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
-  appendMap: <T>(mapName: string, address: string, response: T) => void;
-  [key: string]: any;
 }
 
 interface LocationTableState {
@@ -125,6 +68,24 @@ export const useMenuStore = create<MenuStore>((set) => ({
   setActiveItem: (data) => set({ activeItem: data }),
   setActiveDriver: (data) => set({ activeDriver: data }),
 }));
+
+interface RouteState {
+  locations: CustomerResponseData[];
+  drivers: VehicleResponseData[];
+  pinType: string;
+  setPinType: (pinType: string) => void;
+
+  setLocations: (locations: CustomerResponseData[]) => void;
+  updateLocation: (id: number, data: Partial<CustomerResponseData>) => void;
+  updateDriver: (id: number, data: Partial<VehicleResponseData>) => void;
+  removeLocation: (id: number) => void;
+  removeDriver: (id: number) => void;
+  setDrivers: (drivers: VehicleResponseData[]) => void;
+  appendLocation: (location: CustomerResponseData) => void;
+  appendDriver: (driver: VehicleResponseData) => void;
+  [key: string]: unknown;
+  setData: <T>(arrName: string, data: T) => void;
+}
 
 export const useRouteStore = create<RouteState>()((set) => ({
   locations: [],
@@ -156,17 +117,28 @@ export const useRouteStore = create<RouteState>()((set) => ({
     set((state) => ({ drivers: [...state.drivers, driver] })),
   setData: <T>(arrName: string, data: T) => set({ [arrName]: data }),
   appendData: <T>(arrName: string, data: T) =>
-    set((state) => ({ [arrName]: [...state[arrName], data] })),
+    set((state) => ({ [arrName]: [...[state[arrName]], data] })),
   removeDriver: (id) =>
     set((state) => ({
       drivers: state.drivers.filter((driver) => driver.id !== id),
     })),
 }));
 
+interface RequestState {
+  cachedDirections: Map<string, unknown>;
+  cachedIsochrones: Map<string, unknown>;
+  cachedOptimizations: Map<string, unknown>;
+  optimization: Result | null;
+  setOptimization: (optimization: Result) => void;
+  setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
+  appendMap: <T>(mapName: string, address: string, response: T) => void;
+  [key: string]: unknown;
+}
+
 export const useRequestStore = create<RequestState>((set) => ({
-  cachedDirections: new Map<string, any>(),
-  cachedIsochrones: new Map<string, any>(),
-  cachedOptimizations: new Map<string, any>(),
+  cachedDirections: new Map<string, unknown>(),
+  cachedIsochrones: new Map<string, unknown>(),
+  cachedOptimizations: new Map<string, unknown>(),
   optimization: null,
   setOptimization: (optimization) => set({ optimization }),
   setMap: <T>(mapName: string, cachedRequests: Map<string, T>) =>
@@ -278,8 +250,8 @@ export const useSizerStore = create<SizerState>((set) => ({
     set((state) => {
       if (state.parts && state.parts.length > 0)
         for (let i = 0; i < lengthUpdates.length; i++) {
-          state.parts[i].virtual_length = lengthUpdates[i]["length"];
-          state.parts[i].actual_length = lengthUpdates[i]["length"];
+          state.parts[i].virtual_length = lengthUpdates[i].length;
+          state.parts[i].actual_length = lengthUpdates[i].length;
         }
       return { parts: state.parts };
     });

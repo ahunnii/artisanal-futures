@@ -1,18 +1,17 @@
-import { Shop } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import type { FC } from "react";
 import React from "react";
-import type { Profile } from "~/types";
+
 import { cn } from "~/utils/styles";
 
 type IProps = Shop & React.HTMLAttributes<HTMLDivElement>;
 
 const ProfileCard: FC<IProps> = ({
-  id,
   shopName,
   ownerName,
   bio,
   ownerPhoto,
-  website,
+
   className,
 }) => {
   return (
@@ -24,6 +23,7 @@ const ProfileCard: FC<IProps> = ({
         <p>{bio}</p>
       </div>
 
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={ownerPhoto ?? ""}
         alt=""

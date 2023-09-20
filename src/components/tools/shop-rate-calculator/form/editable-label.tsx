@@ -60,7 +60,6 @@
 // };
 // export default EditableLabel;
 
-import { Popover, Transition } from "@headlessui/react";
 import { Check, X } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -95,16 +94,19 @@ const EditableLabel = () => {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             className="mt-2 w-full rounded border px-2 py-1"
+            aria-label="Edit label"
           />
           <div className="mt-2 flex justify-end space-x-2">
             <button
               onClick={handleSubmit}
               className="rounded bg-green-500 p-2 text-white"
+              aria-label="Save label"
             >
               <Check />
             </button>
             <button
               onClick={handleCancel}
+              aria-label="Cancel edit"
               className="rounded bg-red-500 p-2 text-white"
             >
               <X />

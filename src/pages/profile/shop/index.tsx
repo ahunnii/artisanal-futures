@@ -2,7 +2,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { PlusCircle } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import { useEffect } from "react";
-import { ProfileForm } from "~/components/profile/profile-form";
+
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { useShopModal } from "~/hooks/use-shop-modal";
@@ -10,7 +10,7 @@ import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
 export default function ProfileShopPage() {
   const onOpen = useShopModal((state) => state.onOpen);
-  const isOpen = useShopModal((state) => state.isOpen);
+
   useEffect(() => {
     onOpen();
   }, [onOpen]);
@@ -26,8 +26,8 @@ export default function ProfileShopPage() {
         </div>
         <Separator />
         <p>
-          You currently don't have a shop setup yet. Create one to promote your
-          business to visitors on the site!
+          You currently don&apos;t have a shop setup yet. Create one to promote
+          your business to visitors on the site!
         </p>
 
         <Button onClick={onOpen} type="button">

@@ -1,42 +1,31 @@
-import { throttle } from "@daybrush/utils";
-import Image from "next/image";
-import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, type SyntheticEvent } from "react";
 import Moveable from "react-moveable";
-import { object } from "zod";
+
 import {
-  BodyPart,
   useSizerStore,
   type Part,
 } from "~/components/tools/sankofa-sizer/store";
-import { classNames } from "~/utils/styles";
+
 import MoveableInput from "./moveable-input";
 import VirtualizedInchMarker from "./virtualized-inch-marker";
+
+import Image from "next/image";
 
 const VirtualResize = () => {
   const [largestWidth, setLargestWidth] = useState<number>(0);
   const [largestHeight, setLargestHeight] = useState<number>(0);
-  const { bodyParts, updateBodyPart, pixels_per_inch, actual_pattern } =
-    useSizerStore((state) => state);
-
-  // const updateLength = (event: ChangeEvent<HTMLInputElement>, key: Part) => {
-  //   event.stopPropagation();
-  //   const newLength = Number(event.target.value);
-
-  //   if (newLength > 0) {
-  //     updateBodyPart(key, {
-  //       ...bodyParts[key],
-  //       actual_length: newLength,
-  //     } as BodyPart);
-  //   }
-  // };
+  const { bodyParts, pixels_per_inch, actual_pattern } = useSizerStore(
+    (state) => state
+  );
 
   // pre-scale the image so it's not such a pain to resize rulers onto it
-  const handleImageLoad = (event) => {
-    event.target.width = largestWidth * pixels_per_inch;
-    event.target.height = largestHeight * pixels_per_inch;
+  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+    if (!event.currentTarget) return;
+    event.currentTarget.width = largestWidth * pixels_per_inch;
+    event.currentTarget.height = largestHeight * pixels_per_inch;
 
-    actual_pattern.width = event.target.width;
-    actual_pattern.height = event.target.height;
+    actual_pattern.width = event.currentTarget.width;
+    actual_pattern.height = event.currentTarget.height;
 
     // actual_pattern.blob = event.target.src;
   };

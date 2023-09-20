@@ -1,14 +1,19 @@
 import polyline from "@mapbox/polyline";
 
 import dynamic from "next/dynamic";
-import React, { FC, Suspense, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+  type FC,
+} from "react";
 
 import ToolLayout from "~/layouts/tool-layout";
 import { supabase } from "~/server/supabase/client";
-import type { CalculatedStep, GeoJsonData, Step, VehicleInfo } from "~/types";
+import type { CalculatedStep, GeoJsonData, VehicleInfo } from "~/types";
 import {
   convertSecondsToTime,
-  convertTime,
   formatTime,
   lookupAddress,
 } from "~/utils/routing";
@@ -90,13 +95,9 @@ const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
 
   useEffect(() => {
     if (data) {
-      setGeometry(generateGeometry(data.geometry) as GeoJsonData);
+      setGeometry(generateGeometry(data.geometry) as unknown as GeoJsonData);
     }
   }, [data, addresses, generateGeometry]);
-
-  useEffect(() => {
-    if (geometry) console.log(geometry);
-  }, [geometry]);
 
   const startTime = formatTime(steps[0]?.arrival ?? 0);
   const endTime = formatTime(steps[steps.length - 1]?.arrival ?? 0);

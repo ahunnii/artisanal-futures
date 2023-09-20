@@ -9,9 +9,7 @@ interface IProps {
   principles: string;
   url: string;
   description: string;
-  // materials: string;
-  assessment: Array<any>;
-  // onCLick: () => void;
+  assessment: Array<unknown>;
 }
 
 const formatAttributes = (attributes: string) => {
@@ -22,6 +20,7 @@ const ProductCard: FC<IProps> = (props) => {
   return (
     <ProductDetails {...props}>
       <div className="h-full max-w-sm cursor-pointer rounded-lg border shadow-lg hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-200 ">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={props.image}
           alt={`Image of ${props.name}`}

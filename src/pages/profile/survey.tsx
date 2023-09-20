@@ -1,13 +1,12 @@
 import { getAuth } from "@clerk/nextjs/server";
-import { Survey } from "@prisma/client";
-import { PlusCircle } from "lucide-react";
+import type { Survey } from "@prisma/client";
+
 import type { GetServerSidePropsContext } from "next";
-import { FC, useEffect } from "react";
-import { ProfileForm } from "~/components/profile/profile-form";
+import { type FC } from "react";
+
 import { SurveyForm } from "~/components/profile/survey-form";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
-import { useShopModal } from "~/hooks/use-shop-modal";
+import PageLoader from "~/components/ui/page-loader";
+
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
 
@@ -18,7 +17,9 @@ const ProfileSurveyPage: FC<IProps> = ({ survey }) => {
   return (
     <ProfileLayout>
       <div className="space-y-6">
-        <SurveyForm initialData={survey} />
+        {typeof survey === "undefined" && <PageLoader />}
+
+        {typeof survey === "object" && <SurveyForm initialData={survey} />}
       </div>
     </ProfileLayout>
   );
@@ -61,6 +62,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
           ...survey,
           createdAt: survey.createdAt.toISOString(),
           updatedAt: survey.updatedAt.toISOString(),
+          processes: survey.processes ?? "",
+          materials: survey.materials ?? "",
+          principles: survey.principles ?? "",
+          description: survey.description ?? "",
         },
       },
     };
@@ -70,9 +75,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     data: {
       ownerId: userId,
       shopId: shop.id,
-      processes: "",
-      materials: "",
-      principles: "",
     },
   });
 

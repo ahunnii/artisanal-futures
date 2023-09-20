@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -9,7 +8,6 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -65,7 +63,7 @@ export const ShopModal = () => {
         <div className="space-y-4 py-2 pb-4">
           <div className="space-y-2">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
+              <form onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}>
                 <FormField
                   control={form.control}
                   name="shopName"

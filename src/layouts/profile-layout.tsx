@@ -1,4 +1,3 @@
-import { Shop } from "@prisma/client";
 import Head from "next/head";
 import { useMemo } from "react";
 
@@ -13,8 +12,6 @@ interface SettingsLayoutProps {
 
 export default function ProfileLayout({ children }: SettingsLayoutProps) {
   const shop = api.shops.getCurrentUserShop.useQuery();
-
-  const survey = api.surveys.getCurrentUserSurvey.useQuery();
 
   const navItems = useMemo(() => {
     return [
@@ -53,7 +50,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
       //   href: "/profile/display",
       // },
     ];
-  }, [shop, survey]);
+  }, [shop]);
 
   return (
     <>

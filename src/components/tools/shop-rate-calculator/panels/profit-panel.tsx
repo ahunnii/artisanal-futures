@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { useState, type FC } from "react";
 import { Slider } from "~/components/ui/slider";
 import {
   Tooltip,
@@ -8,10 +8,10 @@ import {
 } from "~/components/ui/tooltip";
 interface IProps {
   sliderValue: number;
-  setSliderValue: (v: number) => void;
+  setSliderValue: (v: unknown) => void;
 }
 const ProfitsPanel: FC<IProps> = ({ sliderValue, setSliderValue }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [, setShowTooltip] = useState(false);
   return (
     <>
       <div className="mt-4 flex flex-col gap-4">
@@ -44,7 +44,8 @@ const ProfitsPanel: FC<IProps> = ({ sliderValue, setSliderValue }) => {
                 defaultValue={[0]}
                 min={0}
                 max={100}
-                onChange={(v) => setSliderValue(v)}
+                step={1}
+                onValueChange={(val) => setSliderValue(val[0])}
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               />

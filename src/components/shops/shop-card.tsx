@@ -12,6 +12,7 @@ const ShopCard: FC<Shop> = ({
 }) => {
   return (
     <div className="w-full rounded bg-slate-50 p-4 shadow">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={logoPhoto ?? ""}
         alt=""

@@ -2,10 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  useSizerStore,
-  type Part,
-} from "~/components/tools/sankofa-sizer/store";
+import { useSizerStore } from "~/components/tools/sankofa-sizer/store";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Form,
@@ -19,18 +16,18 @@ import {
 import { Input } from "~/components/ui/input";
 import { toast } from "~/components/ui/use-toast";
 
-import { bartol_et_al_measurements, bartol_to_part } from "~/utils/sizer";
+import { bartol_et_al_measurements } from "~/utils/sizer";
 import { cn } from "~/utils/styles";
 
 const weightInKg = 87;
 const heightInMeters = 1.83;
-const to_inch = () => {
-  return 2.53;
-}; // cm -> inch
+// const to_inch = () => {
+//   return 2.53;
+// }; // cm -> inch
 
-const shoulderToWrist = bartol_to_part["Shoulder to wrist (arm)"];
-const biceps = bartol_to_part.biceps;
-const wristWidth = bartol_to_part["Wrist width"];
+// const shoulderToWrist = bartol_to_part["Shoulder to wrist (arm)"];
+// const biceps = bartol_to_part.biceps;
+// const wristWidth = bartol_to_part["Wrist width"];
 
 const formSchema = z.object({
   heightInMeters: z.number(),
@@ -52,11 +49,11 @@ const MeasurementsForm = () => {
 
     if (!bartol) return;
 
-    const newValues = [
-      { length: (shoulderToWrist(bartol, heightInMeters) ?? 0) / to_inch() },
-      { length: (biceps(bartol, heightInMeters) ?? 0) / to_inch() },
-      { length: (wristWidth(bartol, heightInMeters) ?? 0) / to_inch() },
-    ];
+    // const newValues = [
+    //   { length: (shoulderToWrist(bartol) ?? 0) / to_inch() },
+    //   { length: (biceps(bartol) ?? 0) / to_inch() },
+    //   { length: (wristWidth(bartol) ?? 0) / to_inch() },
+    // ];
 
     // updateParts(newValues as Partial<Part>[]);
     // console.log(newValues, parts);

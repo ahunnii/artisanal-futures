@@ -1,6 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   useEffect,
-  useId,
   useRef,
   useState,
   type Dispatch,
@@ -31,7 +31,7 @@ interface IProps {
   hint?: string;
   fields?: Array<Field>;
   additional?: boolean;
-  handleCost: any;
+  handleCost: (val: number) => void;
   includesHours: Dispatch<SetStateAction<number>> | null;
 }
 
@@ -69,7 +69,7 @@ const CostPanel: FC<IProps> = ({
 
     if (!refForm.current) return;
 
-    for (let elem of refForm.current.elements) {
+    for (const elem of refForm.current.elements) {
       if (elem instanceof HTMLInputElement) {
         if (title === "Labor Costs") product = product * parseFloat(elem.value);
         else total = total + parseFloat(elem.value || "0");

@@ -1,30 +1,20 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useId,
-  useMemo,
-  useState,
-} from "react";
+import { useMemo, useState } from "react";
 
-import AddNewExpenses from "~/components/tools/shop-rate-calculator/add-new-expense";
-import CostPanel from "~/components/tools/shop-rate-calculator/panels/cost-panel";
 // import FORM_DATA from "~/data/tools/shop-rate-calculator/panels.json";
 
 import Breakdown from "~/components/tools/shop-rate-calculator/breakdown";
 
-import { InfoIcon } from "lucide-react";
+import Body from "~/components/body";
 import HourlyPieChart from "~/components/tools/shop-rate-calculator/hourly-pie-chart";
 import { MaterialsCostForm } from "~/components/tools/shop-rate-calculator/panels/materials-form";
 import { MonthlyCostForm } from "~/components/tools/shop-rate-calculator/panels/monthly-form";
-import ProfitsPanel from "~/components/tools/shop-rate-calculator/panels/profit-panel";
+// import ProfitsPanel from "~/components/tools/shop-rate-calculator/panels/profit-panel";
 import { useShopCalculator } from "~/hooks/use-shop-calculator";
-import { formatPrice } from "~/utils/calculations";
 
 export default function ShopRateCalculator() {
-  const [hourlyTotal, setHourlyTotal] = useState(0);
+  const [hourlyTotal] = useState(0);
 
   const COST_COLORS = {
     fixed: "#E38627",
@@ -33,8 +23,7 @@ export default function ShopRateCalculator() {
     profits: "#f472b6",
   };
 
-  const { monthly, monthlyExpenses, materials, materialExpenses, labor } =
-    useShopCalculator((state) => state);
+  const { monthly, materials } = useShopCalculator((state) => state);
 
   const breakdown = useMemo(() => {
     return {
@@ -51,7 +40,7 @@ export default function ShopRateCalculator() {
       materialHourly: 0,
       laborHourly: 0,
     };
-  }, [monthly, materials, monthlyExpenses]);
+  }, [monthly, materials]);
 
   const formattedPrice = useMemo(() => {
     return (monthly + breakdown.monthlyHourly).toFixed(2);
@@ -62,7 +51,7 @@ export default function ShopRateCalculator() {
   }, [breakdown, monthly]);
 
   return (
-    <section>
+    <Body>
       <div className="mx-auto grid w-full grid-cols-1 gap-10 md:grid-cols-2 lg:gap-32">
         <div className="flex flex-col ">
           <div className="mx-auto flex max-w-lg gap-8 rounded-xl p-4 sm:p-6 md:p-8">
@@ -99,6 +88,6 @@ export default function ShopRateCalculator() {
           <Breakdown {...breakdown} />
         </div>
       </div>
-    </section>
+    </Body>
   );
 }

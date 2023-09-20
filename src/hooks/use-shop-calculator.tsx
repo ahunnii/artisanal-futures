@@ -1,4 +1,3 @@
-import { get } from "lodash";
 import { create } from "zustand";
 
 export type MonthlyCosts = {
@@ -34,7 +33,7 @@ interface useShopCalculatorProps {
   setLabor: (val: number) => void;
 }
 
-export const useShopCalculator = create<useShopCalculatorProps>((set, get) => ({
+export const useShopCalculator = create<useShopCalculatorProps>((set) => ({
   monthly: 0,
   materials: 0,
   labor: 0,

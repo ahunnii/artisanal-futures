@@ -1,8 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Shop, Survey } from "@prisma/client";
-import axios from "axios";
-import { pickBy } from "lodash";
+import type { Survey } from "@prisma/client";
+
 import { Trash } from "lucide-react";
 
 import { useState } from "react";
@@ -11,9 +10,9 @@ import { toast } from "react-hot-toast";
 import * as z from "zod";
 
 import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
+
 import { AlertModal } from "~/components/admin/modals/alert-modal";
-import { ApiAlert } from "~/components/ui/api-alert";
+
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -24,13 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Heading } from "~/components/ui/heading";
-import { Input } from "~/components/ui/input";
-import { Separator } from "~/components/ui/separator";
 
 import { api } from "~/utils/api";
 import { Checkbox } from "../ui/checkbox";
-import LogoUpload from "../ui/logo-upload";
+import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
@@ -146,7 +142,7 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       <Separator />
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
           className="w-full space-y-8"
         >
           <div className="gap-8 md:grid md:grid-cols-3">

@@ -1,4 +1,3 @@
-import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -48,6 +47,7 @@ export const surveysRouter = createTRPCRouter({
         processes: z.string().optional(),
         materials: z.string().optional(),
         principles: z.string().optional(),
+        description: z.string().optional(),
         unmoderatedForm: z.boolean().default(false),
         moderatedForm: z.boolean().default(false),
         hiddenForm: z.boolean().default(false),
@@ -87,6 +87,7 @@ export const surveysRouter = createTRPCRouter({
               processes: input.processes,
               materials: input.materials,
               principles: input.principles,
+              description: input.description,
               unmoderatedForm: input.unmoderatedForm,
               moderatedForm: input.moderatedForm,
               hiddenForm: input.hiddenForm,

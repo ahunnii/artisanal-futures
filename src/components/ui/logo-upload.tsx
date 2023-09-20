@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { CldUploadWidget, CldUploadWidgetResults } from "next-cloudinary";
+import { CldUploadWidget } from "next-cloudinary";
 import { useEffect, useState } from "react";
 
 import { ImagePlus, Trash } from "lucide-react";
@@ -57,7 +58,7 @@ const LogoUpload: React.FC<ImageUploadProps> = ({
           </div>
         )}
       </div>
-      <CldUploadWidget onUpload={onUpload} uploadPreset="wo25zskm">
+      <CldUploadWidget onUpload={onUpload as any} uploadPreset="wo25zskm">
         {({ open }) => {
           const onClick = () => {
             open();

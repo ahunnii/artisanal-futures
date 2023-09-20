@@ -71,6 +71,7 @@ model Survey {
   processes   String?
   materials   String?
   principles  String?
+  description String?
   unmoderatedForm Boolean @default(false)
   moderatedForm Boolean @default(false)
   hiddenForm   Boolean @default(false)

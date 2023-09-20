@@ -1,29 +1,19 @@
-import type { Map } from "leaflet";
+import type { LatLngBounds, Map } from "leaflet";
 import L, { type LatLngExpression } from "leaflet";
-import { GoogleProvider } from "leaflet-geosearch";
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { useEffect, useRef, useState, type FC } from "react";
 import CarMarker from "~/components/tools/routing/atoms/map/CarMarker";
-import { env } from "~/env.mjs";
-import { useRequestStore, useRouteStore } from "~/store";
-import { getStyle, getUniqueKey } from "~/utils/routing";
+
+import { getStyle } from "~/utils/routing";
 
 import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
-import type {
-  CalculatedStep,
-  CalculatedVehicleData,
-  GeoJsonData,
-} from "~/types";
-import MapSearch from "../atoms/map/MapSearch";
-import StopMarker from "../atoms/map/StopMarker";
+import type { CalculatedStep, GeoJsonData } from "~/types";
 
-type FilteredLocation = {
-  job_id: number;
-  vehicle_id: number;
-};
+import StopMarker from "../atoms/map/StopMarker";
 
 interface IProps {
   steps: CalculatedStep[];
@@ -32,15 +22,18 @@ interface IProps {
 
 const TempMap: FC<IProps> = ({ steps, geojson }) => {
   const mapRef = useRef<Map>(null);
-  const [bounds, setBounds] = useState<LatLngExpression[] | null>(null);
+  const [bounds, setBounds] = useState<LatLngBounds | null>(null);
 
   useEffect(() => {
     if (steps) {
-      const temp = L.latLngBounds(
-        steps
-          .filter((step: CalculatedStep) => step.type !== "break")
-          .map((step: CalculatedStep) => [step.location[1], step.location[0]])
-      );
+      const stepMap = steps
+        .filter((step: CalculatedStep) => step.type !== "break")
+        .map((step: CalculatedStep) => [
+          step?.location?.[1] ?? 0,
+          step?.location?.[0] ?? 0,
+        ]);
+
+      const temp = L.latLngBounds(stepMap as LatLngExpression[]);
       setBounds(temp);
     }
   }, [steps]);
@@ -79,22 +72,32 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
       {steps &&
         steps.length > 0 &&
         steps
-          .filter((step: any) => step.type !== "break")
-          .map((step: any, index: number) => {
+          .filter((step: CalculatedStep) => step.type !== "break")
+          .map((step: CalculatedStep, index: number) => {
             if (step.type === "job")
               return (
                 <StopMarker
                   key={index}
-                  position={[step.location[1], step.location[0]]}
+                  position={
+                    [step?.location?.[1] ?? 0, step?.location?.[0] ?? 0] as [
+                      number,
+                      number
+                    ]
+                  }
                   name={`Step ${index + 1}`}
-                  id={step.id}
+                  id={step?.id ?? index}
                   colorMapping={index}
                 />
               );
             else
               return (
                 <CarMarker
-                  position={[step.location[1], step.location[0]]}
+                  position={
+                    [step?.location?.[1] ?? 0, step?.location?.[0] ?? 0] as [
+                      number,
+                      number
+                    ]
+                  }
                   name={`${index}`}
                   key={index}
                 />

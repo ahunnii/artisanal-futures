@@ -10,7 +10,7 @@ type AccountData = {
   private_forum: boolean;
 
   about_me: string;
-  profile_image_file: any;
+  profile_image_file: unknown;
   profile_image_url: string;
   profile_image_media_id: number | null;
   supply_chain: boolean;
@@ -29,7 +29,7 @@ type ReturningUser = {
 };
 
 type ArtisanACF = {
-  acf: any;
+  acf: unknown;
   slug: string;
 };
 
@@ -78,7 +78,7 @@ type BusinessData = {
   biz_materials: string;
   biz_principles: string;
 
-  listing_image_file: any;
+  listing_image_file: unknown;
   listing_image_url: string;
   listing_image_media_id: number | null;
 };
@@ -161,30 +161,13 @@ export interface Location {
   priority: number;
   time_windows: TimeWindow[];
 }
-interface OptimizationJob {
-  id: number;
-  service: number;
-  amount: number[];
-  location: number[];
-  skills: number[];
-  time_windows: Array<number[]>;
-}
 
-interface OptimizationVehicle {
-  id: number;
-  profile: string;
-  start: number[];
-  end: number[];
-  capacity: number[];
-  skills: number[];
-  time_window: number[];
-}
 export type TableData = {
   title: string;
   subTitle: string;
   columns: string[];
   dataKey: string;
-  populationData: any;
+  populationData: unknown;
 };
 export type Step = {
   id?: number;
@@ -230,7 +213,7 @@ export type Data = {
       routing: number;
     };
   };
-  unassigned: any[];
+  unassigned: unknown[];
   routes: Route[];
 };
 
@@ -306,7 +289,7 @@ export type GeoJsonData = {
 
 export type CalculatedStep = {
   type: string; // or you could be more specific: type: "start" | "job" | "break" | "end";
-  location?: number[][];
+  location?: [number, number][];
   setup: number;
   service: number;
   waiting_time: number;

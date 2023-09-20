@@ -1,24 +1,13 @@
-import {
-  Cog,
-  CreditCard,
-  DollarSign,
-  GraduationCap,
-  Package,
-  Store,
-  StoreIcon,
-} from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { Cog, GraduationCap, Store } from "lucide-react";
+
 import Head from "next/head";
-import Link from "next/link";
-import { useMemo } from "react";
+
 import Body from "~/components/body";
-import Footer from "~/components/footer";
-import FeatureCard from "~/components/homepage/feature-card";
+
 import Hero from "~/components/homepage/hero";
-import Navbar from "~/components/navbar";
+
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import Container from "~/components/ui/container";
-import { api } from "~/utils/api";
+
 export default function Home() {
   return (
     <>
@@ -69,6 +58,7 @@ export default function Home() {
           <h2 className="mt-12 text-3xl font-bold">
             Artisanal Technologies for Generative Justice
           </h2>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="img/flowchart.png"
             alt="Flowchart showing the generative nature of artisanal tech"
