@@ -118,14 +118,14 @@ const RouteQRModal = ({ data }: IProps) => {
   const sendEmail = async () => {
     if (!value) return;
 
-    const res = await fetch("/api/send-inquiry", {
+    const res = await fetch("/api/send-route", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email: value,
-        body: `Here is your route for today: https://af-routing-app.vercel.app/route?data=${fileID}`,
+        body: `Here is your route for today: https://artisanalfutures.org/tools/routing/${fileID}`,
       }),
     });
 

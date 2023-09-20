@@ -98,13 +98,14 @@ const AuthForm = ({ loading }: { loading: boolean }) => {
                     disabled={loading}
                     placeholder="e.g. Secret123"
                     {...field}
+                    autoComplete="off"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />{" "}
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button disabled={loading} className="ml-auto mt-5" type="submit">
             Authenticate
           </Button>
         </form>
