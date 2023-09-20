@@ -1,26 +1,40 @@
 import type { FC } from "react";
+import { Slider } from "~/components/ui/slider";
 import InchMarker from "./inch-marker"; //Our virtual Marker
 
 interface IProps {
-  ppi_slider: number;
+  ppiSliderValue: number;
+  setPpiSliderValue: (val: number) => void;
   length?: number;
   unit?: string;
 }
 
 const ActualInch: FC<IProps> = ({
-  ppi_slider = 72,
+  ppiSliderValue = 72,
+  setPpiSliderValue,
   length = 3,
   unit = "inches",
 }) => {
   return (
     <>
       <div>
-        <InchMarker unit={unit} length={length} pixels_per_inch={ppi_slider} />
+        <InchMarker
+          unit={unit}
+          length={length}
+          pixels_per_inch={ppiSliderValue}
+        />
       </div>
 
       <label>
-        <span>{ppi_slider} ppi</span>
-        <input type="range" min={1} max={326} step={1} value={ppi_slider} />
+        <span>{ppiSliderValue} ppi</span>
+
+        <Slider
+          min={1}
+          max={326}
+          step={1}
+          value={[ppiSliderValue]}
+          onValueChange={(val) => setPpiSliderValue(val[0]!)}
+        />
       </label>
       <label>
         <input type="number" min={1} max={50} step={1} value={length} />{" "}

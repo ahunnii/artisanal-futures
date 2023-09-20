@@ -20,6 +20,7 @@ const VirtualResize = () => {
 
   // pre-scale the image so it's not such a pain to resize rulers onto it
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+    console.log(actual_pattern?.blob);
     if (!event.currentTarget) return;
     event.currentTarget.width = largestWidth * pixels_per_inch;
     event.currentTarget.height = largestHeight * pixels_per_inch;
@@ -27,7 +28,7 @@ const VirtualResize = () => {
     actual_pattern.width = event.currentTarget.width;
     actual_pattern.height = event.currentTarget.height;
 
-    // actual_pattern.blob = event.target.src;
+    actual_pattern.blob = "/img/sankofa-sizer-demo.jpg";
   };
 
   useEffect(() => {

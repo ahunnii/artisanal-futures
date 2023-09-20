@@ -1,24 +1,36 @@
-import { useSizerStore } from "~/store";
+import {
+  useSizerStore,
+  type BodyPart,
+  type Part,
+} from "~/components/tools/sankofa-sizer/store";
 import ActualInch from "./actual-inch";
 
 import Image from "next/image";
 
+import { useState } from "react";
+import { Input } from "~/components/ui/input";
 import { classNames } from "~/utils/styles";
 
 const ActualPattern = () => {
-  const { parts, actual_pattern, pixels_per_inch } = useSizerStore(
-    (state) => state
-  );
+  const { bodyParts, actual_pattern, pixels_per_inch, updateBodyPart } =
+    useSizerStore((state) => state);
 
   const device_pixels_per_inch = pixels_per_inch;
 
+  const [ppiSliderValue, setPpiSliderValue] = useState<number>(
+    device_pixels_per_inch
+  );
+
   return (
     <>
-      <ActualInch ppi_slider={device_pixels_per_inch} />
+      <ActualInch
+        ppiSliderValue={ppiSliderValue}
+        setPpiSliderValue={setPpiSliderValue}
+      />
 
       <div className="relative">
-        {parts?.map((part, idx) => {
-          if (part.selected)
+        {Object.entries(bodyParts).map(([key, part], idx) => {
+          if (part.isEnabled)
             return (
               <div
                 key={idx}
@@ -35,10 +47,10 @@ const ActualPattern = () => {
                   }px`,
 
                   left: `${
-                    part.x * (device_pixels_per_inch / pixels_per_inch)
+                    part.location.x * (device_pixels_per_inch / pixels_per_inch)
                   }px`,
                   top: `${
-                    part.y * (device_pixels_per_inch / pixels_per_inch)
+                    part.location.y * (device_pixels_per_inch / pixels_per_inch)
                   }px`,
                 }}
                 className={classNames(
@@ -57,11 +69,20 @@ const ActualPattern = () => {
 
                 <div id={`input-virtual-part-${idx}`}>
                   <label>
-                    <input
+                    <Input
                       type="number"
-                      value={part.actual_length}
+                      defaultValue={part.actual_length}
+                      onChange={(e) => {
+                        console.log(e);
+                        updateBodyPart(
+                          key as Part,
+                          {
+                            ...part,
+                            actual_length: Number(e.target.value),
+                          } as BodyPart
+                        );
+                      }}
                       className="relative -top-1 w-12"
-                      disabled
                     />
                     <span className="relative top-7 ml-1 text-black">
                       {part.name}
@@ -75,13 +96,9 @@ const ActualPattern = () => {
         <Image
           alt=""
           id="actual_pattern"
-          src={(actual_pattern?.blob as string) ?? ""}
-          width={
-            actual_pattern.width! * (device_pixels_per_inch / pixels_per_inch)
-          }
-          height={
-            actual_pattern.height! * (device_pixels_per_inch / pixels_per_inch)
-          }
+          src={actual_pattern?.blob ?? ""}
+          width={actual_pattern.width! * (ppiSliderValue / pixels_per_inch)}
+          height={actual_pattern.height! * (ppiSliderValue / pixels_per_inch)}
           className={classNames(`-z-10`)}
         />
       </div>

@@ -7,10 +7,10 @@ import Container from "~/components/ui/container";
 
 const Navbar = () => {
   const categories = [
-    {
-      id: "artisans",
-      name: "Artisans",
-    },
+    // {
+    //   id: "artisans",
+    //   name: "Artisans",
+    // },
     {
       id: "shops",
       name: "Shops",

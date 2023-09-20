@@ -13,7 +13,7 @@ const Popup = () => {
       <PopoverTrigger asChild>
         <Button variant="outline">Actual Size</Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 resize ">
+      <PopoverContent className="min-w-full resize lg:max-h-max ">
         <ActualPattern />
       </PopoverContent>
     </Popover>
