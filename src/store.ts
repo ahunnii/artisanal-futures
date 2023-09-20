@@ -1,3 +1,4 @@
+import { GraphModel, eye } from "@tensorflow/tfjs";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type {
@@ -295,4 +296,74 @@ export const useSizerStore = create<SizerState>((set) => ({
   },
 
   updateValue: (key, value) => set({ [key]: value }),
+}));
+
+// Style Transfer Store
+
+export type StyleTransferImage = {
+  src: string;
+  height: number;
+  isSquare?: boolean;
+};
+
+export type FinalImage = {
+  blob: unknown;
+  isGenerating: boolean;
+};
+type StyleTransferState = {
+  contentImage: StyleTransferImage | null;
+  styleImage: StyleTransferImage | null;
+  styleStrength: number;
+  // styleModel: {
+  //   type: string;
+  //   isLoading: boolean;
+  //   data: GraphModel | null;
+  // };
+  // styleTransformer: {
+  //   type: string;
+  //   isLoading: boolean;
+  //   data: GraphModel | null;
+  // };
+  finalImage: FinalImage;
+
+  modelType: string;
+  isModelLoading: boolean;
+  modelData: GraphModel | null;
+
+  transformerType: string;
+  isTransformerLoading: boolean;
+  transformerData: GraphModel | null;
+
+  setContentImage: (image: StyleTransferImage) => void;
+  setStyleImage: (image: StyleTransferImage) => void;
+  setValue: (key: string, value: unknown) => void;
+};
+
+export const useStyleTransferStore = create<StyleTransferState>((set) => ({
+  contentImage: {
+    src: "/img/style_transfer/chicago.jpg",
+    height: 256,
+  },
+  styleImage: {
+    src: "/img/style_transfer/seaport.jpg",
+    height: 256,
+    isSquare: false,
+  },
+  styleStrength: 100,
+
+  // styleModel: { type: "mobilenet", isLoading: false, data: null },
+  // styleTransformer: { type: "separable", isLoading: false, data: null },
+  modelType: "mobilenet",
+  isModelLoading: false,
+  modelData: null,
+  transformerType: "separable",
+  isTransformerLoading: false,
+  transformerData: null,
+  finalImage: {
+    blob: null,
+    isGenerating: false,
+  },
+  setContentImage: (image) => set({ contentImage: image }),
+  setStyleImage: (image) => set({ styleImage: image }),
+  setValue: (key, value) => set({ [key]: value }),
 }));

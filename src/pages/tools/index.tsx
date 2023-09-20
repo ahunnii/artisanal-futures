@@ -38,13 +38,22 @@ export default function ToolsPage() {
               // url={"https://af-routing-app.vercel.app/"}
             />{" "}
           </div>
-          <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
+          {/* <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
             <ToolCard
               title="Craft Recomposition"
               subtitle="Break down an image into its bill of materials"
               type="Logistics"
               image="img/craft_composition.png"
               url={"/tools/craft-recomposition"}
+            />{" "}
+          </div> */}
+          <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
+            <ToolCard
+              title="Neural Style Transfer"
+              subtitle="Recreate an image in the style of another"
+              type="Logistics"
+              image="img/craft_composition.png"
+              url={"/tools/style-transfer"}
             />{" "}
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">
