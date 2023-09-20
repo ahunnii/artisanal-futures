@@ -150,8 +150,6 @@ export interface Driver {
   max_travel_time: number;
   max_stops: number;
   break_slots: Break[];
-  raw_data?: any;
-  available_options?: any;
 }
 
 export interface Location {
@@ -162,8 +160,6 @@ export interface Location {
   drop_off_duration: number;
   priority: number;
   time_windows: TimeWindow[];
-  raw_data?: any;
-  available_options?: any;
 }
 interface OptimizationJob {
   id: number;
@@ -266,6 +262,31 @@ export type CustomerResponseData = {
   id: number;
 };
 
+export type StopCSVData = {
+  customer_name: string;
+  address: string;
+
+  latitude: number;
+  longitude: number;
+
+  drop_off_duration: number;
+  priority: number;
+  time_windows: string;
+  id: number;
+};
+
+export type DriverCSVData = {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  time_window: string;
+  max_travel_time: number;
+  max_stops: number;
+  break_slots: string;
+  id: number;
+};
+
 export type GeoJsonData = {
   coordinates: number[][];
   properties: {
@@ -330,84 +351,3 @@ export type LatLngBounds = {
     lng: number;
   };
 };
-
-// type TimeWindow = [number, number];
-// type Coordinates = [number, number]; //lon, lat
-// type Break = {
-// 	id: number;
-// 	time_windows: TimeWindow[];
-// 	service: number;
-// 	description: string;
-// 	max_load: number[];
-// };
-// interface Job {
-// 	id: number;
-// 	description?: string; //address
-// 	location: Coordinates; //coordinates
-// 	setup?: number;
-// 	service: number; //drop off
-// 	priority: number;
-// 	time_windows: TimeWindow[];
-// }
-
-// interface Vehicle {
-// 	id: number;
-// 	description?: string; //name
-// 	start: Coordinates; //coordinates
-// 	time_window: TimeWindow;
-// 	breaks: Break[];
-// 	max_travel_time: number;
-// 	max_tasks: number; //max stops
-// }
-
-// type Geometry = {
-// 	type: string;
-// 	coordinates: Coordinates[];
-// };
-
-// type Step = {
-// 	id?: number;
-// 	service?: number;
-// 	waiting_time?: number;
-// 	job?: number;
-// 	type: string;
-// 	location: Coordinates;
-// 	load: number[];
-// 	arrival: number;
-// 	duration: number;
-// 	distance: number;
-// };
-// type Route = {
-// 	vehicle: number;
-// 	cost: number;
-// 	delivery: number[];
-// 	amount: number[];
-// 	pickup: number[];
-// 	service: number;
-// 	duration: number;
-// 	waiting_time: number;
-// 	distance: number;
-// 	steps: Step[];
-// 	geometry: string;
-// };
-// type Data = {
-// 	code: number;
-// 	summary: {
-// 		cost: number;
-// 		unassigned: number;
-// 		delivery: number[];
-// 		amount: number[];
-// 		pickup: number[];
-// 		service: number;
-// 		duration: number;
-// 		waiting_time: number;
-// 		distance: number;
-// 		computing_times: {
-// 			loading: number;
-// 			solving: number;
-// 			routing: number;
-// 		};
-// 	};
-// 	unassigned: any[];
-// 	routes: Route[];
-// };

@@ -63,33 +63,16 @@ export const bartol_et_al_measurements = (
 };
 
 export const bartol_to_part = {
-  "Shoulder to wrist (arm)": (
-    meas: Record<string, number>,
-    heightInMeters?: number
-  ) => {
+  "Shoulder to wrist (arm)": (meas: Record<string, number>) => {
     return meas.arm_length;
   }, // does that include the hand?
-  biceps: (meas: Record<string, number>, heightInMeters?: number) => {
+  biceps: (meas: Record<string, number>) => {
     return meas.bicep_circumference;
   },
-  "Wrist width": (meas: Record<string, number>, heightInMeters?: number) => {
+  "Wrist width": (meas: Record<string, number>) => {
     return meas.wrist_circumference;
   },
 };
-
-const shoulder_to_wrist = "shoulder_to_wrist";
-const bicep = "bicep";
-const wrist = "wrist";
-
-// export const checkboxStates = [
-//   shoulder_to_wrist, // note to self, should really be using const varibale names; tracking this bug cost me 2 h :_(
-//   bicep,
-//   wrist,
-//   "ankle",
-//   "inseam",
-//   "knee",
-//   "seatback",
-// ];
 
 export const checkBoxToPartId: Record<string, number> = {
   shoulder_to_wrist: 1,

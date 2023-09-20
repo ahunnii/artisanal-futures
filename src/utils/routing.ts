@@ -1,32 +1,11 @@
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
-import type { Driver, Location } from "~/types";
+import type { Driver, DriverCSVData, Location, StopCSVData } from "~/types";
 // address: row.address.replace(/\\,/g, ",") was used to replace all the commas in the address with a backslash
 
 type PossibleData = Driver | Location;
 
-type DriverCSVData = {
-  address: string;
-  name: string;
-  max_travel_time: number;
-  time_window: string;
-  max_stops: number;
-  break_slots: string;
-  latitude: number;
-  longitude: number;
-};
-
-type StopCSVData = {
-  customer_name: string;
-  address: string;
-  drop_off_duration: number;
-  time_windows: string;
-  priority: number;
-  latitude: number;
-  longitude: number;
-};
-
-export const parseDriver = (data: any) => ({
+export const parseDriver = (data: DriverCSVData) => ({
   id: parseInt(uniqueId()),
   address: data.address,
   name: data.name,
@@ -39,12 +18,12 @@ export const parseDriver = (data: any) => ({
 
   break_slots: data.break_slots.split(";").map((bs: string) => {
     const [time, service] = bs.split("(");
-    const window = time.split(",").map((tw: string) => {
+    const window = time?.split(",").map((tw: string) => {
       const [startTime, endTime] = tw.split("-");
       return { startTime, endTime };
     });
-    const breakLength = service.split(")")[0]?.split("min")[0];
-    console.log(breakLength);
+    const breakLength = service?.split(")")[0]?.split("min")[0];
+
     return {
       id: parseInt(uniqueId()),
       time_windows: window,
@@ -54,7 +33,7 @@ export const parseDriver = (data: any) => ({
   coordinates: { latitude: data.latitude, longitude: data.longitude },
 });
 
-export const parseStop = (data: any) => ({
+export const parseStop = (data: StopCSVData) => ({
   id: parseInt(uniqueId()),
   customer_name: data?.customer_name,
   address: data.address,
@@ -68,9 +47,9 @@ export const parseStop = (data: any) => ({
 });
 
 export const parseCSVFile = (
-  file: any,
+  file: File,
   type: string,
-  onComplete: (data: any) => void
+  onComplete: (data: unknown) => void
 ) => {
   Papa.parse(file, {
     header: true,
@@ -78,19 +57,16 @@ export const parseCSVFile = (
     skipEmptyLines: true,
     complete: (results) => {
       const parse = type === "driver" ? parseDriver : parseStop;
-      const parsedData: PossibleData[] = results.data.map((row: any) =>
+      const parsedData: unknown[] = results.data.map((row: unknown) =>
         parse(row)
       );
 
       if (type === "driver") onComplete(parsedData as Driver[]);
       else if (type === "stop") onComplete(parsedData as Location[]);
-
-      console.log(parsedData);
     },
   });
 };
-export const jsonToFile = async (data: object, filename: string) => {
-  console.log("yayt");
+export const jsonToFile = (data: object, filename: string) => {
   const jsonData = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonData], { type: "application/json" });
 
