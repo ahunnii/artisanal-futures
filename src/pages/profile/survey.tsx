@@ -1,7 +1,7 @@
-import { getAuth } from "@clerk/nextjs/server";
 import type { Survey } from "@prisma/client";
 
 import type { GetServerSidePropsContext } from "next";
+import type { Session } from "next-auth";
 import { type FC } from "react";
 
 import { SurveyForm } from "~/components/profile/survey-form";
@@ -9,6 +9,7 @@ import PageLoader from "~/components/ui/page-loader";
 
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
+import { authenticateSession } from "~/utils/auth";
 
 interface IProps {
   survey: Survey;
@@ -25,16 +26,10 @@ const ProfileSurveyPage: FC<IProps> = ({ survey }) => {
   );
 };
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { userId } = getAuth(ctx.req);
+  const session = (await authenticateSession(ctx)) as Session;
 
-  if (!userId) {
-    return {
-      redirect: {
-        destination: "/auth/signin",
-        permanent: false,
-      },
-    };
-  }
+  const userId = session?.user?.id;
+
   const shop = await prisma.shop.findFirst({
     where: {
       ownerId: userId,

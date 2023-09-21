@@ -1,12 +1,12 @@
-import { getAuth } from "@clerk/nextjs/server";
 import type { GetServerSidePropsContext } from "next";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 
 export const authenticateSession = async (ctx: GetServerSidePropsContext) => {
-  const { userId } = getAuth(ctx.req);
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
 
-  if (!userId) {
+  if (!session) {
     return {
       redirect: {
         destination: "/sign-in?redirect_url=" + ctx.resolvedUrl,
@@ -15,12 +15,5 @@ export const authenticateSession = async (ctx: GetServerSidePropsContext) => {
     };
   }
 
-  const shop = await prisma.shop.findFirst({
-    where: {
-      id: ctx.query.shopId as string,
-      ownerId: userId,
-    },
-  });
-
-  return shop;
+  return session;
 };

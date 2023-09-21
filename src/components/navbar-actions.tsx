@@ -1,8 +1,5 @@
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-
-import Link from "next/link";
-
 import { useEffect, useState } from "react";
+import UserNav from "./ui/user-nav";
 
 const NavbarActions = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -17,19 +14,7 @@ const NavbarActions = () => {
 
   return (
     <div className="ml-auto flex items-center gap-x-4">
-      <SignedIn>
-        {/* Mount the UserButton component */}
-        <UserButton
-          afterSignOutUrl="/"
-          userProfileUrl="/profile"
-          userProfileMode="navigation"
-        />
-      </SignedIn>
-      <SignedOut>
-        {/* Signed out users get sign in button */}
-
-        <Link href="/sign-in">Sign In</Link>
-      </SignedOut>
+      <UserNav />
     </div>
   );
 };

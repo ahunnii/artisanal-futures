@@ -6,9 +6,11 @@ import { authenticateSession } from "~/utils/auth";
 
 import type { Shop } from "@prisma/client";
 
+import type { Session } from "next-auth";
 import { ShopForm } from "~/components/profile/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import ProfileLayout from "~/layouts/profile-layout";
+import { prisma } from "~/server/db";
 
 interface DashboardPageProps {
   shop: Shop;
@@ -34,7 +36,14 @@ const DashboardPage: FC<DashboardPageProps> = ({ shop }) => {
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const shop = (await authenticateSession(ctx)) as Shop;
+  const session = (await authenticateSession(ctx)) as Session;
+
+  const shop = await prisma.shop.findFirst({
+    where: {
+      id: ctx.query.shopId as string,
+      ownerId: session?.user?.id,
+    },
+  });
 
   if (!shop) {
     return {

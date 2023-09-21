@@ -6,19 +6,8 @@ await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
 const config = {
-  reactStrictMode: false,
-  typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
+  reactStrictMode: true,
+
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
    *
@@ -29,7 +18,13 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["res.cloudinary.com", "media.githubusercontent.com"],
+    domains: [
+      "res.cloudinary.com",
+      "media.githubusercontent.com",
+      "img.clerk.com",
+      "avatars.githubusercontent.com",
+      "cdn.discordapp.com",
+    ],
   },
 };
 

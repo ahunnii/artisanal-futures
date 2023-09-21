@@ -11,6 +11,6 @@ export function cn(...inputs: ClassValue[]) {
  * @param classes Array of class strings
  * @returns Combined class list for components
  */
-export function classNames(...classes: Array<string>) {
+export function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(" ");
 }

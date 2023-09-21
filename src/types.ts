@@ -1,3 +1,6 @@
+import type { User } from "@prisma/client";
+import type { NextPage } from "next/types";
+
 type AccountData = {
   username: string;
   email: string;
@@ -333,4 +336,12 @@ export type LatLngBounds = {
     lat: number;
     lng: number;
   };
+};
+
+// Artisanal Futures Forum
+
+export type Author = Pick<User, "id" | "name" | "image">;
+export type NextPageWithAuthAndLayout = NextPage & {
+  auth?: boolean;
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
 };

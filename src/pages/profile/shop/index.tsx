@@ -1,13 +1,15 @@
-import { getAuth } from "@clerk/nextjs/server";
 import { PlusCircle } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
-import { useEffect } from "react";
+import { Session } from "next-auth";
 
+import { useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { useShopModal } from "~/hooks/use-shop-modal";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
+import { authenticateSession } from "~/utils/auth";
 export default function ProfileShopPage() {
   const onOpen = useShopModal((state) => state.onOpen);
 
@@ -39,16 +41,9 @@ export default function ProfileShopPage() {
   );
 }
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const { userId } = getAuth(ctx.req);
+  const session = (await authenticateSession(ctx)) as Session;
 
-  if (!userId) {
-    return {
-      redirect: {
-        destination: "/auth/signin",
-        permanent: false,
-      },
-    };
-  }
+  const userId = session?.user?.id;
 
   const shop = await prisma.shop.findFirst({
     where: {
@@ -57,8 +52,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   });
 
   if (shop) {
-    console.log("redirecting to shop", shop.id);
-
     return {
       redirect: {
         destination: `/profile/shop/${shop.id.toString()}`,

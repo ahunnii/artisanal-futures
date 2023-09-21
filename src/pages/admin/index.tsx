@@ -1,5 +1,3 @@
-import { useOrganizationList } from "@clerk/nextjs";
-import { getAuth } from "@clerk/nextjs/server";
 import type { GetServerSidePropsContext } from "next";
 
 import { useRouter } from "next/router";
@@ -10,42 +8,40 @@ import { Separator } from "~/components/ui/separator";
 import AdminLayout from "~/layouts/admin-layout";
 
 export const getServerSideProps = (ctx: GetServerSidePropsContext) => {
-  const { userId } = getAuth(ctx.req);
-
-  if (!userId) {
-    return {
-      redirect: {
-        destination: "/sign-in?redirect_url=" + ctx.resolvedUrl,
-        permanent: false,
-      },
-    };
-  }
+  // if (!userId) {
+  //   return {
+  //     redirect: {
+  //       destination: "/sign-in?redirect_url=" + ctx.resolvedUrl,
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   return { props: {} };
 };
 
 const AdminPage = () => {
-  const { organizationList, isLoaded } = useOrganizationList();
+  // const { organizationList, isLoaded } = useOrganizationList();
 
   const [showLoader, setShowLoader] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (isLoaded) {
-      // Find the admin organization from the loaded organization list
-      const adminOrganization = organizationList.find(
-        (org) => org.membership.role === "admin"
-      );
+  // useEffect(() => {
+  //   if (isLoaded) {
+  //     // Find the admin organization from the loaded organization list
+  //     const adminOrganization = organizationList.find(
+  //       (org) => org.membership.role === "admin"
+  //     );
 
-      // If the user is not an admin, redirect to the homepage
-      if (!adminOrganization || adminOrganization.membership.role !== "admin") {
-        void router.push("/"); // Replace '/' with the homepage URL
-      } else {
-        // If the user is an admin, no need to wait for the organization list; render the admin page directly
-        setShowLoader(false);
-      }
-    }
-  }, [isLoaded, organizationList, router]);
+  //     // If the user is not an admin, redirect to the homepage
+  //     if (!adminOrganization || adminOrganization.membership.role !== "admin") {
+  //       void router.push("/"); // Replace '/' with the homepage URL
+  //     } else {
+  //       // If the user is an admin, no need to wait for the organization list; render the admin page directly
+  //       setShowLoader(false);
+  //     }
+  //   }
+  // }, [isLoaded, organizationList, router]);
 
   return (
     <>

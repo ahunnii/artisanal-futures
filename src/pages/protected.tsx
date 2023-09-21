@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/nextjs";
+// import { UserButton } from "@clerk/nextjs";
 import { type NextPage } from "next";
 
 const Protected: NextPage = () => {
@@ -10,7 +10,7 @@ const Protected: NextPage = () => {
           <span className="text-[hsl(280,100%,70%)]">Protected</span> Page
         </h1>
         <p className="text-2xl text-white">Click this User Button!</p>
-        <UserButton afterSignOutUrl="/" />
+        {/* <UserButton afterSignOutUrl="/" /> */}
       </div>
     </main>
   );

@@ -7,7 +7,7 @@ export const shopsRouter = createTRPCRouter({
   getAllShops: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.shop.findMany({
       where: {
-        ownerId: ctx.auth.userId,
+        ownerId: ctx.session.user.id,
       },
     });
   }),
@@ -18,39 +18,37 @@ export const shopsRouter = createTRPCRouter({
       return ctx.prisma.shop.findUnique({
         where: {
           id: input.shopId,
-          ownerId: ctx.auth.userId,
+          ownerId: ctx.session.user.id,
         },
       });
     }),
   getCurrentUserShop: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.shop.findFirst({
       where: {
-        ownerId: ctx.auth.userId,
+        ownerId: ctx.session.user.id,
       },
     });
   }),
   createShop: protectedProcedure
     .input(z.object({ shopName: z.string() }))
     .mutation(({ ctx, input }) => {
-      return clerkClient.users.getUser(ctx.auth.userId).then((user) => {
-        return ctx.prisma.shop.create({
-          data: {
-            shopName: input.shopName,
-            ownerName: user?.firstName + " " + user?.lastName,
-            ownerId: ctx.auth.userId,
-            bio: "",
-            description: "",
-            logoPhoto: "",
-            address: "",
-            city: "",
-            state: "",
-            zip: "",
-            country: "",
-            phone: "",
-            email: "",
-            website: "",
-          },
-        });
+      return ctx.prisma.shop.create({
+        data: {
+          shopName: input.shopName,
+          ownerName: ctx.session.user?.name ?? "",
+          ownerId: ctx.session.user.id,
+          bio: "",
+          description: "",
+          logoPhoto: "",
+          address: "",
+          city: "",
+          state: "",
+          zip: "",
+          country: "",
+          phone: "",
+          email: "",
+          website: "",
+        },
       });
     }),
 
@@ -90,7 +88,7 @@ export const shopsRouter = createTRPCRouter({
         .findFirst({
           where: {
             id: input.shopId,
-            ownerId: ctx.auth.userId,
+            ownerId: ctx.session.user.id,
           },
         })
         .then((shopByUserId) => {
@@ -150,7 +148,7 @@ export const shopsRouter = createTRPCRouter({
         .findFirst({
           where: {
             id: input.shopId,
-            ownerId: ctx.auth.userId,
+            ownerId: ctx.session.user.id,
           },
         })
         .then((shopByUserId) => {

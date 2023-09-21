@@ -1,4 +1,4 @@
-import { SignIn } from "@clerk/nextjs";
+// import { SignIn } from "@clerk/nextjs";
 import Head from "next/head";
 import Image from "next/image";
 
@@ -13,7 +13,7 @@ const SignInPage = () => (
     <AuthLayout>
       <div className=" my-auto flex h-full w-full items-center gap-5">
         <div className="justify-left flex w-4/12">
-          <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
+          {/* <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" /> */}
         </div>
         <div className=" flex w-8/12 justify-end  ">
           <Image

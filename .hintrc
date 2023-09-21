@@ -3,6 +3,13 @@
     "development"
   ],
   "hints": {
-    "no-inline-styles": "off"
+    "no-inline-styles": "off",
+    "axe/aria": [
+      "default",
+      {
+        "aria-required-parent": "off",
+        "aria-valid-attr-value": "off"
+      }
+    ]
   }
 }
