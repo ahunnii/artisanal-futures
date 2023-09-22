@@ -4,7 +4,7 @@ import { matchSorter } from "match-sorter";
 import type { ChangeEvent, ClipboardEvent, DragEvent } from "react";
 import * as React from "react";
 import { useDetectClickOutside } from "react-detect-click-outside";
-import { useQuery } from "react-query";
+
 import TextareaAutosize, {
   type TextareaAutosizeProps,
 } from "react-textarea-autosize";

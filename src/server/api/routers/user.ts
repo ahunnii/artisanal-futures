@@ -79,7 +79,7 @@ export const userRouter = createTRPCRouter({
     }),
   uploadImage: protectedProcedure
     .input(z.any())
-    .mutation(async ({ ctx, input: file }) => {
+    .mutation(async ({ input: file }) => {
       return uploadImage(file as File);
     }),
 });

@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -280,10 +280,10 @@ function ProfileFeed() {
                     hideAuthor
                     post={post}
                     onLike={() => {
-                      likeMutation.mutate(post.id as number);
+                      likeMutation.mutate(post.id);
                     }}
                     onUnlike={() => {
-                      unlikeMutation.mutate(post.id as number);
+                      unlikeMutation.mutate(post.id);
                     }}
                   />
                 </li>

@@ -23,7 +23,7 @@ export function uploadImageCommandHandler(
   const cursor = new Cursor(textareaEl);
   const currentLineNumber = cursor.position.line;
 
-  files.forEach(async (file, idx) => {
+  const handleFile = async (file: File) => {
     const placeholder = `![Uploading ${file.name}...]()`;
 
     cursor.replaceLine(currentLineNumber.lineNumber, placeholder);
@@ -40,12 +40,14 @@ export function uploadImageCommandHandler(
             : uploadedImage.width
         }" alt="${uploadedImage.originalFilename}" src="${uploadedImage.url}">`
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log(error);
       replacePlaceholder(cursor, placeholder, "");
       toast.error(`Error uploading image: ${error.message}`);
     }
-  });
+  };
+  files.forEach((file: File) => void handleFile(file));
 }
 
 export function getSuggestionData(textareaEl: HTMLTextAreaElement): {
@@ -60,8 +62,8 @@ export function getSuggestionData(textareaEl: HTMLTextAreaElement): {
   const tokens = textBeforeCaret.split(/\s/);
   const lastToken = tokens[tokens.length - 1];
 
-  const triggerIdx = textBeforeCaret.endsWith(lastToken)
-    ? textBeforeCaret.length - lastToken.length
+  const triggerIdx = textBeforeCaret.endsWith(lastToken!)
+    ? textBeforeCaret.length - lastToken!.length
     : -1;
 
   const maybeTrigger = textBeforeCaret[triggerIdx];

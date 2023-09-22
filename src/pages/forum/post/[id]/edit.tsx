@@ -1,6 +1,5 @@
 import { PostForm } from "~/components/forum/post-form";
 
-import type { User } from "@prisma/client";
 import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";

@@ -1,6 +1,5 @@
 import { PostForm } from "~/components/forum/post-form";
 
-import type { User } from "@prisma/client";
 import type { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";

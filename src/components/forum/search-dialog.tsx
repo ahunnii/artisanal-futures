@@ -31,7 +31,7 @@ function SearchResult({
   result: RouterOutputs["post"]["search"][number];
 }) {
   const ref = React.useRef<HTMLLIElement>(null);
-  const { id, index, highlight, select, useHighlighted } = useItem({
+  const { id, highlight, select, useHighlighted } = useItem({
     ref,
     value: result,
   });

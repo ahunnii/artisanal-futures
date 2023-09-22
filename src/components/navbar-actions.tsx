@@ -1,7 +1,5 @@
-import { signIn } from "next-auth/react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
+
 import UserNav from "./ui/user-nav";
 
 const NavbarActions = () => {

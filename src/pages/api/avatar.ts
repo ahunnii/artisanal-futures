@@ -60,11 +60,11 @@ async function generateSVG(name: string) {
   const colors = [...Array(3)].map((_, idx) => {
     const colorHash = hash.slice(idx * 2, idx * 2 + 2);
 
-    const nameDecimal = parseInt(colorHash[0], 16);
-    const colorName = COLOR_NAMES[nameDecimal % COLOR_NAMES.length];
+    const nameDecimal = parseInt(colorHash[0]!, 16);
+    const colorName = COLOR_NAMES[nameDecimal % COLOR_NAMES.length]!;
 
-    const shadeDecimal = parseInt(colorHash[1], 16);
-    const colorShade = COLOR_SHADES[shadeDecimal % COLOR_SHADES.length];
+    const shadeDecimal = parseInt(colorHash[1]!, 16);
+    const colorShade = COLOR_SHADES[shadeDecimal % COLOR_SHADES.length]!;
 
     return COLORS[colorName][colorShade];
   });
@@ -112,6 +112,7 @@ export default async function handler(
     );
     res.statusCode = 200;
     res.send(svg);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return res.status(500).json({ message: error.message });
   }

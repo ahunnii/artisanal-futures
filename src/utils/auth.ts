@@ -1,7 +1,6 @@
 import type { GetServerSidePropsContext } from "next";
-import { Session, getServerSession } from "next-auth";
+import { getServerSession, type Session } from "next-auth";
 import { authOptions } from "~/server/auth";
-import { prisma } from "~/server/db";
 
 export const authenticateSession = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);

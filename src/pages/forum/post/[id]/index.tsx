@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { AuthorWithDate } from "~/components/forum/author-with-date";
 import { Avatar } from "~/components/forum/avatar";
 import { Banner } from "~/components/forum/banner";
@@ -27,7 +28,6 @@ import {
 
 import { api, type RouterInputs } from "~/utils/api";
 
-import type { User } from "@prisma/client";
 import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -245,10 +245,10 @@ const PostPage = () => {
                 <LikeButton
                   likedBy={postQuery.data.likedBy}
                   onLike={() => {
-                    likeMutation.mutate(postQuery.data.id as number);
+                    likeMutation.mutate(postQuery.data.id);
                   }}
                   onUnlike={() => {
-                    unlikeMutation.mutate(postQuery.data.id as number);
+                    unlikeMutation.mutate(postQuery.data.id);
                   }}
                 />
                 <ButtonLink

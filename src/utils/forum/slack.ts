@@ -11,7 +11,8 @@ export async function postToSlackIfEnabled({
   authorName: string;
 }) {
   if (env.ENABLE_SLACK_POSTING && env.SLACK_WEBHOOK_URL) {
-    const tokens = marked.lexer(post.content as string);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const tokens = marked.lexer(post.content);
     const summaryToken = tokens.find((token) => {
       return (
         token.type === "paragraph" ||

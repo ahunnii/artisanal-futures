@@ -1,34 +1,24 @@
 import { ArrowLeftSquare } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 import { useState, type ReactNode } from "react";
-import { Avatar } from "~/components/forum/avatar";
+
 import { ButtonLink } from "~/components/forum/button-link";
-import SearchBtn from "~/components/forum/buttons/search-btn";
+
 import { Footer } from "~/components/forum/footer";
 import { IconButton } from "~/components/forum/icon-button";
-import { Logo, SearchIcon } from "~/components/forum/icons";
-import {
-  Menu,
-  MenuButton,
-  MenuItemButton,
-  MenuItemLink,
-  MenuItems,
-  MenuItemsContent,
-} from "~/components/forum/menu";
+import { SearchIcon } from "~/components/forum/icons";
+
 import { SearchDialog } from "~/components/forum/search-dialog";
 import UserNav from "~/components/ui/user-nav";
-import { capitalize } from "~/utils/forum/text";
 
 type LayoutProps = {
   children: ReactNode;
 };
 
 const ForumLayout = ({ children }: LayoutProps) => {
-  const { data: session } = useSession();
-
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
 
   return (

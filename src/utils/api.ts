@@ -6,11 +6,11 @@
  */
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import { inferReactQueryProcedureOptions } from "@trpc/react-query";
-import {
+import type { inferReactQueryProcedureOptions } from "@trpc/react-query";
+import type {
   TRPCError,
-  type inferRouterInputs,
-  type inferRouterOutputs,
+  inferRouterInputs,
+  inferRouterOutputs,
 } from "@trpc/server";
 import superjson from "superjson";
 import { type AppRouter } from "~/server/api/root";
@@ -50,6 +50,7 @@ export const api = createTRPCNext<AppRouter>({
       queryClientConfig: {
         defaultOptions: {
           queries: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             retry: (failureCount, error: any) => {
               const trcpErrorCode = error?.data?.code as TRPCError["code"];
               if (trcpErrorCode === "NOT_FOUND") {

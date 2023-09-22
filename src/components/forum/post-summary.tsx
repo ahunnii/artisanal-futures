@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -31,14 +32,9 @@ export type PostSummaryProps = {
   onUnlike: () => void;
 };
 
-export function PostSummary({
-  post,
-  hideAuthor = false,
-  onLike,
-  onUnlike,
-}: PostSummaryProps) {
+export function PostSummary({ post, hideAuthor = false }: PostSummaryProps) {
   const { summary, hasMore } = React.useMemo(
-    () => summarize(post.contentHtml as string),
+    () => summarize(post.contentHtml),
     [post.contentHtml]
   );
   const { data: session } = useSession();
@@ -68,7 +64,7 @@ export function PostSummary({
           {hideAuthor ? (
             <p className="tracking-tight text-forum-secondary">
               <time dateTime={post.createdAt.toISOString()}>
-                {formatDistanceToNow(post.createdAt as Date)}
+                {formatDistanceToNow(post.createdAt)}
               </time>{" "}
               ago
             </p>

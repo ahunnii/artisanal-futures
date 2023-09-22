@@ -1,6 +1,6 @@
 import { PlusCircle } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
-import { Session } from "next-auth";
+import type { Session } from "next-auth";
 
 import { useEffect } from "react";
 import { Button } from "~/components/ui/button";
@@ -8,7 +8,7 @@ import { Separator } from "~/components/ui/separator";
 import { useShopModal } from "~/hooks/use-shop-modal";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
-import { api } from "~/utils/api";
+
 import { authenticateSession } from "~/utils/auth";
 export default function ProfileShopPage() {
   const onOpen = useShopModal((state) => state.onOpen);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import type { User } from "@prisma/client";
 import type { GetServerSidePropsContext } from "next";
 
@@ -5,8 +6,6 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import type { FC } from "react";
-
-import { Layout } from "~/components/forum/layout";
 
 import {
   Pagination,
@@ -127,10 +126,10 @@ const Home: FC<IProps> = ({ user }) => {
                     <PostSummary
                       post={post}
                       onLike={() => {
-                        likeMutation.mutate(post.id as number);
+                        likeMutation.mutate(post.id);
                       }}
                       onUnlike={() => {
-                        unlikeMutation.mutate(post.id as number);
+                        unlikeMutation.mutate(post.id);
                       }}
                     />
                   </li>
@@ -151,14 +150,14 @@ const Home: FC<IProps> = ({ user }) => {
 
   if (feedQuery.isError) {
     return (
-      <Layout>
+      <ForumLayout>
         <div>Error: {feedQuery.error.message}</div>
-      </Layout>
+      </ForumLayout>
     );
   }
 
   return (
-    <Layout>
+    <ForumLayout>
       <div className="flow-root">
         <ul className="-my-12 divide-y divide-forum-primary">
           {[...Array(3)].map((_, idx) => (
@@ -168,7 +167,7 @@ const Home: FC<IProps> = ({ user }) => {
           ))}
         </ul>
       </div>
-    </Layout>
+    </ForumLayout>
   );
 };
 
