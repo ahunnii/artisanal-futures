@@ -322,9 +322,8 @@ export const postRouter = createTRPCRouter({
     }),
 
   unhide: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ ctx, input }) => {
-      const id = input.id;
+    .input(z.number())
+    .mutation(async ({ ctx, input: id }) => {
       if (!(ctx.session.user.role === "ADMIN")) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }

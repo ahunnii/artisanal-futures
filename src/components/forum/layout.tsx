@@ -31,11 +31,20 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <main className="flex min-h-screen flex-col ">
-      <div className=" flex h-full w-full flex-grow flex-row items-stretch bg-slate-800 p-8 ">
+      <div className=" flex h-full w-full flex-grow flex-row items-stretch  p-8  ">
         <div className="mx-auto w-full  max-w-7xl  px-6">
           <header className="flex items-center justify-between gap-4 py-12 md:py-20">
-            <Link href="/">
-              <Logo className="text-red-light h-[34px] w-auto" />
+            <Link href="/" className="ml-4 flex gap-x-2 lg:ml-0">
+              <img
+                className="block h-8 w-auto lg:hidden"
+                src="/img/logo.png"
+                alt="Artisanal Futures logo"
+              />
+              <img
+                className="hidden h-8 w-auto lg:block"
+                src="/img/logo.png"
+                alt="Artisanal Futures logo"
+              />
             </Link>
             <div className="flex items-center gap-2 md:gap-4">
               <IconButton
@@ -89,7 +98,7 @@ export function Layout({ children }: LayoutProps) {
                 </MenuItems>
               </Menu>
 
-              <ButtonLink href="/new">
+              <ButtonLink href="/forum/new">
                 <span className="sm:hidden">Post</span>
                 <span className="hidden shrink-0 sm:block">New post</span>
               </ButtonLink>

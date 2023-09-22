@@ -1,4 +1,3 @@
-import * as Tooltip from "@radix-ui/react-tooltip";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -13,6 +12,13 @@ import {
   MessageIcon,
 } from "~/components/forum/icons";
 import { MAX_LIKED_BY_SHOWN } from "~/components/forum/like-button";
+import {
+  Tooltip,
+  // TooltipArrow,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import type { RouterOutputs } from "~/utils/api";
 import { summarize } from "~/utils/forum/text";
 
@@ -50,12 +56,12 @@ export function PostSummary({
         </Banner>
       )}
       <div className={classNames(post.hidden ? "opacity-50" : "")}>
-        <Link href={`/post/${post.id}`}>
-          <a>
+        <Link href={`/forum/post/${post.id}`}>
+          <span>
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
               {post.title}
             </h2>
-          </a>
+          </span>
         </Link>
 
         <div className={classNames(hideAuthor ? "mt-2" : "mt-6")}>
@@ -75,58 +81,62 @@ export function PostSummary({
 
         <div className="clear-both mt-4 flex items-center gap-4">
           {hasMore && (
-            <Link href={`/post/${post.id}`}>
-              <a className="text-blue inline-flex items-center font-medium transition-colors">
+            <Link href={`/forum/post/${post.id}`}>
+              <span className="text-blue inline-flex items-center font-medium transition-colors">
                 Continue reading <ChevronRightIcon className="ml-1 h-4 w-4" />
-              </a>
+              </span>
             </Link>
           )}
           <div className="ml-auto flex gap-6">
-            <Tooltip.Root delayDuration={300}>
-              <Tooltip.Trigger
-                asChild
-                onClick={(event) => {
-                  event.preventDefault();
-                }}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-              >
-                <div className="inline-flex items-center gap-1.5">
-                  {isLikedByCurrentUser ? (
-                    <HeartFilledIcon className="text-red h-4 w-4" />
-                  ) : (
-                    <HeartIcon className="text-red h-4 w-4" />
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  onClick={(event) => {
+                    event.preventDefault();
+                  }}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                  }}
+                >
+                  <div className="inline-flex items-center gap-1.5">
+                    {isLikedByCurrentUser ? (
+                      <HeartFilledIcon className="text-red h-4 w-4" />
+                    ) : (
+                      <HeartIcon className="text-red h-4 w-4" />
+                    )}
+                    <span className="text-sm font-semibold tabular-nums">
+                      {likeCount}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  sideOffset={4}
+                  className={classNames(
+                    "bg-secondary-inverse text-secondary-inverse max-w-[260px] rounded px-3 py-1.5 shadow-lg sm:max-w-sm",
+                    likeCount === 0 && "hidden"
                   )}
-                  <span className="text-sm font-semibold tabular-nums">
-                    {likeCount}
-                  </span>
-                </div>
-              </Tooltip.Trigger>
-              <Tooltip.Content
-                side="bottom"
-                sideOffset={4}
-                className={classNames(
-                  "bg-secondary-inverse text-secondary-inverse max-w-[260px] rounded px-3 py-1.5 shadow-lg sm:max-w-sm",
-                  likeCount === 0 && "hidden"
-                )}
-              >
-                <p className="text-sm">
-                  {post.likedBy
-                    .slice(0, MAX_LIKED_BY_SHOWN)
-                    .map((item) =>
-                      item.user.id === session!.user.id ? "You" : item.user.name
-                    )
-                    .join(", ")}
-                  {likeCount > MAX_LIKED_BY_SHOWN &&
-                    ` and ${likeCount - MAX_LIKED_BY_SHOWN} more`}
-                </p>
-                <Tooltip.Arrow
-                  offset={22}
-                  className="fill-gray-800 dark:fill-gray-50"
-                />
-              </Tooltip.Content>
-            </Tooltip.Root>
+                >
+                  <p className="text-sm">
+                    {post.likedBy
+                      .slice(0, MAX_LIKED_BY_SHOWN)
+                      .map((item) =>
+                        item.user.id === session!.user.id
+                          ? "You"
+                          : item.user.name
+                      )
+                      .join(", ")}
+                    {likeCount > MAX_LIKED_BY_SHOWN &&
+                      ` and ${likeCount - MAX_LIKED_BY_SHOWN} more`}
+                  </p>
+                  {/* <TooltipArrow
+                    offset={22}
+                    className="fill-gray-800 dark:fill-gray-50"
+                  /> */}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
             <div className="inline-flex items-center gap-1.5">
               <MessageIcon className="h-4 w-4 text-secondary" />

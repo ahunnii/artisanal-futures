@@ -39,15 +39,15 @@ function SearchResult({
 
   return (
     <li ref={ref} id={id} onMouseEnter={highlight} onClick={select}>
-      <Link href={`/post/${result.id}`}>
-        <a
+      <Link href={`/forum/post/${result.id}`}>
+        <span
           className={classNames(
             "block py-3.5 pl-10 pr-3 leading-tight transition-colors",
             highlighted && "bg-blue-600 text-white"
           )}
         >
           {result.title}
-        </a>
+        </span>
       </Link>
     </li>
   );
@@ -70,7 +70,7 @@ function SearchField({ onSelect }: { onSelect: () => void }) {
 
   const { moveHighlightedItem, selectHighlightedItem, useItem } = useItemList({
     onSelect: (item) => {
-      router.push(`/post/${item.value.id}`).catch((err) => {
+      router.push(`/forum/post/${item.value.id}`).catch((err) => {
         console.error(err);
       });
       onSelect();

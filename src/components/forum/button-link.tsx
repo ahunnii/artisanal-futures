@@ -37,7 +37,7 @@ export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         prefetch={prefetch}
         locale={locale}
       >
-        <span
+        <p
           {...rest}
           ref={forwardedRef}
           className={buttonClasses({ className, variant, responsive })}

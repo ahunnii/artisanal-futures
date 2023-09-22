@@ -24,7 +24,7 @@ export function buttonClasses({
       ? "px-3 h-8 text-xs sm:px-4 sm:text-sm sm:h-button"
       : "px-4 text-sm h-button",
     variant === "primary" &&
-      "text-secondary-inverse bg-secondary-inverse hover:text-primary-inverse hover:bg-primary-inverse",
+      "text-primary-inverse bg-primary/5 hover:text-primary-inverse hover:bg-primary/20",
     variant === "secondary" &&
       "border text-primary border-secondary bg-primary hover:bg-secondary",
     (disabled ?? isLoading) && "opacity-50 cursor-default",

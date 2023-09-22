@@ -166,7 +166,7 @@ export function MarkdownEditor({
     <div>
       {label && <label className="mb-2 block font-semibold">{label}</label>}
       <div>
-        <div className="flex items-center justify-between gap-4 rounded border bg-primary px-4 py-px">
+        <div className="flex items-center justify-between gap-4 rounded border bg-secondary px-4 py-px">
           <div className="-ml-2 flex gap-2">
             {TOOLBAR_ITEMS.map((toolbarItem) => (
               <button
@@ -367,17 +367,10 @@ function Suggestion({
   const isMentionType = state.type === "mention";
   const isEmojiType = state.type === "emoji";
 
-  const emojiListQuery = useQuery(
-    "emojiList",
-    async () => {
-      const gemoji = (await import("gemoji")).gemoji;
-      return gemoji;
-    },
-    {
-      enabled: state.isOpen && isEmojiType,
-      staleTime: Infinity,
-    }
-  );
+  const emojiListQuery = api.user.emojiList.useQuery({
+    enabled: state.isOpen && isEmojiType,
+    staleTime: Infinity,
+  });
 
   const mentionListQuery = api.user.mentionList.useQuery(
     {},

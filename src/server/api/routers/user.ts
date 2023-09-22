@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-
+import { uploadImage } from "~/utils/forum/cloudinary";
 export const userRouter = createTRPCRouter({
   profile: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -17,6 +17,7 @@ export const userRouter = createTRPCRouter({
         },
       });
 
+      console.log(user);
       if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -68,5 +69,17 @@ export const userRouter = createTRPCRouter({
       });
 
       return users;
+    }),
+
+  emojiList: protectedProcedure
+    .input(z.object({}).nullable())
+    .query(async ({}) => {
+      const gemoji = (await import("gemoji")).gemoji;
+      return gemoji;
+    }),
+  uploadImage: protectedProcedure
+    .input(z.any())
+    .mutation(async ({ ctx, input: file }) => {
+      return uploadImage(file as File);
     }),
 });

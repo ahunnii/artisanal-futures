@@ -39,6 +39,9 @@ export const env = createEnv({
       .refine((s) => s === "true" || s === "false")
       .transform((s) => s === "true")
       .optional(),
+    CLOUDINARY_CLOUD_NAME: z.string().min(1),
+    CLOUDINARY_API_KEY: z.string().min(1),
+    CLOUDINARY_API_SECRET: z.string().min(1),
     // GOOGLE_MAP_API_KEY: z.string().min(1),
   },
 
@@ -81,6 +84,9 @@ export const env = createEnv({
     NEXT_APP_URL: process.env.NEXT_APP_URL,
     NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD:
       process.env.NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

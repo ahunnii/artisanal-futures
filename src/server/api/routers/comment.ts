@@ -74,7 +74,7 @@ export const commentRouter = createTRPCRouter({
 
   delete: protectedProcedure
     .input(z.number())
-    .query(async ({ ctx, input: id }) => {
+    .mutation(async ({ ctx, input: id }) => {
       const comment = await ctx.prisma.comment.findUnique({
         where: { id },
         select: {

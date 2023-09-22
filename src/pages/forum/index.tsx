@@ -4,10 +4,9 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import Body from "~/components/body";
+
 import { Layout } from "~/components/forum/layout";
 
-// import { Layout } from "~/components/forum/layout";
 import {
   Pagination,
   getQueryPaginationInput,
@@ -112,7 +111,7 @@ const Home = () => {
 
         <Layout>
           {feedQuery.data.postCount === 0 ? (
-            <div className="rounded border px-10 py-20 text-center text-secondary">
+            <div className="rounded border px-10 py-20 text-center text-secondary text-slate-500">
               There are no published posts to show yet.
             </div>
           ) : (

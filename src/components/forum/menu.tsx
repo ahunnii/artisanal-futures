@@ -32,7 +32,7 @@ export function MenuItems({
     >
       <HeadlessMenu.Items
         className={classNames(
-          "absolute right-0 top-full z-10 mt-2 origin-top-right divide-y divide-primary rounded border bg-primary shadow-lg focus:outline-none",
+          "absolute right-0 top-full z-10 mt-2 origin-top-right divide-y divide-primary rounded border bg-secondary shadow-lg focus:outline-none",
           className
         )}
       >
@@ -66,7 +66,7 @@ function menuItemClasses({
   className?: string;
 }) {
   return classNames(
-    active && "bg-secondary",
+    active && "bg-primary",
     "block w-full text-left px-4 py-2 text-sm text-primary transition-colors",
     className
   );
