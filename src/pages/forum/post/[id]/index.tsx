@@ -365,12 +365,7 @@ const PostPage = () => {
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const user = (await authenticateUser(ctx)) as User;
-
-  return {
-    props: {
-      user,
-    },
-  };
+  const user = await authenticateUser(ctx);
+  return user;
 }
 export default PostPage;

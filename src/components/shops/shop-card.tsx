@@ -1,7 +1,9 @@
 import type { Shop } from "@prisma/client";
 import { Store, User } from "lucide-react";
+import Image from "next/image";
 
 import type { FC } from "react";
+import BlurImage from "../ui/blur-image";
 
 const ShopCard: FC<Shop> = ({
   id,
@@ -9,15 +11,14 @@ const ShopCard: FC<Shop> = ({
   shopName,
   website,
   logoPhoto,
+  bio,
+  ownerPhoto,
 }) => {
   return (
     <div className="w-full rounded bg-slate-50 p-4 shadow">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={logoPhoto ?? ""}
-        alt=""
-        className="aspect-square object-cover"
-      />
+      <div className="relative aspect-square w-full">
+        <BlurImage src={logoPhoto ?? ""} alt="" />
+      </div>
 
       <div className="flex w-full items-center justify-between">
         <div>
@@ -26,13 +27,16 @@ const ShopCard: FC<Shop> = ({
         </div>
 
         <div>
-          <a
-            className="block rounded bg-slate-400 p-2 text-white"
-            href={`/shops/${id}`}
-            aria-label="Head to artisan profile"
-          >
-            <User />
-          </a>
+          {bio && ownerPhoto && (
+            <a
+              className="block rounded bg-slate-400 p-2 text-white"
+              href={`/shops/${id}`}
+              aria-label="Head to artisan profile"
+            >
+              <User />
+            </a>
+          )}
+
           {website && (
             <a
               className="block rounded bg-slate-500 p-2 text-white"

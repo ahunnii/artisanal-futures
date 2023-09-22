@@ -1,7 +1,7 @@
 import { ShieldCheck, Store, User } from "lucide-react";
-
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -18,15 +18,18 @@ import {
 
 const UserNav = () => {
   const { data: sessionData } = useSession();
-
+  const router = useRouter();
   if (!sessionData) {
     return (
-      <Button
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-        variant={"ghost"}
-      >
-        Sign In
-      </Button>
+      <>
+        <Button
+          onClick={sessionData ? () => void signOut() : () => void signIn()}
+          variant={"ghost"}
+        >
+          Sign In
+        </Button>
+        <Button onClick={() => void router.push(`/sign-up`)}>Sign Up</Button>
+      </>
     );
   } else
     return (

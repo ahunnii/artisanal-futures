@@ -91,7 +91,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const isLoggedIn = context.req.cookies.login;
-  console.log(isLoggedIn);
 
   if (!isLoggedIn) {
     return { redirect: { destination: "/password-protect" } };

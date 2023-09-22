@@ -174,9 +174,6 @@ const Home: FC<IProps> = ({ user }) => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-
-  console.log(user);
-
   return user;
 }
 export default Home;

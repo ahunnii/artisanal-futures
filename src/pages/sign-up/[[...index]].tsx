@@ -1,9 +1,17 @@
-// import { SignUp } from "@clerk/nextjs";
+// import { SignIn } from "@clerk/nextjs";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { getServerSession } from "next-auth";
+
+import { getProviders, signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
+import { Button } from "~/components/ui/button";
 
 import AuthLayout from "~/layouts/auth-layout";
-const SignUpPage = () => (
+import { authOptions } from "~/server/auth";
+const SignUpPage = ({
+  providers,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => (
   <>
     <Head>
       <title>Artisanal Futures</title>
@@ -13,7 +21,52 @@ const SignUpPage = () => (
     <AuthLayout>
       <div className=" my-auto flex h-full w-full items-center gap-5">
         <div className="justify-left flex w-4/12">
-          {/* <SignUp path="/sign-up" routing="path" signInUrl="/sign-in" /> */}
+          {" "}
+          <div className="w-96 rounded bg-white p-4 ">
+            <h1 className="mb-4 text-center text-2xl">
+              Sign Up to Artisanal Futures
+            </h1>
+            <div className="flex flex-col gap-y-2">
+              {Object.values(providers).map((provider) => {
+                if (provider.name !== "Auth0") {
+                  return (
+                    <div key={provider.name}>
+                      <Button
+                        onClick={() => void signIn(provider.id)}
+                        variant={"outline"}
+                        className="flex w-full justify-center gap-x-5 rounded-full"
+                      >
+                        {" "}
+                        <Image
+                          src={`/img/${provider.id}.svg`}
+                          width={25}
+                          height={25}
+                          alt={provider.name}
+                        />
+                        Sign up with {provider.name}
+                      </Button>
+                    </div>
+                  );
+                }
+              })}
+
+              <div className="my-3 flex items-center px-3">
+                <hr className="w-full border-slate-600" />
+                <span className="mx-3 text-slate-500">or</span>
+                <hr className="w-full border-slate-600" />
+              </div>
+
+              <div>
+                <Button
+                  onClick={() => void signIn("auth0")}
+                  variant={"outline"}
+                  className="w-full rounded-full"
+                >
+                  Sign up with email using Auth0
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
         <div className=" flex w-8/12 justify-end  ">
           <Image
@@ -27,5 +80,33 @@ const SignUpPage = () => (
     </AuthLayout>
   </>
 );
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await getServerSession(context.req, context.res, authOptions);
 
+  // If the user is already logged in, redirect.
+  // Note: Make sure not to redirect to the same page
+  // To avoid an infinite loop!
+  if (session) {
+    return { redirect: { destination: "/" } };
+  }
+
+  const isLoggedIn = context.req.cookies.login;
+  console.log(isLoggedIn);
+
+  if (!isLoggedIn) {
+    return { redirect: { destination: "/password-protect" } };
+  }
+  // const isPathPasswordProtect =
+  //   req.nextUrl.pathname.startsWith("/password-protect");
+  // if (isPasswordEnabled && !isLoggedIn && !isPathPasswordProtect) {
+  //   return NextResponse.redirect(new URL("/password-protect", req.url));
+  // }
+  // return NextResponse.next();
+
+  const providers = await getProviders();
+
+  return {
+    props: { providers: providers ?? [] },
+  };
+}
 export default SignUpPage;
