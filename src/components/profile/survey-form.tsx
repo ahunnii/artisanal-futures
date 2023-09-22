@@ -59,7 +59,17 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      processes: initialData?.processes ?? "",
+      materials: initialData?.materials ?? "",
+      principles: initialData?.principles ?? "",
+      description: initialData?.description ?? "",
+      unmoderatedForm: initialData?.unmoderatedForm ?? false,
+      moderatedForm: initialData?.moderatedForm ?? false,
+      hiddenForm: initialData?.hiddenForm ?? false,
+      privateForm: initialData?.privateForm ?? false,
+      supplyChain: initialData?.supplyChain ?? false,
+    },
   });
 
   const { mutate: updateSurvey } = api.surveys.updateSurvey.useMutation({
