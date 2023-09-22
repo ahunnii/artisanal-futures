@@ -47,6 +47,7 @@ export const env = createEnv({
     AUTH0_CLIENT_ID: z.string().min(1),
     AUTH0_CLIENT_SECRET: z.string().min(1),
     AUTH0_ISSUER: z.string().min(1),
+    NEXT_PUBLIC_PASSWORD_PROTECT: z.string().min(1),
     // GOOGLE_MAP_API_KEY: z.string().min(1),
   },
 
@@ -65,6 +66,7 @@ export const env = createEnv({
       .refine((s) => s === "true" || s === "false")
       .transform((s) => s === "true")
       .optional(),
+    NEXT_PUBLIC_PASSWORD_PROTECT: z.string().min(1),
   },
 
   /**
@@ -96,6 +98,7 @@ export const env = createEnv({
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_ISSUER: process.env.AUTH0_ISSUER,
+    NEXT_PUBLIC_PASSWORD_PROTECT: process.env.NEXT_PUBLIC_PASSWORD_PROTECT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
