@@ -129,7 +129,7 @@ interface RequestState {
   cachedIsochrones: Map<string, unknown>;
   cachedOptimizations: Map<string, unknown>;
   optimization: Result | null;
-  setOptimization: (optimization: Result) => void;
+  setOptimization: (optimization: Result | null) => void;
   setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
   appendMap: <T>(mapName: string, address: string, response: T) => void;
   [key: string]: unknown;

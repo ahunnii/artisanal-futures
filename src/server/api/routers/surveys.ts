@@ -6,7 +6,7 @@ export const surveysRouter = createTRPCRouter({
   // getAllShops: protectedProcedure.query(({ ctx }) => {
   //   return ctx.prisma.shop.findMany({
   //     where: {
-  //       ownerId: ctx.auth.userId,
+  //       ownerId: ctx.session.user.id,
   //     },
   //   });
   // }),
@@ -17,14 +17,14 @@ export const surveysRouter = createTRPCRouter({
       return ctx.prisma.survey.findUnique({
         where: {
           id: input.surveyId,
-          ownerId: ctx.auth.userId,
+          ownerId: ctx.session.user.id,
         },
       });
     }),
   getCurrentUserSurvey: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.survey.findFirst({
       where: {
-        ownerId: ctx.auth.userId,
+        ownerId: ctx.session.user.id,
       },
     });
   }),
@@ -34,7 +34,7 @@ export const surveysRouter = createTRPCRouter({
       return ctx.prisma.survey.create({
         data: {
           shopId: input.shopId,
-          ownerId: ctx.auth.userId,
+          ownerId: ctx.session.user.id,
         },
       });
     }),
@@ -67,7 +67,7 @@ export const surveysRouter = createTRPCRouter({
         .findFirst({
           where: {
             id: input.surveyId,
-            ownerId: ctx.auth.userId,
+            ownerId: ctx.session.user.id,
           },
         })
         .then((shopByUserId) => {
@@ -123,7 +123,7 @@ export const surveysRouter = createTRPCRouter({
         .findFirst({
           where: {
             id: input.surveyId,
-            ownerId: ctx.auth.userId,
+            ownerId: ctx.session.user.id,
           },
         })
         .then((shopByUserId) => {

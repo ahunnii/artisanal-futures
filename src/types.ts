@@ -290,6 +290,23 @@ export type GeoJsonData = {
     | "FeatureCollection";
 };
 
+export type GeoJsonDataAdvanced = {
+  coordinates: number[][];
+  properties: {
+    color: string;
+  };
+  type:
+    | "Point"
+    | "MultiPoint"
+    | "LineString"
+    | "MultiLineString"
+    | "Polygon"
+    | "MultiPolygon"
+    | "GeometryCollection"
+    | "Feature"
+    | "FeatureCollection";
+};
+
 export type CalculatedStep = {
   type: string; // or you could be more specific: type: "start" | "job" | "break" | "end";
   location?: [number, number][];
@@ -337,6 +354,14 @@ export type LatLngBounds = {
     lng: number;
   };
 };
+type Geometry = {
+  type: string;
+  coordinates: Coordinates[];
+};
+export interface Result {
+  geometry: Geometry[];
+  data: Data;
+}
 
 // Artisanal Futures Forum
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import OptimizationRouteCard from "~/components/tools/routing/molecules/cards/OptimizationRouteCard";
 
 import useOpenRoute from "~/hooks/useOpenRoute";
@@ -18,11 +20,9 @@ const CalculationsTab = () => {
   const setOptimization = useRequestStore((state) => state.setOptimization);
 
   const getRoutes = () => {
-    console.log("yeeta");
     getOptimization()
       .then((data) => {
-        console.log(data);
-        setOptimization(data);
+        setOptimization(data as any);
       })
       .catch((err) => {
         console.error(err);

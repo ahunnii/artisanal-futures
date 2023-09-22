@@ -18,7 +18,13 @@ import {
   type FormEvent,
 } from "react";
 
-import type { Break, Driver, Location, TimeWindow } from "~/types";
+import type {
+  Break,
+  Driver,
+  Location,
+  TimeWindow,
+  VehicleResponseData,
+} from "~/types";
 
 import { uniqueId } from "lodash";
 import { convertTime } from "~/utils/routing";
@@ -54,7 +60,7 @@ const EditDriver: FC<IProps> = ({ open, setOpen, stop }) => {
       console.log("address is a duplicate");
       return;
     }
-    updateDriver(stop.id, initData);
+    updateDriver(stop.id, initData as VehicleResponseData);
     setOpen(false);
   };
 

@@ -15,7 +15,13 @@ import { getFormValues } from "~/utils/routing";
 
 import TimeWindowInput from "../../atoms/inputs/TimeWindowInput";
 
-import type { Break, Driver, Location, TimeWindow } from "~/types";
+import type {
+  Break,
+  Driver,
+  Location,
+  TimeWindow,
+  VehicleResponseData,
+} from "~/types";
 
 import { Trash, X } from "lucide-react";
 import {
@@ -67,7 +73,7 @@ const AddDriver: FC<IProps> = ({ open, setOpen }) => {
       return;
     }
 
-    appendDriver(initData);
+    appendDriver(initData as VehicleResponseData);
     setOpen(false);
   };
 

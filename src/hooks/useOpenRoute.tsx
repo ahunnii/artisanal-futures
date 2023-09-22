@@ -198,8 +198,6 @@ const useOpenRoute = () => {
       },
     };
 
-    console.log(params);
-
     const headers = {
       Accept:
         "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",

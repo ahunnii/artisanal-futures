@@ -1,6 +1,11 @@
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
-import type { Driver, DriverCSVData, Location, StopCSVData } from "~/types";
+import type {
+  CustomerResponseData,
+  DriverCSVData,
+  StopCSVData,
+  VehicleResponseData,
+} from "~/types";
 
 import axios from "axios";
 import type { MutableRefObject } from "react";
@@ -33,7 +38,7 @@ export const parseDriver = (data: DriverCSVData) =>
       };
     }),
     coordinates: { latitude: data.latitude, longitude: data.longitude },
-  } as unknown as Driver);
+  } as unknown as VehicleResponseData);
 
 export const parseStop = (data: StopCSVData) =>
   ({
@@ -47,12 +52,12 @@ export const parseStop = (data: StopCSVData) =>
     }),
     priority: data.priority,
     coordinates: { latitude: data.latitude, longitude: data.longitude },
-  } as Location);
+  } as CustomerResponseData);
 
 export const parseCSVFile = (
   file: File,
   type: string,
-  onComplete: (data: Driver[] | Location[]) => void
+  onComplete: (data: CustomerResponseData[] | VehicleResponseData[]) => void
 ) => {
   Papa.parse(file, {
     header: true,
@@ -60,17 +65,54 @@ export const parseCSVFile = (
     skipEmptyLines: true,
     complete: (results) => {
       if (type === "driver") {
-        const parsedData: Partial<Driver>[] = results.data.map((row) =>
-          parseDriver(row as DriverCSVData)
+        const parsedData: Partial<VehicleResponseData>[] = results.data.map(
+          (row) => parseDriver(row as DriverCSVData)
         );
 
-        onComplete(parsedData as unknown as Driver[]);
+        onComplete(parsedData as VehicleResponseData[]);
       } else if (type === "stop") {
-        const parsedData: Partial<Location>[] = results.data.map((row) =>
-          parseDriver(row as DriverCSVData)
+        const parsedData: Partial<CustomerResponseData>[] = results.data.map(
+          (row) => parseDriver(row as DriverCSVData)
         );
-        onComplete(parsedData as unknown as Location[]);
+        onComplete(parsedData as CustomerResponseData[]);
       }
+    },
+  });
+};
+export const parseDriverCSVFile = (
+  file: File,
+
+  onComplete: (data: VehicleResponseData[]) => void
+) => {
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    complete: (results) => {
+      const parsedData: Partial<VehicleResponseData>[] = results.data.map(
+        (row) => parseDriver(row as DriverCSVData)
+      );
+
+      onComplete(parsedData as VehicleResponseData[]);
+    },
+  });
+};
+
+export const parseStopCSVFile = (
+  file: File,
+
+  onComplete: (data: CustomerResponseData[]) => void
+) => {
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: true,
+    skipEmptyLines: true,
+    complete: (results) => {
+      const parsedData: Partial<CustomerResponseData>[] = results.data.map(
+        (row) => parseDriver(row as DriverCSVData)
+      );
+
+      onComplete(parsedData as CustomerResponseData[]);
     },
   });
 };

@@ -17,7 +17,7 @@ import {
   TimeWindowInput,
 } from "~/components/tools/routing/atoms";
 import { useRouteStore } from "~/store";
-import type { Location, TimeWindow } from "~/types";
+import type { CustomerResponseData, Location, TimeWindow } from "~/types";
 import { getFormValues } from "~/utils/routing";
 
 interface IProps {
@@ -63,7 +63,7 @@ const AddStop: FC<IProps> = ({ open, setOpen }) => {
       return;
     }
 
-    appendLocation(initData);
+    appendLocation(initData as CustomerResponseData);
     setOpen(false);
   };
 

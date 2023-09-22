@@ -13,7 +13,7 @@ import { uniqueId } from "lodash";
 import { useState } from "react";
 import { useRouteStore } from "~/store";
 
-import { parseCSVFile } from "~/utils/routing";
+import { parseDriverCSVFile } from "~/utils/routing";
 
 import DriverListingCard from "~/components/tools/routing/molecules/cards/DriverListingCard";
 import ViewDriver from "../molecules/slides/ViewDriver";
@@ -47,7 +47,7 @@ const DriversTab = () => {
   };
 
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    parseCSVFile(event.target.files?.[0], "driver", setDrivers);
+    parseDriverCSVFile(event.target.files![0]!, setDrivers);
   };
   return (
     <>

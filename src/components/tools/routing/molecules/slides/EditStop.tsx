@@ -18,7 +18,7 @@ import {
   type FormEvent,
 } from "react";
 
-import type { Location, TimeWindow } from "~/types";
+import type { CustomerResponseData, Location, TimeWindow } from "~/types";
 
 interface IProps {
   open: boolean;
@@ -50,7 +50,7 @@ const EditStop: FC<IProps> = ({ open, setOpen, stop }) => {
       console.log("address is a duplicate");
       return;
     }
-    updateLocation(stop.id, initData);
+    updateLocation(stop.id, initData as CustomerResponseData);
     setOpen(false);
   };
 

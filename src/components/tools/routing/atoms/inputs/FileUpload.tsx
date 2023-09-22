@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRouteStore } from "~/store";
 import { parseDriver, parseStop } from "~/utils/routing";
 import { classNames } from "~/utils/styles";
@@ -44,7 +46,7 @@ const FileUpload: FC<IProps> = ({ dataType, autofillDemo }) => {
         skipEmptyLines: true,
         complete: (results) => {
           const parsedData = results.data.map(
-            (row: unknown) => createParsedEntry(row) as unknown
+            (row: unknown) => createParsedEntry(row as any) as any
           );
 
           setData(dataType === "stop" ? "locations" : "drivers", parsedData);

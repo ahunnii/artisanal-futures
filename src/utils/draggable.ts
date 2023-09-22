@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import interact from "interactjs";
 
 export function draggable(node: HTMLElement): void {
@@ -31,7 +32,7 @@ export function draggable(node: HTMLElement): void {
         }),
       ],
       listeners: {
-        move: (event: Interact.InteractEvent) => {
+        move: (event: any) => {
           const { width, height } = event.rect;
           const { left, top } = event.deltaRect;
           const target = event.target as HTMLElement;

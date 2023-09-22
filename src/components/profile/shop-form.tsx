@@ -1,7 +1,6 @@
-"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Shop } from "@prisma/client";
-import { initial, pickBy } from "lodash";
+
 import { Trash } from "lucide-react";
 
 import { useState } from "react";

@@ -11,7 +11,7 @@ import {
 import { AddStop, EditStop } from "~/components/tools/routing/molecules";
 
 import type { Location } from "~/types";
-import { parseCSVFile } from "~/utils/routing";
+import { parseStopCSVFile } from "~/utils/routing";
 
 import { uniqueId } from "lodash";
 
@@ -43,7 +43,7 @@ const StopsTab = () => {
   };
 
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    parseCSVFile(event.target.files?.[0], "stop", setLocations);
+    parseStopCSVFile(event.target.files![0]!, setLocations);
   };
 
   return (

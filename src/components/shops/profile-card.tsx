@@ -4,14 +4,13 @@ import React from "react";
 
 import { cn } from "~/utils/styles";
 
-type IProps = Shop & React.HTMLAttributes<HTMLDivElement>;
+type IProps = Partial<Shop> & React.HTMLAttributes<HTMLDivElement>;
 
 const ProfileCard: FC<IProps> = ({
   shopName,
   ownerName,
   bio,
   ownerPhoto,
-
   className,
 }) => {
   return (

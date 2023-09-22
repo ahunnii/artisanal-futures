@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Map } from "leaflet";
 import L, { type LatLngExpression } from "leaflet";
 import { GoogleProvider } from "leaflet-geosearch";
@@ -21,6 +23,11 @@ type FilteredLocation = {
   vehicle_id: number;
 };
 
+type CachedOptimization = {
+  geometry: any;
+  data: any;
+};
+
 const RoutingMap = () => {
   const drivers = useRouteStore((state) => state.drivers);
   const locations = useRouteStore((state) => state.locations);
@@ -29,6 +36,7 @@ const RoutingMap = () => {
   const cachedOptimizations = useRequestStore(
     (state) => state.cachedOptimizations
   );
+
   const [geojsonData, setGeojsonData] = useState<GeoJsonData[] | null>();
   const setOptimization = useRequestStore((state) => state.setOptimization);
 
@@ -83,12 +91,13 @@ const RoutingMap = () => {
         .then((data) => {
           setFilteredLocations(
             mapJobsToVehicles(
-              cachedOptimizations.get(data)?.data
+              (cachedOptimizations.get(data) as CachedOptimization)?.data
                 .routes as Array<CalculatedVehicleData>
             )
           );
           setGeojsonData(
-            cachedOptimizations.get(data)?.geometry as GeoJsonData[]
+            (cachedOptimizations.get(data) as CachedOptimization)
+              ?.geometry as GeoJsonData[]
           );
         })
         .catch((err) => {
@@ -161,6 +170,7 @@ const RoutingMap = () => {
           })
         }
       />
+      {/* @ts-ignore */}
       {geojsonData && <GeoJSON data={geojsonData} style={getStyle} />}
     </MapContainer>
   );
