@@ -133,14 +133,14 @@ const RoutingMap = () => {
       />
       {locations &&
         locations.length > 0 &&
-        locations.map((location) => (
+        locations.map((location, idx) => (
           <StopMarker
             position={[
               location.coordinates?.latitude as number,
               location.coordinates?.longitude as number,
             ]}
             name={location?.address}
-            key={location?.address}
+            key={idx}
             id={location.id}
             colorMapping={
               filteredLocations.find(
@@ -152,7 +152,7 @@ const RoutingMap = () => {
         ))}
       {drivers &&
         drivers.length > 0 &&
-        drivers.map((vehicle) => (
+        drivers.map((vehicle, idx) => (
           <CarMarker
             position={[
               vehicle.coordinates?.latitude as number,
@@ -160,7 +160,7 @@ const RoutingMap = () => {
             ]}
             name={vehicle.address}
             vehicle={vehicle}
-            key={vehicle.address}
+            key={idx}
           />
         ))}{" "}
       <MapSearch

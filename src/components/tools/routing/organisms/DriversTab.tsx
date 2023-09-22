@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import {
   FileUpload,
   PrimaryBtn,
@@ -6,13 +8,13 @@ import {
 } from "~/components/tools/routing/atoms/";
 import { AddDriver, EditDriver } from "~/components/tools/routing/molecules";
 import driverData from "~/data/drivers.json";
-import type { Driver } from "~/types";
+import type { Driver, VehicleResponseData } from "~/types";
 
 import { uniqueId } from "lodash";
 
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouteStore } from "~/store";
-
 import { parseDriverCSVFile } from "~/utils/routing";
 
 import DriverListingCard from "~/components/tools/routing/molecules/cards/DriverListingCard";
@@ -28,6 +30,26 @@ const DriversTab = () => {
   const [editDriver, setEditDriver] = useState(false);
   const [viewDriver, setViewDriver] = useState(false);
   const [current, setCurrent] = useState<Driver | null>(null);
+
+  const { data: session } = useSession();
+
+  const populateDriverCSV = async () => {
+    await fetch("/api/db-fetch?dataType=drivers")
+      .then((res) => res.json())
+      .then((data) => {
+        const parsedStops = data.map((stop: VehicleResponseData) => {
+          return {
+            ...stop,
+            id: parseInt(uniqueId()),
+          };
+        });
+
+        setDrivers(parsedStops);
+      })
+      .catch((error) => {
+        console.error("Error fetching csv:", error);
+      });
+  };
 
   const populateFromDatabase = () => {
     const data = driverData.map((driver) => {
@@ -53,11 +75,21 @@ const DriversTab = () => {
     <>
       <div className="mx-auto my-2 flex w-full items-center justify-center gap-4 bg-white p-3 shadow">
         <PrimaryBtn clickHandler={() => setCreateDriver(true)}>
-          Add Driver
+          Add Driver{" "}
         </PrimaryBtn>
-        <SecondaryBtn clickHandler={populateFromDatabase}>
-          Autofill
-        </SecondaryBtn>
+        {session?.user &&
+          (session?.user.role === "ARTISAN" ||
+            session?.user.role === "ADMIN") && (
+            <SecondaryBtn clickHandler={() => void populateDriverCSV()}>
+              Import
+            </SecondaryBtn>
+          )}{" "}
+        {!session?.user ||
+          (session?.user.role === "USER" && (
+            <SecondaryBtn clickHandler={populateFromDatabase}>
+              Autofill
+            </SecondaryBtn>
+          ))}
         <UploadBtn handleOnChange={handleCSVUpload} />
       </div>
       <AddDriver open={createDriver} setOpen={setCreateDriver} />

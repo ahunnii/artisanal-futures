@@ -15,7 +15,7 @@ const Hero: FC = () => {
           >
             <polygon points="50,0 100,0 50,100 0,100" />
           </svg>
-          <div className="mx-auto max-w-7xl items-center px-4 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+          <div className="mx-auto my-6 max-w-7xl items-center px-4 sm:px-6 md:my-8 lg:mt-20 lg:px-8 xl:mt-28">
             <div className="flex w-full flex-col items-center justify-center text-center lg:justify-start">
               <h1 className="text-5xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
                 Artisanal Futures

@@ -6,12 +6,14 @@ import {
 } from "~/utils/routing";
 
 import { useCallback, type FC } from "react";
-
-import { Disclosure } from "@headlessui/react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 import { Fragment } from "react";
-
-import { ChevronUp } from "lucide-react";
 
 import RouteQRModal from "~/components/tools/routing/molecules/RouteQRModal";
 import type {
@@ -54,94 +56,82 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({
   const endTime = formatTime(route.steps[route.steps.length - 1]?.arrival ?? 0);
 
   return (
-    <div
+    <Accordion
+      type="single"
+      collapsible
       className={
-        " flex  flex-col bg-slate-50 p-2  " +
+        " flex  w-full flex-col bg-slate-50  p-2" +
         " shadow " +
         color.shadow +
         " border-2 " +
         color.border
       }
     >
-      <Disclosure>
-        {({ open }) => (
-          <>
-            <Disclosure.Button className="flex items-center justify-between ">
-              <p className=" flex flex-col text-left font-bold text-slate-800">
-                <span>{drivers.get(route.vehicle)?.name}</span>
-                <span>
-                  {startTime} to {endTime}
-                </span>
-              </p>
-              <span className="flex items-center gap-4">
-                <RouteQRModal data={extractRouteInfo()} />{" "}
-                <ChevronUp
-                  className={
-                    `${open ? "rotate-180 transform" : ""} h-5 w-5 ` +
-                    color.text
-                  }
-                />
+      <AccordionItem value="item-1">
+        <AccordionTrigger>
+          {" "}
+          <p className=" block flex w-full flex-col text-left font-bold text-slate-800">
+            <span>{drivers.get(route.vehicle)?.name}</span>
+            <span>
+              {startTime} to {endTime}
+            </span>
+          </p>
+          <span className="flex items-center gap-4">
+            <RouteQRModal data={extractRouteInfo()} />{" "}
+          </span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <ul
+            role="list"
+            className="w-full list-disc space-y-3 py-3 pl-5 text-slate-500 marker:text-sky-400"
+          >
+            <li>
+              <span className="flex w-full text-sm font-bold">{startTime}</span>
+              <span className="font-base flex w-full text-sm text-slate-700">
+                Leave from:
               </span>
-            </Disclosure.Button>
+              <span className="flex w-full text-sm font-semibold text-slate-500">
+                {drivers.get(route.vehicle)?.address}
+              </span>
+            </li>
+            {route.steps.map((step: Step, idx: number) => (
+              <Fragment key={idx}>
+                {step.id && step.id >= 0 && (
+                  <li key={`step-${step.id}`}>
+                    <span className="flex w-full text-sm  font-bold capitalize">
+                      {convertSecondsToTime(step.arrival)}
+                    </span>
 
-            <Disclosure.Panel>
-              <ul
-                role="list"
-                className="list-disc space-y-3 py-3 pl-5 text-slate-500 marker:text-sky-400"
-              >
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {startTime}
-                  </span>
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    Leave from:
-                  </span>
-                  <span className="flex w-full text-sm font-semibold text-slate-500">
-                    {drivers.get(route.vehicle)?.address}
-                  </span>
-                </li>
-                {route.steps.map((step: Step, idx: number) => (
-                  <Fragment key={idx}>
-                    {step.id && step.id >= 0 && (
-                      <li key={`step-${step.id}`}>
-                        <span className="flex w-full text-sm  font-bold capitalize">
-                          {convertSecondsToTime(step.arrival)}
-                        </span>
+                    <span className="font-base flex w-full text-sm text-slate-700">
+                      {step.type === "job"
+                        ? "Delivery at:"
+                        : `Break for ${convertMinutes(
+                            step?.service ?? 0
+                          )} mins `}
+                    </span>
+                    <span className="flex w-full text-sm font-semibold text-slate-500">
+                      {step.type === "job"
+                        ? locations.get(step?.id)?.address
+                        : ""}
+                    </span>
+                  </li>
+                )}
+              </Fragment>
+            ))}
+            <li>
+              <span className="flex w-full text-sm font-bold">{endTime}</span>
 
-                        <span className="font-base flex w-full text-sm text-slate-700">
-                          {step.type === "job"
-                            ? "Delivery at:"
-                            : `Break for ${convertMinutes(
-                                step?.service ?? 0
-                              )} mins `}
-                        </span>
-                        <span className="flex w-full text-sm font-semibold text-slate-500">
-                          {step.type === "job"
-                            ? locations.get(step?.id)?.address
-                            : ""}
-                        </span>
-                      </li>
-                    )}
-                  </Fragment>
-                ))}
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {endTime}
-                  </span>
-
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    End back at:
-                  </span>
-                  <span className=" flex w-full text-sm font-semibold text-slate-500">
-                    {drivers.get(route.vehicle)?.address}
-                  </span>
-                </li>
-              </ul>
-            </Disclosure.Panel>
-          </>
-        )}
-      </Disclosure>
-    </div>
+              <span className="font-base flex w-full text-sm text-slate-700">
+                End back at:
+              </span>
+              <span className=" flex w-full text-sm font-semibold text-slate-500">
+                {drivers.get(route.vehicle)?.address}
+              </span>
+            </li>
+          </ul>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
 export default OptimizationRouteCard;

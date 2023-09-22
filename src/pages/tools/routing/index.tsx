@@ -79,7 +79,7 @@ const RoutingPage = () => {
                 Calculate
               </Tab>
             </Tab.List>
-            <Tab.Panels className="flex  h-full flex-col overflow-y-auto">
+            <Tab.Panels className="flex  h-fit flex-grow flex-col overflow-y-auto ">
               <Tab.Panel
                 key={0}
                 className="flex h-full flex-col rounded-xl p-3"
