@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Shop } from "@prisma/client";
-
+import { initial, pickBy } from "lodash";
 import { Trash } from "lucide-react";
 
 import { useState } from "react";
@@ -33,7 +33,7 @@ import { Textarea } from "../ui/textarea";
 const formSchema = z.object({
   shopName: z.string().min(2),
   ownerName: z.string(),
-  bio: z.string().optional().or(z.literal("")),
+  bio: z.string().optional(),
   description: z.string().optional(),
   logoPhoto: z.string().optional(),
   address: z.string().optional(),
@@ -49,7 +49,7 @@ const formSchema = z.object({
 type SettingsFormValues = z.infer<typeof formSchema>;
 
 interface SettingsFormProps {
-  initialData: Shop | null;
+  initialData: Shop;
 }
 
 export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
@@ -61,23 +61,21 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData
-      ? initialData
-      : {
-          shopName: "",
-          ownerName: "",
-          bio: "",
-          description: "",
-          logoPhoto: "",
-          address: "",
-          city: "",
-          state: "",
-          zip: "",
-          country: "",
-          phone: "",
-          email: "",
-          website: "",
-        },
+    defaultValues: {
+      shopName: initialData?.shopName ?? "",
+      ownerName: initialData?.ownerName ?? "",
+      bio: initialData?.bio ?? "",
+      description: initialData?.description ?? "",
+      logoPhoto: initialData?.logoPhoto ?? "",
+      address: initialData?.address ?? "",
+      city: initialData?.city ?? "",
+      state: initialData?.state ?? "",
+      zip: initialData?.zip ?? "",
+      country: initialData?.country ?? "",
+      phone: initialData?.phone ?? "",
+      email: initialData?.email ?? "",
+      website: initialData?.website ?? "",
+    },
   });
 
   const { mutate: updateShop } = api.shops.updateShop.useMutation({
@@ -207,15 +205,12 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
                 <FormItem className="sm:col-span-3">
                   <FormLabel>Logo</FormLabel>
                   <FormControl>
-                    {/* <>
-                  {!initialData?.images && <ImageLoader />} */}
                     <LogoUpload
                       value={field.value ?? ""}
                       disabled={loading}
                       onChange={(url) => field.onChange(url)}
                       onRemove={() => field.onChange("")}
                     />
-                    {/* </> */}
                   </FormControl>
                   <FormMessage />
                 </FormItem>

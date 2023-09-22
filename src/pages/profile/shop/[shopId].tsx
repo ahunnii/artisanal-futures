@@ -28,7 +28,7 @@ const DashboardPage: FC<DashboardPageProps> = ({ shop }) => {
       <ProfileLayout>
         <div className="space-y-6">
           {typeof shop === "undefined" && <PageLoader />}
-          {typeof shop === "object" && <ShopForm initialData={shop ?? null} />}
+          {typeof shop === "object" && <ShopForm initialData={shop} />}
         </div>
       </ProfileLayout>
     </>
