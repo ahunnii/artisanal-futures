@@ -155,6 +155,7 @@ export const postRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      console.log(input);
       const posts = await ctx.prisma.post.findMany({
         take: 10,
         where: {

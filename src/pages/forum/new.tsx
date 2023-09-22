@@ -1,10 +1,13 @@
 import { PostForm } from "~/components/forum/post-form";
 
+import type { User } from "@prisma/client";
+import type { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import ForumLayout from "~/layouts/forum-layout";
 import { api } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 const NewPostPage = () => {
   const router = useRouter();
@@ -48,4 +51,13 @@ const NewPostPage = () => {
   );
 };
 
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const user = (await authenticateUser(ctx)) as User;
+
+  return {
+    props: {
+      user,
+    },
+  };
+}
 export default NewPostPage;

@@ -1,7 +1,10 @@
-import { useSession } from "next-auth/react";
+import type { User } from "@prisma/client";
+import type { GetServerSidePropsContext } from "next";
+
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import type { FC } from "react";
 
 import { Layout } from "~/components/forum/layout";
 
@@ -14,6 +17,7 @@ import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
 import ForumLayout from "~/layouts/forum-layout";
 
 import { api, type RouterInputs } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 const PostSummary = dynamic<PostSummaryProps>(
   () =>
@@ -23,8 +27,10 @@ const PostSummary = dynamic<PostSummaryProps>(
 
 const POSTS_PER_PAGE = 20;
 
-const Home = () => {
-  const { data: session } = useSession();
+interface IProps {
+  user: User;
+}
+const Home: FC<IProps> = ({ user }) => {
   const router = useRouter();
   const currentPageNumber = router.query.page ? Number(router.query.page) : 1;
   const utils = api.useContext();
@@ -38,7 +44,7 @@ const Home = () => {
 
       const previousQuery = utils.post.feed.getData(feedQueryPathAndInput);
       try {
-        if (previousQuery && session) {
+        if (previousQuery && user) {
           utils.post.feed.setData(feedQueryPathAndInput, {
             ...previousQuery,
 
@@ -50,8 +56,8 @@ const Home = () => {
                       ...post.likedBy,
                       {
                         user: {
-                          id: session.user.id ?? null,
-                          name: session.user.name ?? null,
+                          id: user.id,
+                          name: user.name,
                         },
                       },
                     ],
@@ -84,7 +90,7 @@ const Home = () => {
               ? {
                   ...post,
                   likedBy: post.likedBy.filter(
-                    (item) => item.user.id !== session!.user.id
+                    (item) => item.user.id !== user.id
                   ),
                 }
               : post
@@ -105,12 +111,12 @@ const Home = () => {
     return (
       <>
         <Head>
-          <title>Beam</title>
+          <title>AF Forums</title>
         </Head>
 
         <ForumLayout>
           {feedQuery.data.postCount === 0 ? (
-            <div className="rounded border px-10 py-20 text-center text-forum-secondary text-slate-500">
+            <div className="rounded border px-10 py-20 text-center text-forum-secondary ">
               There are no published posts to show yet.
             </div>
           ) : (
@@ -166,4 +172,11 @@ const Home = () => {
   );
 };
 
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const user = await authenticateUser(ctx);
+
+  console.log(user);
+
+  return user;
+}
 export default Home;

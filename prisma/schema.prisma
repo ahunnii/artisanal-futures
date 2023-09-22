@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = [ "fullTextSearch", "fullTextIndex"]
 }
 
 enum Role {
@@ -131,7 +132,7 @@ model Post {
 
   @@index([authorId])
   @@index([hidden, createdAt(sort: Desc)])
-  // @@fulltext([title, content])
+  @@fulltext([title, content])
 }
 
 model LikedPosts {

@@ -20,8 +20,8 @@ const Navbar = () => {
       name: "Products",
     },
     {
-      id: "forums",
-      name: "Forums",
+      id: "forum",
+      name: "Forum",
     },
     {
       id: "tools",

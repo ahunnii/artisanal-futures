@@ -1,16 +1,9 @@
 import { AuthorWithDate } from "~/components/forum/author-with-date";
 import { Avatar } from "~/components/forum/avatar";
 import { Banner } from "~/components/forum/banner";
-import { Button } from "~/components/forum/button";
+
 import { ButtonLink } from "~/components/forum/button-link";
-import {
-  Dialog,
-  DialogActions,
-  DialogCloseButton,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "~/components/forum/dialog";
+
 import { HtmlView } from "~/components/forum/html-view";
 import { IconButton } from "~/components/forum/icon-button";
 import {
@@ -21,9 +14,9 @@ import {
   MessageIcon,
   TrashIcon,
 } from "~/components/forum/icons";
-import { Layout } from "~/components/forum/layout";
+
 import { LikeButton } from "~/components/forum/like-button";
-import { MarkdownEditor } from "~/components/forum/markdown-editor";
+
 import {
   Menu,
   MenuButton,
@@ -32,16 +25,22 @@ import {
   MenuItemsContent,
 } from "~/components/forum/menu";
 
-import { api, type RouterInputs, type RouterOutputs } from "~/utils/api";
+import { api, type RouterInputs } from "~/utils/api";
 
+import type { User } from "@prisma/client";
+import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import * as React from "react";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import toast from "react-hot-toast";
-import ForumLayout from "~/layouts/forum-layout";
+import { Fragment, useState } from "react";
 
+import AddCommentForm from "~/components/forum/post/add-comment-form";
+import Comment from "~/components/forum/post/comment";
+import ConfirmDeleteDialog from "~/components/forum/post/confirm-delete-dialog";
+import ConfirmHideDialog from "~/components/forum/post/confirm-hide-dialog";
+import ConfirmUnhideDialog from "~/components/forum/post/confirm-unhide-dialog";
+import ForumLayout from "~/layouts/forum-layout";
+import { authenticateUser } from "~/utils/auth";
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };
 }
@@ -55,7 +54,7 @@ const PostPage = () => {
   );
   const postQuery = api.post.detail.useQuery(postQueryPathAndInput);
   const likeMutation = api.post.like.useMutation({
-    onMutate: async (likedPostId) => {
+    onMutate: async () => {
       await utils.post.detail.invalidate(postQueryPathAndInput);
 
       const previousPost = utils.post.detail.getData(postQueryPathAndInput);
@@ -77,14 +76,14 @@ const PostPage = () => {
 
       return { previousPost };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousPost) {
         utils.post.detail.setData(postQueryPathAndInput, context.previousPost);
       }
     },
   });
   const unlikeMutation = api.post.unlike.useMutation({
-    onMutate: async (unlikedPostId) => {
+    onMutate: async () => {
       await utils.post.detail.invalidate(postQueryPathAndInput);
 
       const previousPost = utils.post.detail.getData(postQueryPathAndInput);
@@ -100,18 +99,17 @@ const PostPage = () => {
 
       return { previousPost };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousPost) {
         utils.post.detail.setData(postQueryPathAndInput, context.previousPost);
       }
     },
   });
   const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
-    React.useState(false);
-  const [isConfirmHideDialogOpen, setIsConfirmHideDialogOpen] =
-    React.useState(false);
+    useState(false);
+  const [isConfirmHideDialogOpen, setIsConfirmHideDialogOpen] = useState(false);
   const [isConfirmUnhideDialogOpen, setIsConfirmUnhideDialogOpen] =
-    React.useState(false);
+    useState(false);
 
   function handleHide() {
     setIsConfirmHideDialogOpen(true);
@@ -343,7 +341,7 @@ const PostPage = () => {
         </div>
         <div className="mt-7 space-y-3">
           {[...Array(3)].map((_, idx) => (
-            <React.Fragment key={idx}>
+            <Fragment key={idx}>
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2 h-5 rounded bg-gray-200 dark:bg-gray-700" />
                 <div className="col-span-1 h-5 rounded bg-gray-200 dark:bg-gray-700" />
@@ -354,7 +352,7 @@ const PostPage = () => {
                 <div className="col-span-2 h-5 rounded bg-gray-200 dark:bg-gray-700" />
               </div>
               <div className="h-5 w-3/5 rounded bg-gray-200 dark:bg-gray-700" />
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
         <div className="mt-6 flex gap-4">
@@ -366,425 +364,13 @@ const PostPage = () => {
   );
 };
 
-function Comment({
-  postId,
-  comment,
-}: {
-  postId: number;
-  comment: RouterOutputs["post"]["detail"]["comments"][number];
-}) {
-  const { data: session } = useSession();
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] =
-    React.useState(false);
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const user = (await authenticateUser(ctx)) as User;
 
-  const commentBelongsToUser = comment.author.id === session!.user.id;
-
-  if (isEditing) {
-    return (
-      <div className="flex items-start gap-4">
-        <Avatar name={comment.author.name!} src={comment.author.image} />
-        <EditCommentForm
-          postId={postId}
-          comment={comment}
-          onDone={() => {
-            setIsEditing(false);
-          }}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-4">
-        <AuthorWithDate author={comment.author} date={comment.createdAt} />
-        {commentBelongsToUser && (
-          <Menu>
-            <MenuButton as={IconButton} variant="secondary" title="More">
-              <DotsIcon className="h-4 w-4" />
-            </MenuButton>
-
-            <MenuItems className="w-28">
-              <MenuItemsContent>
-                <MenuItemButton
-                  className="hover:text-white"
-                  onClick={() => {
-                    setIsEditing(true);
-                  }}
-                >
-                  Edit
-                </MenuItemButton>
-                <MenuItemButton
-                  className="!text-forum-red hover:text-white"
-                  onClick={() => {
-                    setIsConfirmDeleteDialogOpen(true);
-                  }}
-                >
-                  Delete
-                </MenuItemButton>
-              </MenuItemsContent>
-            </MenuItems>
-          </Menu>
-        )}
-      </div>
-
-      <div className="mt-4 pl-11 sm:pl-16">
-        <HtmlView html={comment.contentHtml} />
-      </div>
-
-      <ConfirmDeleteCommentDialog
-        postId={postId}
-        commentId={comment.id}
-        isOpen={isConfirmDeleteDialogOpen}
-        onClose={() => {
-          setIsConfirmDeleteDialogOpen(false);
-        }}
-      />
-    </div>
-  );
-}
-
-type CommentFormData = {
-  content: string;
-};
-
-function AddCommentForm({ postId }: { postId: number }) {
-  const [markdownEditorKey, setMarkdownEditorKey] = React.useState(0);
-  const utils = api.useContext();
-  const addCommentMutation = api.comment.add.useMutation({
-    onSuccess: () => {
-      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
+  return {
+    props: {
+      user,
     },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-  const { control, handleSubmit, reset } = useForm<CommentFormData>();
-
-  const onSubmit: SubmitHandler<CommentFormData> = (data) => {
-    addCommentMutation.mutate(
-      {
-        postId,
-        content: data.content,
-      },
-      {
-        onSuccess: () => {
-          reset({ content: "" });
-          setMarkdownEditorKey((markdownEditorKey) => markdownEditorKey + 1);
-        },
-      }
-    );
   };
-
-  return (
-    <form className="flex-1" onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
-      <Controller
-        name="content"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <MarkdownEditor
-            key={markdownEditorKey}
-            value={field.value}
-            onChange={field.onChange}
-            onTriggerSubmit={() => void handleSubmit(onSubmit)()}
-            required
-            placeholder="Comment"
-            minRows={4}
-          />
-        )}
-      />
-      <div className="mt-4">
-        <Button
-          type="submit"
-          isLoading={addCommentMutation.isLoading}
-          loadingChildren="Adding comment"
-        >
-          Add comment
-        </Button>
-      </div>
-    </form>
-  );
 }
-
-function EditCommentForm({
-  postId,
-  comment,
-  onDone,
-}: {
-  postId: number;
-  comment: RouterOutputs["post"]["detail"]["comments"][number];
-  onDone: () => void;
-}) {
-  const utils = api.useContext();
-  const editCommentMutation = api.comment.edit.useMutation({
-    onSuccess: () => {
-      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-  const { control, handleSubmit } = useForm<CommentFormData>({
-    defaultValues: {
-      content: comment.content,
-    },
-  });
-
-  const onSubmit: SubmitHandler<CommentFormData> = (data) => {
-    editCommentMutation.mutate(
-      {
-        id: comment.id,
-        data: {
-          content: data.content,
-        },
-      },
-      {
-        onSuccess: () => onDone(),
-      }
-    );
-  };
-
-  return (
-    <form className="flex-1" onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
-      <Controller
-        name="content"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <MarkdownEditor
-            value={field.value}
-            onChange={field.onChange}
-            onTriggerSubmit={() => void handleSubmit(onSubmit)()}
-            required
-            placeholder="Comment"
-            minRows={4}
-            autoFocus
-          />
-        )}
-      />
-      <div className="mt-4 flex gap-4">
-        <Button
-          type="submit"
-          isLoading={editCommentMutation.isLoading}
-          loadingChildren="Updating comment"
-        >
-          Update comment
-        </Button>
-        <Button variant="secondary" onClick={onDone}>
-          Cancel
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function ConfirmDeleteCommentDialog({
-  postId,
-  commentId,
-  isOpen,
-  onClose,
-}: {
-  postId: number;
-  commentId: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const utils = api.useContext();
-  const deleteCommentMutation = api.comment.delete.useMutation({
-    onSuccess: () => {
-      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-
-  return (
-    <Dialog isOpen={isOpen} onClose={onClose} initialFocus={cancelRef}>
-      <DialogContent>
-        <DialogTitle>Delete comment</DialogTitle>
-        <DialogDescription className="mt-6">
-          Are you sure you want to delete this comment?
-        </DialogDescription>
-        <DialogCloseButton onClick={onClose} />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="secondary"
-          className="!text-forum-red"
-          isLoading={deleteCommentMutation.isLoading}
-          loadingChildren="Deleting comment"
-          onClick={() => {
-            deleteCommentMutation.mutate(commentId, {
-              onSuccess: () => onClose(),
-            });
-          }}
-        >
-          Delete comment
-        </Button>
-        <Button variant="secondary" onClick={onClose} ref={cancelRef}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function ConfirmDeleteDialog({
-  postId,
-  isOpen,
-  onClose,
-}: {
-  postId: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const router = useRouter();
-  const deletePostMutation = api.post.delete.useMutation({
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-
-  return (
-    <Dialog isOpen={isOpen} onClose={onClose} initialFocus={cancelRef}>
-      <DialogContent>
-        <DialogTitle>Delete post</DialogTitle>
-        <DialogDescription className="mt-6">
-          Are you sure you want to delete this post?
-        </DialogDescription>
-        <DialogCloseButton onClick={onClose} />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="secondary"
-          className="!text-forum-red"
-          isLoading={deletePostMutation.isLoading}
-          loadingChildren="Deleting post"
-          onClick={() => {
-            deletePostMutation.mutate(postId, {
-              onSuccess: () => void router.push("/"),
-            });
-          }}
-        >
-          Delete post
-        </Button>
-        <Button variant="secondary" onClick={onClose} ref={cancelRef}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function ConfirmHideDialog({
-  postId,
-  isOpen,
-  onClose,
-}: {
-  postId: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const utils = api.useContext();
-  const hidePostMutation = api.post.hide.useMutation({
-    onSuccess: () => {
-      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-
-  return (
-    <Dialog isOpen={isOpen} onClose={onClose} initialFocus={cancelRef}>
-      <DialogContent>
-        <DialogTitle>Hide post</DialogTitle>
-        <DialogDescription className="mt-6">
-          Are you sure you want to hide this post?
-        </DialogDescription>
-        <DialogCloseButton onClick={onClose} />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="secondary"
-          isLoading={hidePostMutation.isLoading}
-          loadingChildren="Hiding post"
-          onClick={() => {
-            hidePostMutation.mutate(postId, {
-              onSuccess: () => {
-                toast.success("Post hidden");
-                onClose();
-              },
-            });
-          }}
-        >
-          Hide post
-        </Button>
-        <Button variant="secondary" onClick={onClose} ref={cancelRef}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function ConfirmUnhideDialog({
-  postId,
-  isOpen,
-  onClose,
-}: {
-  postId: number;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const utils = api.useContext();
-  const unhidePostMutation = api.post.unhide.useMutation({
-    onSuccess: () => {
-      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-
-  return (
-    <Dialog isOpen={isOpen} onClose={onClose} initialFocus={cancelRef}>
-      <DialogContent>
-        <DialogTitle>Unhide post</DialogTitle>
-        <DialogDescription className="mt-6">
-          Are you sure you want to unhide this post?
-        </DialogDescription>
-        <DialogCloseButton onClick={onClose} />
-      </DialogContent>
-      <DialogActions>
-        <Button
-          variant="secondary"
-          isLoading={unhidePostMutation.isLoading}
-          loadingChildren="Unhiding post"
-          onClick={() => {
-            unhidePostMutation.mutate(postId, {
-              onSuccess: () => {
-                toast.success("Post unhidden");
-                onClose();
-              },
-            });
-          }}
-        >
-          Unhide post
-        </Button>
-        <Button variant="secondary" onClick={onClose} ref={cancelRef}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
 export default PostPage;

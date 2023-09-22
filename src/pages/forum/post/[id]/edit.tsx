@@ -1,11 +1,14 @@
 import { PostForm } from "~/components/forum/post-form";
 
+import type { User } from "@prisma/client";
+import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import ForumLayout from "~/layouts/forum-layout";
 import { api } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 const EditPostPage = () => {
   const { data: session } = useSession();
@@ -78,21 +81,29 @@ const EditPostPage = () => {
         <div className="mt-7">
           <div>
             <div className="h-5 w-10 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="border-forum-secondary mt-2 h-[42px] rounded border" />
+            <div className="mt-2 h-[42px] rounded border border-forum-secondary" />
           </div>
           <div className="mt-6">
             <div className="h-5 w-10 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="border-forum-secondary mt-2 h-9 rounded border" />
-            <div className="border-forum-secondary mt-2 h-[378px] rounded border" />
+            <div className="mt-2 h-9 rounded border border-forum-secondary" />
+            <div className="mt-2 h-[378px] rounded border border-forum-secondary" />
           </div>
         </div>
         <div className="mt-9 flex gap-4">
           <div className="h-button w-[92px] rounded-full bg-gray-200 dark:bg-gray-700" />
-          <div className="border-forum-secondary h-button w-20 rounded-full border" />
+          <div className="h-button w-20 rounded-full border border-forum-secondary" />
         </div>
       </div>
     </ForumLayout>
   );
 };
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const user = (await authenticateUser(ctx)) as User;
 
+  return {
+    props: {
+      user,
+    },
+  };
+}
 export default EditPostPage;

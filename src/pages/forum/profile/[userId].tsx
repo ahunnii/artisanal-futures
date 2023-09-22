@@ -1,34 +1,29 @@
+import type { User } from "@prisma/client";
+import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import * as React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { useMutation } from "react-query";
+
 import { Avatar } from "~/components/forum/avatar";
-import { Button } from "~/components/forum/button";
-import {
-  Dialog,
-  DialogActions,
-  DialogCloseButton,
-  DialogContent,
-  DialogTitle,
-} from "~/components/forum/dialog";
 import { IconButton } from "~/components/forum/icon-button";
 import { EditIcon } from "~/components/forum/icons";
-import { Layout } from "~/components/forum/layout";
+
 import {
   Pagination,
   getQueryPaginationInput,
 } from "~/components/forum/pagination";
 import type { PostSummaryProps } from "~/components/forum/post-summary";
 import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
-import { TextField } from "~/components/forum/text-field";
+import DotPattern from "~/components/forum/profile/dot-pattern";
+import EditProfileDialog from "~/components/forum/profile/edit-profile-dialog";
+import UpdateAvatarDialog from "~/components/forum/profile/update-avatar-dialog";
+
 import { env } from "~/env.mjs";
 import ForumLayout from "~/layouts/forum-layout";
-import { RouterInputs, api } from "~/utils/api";
-import { uploadImage } from "~/utils/forum/cloudinary";
+import { api, type RouterInputs } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 const PostSummary = dynamic<PostSummaryProps>(
   () =>
@@ -51,12 +46,6 @@ const ProfilePage = () => {
       <ProfileFeed />
     </>
   );
-};
-
-ProfilePage.auth = true;
-
-ProfilePage.getLayout = function getLayout(page: React.ReactElement) {
-  return <Layout>{page}</Layout>;
 };
 
 function ProfileInfo() {
@@ -230,7 +219,7 @@ function ProfileFeed() {
 
       return { previousQuery };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousQuery) {
         utils.post.feed.setData(
           profileFeedQueryPathAndInput,
@@ -265,7 +254,7 @@ function ProfileFeed() {
 
       return { previousQuery };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousQuery) {
         utils.post.feed.setData(
           profileFeedQueryPathAndInput,
@@ -329,260 +318,14 @@ function ProfileFeed() {
   );
 }
 
-function DotPattern() {
-  return (
-    <svg
-      className="-z-1 absolute inset-0"
-      width={720}
-      height={240}
-      fill="none"
-      viewBox="0 0 720 240"
-    >
-      <defs>
-        <pattern
-          id="dot-pattern"
-          x={0}
-          y={0}
-          width={31.5}
-          height={31.5}
-          patternUnits="userSpaceOnUse"
-        >
-          <circle
-            cx={1.5}
-            cy={1.5}
-            r={1.5}
-            className="text-gray-100 dark:text-gray-700"
-            fill="currentColor"
-          />
-        </pattern>
-      </defs>
-      <rect width={720} height={240} fill="url(#dot-pattern)" />
-    </svg>
-  );
-}
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const user = (await authenticateUser(ctx)) as User;
 
-type EditFormData = {
-  name: string;
-  title: string | null;
-};
-
-function EditProfileDialog({
-  user,
-  isOpen,
-  onClose,
-}: {
-  user: {
-    name: string;
-    title: string | null;
+  return {
+    props: {
+      user,
+    },
   };
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const { register, handleSubmit, reset } = useForm<EditFormData>({
-    defaultValues: {
-      name: user.name,
-      title: user.title,
-    },
-  });
-  const router = useRouter();
-  const utils = api.useContext();
-  const editUserMutation = api.user.edit.useMutation({
-    onSuccess: () => {
-      window.location.reload();
-      return utils.user.profile.invalidate(
-        getProfileQueryPathAndInput(String(router.query.userId))
-      );
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-
-  function handleClose() {
-    onClose();
-    reset();
-  }
-
-  const onSubmit: SubmitHandler<EditFormData> = (data) => {
-    editUserMutation.mutate(
-      {
-        name: data.name,
-        title: data.title,
-      },
-      {
-        onSuccess: () => onClose(),
-      }
-    );
-  };
-
-  return (
-    <Dialog isOpen={isOpen} onClose={handleClose}>
-      <form onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
-        <DialogContent>
-          <DialogTitle>Edit profile</DialogTitle>
-          <div className="mt-6 space-y-6">
-            <TextField
-              {...register("name", { required: true })}
-              label="Name"
-              required
-            />
-
-            <TextField {...register("title")} label="Title" />
-          </div>
-          <DialogCloseButton onClick={handleClose} />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            type="submit"
-            isLoading={editUserMutation.isLoading}
-            loadingChildren="Saving"
-          >
-            Save
-          </Button>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-}
-
-function UpdateAvatarDialog({
-  user,
-  isOpen,
-  onClose,
-}: {
-  user: {
-    name: string;
-    image: string | null;
-  };
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [uploadedImage, setUploadedImage] = React.useState(user.image);
-  const updateUserAvatarMutation = api.user.updateAvatar.useMutation({
-    onSuccess: () => {
-      window.location.reload();
-    },
-    onError: (error) => {
-      toast.error(`Something went wrong: ${error.message}`);
-    },
-  });
-  const uploadImageMutation = api.user.uploadImage.useMutation(
-    // (file: File) => {
-    //   return uploadImage(file);
-    // },
-    {
-      onError: (error: any) => {
-        toast.error(`Error uploading image: ${error.message}`);
-      },
-    }
-  );
-
-  function handleClose() {
-    onClose();
-    setUploadedImage(user.image);
-  }
-
-  return (
-    <Dialog isOpen={isOpen} onClose={handleClose}>
-      <DialogContent>
-        <DialogTitle>Update avatar</DialogTitle>
-        <DialogCloseButton onClick={handleClose} />
-        <div className="mt-8 flex justify-center">
-          <Avatar name={user.name} src={uploadedImage} size="lg" />
-        </div>
-        <div className="mt-6 grid grid-flow-col gap-6">
-          <div className="text-center">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                fileInputRef.current?.click();
-              }}
-            >
-              Choose file…
-            </Button>
-            <input
-              ref={fileInputRef}
-              name="user-image"
-              type="file"
-              accept=".jpg, .jpeg, .png, .gif"
-              className="hidden"
-              onChange={(event) => {
-                const files = event.target.files;
-
-                if (files && files.length > 0) {
-                  const file = files[0];
-                  if (file.size > 5242880) {
-                    toast.error("Image is bigger than 5MB");
-                    return;
-                  }
-                  setUploadedImage(URL.createObjectURL(files[0]));
-                }
-              }}
-            />
-            <p className="mt-2 text-xs text-forum-secondary">
-              JPEG, PNG, GIF / 5MB max
-            </p>
-          </div>
-          {uploadedImage && (
-            <div className="text-center">
-              <Button
-                variant="secondary"
-                className="!text-forum-red"
-                onClick={() => {
-                  fileInputRef.current!.value = "";
-                  URL.revokeObjectURL(uploadedImage);
-                  setUploadedImage(null);
-                }}
-              >
-                Remove photo
-              </Button>
-              <p className="mt-2 text-xs text-forum-secondary">
-                And use default avatar
-              </p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          isLoading={
-            updateUserAvatarMutation.isLoading || uploadImageMutation.isLoading
-          }
-          loadingChildren="Saving changes"
-          onClick={async () => {
-            if (user.image === uploadedImage) {
-              handleClose();
-            } else {
-              const files = fileInputRef.current?.files;
-
-              if (files && files.length > 0) {
-                uploadImageMutation.mutate(files[0], {
-                  onSuccess: (uploadedImage) => {
-                    updateUserAvatarMutation.mutate({
-                      image: uploadedImage.url,
-                    });
-                  },
-                });
-              } else {
-                updateUserAvatarMutation.mutate({
-                  image: null,
-                });
-              }
-            }
-          }}
-        >
-          Save changes
-        </Button>
-        <Button variant="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
 }
 
 export default ProfilePage;
