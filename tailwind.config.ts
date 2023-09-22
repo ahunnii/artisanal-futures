@@ -27,6 +27,45 @@ module.exports = {
         knee: "url('/img/knee.svg')",
         seatBack: "url('/img/seat_back.svg')",
         blank: "url('/img/blank.svg')",
+        "circle-grid": "url('/images/bg-circlegrid.svg')",
+        "circle-grid-dark": "url('/images/bg-circlegrid-dark.svg')",
+      },
+      backgroundColor: {
+        "forum-primary": "#fff",
+        "forum-primary-inverse": "#1a1b21",
+        "forum-secondary": "#fafbfc",
+        "forum-secondary-inverse": "#30313a",
+        "forum-green": "#13862e",
+        "forum-green-light": "#effff3",
+        "forum-yellow-light": "#fffbe4",
+      },
+      textColor: {
+        "forum-primary": "#1a1b21",
+        "forum-primary-inverse": "#fff",
+        "forum-secondary": "#5a5f68",
+        "forum-secondary-inverse": "#fafbfc",
+        "forum-blue": "#0e73cc",
+        "forum-green": "#13862e",
+        "forum-orange": "#c43c02",
+        "forum-red": "#dd243c",
+        "forum-red-disabled": "#ff909f",
+        "forum-red-light": "#ff455d",
+        "forum-purple": "#624bbb",
+        "forum-purple-light": "#a18bf5",
+      },
+      borderColor: {
+        // DEFAULT: "var(--border-primary)",
+        "forum-primary": "#ebeef2",
+        "forum-secondary": "#d0d3d7",
+        "forum-green": "#13862e",
+        "forum-yellow-light": "#fed54a",
+      },
+      transitionTimingFunction: {
+        spring: "cubic-bezier(.25,1.6,.5,.8)",
+      },
+      divideColor: {
+        "forum-primary": "#ebeef2",
+        "forum-secondary": "#d0d3d7",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -34,6 +73,7 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -62,6 +102,12 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      height: {
+        button: "34px",
+      },
+      width: {
+        "icon-button": "34px",
       },
       borderRadius: {
         lg: "var(--radius)",

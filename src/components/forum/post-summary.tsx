@@ -66,7 +66,7 @@ export function PostSummary({
 
         <div className={classNames(hideAuthor ? "mt-2" : "mt-6")}>
           {hideAuthor ? (
-            <p className="tracking-tight text-secondary">
+            <p className="tracking-tight text-forum-secondary">
               <time dateTime={post.createdAt.toISOString()}>
                 {formatDistanceToNow(post.createdAt as Date)}
               </time>{" "}
@@ -82,7 +82,7 @@ export function PostSummary({
         <div className="clear-both mt-4 flex items-center gap-4">
           {hasMore && (
             <Link href={`/forum/post/${post.id}`}>
-              <span className="text-blue inline-flex items-center font-medium transition-colors">
+              <span className="inline-flex items-center font-medium text-forum-blue transition-colors">
                 Continue reading <ChevronRightIcon className="ml-1 h-4 w-4" />
               </span>
             </Link>
@@ -101,9 +101,9 @@ export function PostSummary({
                 >
                   <div className="inline-flex items-center gap-1.5">
                     {isLikedByCurrentUser ? (
-                      <HeartFilledIcon className="text-red h-4 w-4" />
+                      <HeartFilledIcon className="h-4 w-4 text-forum-red" />
                     ) : (
-                      <HeartIcon className="text-red h-4 w-4" />
+                      <HeartIcon className="h-4 w-4 text-forum-red" />
                     )}
                     <span className="text-sm font-semibold tabular-nums">
                       {likeCount}
@@ -114,7 +114,7 @@ export function PostSummary({
                   side="bottom"
                   sideOffset={4}
                   className={classNames(
-                    "bg-secondary-inverse text-secondary-inverse max-w-[260px] rounded px-3 py-1.5 shadow-lg sm:max-w-sm",
+                    "max-w-[260px] rounded bg-forum-secondary-inverse px-3 py-1.5 text-forum-secondary-inverse shadow-lg sm:max-w-sm",
                     likeCount === 0 && "hidden"
                   )}
                 >
@@ -139,7 +139,7 @@ export function PostSummary({
             </TooltipProvider>
 
             <div className="inline-flex items-center gap-1.5">
-              <MessageIcon className="h-4 w-4 text-secondary" />
+              <MessageIcon className="h-4 w-4 text-forum-secondary" />
               <span className="text-sm font-semibold tabular-nums">
                 {post._count.comments}
               </span>

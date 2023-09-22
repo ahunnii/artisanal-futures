@@ -10,7 +10,7 @@ export function Banner({ children, className }: BannerProps) {
   return (
     <div
       className={classNames(
-        "bg-yellow-light border-yellow-light rounded border p-6 font-semibold leading-snug",
+        "rounded border border-yellow-light bg-forum-yellow-light p-6 font-semibold leading-snug",
         className
       )}
     >

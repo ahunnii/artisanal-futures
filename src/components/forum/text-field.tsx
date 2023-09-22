@@ -24,7 +24,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
           name={name}
           type={type}
           className={classNames(
-            "focus-ring block w-full rounded border-secondary bg-secondary py-1 shadow-sm",
+            "focus-ring border-forum-secondary block w-full rounded bg-forum-secondary py-1 shadow-sm",
             className
           )}
         />

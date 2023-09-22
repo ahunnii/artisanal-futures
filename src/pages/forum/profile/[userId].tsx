@@ -26,6 +26,7 @@ import type { PostSummaryProps } from "~/components/forum/post-summary";
 import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
 import { TextField } from "~/components/forum/text-field";
 import { env } from "~/env.mjs";
+import ForumLayout from "~/layouts/forum-layout";
 import { RouterInputs, api } from "~/utils/api";
 import { uploadImage } from "~/utils/forum/cloudinary";
 
@@ -79,103 +80,110 @@ function ProfileInfo() {
         <Head>
           <title>{profileQuery.data.name} - Beam</title>
         </Head>
-
-        <div className="relative flex items-center gap-4 overflow-hidden py-8">
-          <div className="flex items-center gap-8">
-            {env.NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD && profileBelongsToUser ? (
-              <button
-                aria-label="Edit avatar"
-                type="button"
-                className="group relative inline-flex"
-                onClick={() => {
-                  setIsUpdateAvatarDialogOpen(true);
-                }}
-              >
+        <ForumLayout>
+          <div className="relative flex items-center gap-4 overflow-hidden py-8">
+            <div className="flex items-center gap-8">
+              {env.NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD && profileBelongsToUser ? (
+                <button
+                  aria-label="Edit avatar"
+                  type="button"
+                  className="group relative inline-flex"
+                  onClick={() => {
+                    setIsUpdateAvatarDialogOpen(true);
+                  }}
+                >
+                  <Avatar
+                    name={profileQuery.data.name!}
+                    src={profileQuery.data.image}
+                    size="lg"
+                  />
+                  <div className="absolute inset-0 rounded-full bg-gray-900 opacity-0 transition-opacity group-hover:opacity-50" />
+                  <div className="absolute left-1/2 top-1/2 inline-flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-gray-900 opacity-0 transition-opacity group-hover:opacity-100">
+                    <EditIcon className="h-4 w-4 text-white" />
+                  </div>
+                </button>
+              ) : (
                 <Avatar
                   name={profileQuery.data.name!}
                   src={profileQuery.data.image}
                   size="lg"
                 />
-                <div className="absolute inset-0 rounded-full bg-gray-900 opacity-0 transition-opacity group-hover:opacity-50" />
-                <div className="absolute left-1/2 top-1/2 inline-flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-gray-900 opacity-0 transition-opacity group-hover:opacity-100">
-                  <EditIcon className="h-4 w-4 text-white" />
-                </div>
-              </button>
-            ) : (
-              <Avatar
-                name={profileQuery.data.name!}
-                src={profileQuery.data.image}
-                size="lg"
-              />
+              )}
+
+              <div className="flex-1">
+                <h1 className="bg-forum-primary text-2xl font-semibold tracking-tight md:text-3xl">
+                  {profileQuery.data.name}
+                </h1>
+                {profileQuery.data.title && (
+                  <p className="text-lg tracking-tight text-forum-secondary">
+                    {profileQuery.data.title}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {profileBelongsToUser && (
+              <div className="ml-auto mr-10">
+                <IconButton
+                  variant="secondary"
+                  onClick={() => {
+                    setIsEditProfileDialogOpen(true);
+                  }}
+                >
+                  <EditIcon className="h-4 w-4" />
+                </IconButton>
+              </div>
             )}
 
-            <div className="flex-1">
-              <h1 className="bg-primary text-2xl font-semibold tracking-tight md:text-3xl">
-                {profileQuery.data.name}
-              </h1>
-              {profileQuery.data.title && (
-                <p className="text-lg tracking-tight text-secondary">
-                  {profileQuery.data.title}
-                </p>
-              )}
-            </div>
+            <DotPattern />
           </div>
 
-          {profileBelongsToUser && (
-            <div className="ml-auto mr-10">
-              <IconButton
-                variant="secondary"
-                onClick={() => {
-                  setIsEditProfileDialogOpen(true);
-                }}
-              >
-                <EditIcon className="h-4 w-4" />
-              </IconButton>
-            </div>
-          )}
+          <EditProfileDialog
+            user={{
+              name: profileQuery.data.name!,
+              title: profileQuery.data.title,
+            }}
+            isOpen={isEditProfileDialogOpen}
+            onClose={() => {
+              setIsEditProfileDialogOpen(false);
+            }}
+          />
 
-          <DotPattern />
-        </div>
-
-        <EditProfileDialog
-          user={{
-            name: profileQuery.data.name!,
-            title: profileQuery.data.title,
-          }}
-          isOpen={isEditProfileDialogOpen}
-          onClose={() => {
-            setIsEditProfileDialogOpen(false);
-          }}
-        />
-
-        <UpdateAvatarDialog
-          key={profileQuery.data.image}
-          user={{
-            name: profileQuery.data.name!,
-            image: profileQuery.data.image,
-          }}
-          isOpen={isUpdateAvatarDialogOpen}
-          onClose={() => {
-            setIsUpdateAvatarDialogOpen(false);
-          }}
-        />
+          <UpdateAvatarDialog
+            key={profileQuery.data.image}
+            user={{
+              name: profileQuery.data.name!,
+              image: profileQuery.data.image,
+            }}
+            isOpen={isUpdateAvatarDialogOpen}
+            onClose={() => {
+              setIsUpdateAvatarDialogOpen(false);
+            }}
+          />
+        </ForumLayout>
       </>
     );
   }
 
   if (profileQuery.isError) {
-    return <div>Error: {profileQuery.error.message}</div>;
+    return (
+      <ForumLayout>
+        <div>Error: {profileQuery.error.message}</div>
+      </ForumLayout>
+    );
   }
 
   return (
-    <div className="relative flex animate-pulse items-center gap-8 overflow-hidden py-8">
-      <div className="h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700" />
-      <div className="flex-1">
-        <div className="h-8 w-60 rounded bg-gray-200 dark:bg-gray-700" />
-        <div className="mt-2 h-5 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+    <ForumLayout>
+      <div className="relative flex animate-pulse items-center gap-8 overflow-hidden py-8">
+        <div className="h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="flex-1">
+          <div className="h-8 w-60 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mt-2 h-5 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+        <DotPattern />
       </div>
-      <DotPattern />
-    </div>
+    </ForumLayout>
   );
 }
 
@@ -272,11 +280,11 @@ function ProfileFeed() {
       <>
         <div className="mt-28 flow-root">
           {profileFeedQuery.data.postCount === 0 ? (
-            <div className="rounded border px-10 py-20 text-center text-secondary">
+            <div className="rounded border px-10 py-20 text-center text-forum-secondary">
               This user hasn&apos;t published any posts yet.
             </div>
           ) : (
-            <ul className="-my-12 divide-y divide-primary">
+            <ul className="-my-12 divide-y divide-forum-primary">
               {profileFeedQuery.data.posts.map((post) => (
                 <li key={post.id} className="py-10">
                   <PostSummary
@@ -310,7 +318,7 @@ function ProfileFeed() {
 
   return (
     <div className="mt-28 flow-root">
-      <ul className="-my-12 divide-y divide-primary">
+      <ul className="-my-12 divide-y divide-forum-primary">
         {[...Array(3)].map((_, idx) => (
           <li key={idx} className="py-10">
             <PostSummarySkeleton hideAuthor />
@@ -515,7 +523,7 @@ function UpdateAvatarDialog({
                 }
               }}
             />
-            <p className="mt-2 text-xs text-secondary">
+            <p className="mt-2 text-xs text-forum-secondary">
               JPEG, PNG, GIF / 5MB max
             </p>
           </div>
@@ -523,7 +531,7 @@ function UpdateAvatarDialog({
             <div className="text-center">
               <Button
                 variant="secondary"
-                className="!text-red"
+                className="!text-forum-red"
                 onClick={() => {
                   fileInputRef.current!.value = "";
                   URL.revokeObjectURL(uploadedImage);
@@ -532,7 +540,7 @@ function UpdateAvatarDialog({
               >
                 Remove photo
               </Button>
-              <p className="mt-2 text-xs text-secondary">
+              <p className="mt-2 text-xs text-forum-secondary">
                 And use default avatar
               </p>
             </div>

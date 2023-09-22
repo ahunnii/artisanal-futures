@@ -40,6 +40,7 @@ import { useRouter } from "next/router";
 import * as React from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import toast from "react-hot-toast";
+import ForumLayout from "~/layouts/forum-layout";
 
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };
@@ -137,10 +138,10 @@ const PostPage = () => {
     return (
       <>
         <Head>
-          <title>{postQuery.data.title} - Beam</title>
+          <title>{postQuery.data.title} - AF Forums</title>
         </Head>
-        <Layout>
-          <article className="divide-y divide-primary">
+        <ForumLayout>
+          <article className="divide-y divide-forum-primary">
             <div className="pb-12">
               {postQuery.data.hidden && (
                 <Banner className="mb-6">
@@ -159,7 +160,7 @@ const PostPage = () => {
                       <Menu>
                         <MenuButton
                           as={IconButton}
-                          variant="primary"
+                          variant="secondary"
                           title="More"
                         >
                           <DotsIcon className="h-4 w-4" />
@@ -183,7 +184,7 @@ const PostPage = () => {
                                   Edit
                                 </MenuItemButton>
                                 <MenuItemButton
-                                  className="!text-red"
+                                  className="!text-forum-red"
                                   onClick={handleDelete}
                                 >
                                   Delete
@@ -216,18 +217,18 @@ const PostPage = () => {
                       {postBelongsToUser && (
                         <>
                           <IconButton
-                            variant="primary"
+                            variant="secondary"
                             title="Edit"
                             onClick={handleEdit}
                           >
                             <EditIcon className="h-4 w-4" />
                           </IconButton>
                           <IconButton
-                            variant="primary"
+                            variant="secondary"
                             title="Delete"
                             onClick={handleDelete}
                           >
-                            <TrashIcon className="text-red h-4 w-4" />
+                            <TrashIcon className="h-4 w-4 text-forum-red" />
                           </IconButton>
                         </>
                       )}
@@ -254,9 +255,9 @@ const PostPage = () => {
                 />
                 <ButtonLink
                   href={`/forum/post/${postQuery.data.id}#comments`}
-                  variant="primary"
+                  variant="secondary"
                 >
-                  <MessageIcon className="h-4 w-4 text-primary" />
+                  <MessageIcon className="h-4 w-4 text-forum-secondary" />
                   <span className="ml-1.5">
                     {postQuery.data.comments.length}
                   </span>
@@ -316,21 +317,21 @@ const PostPage = () => {
               setIsConfirmUnhideDialogOpen(false);
             }}
           />
-        </Layout>
+        </ForumLayout>
       </>
     );
   }
 
   if (postQuery.isError) {
     return (
-      <Layout>
+      <ForumLayout>
         <div>Error: {postQuery.error.message}</div>
-      </Layout>
+      </ForumLayout>
     );
   }
 
   return (
-    <Layout>
+    <ForumLayout>
       <div className="animate-pulse">
         <div className="h-9 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
         <div className="mt-6 flex items-center gap-4">
@@ -357,11 +358,11 @@ const PostPage = () => {
           ))}
         </div>
         <div className="mt-6 flex gap-4">
-          <div className="h-button w-16 rounded-full border border-secondary" />
-          <div className="h-button w-16 rounded-full border border-secondary" />
+          <div className="h-button w-16 rounded-full border border-forum-secondary" />
+          <div className="h-button w-16 rounded-full border border-forum-secondary" />
         </div>
       </div>
-    </Layout>
+    </ForumLayout>
   );
 };
 
@@ -400,7 +401,7 @@ function Comment({
         <AuthorWithDate author={comment.author} date={comment.createdAt} />
         {commentBelongsToUser && (
           <Menu>
-            <MenuButton as={IconButton} variant="primary" title="More">
+            <MenuButton as={IconButton} variant="secondary" title="More">
               <DotsIcon className="h-4 w-4" />
             </MenuButton>
 
@@ -415,7 +416,7 @@ function Comment({
                   Edit
                 </MenuItemButton>
                 <MenuItemButton
-                  className="!text-red hover:text-white"
+                  className="!text-forum-red hover:text-white"
                   onClick={() => {
                     setIsConfirmDeleteDialogOpen(true);
                   }}
@@ -613,7 +614,7 @@ function ConfirmDeleteCommentDialog({
       <DialogActions>
         <Button
           variant="secondary"
-          className="!text-red"
+          className="!text-forum-red"
           isLoading={deleteCommentMutation.isLoading}
           loadingChildren="Deleting comment"
           onClick={() => {
@@ -661,7 +662,7 @@ function ConfirmDeleteDialog({
       <DialogActions>
         <Button
           variant="secondary"
-          className="!text-red"
+          className="!text-forum-red"
           isLoading={deletePostMutation.isLoading}
           loadingChildren="Deleting post"
           onClick={() => {

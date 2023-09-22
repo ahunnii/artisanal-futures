@@ -86,7 +86,7 @@ export function PostForm({
             href="https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-blue flex items-center gap-2 text-secondary transition-colors"
+            className="flex items-center gap-2 text-forum-secondary transition-colors hover:text-forum-blue"
           >
             <MarkdownIcon />
             <span className="text-xs">Markdown supported</span>

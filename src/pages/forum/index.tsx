@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -13,8 +11,9 @@ import {
 } from "~/components/forum/pagination";
 import type { PostSummaryProps } from "~/components/forum/post-summary";
 import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
+import ForumLayout from "~/layouts/forum-layout";
 
-import { RouterOutputs, api, type RouterInputs } from "~/utils/api";
+import { api, type RouterInputs } from "~/utils/api";
 
 const PostSummary = dynamic<PostSummaryProps>(
   () =>
@@ -65,9 +64,9 @@ const Home = () => {
 
       return { previousQuery };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousQuery) {
-        utils.post.feed.setData(feedQueryPathAndInput, context.previousQuery);
+        utils.post.feed.setData(feedQueryPathAndInput, context?.previousQuery);
       }
     },
   });
@@ -95,9 +94,9 @@ const Home = () => {
 
       return { previousQuery };
     },
-    onError: (err, id, context: any) => {
+    onError: (err, id, context) => {
       if (context?.previousQuery) {
-        utils.post.feed.setData(feedQueryPathAndInput, context.previousQuery);
+        utils.post.feed.setData(feedQueryPathAndInput, context?.previousQuery);
       }
     },
   });
@@ -109,14 +108,14 @@ const Home = () => {
           <title>Beam</title>
         </Head>
 
-        <Layout>
+        <ForumLayout>
           {feedQuery.data.postCount === 0 ? (
-            <div className="rounded border px-10 py-20 text-center text-secondary text-slate-500">
+            <div className="rounded border px-10 py-20 text-center text-forum-secondary text-slate-500">
               There are no published posts to show yet.
             </div>
           ) : (
             <div className="flow-root">
-              <ul className="-my-12 divide-y divide-primary">
+              <ul className="-my-12 divide-y divide-forum-primary">
                 {feedQuery.data.posts.map((post) => (
                   <li key={post.id} className="py-10">
                     <PostSummary
@@ -139,7 +138,7 @@ const Home = () => {
             itemsPerPage={POSTS_PER_PAGE}
             currentPageNumber={currentPageNumber}
           />
-        </Layout>
+        </ForumLayout>
       </>
     );
   }
@@ -154,9 +153,8 @@ const Home = () => {
 
   return (
     <Layout>
-      {" "}
       <div className="flow-root">
-        <ul className="-my-12 divide-y divide-primary">
+        <ul className="-my-12 divide-y divide-forum-primary">
           {[...Array(3)].map((_, idx) => (
             <li key={idx} className="py-10">
               <PostSummarySkeleton />

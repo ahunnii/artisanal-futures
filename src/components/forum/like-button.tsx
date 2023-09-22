@@ -69,7 +69,7 @@ export function LikeButton({
           }}
         >
           <Button
-            variant="primary"
+            variant="secondary"
             responsive={responsive}
             className={classNames(
               "space-x-1.5 overflow-hidden transition-colors [transform:translateZ(0)]",
@@ -82,12 +82,12 @@ export function LikeButton({
           >
             <span className="relative block h-4 w-4 shrink-0">
               {isLikedByCurrentUser && !isLikingAnimation ? (
-                <HeartFilledIcon className="text-red scale-1 absolute inset-0" />
+                <HeartFilledIcon className="scale-1 absolute inset-0 text-forum-red" />
               ) : (
                 <>
                   <HeartIcon
                     className={classNames(
-                      "text-red absolute inset-0 transform-gpu fill-transparent transition-all",
+                      "absolute inset-0 transform-gpu fill-transparent text-forum-red transition-all",
                       isLikingAnimation && "!scale-[12] !fill-red-600"
                     )}
                   />
@@ -99,7 +99,7 @@ export function LikeButton({
                   ></span>
                   <HeartFilledIcon
                     className={classNames(
-                      "ease-spring absolute inset-0 z-10 transform-gpu text-gray-50 transition-transform delay-200 duration-300",
+                      "absolute inset-0 z-10 transform-gpu text-gray-50 transition-transform delay-200 duration-300 ease-spring",
                       isLikingAnimation ? "scale-1" : "scale-0"
                     )}
                   />
@@ -122,7 +122,7 @@ export function LikeButton({
           side="bottom"
           sideOffset={4}
           className={classNames(
-            "bg-secondary-inverse text-secondary-inverse max-w-[260px] rounded px-3 py-1.5 shadow-lg sm:max-w-sm",
+            "max-w-[260px] rounded bg-forum-secondary-inverse px-3 py-1.5 text-forum-secondary-inverse shadow-lg sm:max-w-sm",
             likeCount === 0 && "hidden"
           )}
         >

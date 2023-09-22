@@ -28,6 +28,7 @@ export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
   ) => {
     return (
       <Link
+        legacyBehavior
         href={href}
         as={as}
         replace={replace}
@@ -36,8 +37,9 @@ export const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         passHref={passHref}
         prefetch={prefetch}
         locale={locale}
+        className={buttonClasses({ className, variant, responsive })}
       >
-        <p
+        <a
           {...rest}
           ref={forwardedRef}
           className={buttonClasses({ className, variant, responsive })}

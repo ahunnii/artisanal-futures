@@ -1,9 +1,9 @@
-import { Layout } from "~/components/forum/layout";
 import { PostForm } from "~/components/forum/post-form";
 
 import Head from "next/head";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import ForumLayout from "~/layouts/forum-layout";
 import { api } from "~/utils/api";
 
 const NewPostPage = () => {
@@ -19,7 +19,7 @@ const NewPostPage = () => {
       <Head>
         <title>New Post - Beam</title>
       </Head>
-      <Layout>
+      <ForumLayout>
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
           New post
         </h1>
@@ -43,7 +43,7 @@ const NewPostPage = () => {
             }}
           />
         </div>
-      </Layout>
+      </ForumLayout>
     </>
   );
 };

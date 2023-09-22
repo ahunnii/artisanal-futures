@@ -75,7 +75,7 @@ export function Layout({ children }: LayoutProps) {
                       Log out
                     </MenuItemButton>
                   </MenuItemsContent>
-                  {/* <div className="flex items-center gap-4 rounded-b bg-secondary px-4 py-3">
+                  {/* <div className="flex items-center gap-4 rounded-b bg-forum-secondary px-4 py-3">
                 <label htmlFor="theme" className="text-sm">
                   Theme
                 </label>
@@ -86,7 +86,7 @@ export function Layout({ children }: LayoutProps) {
                   onChange={(event) => {
                     setTheme(event.target.value);
                   }}
-                  className="block w-full rounded border border-secondary bg-primary py-1.5 text-xs shadow-sm"
+                  className="block w-full rounded border border-forum-secondary bg-forum-primary py-1.5 text-xs shadow-sm"
                 >
                   {themes.map((theme) => (
                     <option key={theme} value={theme}>

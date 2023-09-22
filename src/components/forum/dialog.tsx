@@ -45,7 +45,7 @@ export function Dialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="mb-8 mt-[15vh] inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-primary text-left align-middle shadow-xl transition-all dark:border">
+            <div className="mb-8 mt-[15vh] inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-forum-primary text-left align-middle shadow-xl transition-all dark:border">
               {children}
             </div>
           </Transition.Child>
@@ -90,7 +90,7 @@ export function DialogCloseButton({ onClick }: { onClick: () => void }) {
     <div className="absolute right-0 top-0 pr-6 pt-6">
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded-sm text-secondary transition-colors hover:bg-secondary hover:text-primary"
+        className="inline-flex items-center justify-center rounded-sm text-forum-secondary transition-colors hover:bg-forum-secondary hover:text-forum-primary"
         onClick={onClick}
       >
         <span className="sr-only">Close</span>

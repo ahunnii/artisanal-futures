@@ -195,7 +195,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="mb-8 mt-[10vh] inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-primary text-left align-middle shadow-xl transition-all dark:border">
+            <div className="mb-8 mt-[10vh] inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-forum-primary text-left align-middle shadow-xl transition-all dark:border">
               {isOpen ? (
                 <SearchField onSelect={onClose} />
               ) : (

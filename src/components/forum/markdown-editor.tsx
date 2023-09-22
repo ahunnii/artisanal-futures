@@ -27,7 +27,6 @@ import {
   markdownToHtml,
   uploadImageCommandHandler,
 } from "~/utils/forum/editor";
-import { trpc } from "~/utils/forum/trpc";
 
 import { classNames } from "~/utils/styles";
 
@@ -166,7 +165,7 @@ export function MarkdownEditor({
     <div>
       {label && <label className="mb-2 block font-semibold">{label}</label>}
       <div>
-        <div className="flex items-center justify-between gap-4 rounded border bg-secondary px-4 py-px">
+        <div className="flex items-center justify-between gap-4 rounded border bg-forum-primary px-4 py-px">
           <div className="-ml-2 flex gap-2">
             {TOOLBAR_ITEMS.map((toolbarItem) => (
               <button
@@ -179,7 +178,7 @@ export function MarkdownEditor({
                 }}
                 className={classNames(
                   "focus-ring inline-flex h-8 w-8 items-center justify-center rounded focus:border disabled:cursor-default disabled:opacity-50",
-                  !showPreview && "hover:text-blue transition-colors"
+                  !showPreview && "transition-colors hover:text-forum-blue"
                 )}
                 disabled={showPreview}
                 title={toolbarItem.name}
@@ -306,7 +305,7 @@ export function MarkdownEditor({
                   uploadImageCommandHandler(event.currentTarget, imageFiles);
                 }
               }}
-              className="focus-ring block w-full rounded border-secondary bg-secondary shadow-sm"
+              className="focus-ring block w-full rounded border-forum-secondary bg-forum-secondary shadow-sm"
               minRows={minRows}
             />
           </TextareaMarkdown.Wrapper>
@@ -468,7 +467,7 @@ function SuggestionList({
   return (
     <div
       ref={ref}
-      className="absolute max-h-[286px] w-56 overflow-y-auto rounded border bg-primary shadow-lg"
+      className="absolute max-h-[286px] w-56 overflow-y-auto rounded border bg-forum-primary shadow-lg"
       style={{
         top: position.top,
         left: position.left,
@@ -476,7 +475,7 @@ function SuggestionList({
     >
       <ul
         role="listbox"
-        className="divide-y divide-primary"
+        className="divide-y divide-forum-primary"
         aria-label="Suggestion List"
       >
         {suggestionList.map((suggestionResult) => (
@@ -522,7 +521,7 @@ function SuggestionResult({
       aria-selected={highlighted ? "true" : "false"}
       className={classNames(
         "cursor-pointer px-4 py-2 text-left text-sm transition-colors ",
-        highlighted ? "bg-blue-600 text-white" : "text-primary"
+        highlighted ? "bg-blue-600 text-white" : "text-forum-primary"
       )}
     >
       {suggestionResult.label}
