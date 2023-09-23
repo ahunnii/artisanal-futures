@@ -12,6 +12,7 @@ import {
   type BodyPart,
   type Part,
 } from "~/components/tools/sankofa-sizer/store";
+import { Input } from "~/components/ui/input";
 interface IProps {
   bodyPartKey: Part;
   bodyPart: BodyPart;
@@ -72,22 +73,27 @@ const MoveableInput: FC<IProps> = ({
         }}
       >
         <div className="flex flex-col">
-          <div className="flex flex-col">
-            <span className="part-name">{bodyPart.name}</span>
-            <input
+          <div className="flex flex-col ">
+            <span className="part-name relative w-20 min-w-min whitespace-nowrap rounded-e-3xl bg-slate-200 px-2 py-2 font-bold text-slate-800">
+              {bodyPart.name}
+            </span>
+            <Input
               value={inputValue}
               onChange={handleInputChange}
               placeholder="Enter height..."
               // style={{ width: "100%" }}
-              className="relative w-20"
+              className="relative w-20 border-slate-300"
               onContextMenu={(e) => e.preventDefault()}
             />
           </div>
 
           <div
+            className={
+              bodyPart.type === "horizontal"
+                ? "bg-rulerHorizontal"
+                : "bg-rulerVertical"
+            }
             style={{
-              backgroundColor: "lightgray",
-
               width: `${
                 bodyPart.type === "horizontal"
                   ? bodyPart.virtual_length * pixels_per_inch

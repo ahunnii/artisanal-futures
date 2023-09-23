@@ -88,7 +88,7 @@ const MeasurementsForm = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col bg-white text-black"
+        className="my-5 flex flex-col gap-y-3 bg-white text-black"
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
       >
         <FormField
@@ -152,9 +152,7 @@ const MeasurementsForm = () => {
                 </FormControl>
                 <ChevronDownIcon className="absolute right-3 top-2.5 h-4 w-4 opacity-50" />
               </div>
-              <FormDescription>
-                Set the font you want to use in the dashboard.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}

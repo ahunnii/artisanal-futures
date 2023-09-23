@@ -2,6 +2,7 @@ import { throttle } from "@daybrush/utils";
 import { useState } from "react";
 import Moveable from "react-moveable";
 import { useSizerStore } from "~/components/tools/sankofa-sizer/store";
+import { Slider } from "~/components/ui/slider";
 import InchMarker from "./inch-marker";
 
 const VirtualizedInchMarker = () => {
@@ -10,22 +11,30 @@ const VirtualizedInchMarker = () => {
   const [height, setHeight] = useState<number>(45);
   return (
     <>
-      <div className="target-inch absolute z-10  bg-slate-200">
+      {" "}
+      <div className="target-inch absolute z-10   h-10 bg-yellow-400">
         <InchMarker
           unit="inches"
           length={1}
           pixels_per_inch={pixels_per_inch}
           height={height}
         />
+      </div>{" "}
+      <div className="w-96 pt-12">
+        <Slider
+          value={[pixels_per_inch]}
+          min={1}
+          max={326}
+          onValueChange={(value) => updateValue("pixels_per_inch", value)}
+        />
       </div>
-
       <Moveable
         target={".target-inch"}
         hideDefaultLines={true}
-        rotationPosition="top"
+        // rotationPosition="top"
         resizable={true}
-        draggable={true}
-        rotatable={true}
+        // draggable={true}
+        // rotatable={true}
         onDrag={({ target, transform }) => {
           target.style.transform = transform;
         }}

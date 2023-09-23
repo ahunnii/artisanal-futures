@@ -19,6 +19,10 @@ module.exports = {
       backgroundImage: {
         femaleForm:
           "url('https://media.githubusercontent.com/media/robinsonkwame/af-parametric-sewing/main/static/model-breasts-standing.jpg')",
+        rulerVertical:
+          "url('https://raw.githubusercontent.com/robinsonkwame/af-parametric-sewing/4074fa1ae9314b76265fa16134613b563cfa7b13/tmp/tape_vertical.jpeg')",
+        rulerHorizontal:
+          "url('https://raw.githubusercontent.com/robinsonkwame/af-parametric-sewing/4074fa1ae9314b76265fa16134613b563cfa7b13/tmp/tape_horizontal.jpeg')",
         shoulderToWrist: "url('/img/shoulder_to_wrist.svg')",
         bicep: "url('/img/biceps.svg')",
         wrist: "url('/img/wrist.svg')",

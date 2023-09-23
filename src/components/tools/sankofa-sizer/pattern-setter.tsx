@@ -1,5 +1,7 @@
 import { useState, type ChangeEvent } from "react";
 import { useSizerStore } from "~/components/tools/sankofa-sizer/store";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 const PatternSetter = () => {
   const { updateValue } = useSizerStore((state) => state);
 
@@ -37,32 +39,47 @@ const PatternSetter = () => {
   };
 
   return (
-    <>
-      <div>
+    <div className="flex w-full flex-col justify-between bg-white p-8">
+      {" "}
+      <h3 className="text-lg font-semibold">Upload your pattern</h3>
+      <p>Choose from a URL or a file upload</p>
+      <div className="flex flex-col  gap-5 pt-8">
         {/* {!imageUrl && ( */}
-        <>
+        <div className="flex w-1/3 flex-col text-center">
           {/* <!-- Input box for URL --> */}
-          <input
-            type="text"
-            placeholder="Enter image URL"
-            defaultValue={imageUrl}
-          />
+          <label className="block w-full">
+            <span>Image URL of your pattern:</span>
+            <Input
+              type="text"
+              placeholder="Enter image URL"
+              defaultValue={imageUrl}
+            />
+          </label>
+          <div className="my-3 flex items-center px-3">
+            <hr className="w-full border-slate-600" />
+            <span className="mx-3 text-slate-500">or</span>
+            <hr className="w-full border-slate-600" />
+          </div>
 
           {/* <!-- Input box for file upload --> */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            aria-label="pattern upload"
-          />
-          {/* <!-- demo button :D --> */}
-          <button type="button" onClick={setPatternDemo}>
-            Sleeve block (Demo)
-          </button>
-        </>
+          <label className="block w-full">
+            <span>Upload a file of your pattern:</span>
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              aria-label="pattern upload"
+            />{" "}
+          </label>
+        </div>
+
+        {/* <!-- demo button :D --> */}
+        <Button type="button" onClick={setPatternDemo} className="mt-12 w-1/3">
+          Sleeve block (Demo)
+        </Button>
         {/* )} */}
       </div>
-    </>
+    </div>
   );
 };
 

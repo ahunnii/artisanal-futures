@@ -6,7 +6,7 @@ const BodyMeasurements = () => {
   return (
     <div className="flex w-full justify-between bg-white p-8">
       <div>
-        <h3>Body Measurements</h3>
+        <h3 className="text-lg font-semibold">Body Measurements</h3>
         <p>
           Please enter the following body measurements to ensure proper pattern
           creation

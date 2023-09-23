@@ -20,7 +20,6 @@ const VirtualResize = () => {
 
   // pre-scale the image so it's not such a pain to resize rulers onto it
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
-    console.log(actual_pattern?.blob);
     if (!event.currentTarget) return;
     event.currentTarget.width = largestWidth * pixels_per_inch;
     event.currentTarget.height = largestHeight * pixels_per_inch;
@@ -46,42 +45,43 @@ const VirtualResize = () => {
   return (
     <>
       <VirtualizedInchMarker />
+      <div>
+        <section className="mb-20">
+          {Object.entries(bodyParts).map(([key, part], idx) => {
+            if (part.isEnabled) {
+              return (
+                <MoveableInput
+                  bodyPartKey={key as Part}
+                  bodyPart={part}
+                  key={idx}
+                />
+              );
+            }
+          })}
+        </section>
+        {actual_pattern.blob && (
+          <Image
+            id="virtual-pattern"
+            className="pointer-events-none  -z-10"
+            alt=""
+            src={actual_pattern?.blob}
+            // onLoad={handleImageLoad}
+            height={192 + 192}
+            width={252 + 252}
+          />
+        )}
 
-      <section>
-        {Object.entries(bodyParts).map(([key, part], idx) => {
-          if (part.isEnabled) {
-            return (
-              <MoveableInput
-                bodyPartKey={key as Part}
-                bodyPart={part}
-                key={idx}
-              />
-            );
-          }
-        })}
-      </section>
-      {actual_pattern.blob && (
-        <Image
-          id="virtual-pattern"
-          className="virtual-pattern pointer-events-none  -z-10"
-          alt=""
-          src={actual_pattern?.blob}
-          onLoad={handleImageLoad}
-          height={largestHeight * pixels_per_inch}
-          width={largestWidth * pixels_per_inch}
+        <Moveable
+          target="#virtual-pattern"
+          edge={true}
+          resizable={true}
+          onResize={({ target, width, height }) => {
+            target.style.cssText += `width: ${width}px; height: ${height}px`;
+            actual_pattern.width = width;
+            actual_pattern.height = height;
+          }}
         />
-      )}
-
-      <Moveable
-        target=".virtual-pattern"
-        edge={true}
-        resizable={true}
-        onResize={({ target, width, height }) => {
-          target.style.cssText += `width: ${width}px; height: ${height}px`;
-          actual_pattern.width = width;
-          actual_pattern.height = height;
-        }}
-      />
+      </div>
     </>
   );
 };
