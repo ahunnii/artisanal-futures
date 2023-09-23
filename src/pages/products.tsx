@@ -11,6 +11,7 @@ import ArtisanField from "~/components/products/artisan-field";
 import AttributeField from "~/components/products/attribute-field";
 import ProductCard from "~/components/products/product-card";
 import SearchBar from "~/components/products/search-bar";
+import PageLoader from "~/components/ui/page-loader";
 import useProducts from "~/hooks/useProducts";
 
 const ProductsPage: React.FC = () => {
@@ -146,11 +147,15 @@ const ProductsPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <main className="flex min-h-screen flex-col">
+        <PageLoader />
+      </main>
+    );
   }
 
   if (isError) {
-    return <div>Error occurred while fetching products.</div>;
+    return <Body>Error occurred while fetching products.</Body>;
   }
 
   return (

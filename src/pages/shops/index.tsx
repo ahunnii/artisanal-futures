@@ -11,7 +11,6 @@ interface IProps {
 }
 
 const ShopsPage: FC<IProps> = ({ artisans }) => {
-  console.log(artisans);
   return (
     <>
       <Head>

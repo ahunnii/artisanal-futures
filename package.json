@@ -96,6 +96,7 @@
     "textarea-markdown-editor": "^1.0.4",
     "use-debounce": "^9.0.4",
     "use-item-list": "^0.1.2",
+    "uuidv4": "^6.2.13",
     "zod": "^3.22.1",
     "zustand": "^4.4.1"
   },
