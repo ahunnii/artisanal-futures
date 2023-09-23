@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Body from "~/components/body";
 import Camera from "~/components/tools/style-transfer/camera";
 import CombineTwoStyles from "~/components/tools/style-transfer/combine-two-styles";
@@ -7,7 +8,11 @@ import TransformerSelector from "~/components/tools/style-transfer/transformer-s
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
+import Main from "~/utils/style-transfer/main.mjs";
 const StyleTransfer = () => {
+  useEffect(() => {
+    () => new Main();
+  }, []);
   return (
     <>
       <Body>

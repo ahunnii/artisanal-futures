@@ -38,7 +38,7 @@
     "@supabase/supabase-js": "^2.33.1",
     "@t3-oss/env-nextjs": "^0.3.1",
     "@tanstack/react-query": "^4.29.25",
-    "@tensorflow/tfjs": "^4.11.0",
+    "@tensorflow/tfjs": "~1.0.0",
     "@trpc/client": "^10.34.0",
     "@trpc/next": "^10.34.0",
     "@trpc/react-query": "^10.34.0",

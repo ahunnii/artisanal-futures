@@ -53,7 +53,7 @@ export default function ToolsPage() {
               subtitle="Recreate an image in the style of another"
               type="Logistics"
               image="img/craft_composition.png"
-              url={"https://data.artisanalfutures.org/tools/nst-demo/"}
+              url={"https://artisanal-futures-style-transfer.netlify.app/"}
             />
           </div>
           <div className="mx-auto flex basis-full p-4 md:basis-1/2 lg:basis-1/4 ">

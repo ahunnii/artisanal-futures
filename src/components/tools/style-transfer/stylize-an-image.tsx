@@ -14,6 +14,7 @@ import {
 
 import { Shuffle } from "lucide-react";
 
+// import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import {
@@ -24,6 +25,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { useStyleTransferStore, type StyleTransferImage } from "~/store";
+// import { startStyling } from "~/utils/style-transfer";
 import { classNames, cn } from "~/utils/styles";
 
 tf.ENV.set("WEBGL_PACK", false);
@@ -31,6 +33,35 @@ tf.ENV.set("WEBGL_PACK", false);
 const StylizeAnImage = () => {
   const { styleStrength, setValue, finalImage, modelData, transformerData } =
     useStyleTransferStore((state) => state);
+
+  // const [status, setStatus] = useState("");
+
+  // const initializeStyleTransfer = async () => {
+  //   // Initialize images
+  //   const contentImg = document.querySelector("#content-img")!;
+  //   const styleImg = document.querySelector("#style-img")!;
+  //   const stylized = document.querySelector("#stylized")!;
+  //   finalImage.isGenerating;
+  //   setValue("finalImage", {
+  //     ...finalImage,
+  //     isGenerating: true,
+  //   });
+  //   const currentStatus = await startStyling({
+  //     contentImg: contentImg as HTMLImageElement,
+  //     styleImg: styleImg as HTMLImageElement,
+  //     stylized: stylized as HTMLCanvasElement,
+  //     styleRatio: styleStrength,
+  //     styleNet: modelData!,
+  //     transformNet: transformerData!,
+  //   });
+
+  //   // if(currentStatus === "success") {
+  //   setValue("finalImage", {
+  //     ...finalImage,
+  //     isGenerating: false,
+  //   });
+  //   console.log(currentStatus);
+  // };
 
   return (
     <>
@@ -81,6 +112,7 @@ const StylizeAnImage = () => {
           }
           id="style-button"
           type="button"
+          // onClick={initializeStyleTransfer}
           className="btn btn-primary btn-block"
         >
           {finalImage.isGenerating

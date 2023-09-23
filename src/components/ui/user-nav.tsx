@@ -84,12 +84,14 @@ const UserNav = () => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              Billing
-              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+              <Link href="/profile/shop" className="w-full">
+                Shop
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              Settings
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+              <Link href="/profile/survey" className="w-full">
+                Survey
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>

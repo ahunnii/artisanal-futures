@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /**
  * @license
  * Copyright 2018 Reiichiro Nakano All Rights Reserved.
@@ -18,6 +20,7 @@
 import type { GraphModel } from "@tensorflow/tfjs";
 import * as tf from "@tensorflow/tfjs";
 import "babel-polyfill";
+import { FC } from "react";
 
 tf.ENV.set("WEBGL_PACK", false); // This needs to be done otherwise things run very slow v1.0.4
 
@@ -96,4 +99,97 @@ export const loadStyleTransformer = (styleTransformer: string) => {
   }
 
   return null;
+};
+
+interface StyleTransferProps {
+  styleImg: HTMLImageElement;
+  contentImg: HTMLImageElement;
+  styleRatio: number;
+  styleNet: GraphModel;
+  transformNet: GraphModel;
+
+  stylized: HTMLCanvasElement;
+}
+export const startStyling = async ({
+  styleImg,
+  contentImg,
+  styleRatio,
+  styleNet,
+  transformNet,
+  stylized,
+}: StyleTransferProps) => {
+  try {
+    await tf.nextFrame();
+
+    await tf.nextFrame();
+    let bottleneck = tf.tidy(() => {
+      return styleNet.predict(
+        tf.browser
+          .fromPixels(styleImg)
+          .toFloat()
+          .div(tf.scalar(255))
+          .expandDims()
+      );
+    });
+    if (styleRatio !== 1.0) {
+      await tf.nextFrame();
+      const identityBottleneck = tf.tidy(() => {
+        return styleNet.predict(
+          tf.browser
+
+            .fromPixels(contentImg)
+            .toFloat()
+            .div(tf.scalar(255))
+            .expandDims()
+        );
+      });
+      const styleBottleneck = bottleneck;
+      bottleneck = await tf.tidy(() => {
+        // @ts-ignore
+        const styleBottleneckScaled = styleBottleneck.mul(
+          tf.scalar(styleRatio)
+        );
+        // @ts-ignore
+        const identityBottleneckScaled = identityBottleneck.mul(
+          tf.scalar(1.0 - styleRatio)
+        );
+        return styleBottleneckScaled.addStrict(identityBottleneckScaled);
+      });
+      // @ts-ignore
+      styleBottleneck.dispose();
+      // @ts-ignore
+      identityBottleneck.dispose();
+    }
+
+    await tf.nextFrame();
+    const finalStylized = await tf.tidy(() => {
+      // @ts-ignore
+      return (
+        transformNet
+          .predict([
+            tf.browser
+
+              .fromPixels(contentImg)
+              .toFloat()
+              .div(tf.scalar(255))
+              .expandDims(),
+            // @ts-ignore
+            bottleneck,
+          ])
+          // @ts-ignore
+          .squeeze()
+      );
+    });
+    // @ts-ignore
+    await tf.browser.toPixels(finalStylized, stylized);
+    // @ts-ignore
+    bottleneck.dispose(); // Might wanna keep this around
+    // @ts-ignore
+    stylized.dispose();
+
+    return "success";
+  } catch (e) {
+    console.error(e);
+    return "failed";
+  }
 };
