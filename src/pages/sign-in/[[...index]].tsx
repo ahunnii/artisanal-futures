@@ -1,3 +1,4 @@
+import { MailIcon } from "lucide-react";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -13,6 +14,7 @@ import AuthLayout from "~/layouts/auth-layout";
 import { authOptions } from "~/server/auth";
 const SignInPage = ({
   providers,
+  error,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
   <>
     <Head>
@@ -25,6 +27,9 @@ const SignInPage = ({
         <div className="justify-left flex w-4/12">
           {" "}
           <div className="w-96 rounded bg-white p-4 ">
+            {error && (
+              <p className="text-center font-semibold text-red-700">{error}</p>
+            )}
             <h1 className="mb-4 text-center text-2xl">
               Sign In to Artisanal Futures
             </h1>
@@ -62,8 +67,9 @@ const SignInPage = ({
                 <Button
                   onClick={() => void signIn("auth0")}
                   variant={"outline"}
-                  className="w-full rounded-full"
+                  className="flex w-full gap-x-5 rounded-full"
                 >
+                  <MailIcon className="mr-2 text-gray-400" size={25} />
                   Sign in with email using Auth0
                 </Button>
               </div>
@@ -106,8 +112,21 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const providers = await getProviders();
 
+  const errorMessage: Record<string, string> = {
+    OAuthCallback: "Oops, something went wrong there. Please try again later.",
+    OAuthAccountNotLinked:
+      "The email associated with your selected provider is already in use. Please try another provider or contact us.",
+  };
+
+  const error = context.query.error
+    ? errorMessage[(context.query.error as string) ?? "OAuthCallback"]
+    : null;
+
   return {
-    props: { providers: providers ?? [] },
+    props: {
+      providers: providers ?? [],
+      error: error,
+    },
   };
 }
 export default SignInPage;

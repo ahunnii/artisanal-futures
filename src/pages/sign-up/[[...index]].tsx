@@ -14,6 +14,7 @@ import AuthLayout from "~/layouts/auth-layout";
 import { authOptions } from "~/server/auth";
 const SignUpPage = ({
   providers,
+  error,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => (
   <>
     <Head>
@@ -26,6 +27,9 @@ const SignUpPage = ({
         <div className="justify-left flex w-4/12">
           {" "}
           <div className="w-96 rounded bg-white p-4 ">
+            {error && (
+              <p className="text-center font-semibold text-red-700">{error}</p>
+            )}
             <h1 className="mb-4 text-center text-2xl">
               Sign Up to Artisanal Futures
             </h1>
@@ -107,9 +111,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // return NextResponse.next();
 
   const providers = await getProviders();
+  const errorMessage: Record<string, string> = {
+    OAuthCallback: "Oops, something went wrong there. Please try again later.",
+    OAuthAccountNotLinked:
+      "The email associated with your selected provider is already in use. Please try another provider or contact us.",
+  };
 
+  const error = context.query.error
+    ? errorMessage[(context.query.error as string) ?? "OAuthCallback"]
+    : null;
   return {
-    props: { providers: providers ?? [] },
+    props: { providers: providers ?? [], error: error },
   };
 }
 export default SignUpPage;

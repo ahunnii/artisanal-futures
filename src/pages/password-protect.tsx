@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -72,17 +72,40 @@ const PasswordProtectPage = () => {
 };
 
 const AuthForm = ({ loading }: { loading: boolean }) => {
-  const router = useRouter();
-  const error = router.query.error;
+  const router = useNavigationRouter();
+
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<PassCodeFormValues>({
     resolver: zodResolver(formSchema),
   });
 
+  const onSubmit = async (data: PassCodeFormValues) => {
+    const res = await fetch("/api/password-protect", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((res) => res.json());
+
+    if (res?.error) {
+      setError(res.error as string);
+      return;
+    }
+
+    if (res.success) {
+      router.push("/sign-in");
+    }
+  };
+
   return (
     <>
-      <h1 className="text-2xl">Enter code to sign up</h1>
+      <h1 className="text-2xl">Enter code to continue</h1>
       <Form {...form}>
-        <form action="/api/password-protect" method="post" className="py-5">
+        <form
+          onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+          className="py-5"
+        >
           <FormField
             control={form.control}
             name="password"

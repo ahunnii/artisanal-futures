@@ -2,11 +2,11 @@ import { serialize } from "cookie";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req);
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
   }
   const password = req.body.password;
+
   if (process.env.NEXT_PUBLIC_PASSWORD_PROTECT === password) {
     const fiveMinutes = 60 * 5000;
 
@@ -16,10 +16,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       expires: new Date(Date.now() + fiveMinutes),
     });
     res.setHeader("Set-Cookie", cookie);
-    res.redirect(302, "/sign-in");
+    // res.redirect(302, "/sign-in");
+
+    res.status(302).json({ success: true });
   } else {
-    const url = new URL("/password-protect", req.headers.origin);
-    url.searchParams.append("error", "Incorrect Password");
-    res.redirect(url.toString());
+    res.status(400).json({ success: false, error: "Incorrect Password" });
   }
 }

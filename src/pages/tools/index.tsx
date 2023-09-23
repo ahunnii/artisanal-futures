@@ -62,7 +62,10 @@ export default function ToolsPage() {
               subtitle="Generate cloth patterns using AI"
               type="Design"
               image="img/ai_cloth.png"
-              url={"/tools/sankofa-sizer"}
+              // url={"/tools/sankofa-sizer"}
+              url={
+                "https://svelte.dev/repl/7b61a8d2610f43f193ac16bb52029215?version=4.2.1"
+              }
             />
           </div>
         </div>

@@ -15,7 +15,7 @@ const ToolCard: FC<IAppCardProps> = ({ title, subtitle, image, url }) => {
     <Link
       className="group h-full cursor-pointer "
       href={url}
-      target={url.includes(".app") ? "_blank" : ""}
+      target={url.includes(".app") || url.includes(".dev") ? "_blank" : ""}
     >
       <div className="md:max-w-s mx-auto my-3 flex h-full w-10/12 flex-col items-center overflow-hidden rounded-lg shadow-lg transition-all duration-200 group-hover:bg-slate-500 group-active:shadow-lg group-active:shadow-blue-200 lg:max-w-xs ">
         <img
