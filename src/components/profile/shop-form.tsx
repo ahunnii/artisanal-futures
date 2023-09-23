@@ -77,6 +77,16 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     },
   });
 
+  const { mutate: updateRole } = api.auth.changeRole.useMutation({
+    onSuccess: () => {
+      toast.success("Role updated.");
+    },
+    onError: (error) => {
+      toast.error("Something went wrong with updating your role.");
+      console.error(error);
+    },
+  });
+
   const { mutate: updateShop } = api.shops.updateShop.useMutation({
     onSuccess: () => {
       toast.success("Shop updated.");
@@ -95,6 +105,7 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
     onSuccess: () => {
+      updateRole({ role: "USER" });
       router.push("/profile");
       toast.success("Shop deleted.");
     },

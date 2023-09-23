@@ -48,7 +48,7 @@ const ConfirmDeleteDialog: FC<IProps> = ({ postId, isOpen, onClose }) => {
           loadingChildren="Deleting post"
           onClick={() => {
             deletePostMutation.mutate(postId, {
-              onSuccess: () => void router.push("/"),
+              onSuccess: () => void router.push("/forum"),
             });
           }}
         >

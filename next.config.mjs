@@ -24,6 +24,7 @@ const config = {
       "img.clerk.com",
       "avatars.githubusercontent.com",
       "cdn.discordapp.com",
+      "lh3.googleusercontent.com",
     ],
   },
 };

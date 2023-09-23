@@ -27,11 +27,12 @@ export const ShopModal = () => {
 
   const { mutate } = api.shops.createShop.useMutation({
     onSuccess: ({ id }) => {
+      updateRole({ role: "ARTISAN" });
       window.location.assign(`/profile/shop/${id}`);
       setLoading(false);
     },
     onError: (error) => {
-      toast.error("Something went wrong");
+      toast.error("Something went wrong with creating your shop.");
       console.error(error);
       setLoading(false);
     },
@@ -39,6 +40,17 @@ export const ShopModal = () => {
       setLoading(true);
     },
   });
+
+  const { mutate: updateRole } = api.auth.changeRole.useMutation({
+    onSuccess: () => {
+      toast.success("Role updated.");
+    },
+    onError: (error) => {
+      toast.error("Something went wrong with updating your role.");
+      console.error(error);
+    },
+  });
+
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
