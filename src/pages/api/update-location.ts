@@ -14,6 +14,7 @@ type UserLocation = {
   userId: string;
   latitude: number;
   longitude: number;
+  accuracy: number;
 };
 let userLocations: UserLocation[] = [];
 const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
