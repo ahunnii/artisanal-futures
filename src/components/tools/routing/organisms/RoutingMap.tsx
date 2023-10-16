@@ -110,11 +110,15 @@ const RoutingMap = () => {
     mapJobsToVehicles,
     optimization,
   ]);
+  useEffect(() => {
+    console.log(mapRef.current?.getCenter());
+  }, [mapRef]);
+
   return (
     <MapContainer
       ref={mapRef}
-      center={[42.279594, -83.732124]}
-      zoom={15}
+      center={[42.33085782908872, -83.05011192993956]}
+      zoom={13}
       doubleClickZoom={false}
       maxBounds={[
         [40.70462625, -91.6624658],

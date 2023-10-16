@@ -1,0 +1,33 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import Pusher from "pusher";
+import { env } from "~/env.mjs";
+
+const pusher = new Pusher({
+  appId: env.PUSHER_APP_ID,
+  key: env.NEXT_PUBLIC_PUSHER_APP_KEY,
+  secret: env.PUSHER_APP_SECRET,
+  cluster: "us2",
+  useTLS: true,
+});
+
+type UserLocation = {
+  userId: string;
+  latitude: number;
+  longitude: number;
+};
+let userLocations: UserLocation[] = [];
+const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method === "POST") {
+    const { userId, latitude, longitude, accuracy } = req.body;
+    // Update the location of the user
+    userLocations = userLocations.filter((user) => user.userId !== userId);
+    userLocations.push({ userId, latitude, longitude, accuracy });
+
+    // Trigger a Pusher event with the updated locations
+    await pusher.trigger("map", "update-locations", userLocations);
+    res.status(200).send("Location updated");
+  } else {
+    res.status(405).send("Method not allowed");
+  }
+};
+export default locationHandling;

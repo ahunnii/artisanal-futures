@@ -20,11 +20,12 @@ import { getStyle, getUniqueKey } from "~/utils/routing";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
+import { useSession } from "next-auth/react";
+import Pusher from "pusher-js";
 import type { CalculatedVehicleData, GeoJsonData } from "~/types";
 import { getColor } from "~/utils/routing";
 import MapSearch from "../atoms/map/MapSearch";
 import StopMarker from "../atoms/map/StopMarker";
-
 type FilteredLocation = {
   job_id: number;
   vehicle_id: number;
@@ -38,10 +39,18 @@ interface MarkerProps {
   colorMapping: number;
 }
 
-const RoutingMap = () => {
-  const [marker, setMarker] = useState<L.Marker | null>(null);
-  const [circle, setCircle] = useState<L.Circle | null>(null);
+type PusherLocation = {
+  userId: number;
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+};
 
+const RoutingMap = () => {
+  const [markers, setMarkers] = useState<L.Marker[]>([]);
+  const [circles, setCircles] = useState<L.Circle[]>([]);
+  const [pusherLocations, setPusherLocations] = useState<PusherLocation[]>([]);
+  const { data: session } = useSession();
   const drivers = useRouteStore((state) => state.drivers);
   const locations = useRouteStore((state) => state.locations);
   const mapRef = useRef<Map>(null);
@@ -98,102 +107,97 @@ const RoutingMap = () => {
 
     return icon;
   };
+
   useEffect(() => {
     if (!navigator.geolocation) {
       console.log("Your browser doesn't support the geolocation feature!");
       return;
     }
+    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+      cluster: "us2",
+    });
+
+    const channel = pusher.subscribe("map");
 
     const intervalId = setInterval(() => {
       navigator.geolocation.getCurrentPosition((position) => {
-        const lat = position.coords.latitude;
-        const long = position.coords.longitude;
-        const accuracy = position.coords.accuracy;
+        const { latitude, longitude, accuracy } = position.coords;
 
-        if (marker) {
-          marker.remove();
-        }
-        if (circle) {
-          circle.remove();
-        }
+        channel.bind("update-locations", (data: PusherLocation[]) => {
+          console.log(data);
 
-        const newMarker = L.marker([lat, long], {
-          icon: trackingMarker({
-            colorMapping: 0,
-          }),
+          setPusherLocations(data);
         });
-        const newCircle = L.circle([lat, long], { radius: accuracy });
 
-        setMarker(newMarker);
-        setCircle(newCircle);
-
-        const featureGroup = L.featureGroup([newMarker, newCircle]).addTo(
-          mapRef.current!
-        );
-
-        mapRef.current!.fitBounds(featureGroup.getBounds());
-
-        console.log(
-          `Your coordinate is: Lat: ${lat} Long: ${long} Accuracy: ${accuracy}`
-        );
+        fetch("/api/update-location", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: session?.user?.id ?? 0,
+            latitude,
+            longitude,
+            accuracy,
+          }),
+        }).catch((error) => {
+          console.log(error);
+        });
       });
     }, 5000);
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [marker, circle]);
-
-  //Recalculate the bounds of the current map
+  }, [session]);
   useEffect(() => {
-    if (
-      ((locations && locations.length > 0) ||
-        (drivers && drivers.length > 0)) &&
-      mapRef.current
-    ) {
-      const bounds = L.latLngBounds(
-        [...locations, ...drivers].map(
-          (location) =>
-            [
-              location?.coordinates?.latitude,
-              location?.coordinates?.longitude,
-            ] as LatLngExpression
-        )
-      );
-      mapRef.current.fitBounds(bounds);
-    }
-    setGeojsonData(null);
-    setOptimization(null);
-  }, [locations, drivers, setOptimization]);
+    if (pusherLocations?.length) {
+      // Clear previous markers and circles
+      if (markers) markers?.forEach((marker) => marker.remove());
+      circles?.forEach((circle) => circle.remove());
 
-  //Update displayed geometry from optimization request
-  useEffect(() => {
-    setFilteredLocations([]);
-    if (optimization)
-      getUniqueKey({ locations, drivers })
-        .then((data) => {
-          setFilteredLocations(
-            mapJobsToVehicles(
-              (cachedOptimizations.get(data) as CachedOptimization)?.data
-                .routes as Array<CalculatedVehicleData>
-            )
-          );
-          setGeojsonData(
-            (cachedOptimizations.get(data) as CachedOptimization)
-              ?.geometry as GeoJsonData[]
-          );
-        })
-        .catch((err) => {
-          console.log(err);
+      const newMarkers: L.Marker[] = [];
+      const newCircles: L.Circle[] = [];
+
+      // // Your existing code to add marker and circle for the current user
+      // const newMarker = L.marker([lat, long], {
+      //   icon: trackingMarker({
+      //     colorMapping: 0,
+      //   }),
+      // });
+      // const newCircle = L.circle([lat, long], { radius: accuracy });
+
+      // newMarkers.push(newMarker);
+      // newCircles.push(newCircle);
+
+      // Mapping through pusherLocations to add new markers and circles
+      pusherLocations.forEach((loc) => {
+        const pusherMarker = L.marker([loc?.latitude, loc?.longitude], {
+          icon: trackingMarker({
+            colorMapping: 0,
+          }),
         });
-  }, [
-    cachedOptimizations,
-    drivers,
-    locations,
-    mapJobsToVehicles,
-    optimization,
-  ]);
+        const pusherCircle = L.circle([loc?.latitude, loc?.longitude], {
+          radius: loc.accuracy,
+        });
 
+        newMarkers.push(pusherMarker);
+        newCircles.push(pusherCircle);
+      });
+
+      // Add new markers and circles to the map
+      newMarkers.forEach((marker) => marker.addTo(mapRef.current!));
+      newCircles.forEach((circle) => circle.addTo(mapRef.current!));
+
+      // Update state with new markers and circles
+      setMarkers(newMarkers);
+      setCircles(newCircles);
+
+      const featureGroup = L.featureGroup([...newMarkers, ...newCircles]).addTo(
+        mapRef.current!
+      );
+
+      mapRef.current!.fitBounds(featureGroup.getBounds());
+    }
+  }, [pusherLocations]);
   return (
     <MapContainer
       ref={mapRef}
@@ -215,38 +219,22 @@ const RoutingMap = () => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
       />
-      {locations &&
-        locations.length > 0 &&
-        locations.map((location, idx) => (
-          <StopMarker
-            position={[
-              location.coordinates?.latitude as number,
-              location.coordinates?.longitude as number,
-            ]}
-            name={location?.address}
-            key={idx}
-            id={location.id}
-            colorMapping={
-              filteredLocations.find(
-                (item: { job_id: number; vehicle_id: number }) =>
-                  location.id === item.job_id
-              )?.vehicle_id ?? 1
-            }
-          />
-        ))}
-      {drivers &&
-        drivers.length > 0 &&
-        drivers.map((vehicle, idx) => (
-          <CarMarker
-            position={[
-              vehicle.coordinates?.latitude as number,
-              vehicle.coordinates?.longitude as number,
-            ]}
-            name={vehicle.address}
-            vehicle={vehicle}
-            key={idx}
-          />
-        ))}{" "}
+
+      {/* {pusherLocations.map((loc, idx) => (
+        <StopMarker
+          position={[loc?.latitude as number, loc?.longitude as number]}
+          name={"User"}
+          key={idx}
+          id={location.userId}
+          colorMapping={
+            filteredLocations.find(
+              (item: { job_id: number; vehicle_id: number }) =>
+                location.userId === item.job_id
+            )?.vehicle_id ?? 1
+          }
+        />
+      ))} */}
+
       <MapSearch
         provider={
           new GoogleProvider({
