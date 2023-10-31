@@ -4,6 +4,7 @@ import { type GraphModel } from "@tensorflow/tfjs";
 import { create } from "zustand";
 
 import type { CustomerResponseData, Route, VehicleResponseData } from "~/types";
+import { OptimizationData } from "./components/tools/routing/types";
 interface LocationTableRow {
   address: string;
   duration: number;
@@ -38,10 +39,6 @@ type Data = {
   unassigned: unknown[];
   routes: Route[];
 };
-interface Result {
-  geometry: Geometry[];
-  data: Data;
-}
 
 interface LocationTableState {
   rows: LocationTableRow[];
@@ -128,8 +125,8 @@ interface RequestState {
   cachedDirections: Map<string, unknown>;
   cachedIsochrones: Map<string, unknown>;
   cachedOptimizations: Map<string, unknown>;
-  optimization: Result | null;
-  setOptimization: (optimization: Result | null) => void;
+  optimization: OptimizationData | null;
+  setOptimization: (optimization: OptimizationData | null) => void;
   setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
   appendMap: <T>(mapName: string, address: string, response: T) => void;
   [key: string]: unknown;

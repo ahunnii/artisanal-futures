@@ -1,5 +1,6 @@
 import polyline from "@mapbox/polyline";
 
+import { Truck } from "lucide-react";
 import dynamic from "next/dynamic";
 import React, {
   Suspense,
@@ -8,10 +9,9 @@ import React, {
   useState,
   type FC,
 } from "react";
-
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import ToolLayout from "~/layouts/tool-layout";
 import { supabase } from "~/server/supabase/client";
-import type { CalculatedStep, GeoJsonData, VehicleInfo } from "~/types";
 import {
   convertSecondsToTime,
   formatTime,
@@ -19,7 +19,7 @@ import {
 } from "~/utils/routing";
 
 const DynamicMapWithNoSSR = dynamic(
-  () => import("~/components/tools/routing/organisms/TempMap"),
+  () => import("~/components/tools/routing/map/TempMap"),
   {
     loading: () => <p>Loading...</p>,
     ssr: false,
@@ -28,8 +28,27 @@ const DynamicMapWithNoSSR = dynamic(
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
-
 import type { GetServerSidePropsContext } from "next";
+import { Beforeunload } from "react-beforeunload";
+import { SimplifiedRouteCard } from "~/components/tools/routing/solutions/route-card";
+import type {
+  OptimizationData,
+  Polyline,
+  RouteData,
+  StepData,
+} from "~/components/tools/routing/types";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import useTracking from "~/hooks/routing/use-tracking";
+import { parseDescriptionData } from "~/utils/routing/data-formatting";
+import { parseIncomingDBData } from "~/utils/routing/file-handling";
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
@@ -54,39 +73,22 @@ export const getServerSideProps = async (
       },
     };
 
-  const arrayBuffer = await data.arrayBuffer();
-  const jsonString = new TextDecoder("utf-8").decode(arrayBuffer);
-  const jsonObject = JSON.parse(jsonString);
+  const jsonObject = await parseIncomingDBData(data);
 
-  const addresses: string[] = [];
-
-  if (jsonObject.steps && jsonObject.steps.length > 0) {
-    for (const step of jsonObject.steps) {
-      if (step.location)
-        try {
-          const { display_name } = await lookupAddress(
-            String(step?.location[1]),
-            String(step?.location[0])
-          );
-          addresses.push(display_name as string);
-        } catch (error) {
-          addresses.push("Address not found");
-          console.error("Error while reverse geocoding:", error);
-        }
-    }
-  }
-
-  return { props: { data: jsonObject, steps: jsonObject.steps, addresses } };
+  return { props: { data: jsonObject, steps: jsonObject.steps } };
 };
 
 interface IProps {
-  data: VehicleInfo;
-  steps: CalculatedStep[];
-  addresses: string[];
+  data: RouteData;
+  steps: StepData[];
 }
 
-const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
-  const [geometry, setGeometry] = useState<GeoJsonData | null>(null);
+const RoutePage: FC<IProps> = ({ data, steps }) => {
+  const [geometry, setGeometry] = useState<Polyline | null>(null);
+
+  const { name, address, contact_info, description } = parseDescriptionData(
+    data.description
+  );
 
   const generateGeometry = useCallback((rawGeo: string) => {
     const geo = polyline.toGeoJSON(rawGeo);
@@ -94,30 +96,39 @@ const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
   }, []);
 
   useEffect(() => {
-    if (data) {
-      setGeometry(generateGeometry(data.geometry) as unknown as GeoJsonData);
-    }
-  }, [data, addresses, generateGeometry]);
+    if (data) setGeometry(generateGeometry(data.geometry) as Polyline);
+  }, [data, generateGeometry]);
 
   const startTime = formatTime(steps[0]?.arrival ?? 0);
   const endTime = formatTime(steps[steps.length - 1]?.arrival ?? 0);
+
+  const { triggerActiveUser } = useTracking();
 
   return (
     <ToolLayout>
       <section className="h-6/12 flex w-full flex-col justify-between bg-white md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
         <div className="flex flex-col gap-2">
-          {addresses && steps && steps.length > 0 && addresses.length > 0 && (
+          <Button onClick={triggerActiveUser}>Start Tracking</Button>{" "}
+          <Beforeunload
+            onBeforeunload={(event) => {
+              event.preventDefault();
+            }}
+          />
+          {steps && steps.length > 0 && (
             <div className="bg-white p-2 shadow">
               <div className="flex items-center justify-between">
                 <p className="pb-2 font-bold text-slate-800">
-                  {data.description} (
+                  {name} (
                   <span>
                     {startTime} to {endTime}
                   </span>
                   )
                 </p>
               </div>
-              <ul
+
+              <SimplifiedRouteCard data={data} className="w-full" />
+
+              {/* <ul
                 role="list"
                 className="list-disc space-y-3 pl-5 text-slate-500 marker:text-sky-400"
               >
@@ -130,28 +141,34 @@ const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
                   </span>{" "}
                   <span className="flex w-full text-sm font-semibold  text-slate-700">
                     {" "}
-                    {addresses[0]}
+                    {data.description}
                   </span>
                 </li>
-                {steps.map((step: CalculatedStep, idx: number) => (
-                  <>
-                    {step.id && step.id >= 0 && (
-                      <li key={`step-${step.id}`}>
-                        <span className="flex w-full text-sm font-medium capitalize">
-                          {convertSecondsToTime(step?.arrival)}
-                        </span>
+                {steps.map((step: StepData, idx: number) => {
+                  const { name, address, contact_info, description } =
+                    JSON.parse(step.description ?? "{}");
+                  return (
+                    <>
+                      {step.id && step.id >= 0 && (
+                        <li key={`step-${step.id}`}>
+                          <span className="flex w-full text-sm font-medium capitalize">
+                            {convertSecondsToTime(step?.arrival)}
+                          </span>
 
-                        <span className="font-base flex w-full text-sm text-slate-700">
-                          {step.type === "job" ? "Delivery at:" : `Break time `}
-                          &nbsp;
-                        </span>
-                        <span className="flex w-full text-sm font-semibold text-slate-700">
-                          {step.type === "job" ? addresses[idx] : ""}
-                        </span>
-                      </li>
-                    )}
-                  </>
-                ))}
+                          <span className="font-base flex w-full text-sm text-slate-700">
+                            {step.type === "job"
+                              ? "Delivery at:"
+                              : `Break time `}
+                            &nbsp;
+                          </span>
+                          <span className="flex w-full text-sm font-semibold text-slate-700">
+                            {step.type === "job" ? address : ""}
+                          </span>
+                        </li>
+                      )}
+                    </>
+                  );
+                })}
                 <li>
                   <span className="flex w-full text-sm font-bold">
                     {endTime}
@@ -161,10 +178,10 @@ const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
                     End back at:&nbsp;
                   </span>
                   <span className="flex w-full text-sm font-semibold text-slate-700">
-                    {addresses[0]}
+                    {"addresses[0]"}
                   </span>
                 </li>
-              </ul>
+              </ul> */}
             </div>
           )}
         </div>
