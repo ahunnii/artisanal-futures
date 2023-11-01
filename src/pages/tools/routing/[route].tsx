@@ -1,11 +1,13 @@
-import polyline from "@mapbox/polyline";
+import { env } from "~/env.mjs";
 
-import { Truck } from "lucide-react";
 import dynamic from "next/dynamic";
+import Pusher from "pusher-js";
 import React, {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useState,
   type FC,
 } from "react";
@@ -46,8 +48,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import useTracking from "~/hooks/routing/use-tracking";
-import { parseDescriptionData } from "~/utils/routing/data-formatting";
+// import useTracking from "~/hooks/routing/use-tracking";
+
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+
+import StopDetails from "~/components/tools/routing/tracking/stop-details";
+import { useSheet } from "~/hooks/routing/use-sheet";
 import { parseIncomingDBData } from "~/utils/routing/file-handling";
 
 export const getServerSideProps = async (
@@ -84,112 +92,129 @@ interface IProps {
 }
 
 const RoutePage: FC<IProps> = ({ data, steps }) => {
-  const [geometry, setGeometry] = useState<Polyline | null>(null);
+  const [, setActiveUsers] = useState([]);
+  const [enableTracking, setEnableTracking] = useState(false);
 
-  const { name, address, contact_info, description } = parseDescriptionData(
-    data.description
-  );
+  const [open, setOpen] = useState(false);
 
-  const generateGeometry = useCallback((rawGeo: string) => {
-    const geo = polyline.toGeoJSON(rawGeo);
-    return { ...geo, properties: { color: 2 } };
-  }, []);
+  const { route } = useParams();
+  const { data: session } = useSession();
 
   useEffect(() => {
-    if (data) setGeometry(generateGeometry(data.geometry) as Polyline);
-  }, [data, generateGeometry]);
+    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+      cluster: "us2",
+    });
+    const channel = pusher.subscribe("map");
 
-  const startTime = formatTime(steps[0]?.arrival ?? 0);
-  const endTime = formatTime(steps[steps.length - 1]?.arrival ?? 0);
+    channel.bind("update-locations", setActiveUsers);
 
-  const { triggerActiveUser } = useTracking();
+    return () => {
+      pusher.unsubscribe("map");
+    };
+  }, []);
 
+  const triggerActiveUser = () => {
+    if (!navigator.geolocation) {
+      console.log("Your browser doesn't support the geolocation feature!");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      axios
+        .post("/api/update-location", {
+          userId: session?.user?.id ?? 0,
+          latitude,
+          longitude,
+          accuracy,
+          fileId: route,
+          route: data,
+        })
+        .then(() => {
+          setEnableTracking(true);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+  };
+
+  const [selected, setSelected] = useState<StepData | null>(null);
+
+  const handleOnStopClick = useCallback((data: StepData | null) => {
+    setSelected(data);
+    setOpen(true);
+  }, []);
   return (
     <ToolLayout>
-      <section className="h-6/12 flex w-full flex-col justify-between bg-white md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
+      <section className="h-6/12 flex w-full flex-col justify-between  md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
         <div className="flex flex-col gap-2">
-          <Button onClick={triggerActiveUser}>Start Tracking</Button>{" "}
           <Beforeunload
             onBeforeunload={(event) => {
               event.preventDefault();
+              console.log("deactivate");
             }}
           />
           {steps && steps.length > 0 && (
-            <div className="bg-white p-2 shadow">
-              <div className="flex items-center justify-between">
-                <p className="pb-2 font-bold text-slate-800">
-                  {name} (
-                  <span>
-                    {startTime} to {endTime}
-                  </span>
-                  )
-                </p>
-              </div>
-
-              <SimplifiedRouteCard data={data} className="w-full" />
-
-              {/* <ul
-                role="list"
-                className="list-disc space-y-3 pl-5 text-slate-500 marker:text-sky-400"
+            <SimplifiedRouteCard
+              data={data}
+              className="w-full"
+              handleOnStopClick={handleOnStopClick}
+            />
+          )}
+          <Button
+            onClick={triggerActiveUser}
+            disabled={enableTracking}
+            variant={enableTracking ? "secondary" : "default"}
+          >
+            {" "}
+            {enableTracking && (
+              <svg
+                className="-ml-1 mr-3 h-5 w-5 animate-spin text-gray-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
               >
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {startTime}
-                  </span>{" "}
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    Start at:&nbsp;
-                  </span>{" "}
-                  <span className="flex w-full text-sm font-semibold  text-slate-700">
-                    {" "}
-                    {data.description}
-                  </span>
-                </li>
-                {steps.map((step: StepData, idx: number) => {
-                  const { name, address, contact_info, description } =
-                    JSON.parse(step.description ?? "{}");
-                  return (
-                    <>
-                      {step.id && step.id >= 0 && (
-                        <li key={`step-${step.id}`}>
-                          <span className="flex w-full text-sm font-medium capitalize">
-                            {convertSecondsToTime(step?.arrival)}
-                          </span>
-
-                          <span className="font-base flex w-full text-sm text-slate-700">
-                            {step.type === "job"
-                              ? "Delivery at:"
-                              : `Break time `}
-                            &nbsp;
-                          </span>
-                          <span className="flex w-full text-sm font-semibold text-slate-700">
-                            {step.type === "job" ? address : ""}
-                          </span>
-                        </li>
-                      )}
-                    </>
-                  );
-                })}
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {endTime}
-                  </span>
-
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    End back at:&nbsp;
-                  </span>
-                  <span className="flex w-full text-sm font-semibold text-slate-700">
-                    {"addresses[0]"}
-                  </span>
-                </li>
-              </ul> */}
-            </div>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            )}
+            {enableTracking
+              ? "Broadcasting location with dispatch..."
+              : "Start Route"}
+          </Button>{" "}
+          {enableTracking && (
+            <Button
+              onClick={() => setEnableTracking(false)}
+              variant={"default"}
+            >
+              Disable Tracking
+            </Button>
+          )}
+          {selected && (
+            <StopDetails stop={selected} open={open} setOpen={setOpen} />
           )}
         </div>
       </section>
-      <section className="relative z-0  flex aspect-square w-full flex-grow overflow-hidden  pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
-        {geometry && steps && (
+      <section className="relative z-0 flex aspect-square w-full flex-grow overflow-hidden  md:pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
+        {data?.geometry && steps && (
           <Suspense fallback={<p>Loading map...</p>}>
-            <DynamicMapWithNoSSR steps={steps} geojson={geometry} />
+            <DynamicMapWithNoSSR
+              steps={steps}
+              geometry={data?.geometry}
+              focusedStop={selected}
+            />
           </Suspense>
         )}
       </section>

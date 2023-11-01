@@ -104,6 +104,7 @@ export const convertSecondsToTimeString = (seconds: number) => {
 };
 
 export const parseDescriptionData = (des: string) => {
+  if (!des) return {};
   const { name, address, contact_info, description } = JSON.parse(des ?? {});
 
   return { name, address, contact_info, description };

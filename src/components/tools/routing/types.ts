@@ -145,3 +145,22 @@ export type GeoJsonData = {
     geometry: Polyline;
   }[];
 };
+
+export interface ExpandedStepData extends StepData {
+  status: "failed" | "success" | "pending" | "cancelled";
+  notes?: string;
+}
+
+export interface ExpandedRouteData extends RouteData {
+  steps: ExpandedStepData[];
+}
+
+export type PusherUserData = {
+  userId: string;
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  removeUser?: boolean;
+  fileId?: string;
+  route: RouteData;
+};

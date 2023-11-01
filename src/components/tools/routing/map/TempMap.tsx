@@ -1,48 +1,56 @@
+import polyline from "@mapbox/polyline";
 import type { LatLngBounds, Map } from "leaflet";
 import L, { type LatLngExpression } from "leaflet";
-
-import { useEffect, useRef, useState, type FC } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 
 import { getStyle } from "~/utils/routing";
 
-import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
+import { Circle, GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
-import type { CalculatedStep, GeoJsonData } from "~/types";
-
-import useTracking from "~/hooks/routing/use-tracking";
+import { GeoJsonData, Polyline, StepData } from "../types";
 import RouteMarker from "./route-marker";
 
 interface IProps {
-  steps: CalculatedStep[];
-  geojson: GeoJsonData;
+  steps: StepData[];
+  geometry: string;
+  focusedStop: StepData | null;
 }
 
-const TempMap: FC<IProps> = ({ steps, geojson }) => {
-  const {
-    currentLocation,
-    getActiveUsers,
-    pusherLocations,
-    triggerActiveUser,
-  } = useTracking();
+const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
+  // const {
+  //   currentLocation,
+  //   getActiveUsers,
+  //   pusherLocations,
+  //   triggerActiveUser,
+  // } = useTracking();
   const mapRef = useRef<Map>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
+  const [currentLocation, setCurrentLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+    accuracy: 0,
+  });
 
   useEffect(() => {
     if (steps) {
       const stepMap = steps
-        .filter((step: CalculatedStep) => step.type !== "break")
-        .map((step: CalculatedStep) => [
+        .filter((step: StepData) => step.type !== "break")
+        .map((step: StepData) => [
           step?.location?.[1] ?? 0,
           step?.location?.[0] ?? 0,
         ]);
 
-      const temp = L.latLngBounds(stepMap as LatLngExpression[]);
+      const totalBounds = [
+        ...stepMap,
+        [currentLocation.latitude, currentLocation.longitude],
+      ];
+      const temp = L.latLngBounds(totalBounds as LatLngExpression[]);
       setBounds(temp);
     }
-  }, [steps]);
+  }, [steps, currentLocation]);
 
   //Recalculate the bounds of the current map
   useEffect(() => {
@@ -54,8 +62,48 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
   }, [bounds]);
 
   useEffect(() => {
-    console.log(pusherLocations);
-  }, [pusherLocations]);
+    // if (!currentLocation && mapRef.current) {
+    getCurrentLocation();
+  }, []);
+
+  const geoJson = useMemo(() => {
+    const temp = polyline.toGeoJSON(geometry) as Polyline;
+
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            ...temp,
+            properties: { color: 3 },
+          },
+        },
+      ],
+    };
+  }, [geometry]);
+
+  useEffect(() => {
+    if (focusedStop && mapRef.current) {
+      mapRef.current.flyTo(
+        [focusedStop.location[1], focusedStop.location[0]],
+        15
+      );
+    }
+  }, [focusedStop, mapRef]);
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      console.log("Your browser doesn't support the geolocation feature!");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      setCurrentLocation({ latitude, longitude, accuracy });
+    });
+  };
+
   return (
     <MapContainer
       ref={mapRef}
@@ -78,14 +126,44 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
         attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
       />
 
+      {currentLocation && (
+        <RouteMarker
+          id={0}
+          variant="currentPosition"
+          position={[currentLocation?.latitude, currentLocation?.longitude]}
+          color={3}
+        >
+          Current Location
+          <Circle
+            center={
+              [
+                currentLocation?.latitude,
+                currentLocation?.longitude,
+              ] as LatLngExpression
+            }
+            radius={currentLocation?.accuracy}
+            color="blue"
+          />
+        </RouteMarker>
+      )}
+
       {steps &&
         steps.length > 0 &&
         steps
-          .filter((step: CalculatedStep) => step.type !== "break")
-          .map((step: CalculatedStep, index: number) => {
+          .filter((step: StepData) => step.type !== "break")
+          .map((step: StepData, index: number) => {
+            const {
+              name: fulfillmentClient,
+              address: fulfillmentAddress,
+              contact_info: fulfillmentContact,
+              description: fulfillmentDescription,
+            } = JSON.parse(step.description ?? "{}");
+
             if (step.type === "job")
               return (
                 <RouteMarker
+                  id={step?.id ?? 0}
+                  stopId={index}
                   variant="stop"
                   key={index}
                   position={
@@ -94,15 +172,36 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
                       number
                     ]
                   }
-                  color={index}
+                  color={3}
                 >
-                  {" "}
-                  {`Step ${index + 1}`} {step?.id ?? index}{" "}
+                  <div className="flex flex-col space-y-2">
+                    <span className="block text-base font-bold  capitalize ">
+                      {fulfillmentClient ?? "Fullfillment Location "}
+                    </span>
+                    <span className="block">
+                      {" "}
+                      <span className="block font-semibold text-slate-600">
+                        Fulfillment Location
+                      </span>
+                      {fulfillmentAddress}
+                    </span>
+
+                    <span className=" block">
+                      {" "}
+                      <span className="block font-semibold text-slate-600">
+                        Fulfillment Details
+                      </span>
+                      {fulfillmentDescription === ""
+                        ? "Not filled out"
+                        : fulfillmentDescription}
+                    </span>
+                  </div>
                 </RouteMarker>
               );
             else
               return (
                 <RouteMarker
+                  id={step?.id ?? 0}
                   key={index}
                   variant="car"
                   position={
@@ -111,7 +210,7 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
                       number
                     ]
                   }
-                  color={step?.id ?? 2}
+                  color={3}
                 >
                   <div className="flex flex-col">
                     {/* <span>{vehicle?.name ?? "Driver"}</span>
@@ -120,7 +219,7 @@ const TempMap: FC<IProps> = ({ steps, geojson }) => {
                 </RouteMarker>
               );
           })}
-      {<GeoJSON data={geojson} style={getStyle} />}
+      {<GeoJSON data={geoJson as GeoJsonData} style={getStyle} />}
     </MapContainer>
   );
 };

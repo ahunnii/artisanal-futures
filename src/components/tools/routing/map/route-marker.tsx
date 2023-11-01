@@ -1,5 +1,6 @@
 import { divIcon } from "leaflet";
 import { Truck } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, type FC } from "react";
 import ReactDOMServer from "react-dom/server";
 import { Marker, Popup, type MarkerProps } from "react-leaflet";
@@ -15,10 +16,11 @@ import { useStops } from "~/hooks/routing/use-stops";
 import { getColor } from "~/utils/routing";
 
 interface IProps extends MarkerProps {
-  variant: "stop" | "car";
+  variant: "stop" | "car" | "currentPosition";
   color: number;
   children: React.ReactNode;
   id: number;
+  stopId?: number;
 }
 
 export const TruckIcon = (color: string) => {
@@ -36,7 +38,7 @@ export const TruckIcon = (color: string) => {
   });
 };
 
-export const StopIcon = (color: string) => {
+export const StopIcon = (color: string, id: number) => {
   const markerHtmlStyles = `
     background-color: ${color ?? "#6366f1"};
     width: 2rem;
@@ -54,6 +56,27 @@ export const StopIcon = (color: string) => {
     className: "my-custom-pin",
     iconAnchor: [0, 24],
     popupAnchor: [0, -36],
+    html: `<span style="${markerHtmlStyles}"><span class="-rotate-45 text-white font-bold fixed  h-full w-full items-center flex justify-center ">${id}</span></span>`,
+  });
+};
+
+export const PositionIcon = (color: string) => {
+  const markerHtmlStyles = `
+    background-color: ${"#0043ff"};
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+   border-radius: 100%;
+    position: relative;
+  
+  
+    box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    border: 2px solid #FFFFFF`;
+
+  return divIcon({
+    className: "my-custom-pin",
+    iconAnchor: [0, 24],
+    popupAnchor: [0, -36],
     html: `<span style="${markerHtmlStyles}" />`,
   });
 };
@@ -63,6 +86,7 @@ const RouteMarker: FC<IProps> = ({
   color,
   variant,
   id,
+  stopId,
   children,
 }) => {
   const { onOpen } = useSheet();
@@ -91,8 +115,12 @@ const RouteMarker: FC<IProps> = ({
 
   const icon =
     variant === "stop"
-      ? StopIcon(calculatedColor.fill!)
+      ? StopIcon(calculatedColor.fill!, stopId!)
+      : variant === "currentPosition"
+      ? PositionIcon(calculatedColor.fill!)
       : TruckIcon(calculatedColor.text!);
+  const { route } = useParams();
+
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -101,9 +129,12 @@ const RouteMarker: FC<IProps> = ({
           <Popup>{children}</Popup>
         </Marker>
       </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={onEdit}>Edit... </ContextMenuItem>
-      </ContextMenuContent>
+
+      {!route && (
+        <ContextMenuContent>
+          <ContextMenuItem onClick={onEdit}>Edit... </ContextMenuItem>
+        </ContextMenuContent>
+      )}
     </ContextMenu>
   );
 };
