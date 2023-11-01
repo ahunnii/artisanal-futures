@@ -10,10 +10,9 @@ import { useDatePickerState, type DatePickerStateOptions } from "react-stately";
 import { useForwardedRef } from "~/hooks/use-forwarded-ref";
 import { cn } from "~/utils/styles";
 import { Button } from "./button";
-import { CalendarPicker } from "./calendar-picker";
+
 import { DateField } from "./date-field";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
-import { TimeField } from "./time-field";
 
 const DateTimePicker = React.forwardRef<
   HTMLDivElement,
@@ -31,12 +30,11 @@ const DateTimePicker = React.forwardRef<
     fieldProps,
     buttonProps: _buttonProps,
     dialogProps,
-    calendarProps,
   } = useDatePicker(props, state, ref);
   const { buttonProps } = useButton(_buttonProps, buttonRef);
   useInteractOutside({
     ref: contentRef,
-    onInteractOutside: (e) => {
+    onInteractOutside: () => {
       setOpen(false);
     },
   });
@@ -65,13 +63,13 @@ const DateTimePicker = React.forwardRef<
         </PopoverTrigger>
         <PopoverContent ref={contentRef} className="w-full">
           <div {...dialogProps} className="space-y-3">
-            <Calendar {...calendarProps} />
-            {!!state.hasTime && (
+            {/* <Calendar {...calendarProps} /> */}
+            {/* {!!state.hasTime && (
               <TimeField
                 value={state.timeValue}
                 onChange={state.setTimeValue}
               />
-            )}
+            )} */}
           </div>
         </PopoverContent>
       </Popover>

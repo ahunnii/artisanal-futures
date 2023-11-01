@@ -2,14 +2,11 @@ import { Tab } from "@headlessui/react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useState } from "react";
-import DriverSheet from "~/components/tools/routing/drivers/driver_sheet";
 
 import DriversTab from "~/components/tools/routing/drivers/drivers_tab";
 import CalculationsTab from "~/components/tools/routing/solutions/calculations_tab";
-import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment_sheet";
+
 import StopsTab from "~/components/tools/routing/stops/stops_tab";
-import { useDrivers } from "~/hooks/routing/use-drivers";
-import { useStops } from "~/hooks/routing/use-stops";
 
 import ToolLayout from "~/layouts/tool-layout";
 
@@ -106,7 +103,7 @@ const RoutingPage = () => {
           </Tab.Group>
         </section>
         <section className="relative z-0  flex aspect-square w-full flex-grow overflow-hidden  pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
-          <LazyRoutingMap test={"teet"} />
+          <LazyRoutingMap />
         </section>
       </ToolLayout>
     </>

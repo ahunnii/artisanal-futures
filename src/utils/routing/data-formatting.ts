@@ -99,7 +99,7 @@ const convertSecondsToMilitaryTimeString = (seconds: number) => {
 // };
 
 export const convertSecondsToTimeString = (seconds: number) => {
-  const time = convertSecondsToMilitaryTimeString(seconds);
+  // const time = convertSecondsToMilitaryTimeString(seconds);
   return convertSecondsToMilitaryTimeString(seconds);
 };
 

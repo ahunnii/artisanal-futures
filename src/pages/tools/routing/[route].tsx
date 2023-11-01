@@ -6,19 +6,33 @@ import React, {
   Suspense,
   useCallback,
   useEffect,
-  useLayoutEffect,
-  useMemo,
   useState,
   type FC,
 } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+
 import ToolLayout from "~/layouts/tool-layout";
 import { supabase } from "~/server/supabase/client";
-import {
-  convertSecondsToTime,
-  formatTime,
-  lookupAddress,
-} from "~/utils/routing";
+
+import "leaflet-geosearch/dist/geosearch.css";
+import "leaflet/dist/leaflet.css";
+import type { GetServerSidePropsContext } from "next";
+import { Beforeunload } from "react-beforeunload";
+import { SimplifiedRouteCard } from "~/components/tools/routing/solutions/route-card";
+import type { RouteData, StepData } from "~/components/tools/routing/types";
+import { Button } from "~/components/ui/button";
+
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+
+import StopDetails from "~/components/tools/routing/tracking/stop-details";
+
+import { parseIncomingDBData } from "~/utils/routing/file-handling";
+
+interface IProps {
+  data: RouteData;
+  steps: StepData[];
+}
 
 const DynamicMapWithNoSSR = dynamic(
   () => import("~/components/tools/routing/map/TempMap"),
@@ -27,69 +41,6 @@ const DynamicMapWithNoSSR = dynamic(
     ssr: false,
   }
 );
-
-import "leaflet-geosearch/dist/geosearch.css";
-import "leaflet/dist/leaflet.css";
-import type { GetServerSidePropsContext } from "next";
-import { Beforeunload } from "react-beforeunload";
-import { SimplifiedRouteCard } from "~/components/tools/routing/solutions/route-card";
-import type {
-  OptimizationData,
-  Polyline,
-  RouteData,
-  StepData,
-} from "~/components/tools/routing/types";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-// import useTracking from "~/hooks/routing/use-tracking";
-
-import axios from "axios";
-import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
-
-import StopDetails from "~/components/tools/routing/tracking/stop-details";
-import { useSheet } from "~/hooks/routing/use-sheet";
-import { parseIncomingDBData } from "~/utils/routing/file-handling";
-
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const { data, error } = await supabase.storage
-    .from("routes")
-    .download(`${context.query.route as string}.json`);
-
-  if (!data)
-    return {
-      redirect: {
-        destination: `/tools/routing`,
-        permanent: false,
-      },
-    };
-
-  if (error)
-    return {
-      redirect: {
-        destination: `/tools/routing`,
-        permanent: false,
-      },
-    };
-
-  const jsonObject = await parseIncomingDBData(data);
-
-  return { props: { data: jsonObject, steps: jsonObject.steps } };
-};
-
-interface IProps {
-  data: RouteData;
-  steps: StepData[];
-}
 
 const RoutePage: FC<IProps> = ({ data, steps }) => {
   const [, setActiveUsers] = useState([]);
@@ -152,7 +103,6 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
           <Beforeunload
             onBeforeunload={(event) => {
               event.preventDefault();
-              console.log("deactivate");
             }}
           />
           {steps && steps.length > 0 && (
@@ -220,6 +170,26 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
       </section>
     </ToolLayout>
   );
+};
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { data, error } = await supabase.storage
+    .from("routes")
+    .download(`${context.query.route as string}.json`);
+
+  if (!data || error)
+    return {
+      redirect: {
+        destination: `/tools/routing`,
+        permanent: false,
+      },
+    };
+
+  const jsonObject = await parseIncomingDBData(data);
+
+  return { props: { data: jsonObject, steps: jsonObject.steps } };
 };
 
 export default RoutePage;

@@ -39,7 +39,6 @@ const routingHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
       const { data } = await supabase.storage.from("routes").list();
-      const todaysDate = new Date().getUTCMonth();
 
       const filteredData = data?.filter((route) =>
         route.name.includes(".json")

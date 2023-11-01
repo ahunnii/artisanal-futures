@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Pusher from "pusher";
-import { RouteData } from "~/components/tools/routing/types";
+import type { RouteData } from "~/components/tools/routing/types";
 import { env } from "~/env.mjs";
 
 const pusher = new Pusher({

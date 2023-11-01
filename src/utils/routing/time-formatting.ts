@@ -30,7 +30,7 @@ export const convertSecondsToTime = (seconds: number) => {
   // Calculate the hours, minutes, and remaining seconds
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
+  // const remainingSeconds = seconds % 60;
 
   // Convert to 12-hour format and determine AM or PM
   let period = "AM";
@@ -54,12 +54,12 @@ export const convertSecondsToTime = (seconds: number) => {
   return formattedTime;
 };
 
-type TimeComponents = {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  formatted: string;
-};
+// type TimeComponents = {
+//   hours: number;
+//   minutes: number;
+//   seconds: number;
+//   formatted: string;
+// };
 
 export const convertSecondsToComponents = (seconds: number) => {
   // Calculate the hours, minutes, and remaining seconds

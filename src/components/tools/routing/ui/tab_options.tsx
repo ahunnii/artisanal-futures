@@ -20,7 +20,7 @@ interface IProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const TabOptions: FC<IProps> = ({ type, className, children }) => {
-  const { isOpen: isModifyOpen, onOpen: onModifyOpen } = useModifyModal();
+  const { onOpen: onModifyOpen } = useModifyModal();
   const { setLocations, setActiveLocation } = useStops((state) => state);
   const { setDrivers, setActiveDriver } = useDrivers((state) => state);
   const { data: session, status } = useSession();

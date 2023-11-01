@@ -135,8 +135,6 @@ export const parseIncomingDBData = async (data: Blob) => {
   const jsonString = new TextDecoder("utf-8").decode(arrayBuffer);
   const jsonObject = JSON.parse(jsonString);
 
-  const addresses: string[] = [];
-
   console.log(jsonObject);
 
   return jsonObject;

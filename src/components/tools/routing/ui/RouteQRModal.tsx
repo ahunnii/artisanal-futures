@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
-import { RouteData } from "../types";
+import type { RouteData } from "../types";
 import RouteQRCode from "./RouteQRCode";
 
 interface IProps {
@@ -16,12 +16,7 @@ interface IProps {
 }
 
 const RouteQRModal = ({ data }: IProps) => {
-  const {
-    name: driverName,
-    address: startingAddress,
-    contact_info: driverContact,
-    description: driverDescription,
-  } = JSON.parse(data.description ?? "{}");
+  const { name: driverName } = JSON.parse(data.description ?? "{}");
 
   const [isOpen, setIsOpen] = useState(false);
 

@@ -1,22 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
 
-import { Input } from "~/components/ui/input";
 import { Modal } from "~/components/ui/modal";
 import {
   Select,
@@ -26,7 +23,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { useModifyModal } from "~/hooks/routing/use-modify-modal";
-import { api } from "~/utils/api";
 
 const formSchema = z.object({
   type: z.enum(["stop", "driver"]),
@@ -49,7 +45,7 @@ export const ModifyModal = () => {
   //       setLoading(true);
   //     },
   //   });
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

@@ -1,91 +1,76 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Map } from "leaflet";
-import L, { divIcon, type LatLngExpression } from "leaflet";
-import { GoogleProvider } from "leaflet-geosearch";
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { GeoJSON, MapContainer, TileLayer } from "react-leaflet";
-import { v4 as uuid } from "uuid";
 
-import { env } from "~/env.mjs";
-import { useRequestStore } from "~/store";
-import { convertSecondsToTime, getStyle, getUniqueKey } from "~/utils/routing";
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer } from "react-leaflet";
+
+import { convertSecondsToTime } from "~/utils/routing";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 import { useSession } from "next-auth/react";
-import Pusher from "pusher-js";
-import { useDrivers } from "~/hooks/routing/use-drivers";
-import { useStops } from "~/hooks/routing/use-stops";
-// import useTracking from "~/hooks/routing/use-tracking";
+
 import { LayersControl, LayerGroup as LeafletLayerGroup } from "react-leaflet";
-import type { CalculatedVehicleData, GeoJsonData } from "~/types";
-import { getColor } from "~/utils/routing";
+
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import { ExpandedRouteData, PusherUserData } from "../types";
-import MapSearch from "./MapSearch";
+import type { PusherUserData } from "../types";
+
 import RouteMarker from "./route-marker";
 
-type FilteredLocation = {
-  job_id: number;
-  vehicle_id: number;
-};
+// type FilteredLocation = {
+//   job_id: number;
+//   vehicle_id: number;
+// };
 
-type CachedOptimization = {
-  geometry: any;
-  data: any;
-};
-interface MarkerProps {
-  colorMapping: number;
-}
+// type CachedOptimization = {
+//   geometry: any;
+//   data: any;
+// };
+// interface MarkerProps {
+//   colorMapping: number;
+// }
 
-type PusherLocation = {
-  userId: number;
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-};
+// type PusherLocation = {
+//   userId: number;
+//   latitude: number;
+//   longitude: number;
+//   accuracy: number;
+// };
 
 const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
-  const [markers, setMarkers] = useState<L.Marker[]>([]);
-  const [circles, setCircles] = useState<L.Circle[]>([]);
+  // const [markers, setMarkers] = useState<L.Marker[]>([]);
+  // const [circles, setCircles] = useState<L.Circle[]>([]);
   // const [pusherLocations, setPusherLocations] = useState<PusherLocation[]>([]);
   const { data: session } = useSession();
 
   const mapRef = useRef<Map>(null);
 
-  const trackingMarker = ({ colorMapping }: MarkerProps) => {
-    const color = getColor(colorMapping).fill!;
+  // const trackingMarker = ({ colorMapping }: MarkerProps) => {
+  //   const color = getColor(colorMapping).fill!;
 
-    const markerHtmlStyles = `
-          background-color: ${color ?? "#6366f1"};
-          width: 2rem;
-          height: 2rem;
-          display: block;
-          left: -0.5rem;
-          top: -0.5rem;
-          position: relative;
-          border-radius: 3rem 3rem 0;
-          transform: rotate(45deg); 
-      box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-          border: 3px solid #FFFFFF`;
+  //   const markerHtmlStyles = `
+  //         background-color: ${color ?? "#6366f1"};
+  //         width: 2rem;
+  //         height: 2rem;
+  //         display: block;
+  //         left: -0.5rem;
+  //         top: -0.5rem;
+  //         position: relative;
+  //         border-radius: 3rem 3rem 0;
+  //         transform: rotate(45deg);
+  //     box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  //         border: 3px solid #FFFFFF`;
 
-    const icon = divIcon({
-      className: "my-custom-pin",
-      iconAnchor: [0, 24],
-      popupAnchor: [0, -36],
-      html: `<span style="${markerHtmlStyles}" />`,
-    });
+  //   const icon = divIcon({
+  //     className: "my-custom-pin",
+  //     iconAnchor: [0, 24],
+  //     popupAnchor: [0, -36],
+  //     html: `<span style="${markerHtmlStyles}" />`,
+  //   });
 
-    return icon;
-  };
+  //   return icon;
+  // };
 
   // const { pusherLocations } = useTracking();
 

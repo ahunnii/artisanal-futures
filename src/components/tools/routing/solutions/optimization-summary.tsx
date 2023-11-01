@@ -1,4 +1,4 @@
-import { BellIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useState, type ComponentProps } from "react";
 import type { OptimizationData } from "~/components/tools/routing/types";
 import { Button } from "~/components/ui/button";
@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -16,28 +15,10 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Separator } from "~/components/ui/separator";
-import { Switch } from "~/components/ui/switch";
-import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import {
-  convertSecondsToMinutes,
-  convertSecondsToMinutesAndHours,
-} from "~/utils/routing/time-formatting";
-import { cn } from "~/utils/styles";
 
-const notifications = [
-  {
-    title: "Your call has been confirmed.",
-    description: "1 hour ago",
-  },
-  {
-    title: "You have a new message!",
-    description: "1 hour ago",
-  },
-  {
-    title: "Your subscription is expiring soon!",
-    description: "2 hours ago",
-  },
-];
+import { convertMetersToMiles } from "~/utils/routing/data-formatting";
+import { convertSecondsToMinutesAndHours } from "~/utils/routing/time-formatting";
+import { cn } from "~/utils/styles";
 
 interface CardProps extends ComponentProps<typeof Card> {
   data: OptimizationData;

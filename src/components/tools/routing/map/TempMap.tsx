@@ -10,7 +10,7 @@ import { Circle, GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
-import { GeoJsonData, Polyline, StepData } from "../types";
+import type { GeoJsonData, Polyline, StepData } from "../types";
 import RouteMarker from "./route-marker";
 
 interface IProps {
@@ -155,7 +155,7 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
             const {
               name: fulfillmentClient,
               address: fulfillmentAddress,
-              contact_info: fulfillmentContact,
+
               description: fulfillmentDescription,
             } = JSON.parse(step.description ?? "{}");
 

@@ -1,24 +1,22 @@
-"use client";
-
 import {
-  CalendarDate,
   isToday as _isToday,
   createCalendar,
   getLocalTimeZone,
   getWeeksInMonth,
+  type CalendarDate,
 } from "@internationalized/date";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import React, { useMemo } from "react";
 import {
-  CalendarProps,
-  DateValue,
   useButton,
   useCalendar,
   useCalendarCell,
   useCalendarGrid,
   useLocale,
+  type CalendarProps,
+  type DateValue,
 } from "react-aria";
-import { CalendarState, useCalendarState } from "react-stately";
+import { useCalendarState, type CalendarState } from "react-stately";
 import { cn } from "~/utils/styles";
 import { Button } from "./button";
 

@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 
 import { X } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import type { StepData } from "../types";
 import { CurrentStopForm } from "./current-stop-form";
 
@@ -14,9 +14,7 @@ export default function StopDetails({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
-  const { name, address, contact_info, description } = JSON.parse(
-    stop.description ?? "{}"
-  );
+  const { address } = JSON.parse(stop.description ?? "{}");
   return (
     // <Transition.Root show={open} as={Fragment}>
     //   <Dialog as="div" className="relative z-10" onClose={setOpen}>

@@ -1,8 +1,5 @@
 import { create } from "zustand";
-import type {
-  OptimizationData,
-  VroomResponse,
-} from "~/components/tools/routing/types";
+import type { VroomResponse } from "~/components/tools/routing/types";
 
 interface useSolutionsStore {
   currentRoutingSolution: VroomResponse | null;

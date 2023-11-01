@@ -1,4 +1,4 @@
-import { BellIcon, CheckIcon } from "@radix-ui/react-icons";
+import { CheckIcon } from "@radix-ui/react-icons";
 import { uniqueId } from "lodash";
 import { Coffee, Home, Truck } from "lucide-react";
 import {
@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -21,12 +21,8 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useDrivers } from "~/hooks/routing/use-drivers";
 
-import { useEffect } from "react";
 import { Separator } from "~/components/ui/separator";
-import {
-  convertMetersToMiles,
-  convertSecondsToTimeString,
-} from "~/utils/routing/data-formatting";
+import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import {
   convertSecondsToComponents,
   convertSecondsToTime,
@@ -44,12 +40,9 @@ export function RouteCard({ data, className, ...props }: CardProps) {
   const drivers = useDrivers((state) => state.drivers);
   console.log(data);
 
-  const {
-    name: driverName,
-    address: startingAddress,
-    contact_info: driverContact,
-    description: driverDescription,
-  } = JSON.parse(data.description ?? "{}");
+  const { name: driverName, address: startingAddress } = JSON.parse(
+    data.description ?? "{}"
+  );
 
   return (
     <AccordionItem value={`item-${uniqueId()}`}>
@@ -104,7 +97,7 @@ export function RouteCard({ data, className, ...props }: CardProps) {
 
             <div>
               {data?.steps?.map((notification, index) => {
-                const { name, address, contact_info, description } = JSON.parse(
+                const { address } = JSON.parse(
                   notification.description ?? "{}"
                 );
 
@@ -209,12 +202,9 @@ export function SimplifiedRouteCard({
   className,
   ...props
 }: CardProps) {
-  const {
-    name: driverName,
-    address: startingAddress,
-    contact_info: driverContact,
-    description: driverDescription,
-  } = JSON.parse(data.description ?? "{}");
+  const { name: driverName, address: startingAddress } = JSON.parse(
+    data.description ?? "{}"
+  );
 
   const date = getCurrentDateFormatted();
   const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
@@ -401,3 +391,88 @@ const HomeLine = ({ step, address }: { step: StepData; address: string }) => {
     </div>
   );
 };
+
+export function MinimalRouteCard({
+  data,
+  handleOnStopClick,
+  className,
+  ...props
+}: CardProps) {
+  const { name: driverName, address: startingAddress } = JSON.parse(
+    data.description ?? "{}"
+  );
+
+  const date = getCurrentDateFormatted();
+  const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
+  const endTime = convertSecondsToTime(
+    (data?.steps?.[0]?.arrival ?? 0) +
+      data?.setup +
+      data?.service +
+      data?.waiting_time +
+      data?.duration
+  );
+
+  const numberOfStops = data?.steps?.filter(
+    (step) => step.type === "job"
+  ).length;
+
+  let jobIndex = 0;
+  return (
+    <Card className={cn("w-full", className)} {...props}>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger className="pr-4 text-left">
+            {" "}
+            <CardHeader>
+              <CardDescription>
+                Start {startTime} • End {endTime} • {numberOfStops} stops •{" "}
+                {convertMetersToMiles(data?.distance)} miles
+              </CardDescription>{" "}
+              <CardTitle>{date}</CardTitle>{" "}
+              <CardTitle className="text-lg font-normal">
+                {driverName}
+              </CardTitle>
+            </CardHeader>
+          </AccordionTrigger>
+          <AccordionContent>
+            <CardContent className="grid gap-4">
+              <ScrollArea className="h-96 w-full rounded-md border">
+                <div className="w-full p-4">
+                  {data?.steps?.map((notification, index) => {
+                    return (
+                      <div key={index} className="w-full">
+                        {notification.type === "job" && handleOnStopClick && (
+                          <FulfillmentLine
+                            step={notification}
+                            idx={++jobIndex}
+                            handleOnStopClick={handleOnStopClick}
+                          />
+                        )}
+                        {(notification.type === "start" ||
+                          notification.type === "end") && (
+                          <HomeLine
+                            step={notification}
+                            address={startingAddress ?? ""}
+                          />
+                        )}
+                        {notification.type === "break" && (
+                          <BreakLine step={notification} />
+                        )}{" "}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* <CardFooter>
+        <Button className="w-full">
+          <CheckIcon className="mr-2 h-4 w-4" /> Mark all as read
+        </Button>
+      </CardFooter> */}
+    </Card>
+  );
+}

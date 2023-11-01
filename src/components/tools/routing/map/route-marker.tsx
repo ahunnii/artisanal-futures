@@ -1,7 +1,7 @@
 import { divIcon } from "leaflet";
 import { Truck } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, type FC } from "react";
+import { useMemo, type FC } from "react";
 import ReactDOMServer from "react-dom/server";
 import { Marker, Popup, type MarkerProps } from "react-leaflet";
 import {
@@ -60,7 +60,7 @@ export const StopIcon = (color: string, id: number) => {
   });
 };
 
-export const PositionIcon = (color: string) => {
+export const PositionIcon = () => {
   const markerHtmlStyles = `
     background-color: ${"#0043ff"};
     width: 1.25rem;
@@ -117,7 +117,7 @@ const RouteMarker: FC<IProps> = ({
     variant === "stop"
       ? StopIcon(calculatedColor.fill!, stopId!)
       : variant === "currentPosition"
-      ? PositionIcon(calculatedColor.fill!)
+      ? PositionIcon()
       : TruckIcon(calculatedColor.text!);
   const { route } = useParams();
 
