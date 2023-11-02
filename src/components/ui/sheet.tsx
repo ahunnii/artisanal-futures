@@ -11,14 +11,17 @@ const SheetTrigger = SheetPrimitive.Trigger;
 
 const SheetClose = SheetPrimitive.Close;
 
-interface SheetPortalProps
-  extends SheetPrimitive.DialogPortalProps,
-    React.HTMLAttributes<HTMLDivElement> {}
-const SheetPortal = ({ ...props }: SheetPortalProps) => (
-  // <SheetPrimitive.Portal className={cn(className)} {...props} />
-  <SheetPrimitive.Portal {...props} />
-);
-SheetPortal.displayName = SheetPrimitive.Portal.displayName;
+// interface SheetPortalProps
+//   extends SheetPrimitive.DialogPortalProps,
+//     React.HTMLAttributes<HTMLDivElement> {}
+
+// const SheetPortal = ({ ...props }: SheetPortalProps) => (
+//   // <SheetPrimitive.Portal className={cn(className)} {...props} />
+//   <SheetPrimitive.Portal {...props} />
+// );
+// SheetPortal.displayName = SheetPrimitive.Portal.displayName;
+
+const SheetPortal = SheetPrimitive.Portal;
 
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,
