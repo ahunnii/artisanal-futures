@@ -33,7 +33,7 @@ type Library = "places";
 
 const libraries: Library[] = ["places"];
 const driverFormSchema = z.object({
-  id: z.number(),
+  id: z.number().or(z.string()),
   name: z
     .string()
     .min(2, {

@@ -67,13 +67,17 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
         (drivers && drivers.length > 0)) &&
       mapRef.current
     ) {
+      console.log(drivers);
+      const filteredLocations = locations.filter(
+        (location) => location.lat && location.lng
+      );
+
+      const filteredDrivers = drivers.filter(
+        (location) => location.lat && location.lng
+      );
       const bounds = L.latLngBounds(
-        [...locations, ...drivers].map(
-          (location) =>
-            [
-              location?.coordinates?.latitude,
-              location?.coordinates?.longitude,
-            ] as LatLngExpression
+        [...filteredLocations, ...filteredDrivers].map(
+          (location) => [location?.lat, location?.lng] as LatLngExpression
         )
       );
 
@@ -123,30 +127,30 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
         <LayersControl.Overlay name="Drivers" checked>
           <LeafletLayerGroup>
             {drivers?.length &&
-              drivers.map((vehicle, idx) => (
-                <RouteMarker
-                  key={idx}
-                  variant="car"
-                  id={vehicle.id}
-                  position={[
-                    vehicle.coordinates?.latitude,
-                    vehicle.coordinates?.longitude,
-                  ]}
-                  color={vehicle?.id ?? 2}
-                >
-                  <div className="flex flex-col space-y-2">
-                    <span className="block text-base font-bold capitalize">
-                      {vehicle?.name ?? "Driver "}
-                    </span>
-                    <span className="block">
-                      <span className="block font-semibold text-slate-600">
-                        Start and End Location
-                      </span>
-                      {vehicle.address}
-                    </span>
-                  </div>
-                </RouteMarker>
-              ))}{" "}
+              drivers.map((vehicle, idx) => {
+                if (vehicle.address)
+                  return (
+                    <RouteMarker
+                      key={idx}
+                      variant="car"
+                      id={vehicle.id}
+                      position={[vehicle?.lat, vehicle?.lng]}
+                      color={vehicle?.id ?? 2}
+                    >
+                      <div className="flex flex-col space-y-2">
+                        <span className="block text-base font-bold capitalize">
+                          {vehicle?.name ?? "Driver "}
+                        </span>
+                        <span className="block">
+                          <span className="block font-semibold text-slate-600">
+                            Start and End Location
+                          </span>
+                          {vehicle.address}
+                        </span>
+                      </div>
+                    </RouteMarker>
+                  );
+              })}{" "}
           </LeafletLayerGroup>
         </LayersControl.Overlay>
         <LayersControl.Overlay name="Stops" checked>

@@ -14,7 +14,7 @@ export type Break = {
   service: number;
 };
 export type Driver = {
-  id: number;
+  id: number | string;
   name: string;
   address: string;
   time_window: TimeWindow;
@@ -24,6 +24,8 @@ export type Driver = {
   max_stops: number;
   contact_info?: string;
   description?: string;
+  lat?: number;
+  lng?: number;
 };
 
 export type Stop = {

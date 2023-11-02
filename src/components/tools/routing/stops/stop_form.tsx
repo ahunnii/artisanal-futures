@@ -162,7 +162,7 @@ export const StopForm: FC<IProps> = ({ initialData, callback }) => {
                       defaultInputValue: value,
                       onChange: (e) => {
                         if (!e) return;
-
+                        console.log(e);
                         onChange(e.label);
                         geocodeByAddress(e.label)
                           .then((results) => getLatLng(results[0]!))

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useMemo } from "react";
-
+import { ShopModal } from "~/components/admin/modals/shop-modal";
 import Body from "~/components/body";
 import { SidebarNav } from "~/components/profile/sidebar-nav";
 import { Separator } from "~/components/ui/separator";
@@ -75,6 +75,8 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
             <div className="flex-1 lg:max-w-2xl">{children}</div>
           </div>
         </div>
+
+        <ShopModal />
       </Body>
     </>
   );

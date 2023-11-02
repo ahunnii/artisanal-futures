@@ -96,6 +96,8 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
     setSelected(data);
     setOpen(true);
   }, []);
+
+  console.log(data);
   return (
     <ToolLayout>
       <section className="h-6/12 flex w-full flex-col justify-between  md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">

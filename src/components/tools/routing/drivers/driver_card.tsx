@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useSheet } from "~/hooks/routing/use-sheet";
+import { api } from "~/utils/api";
 import { convertTime } from "~/utils/routing";
 import type { Driver } from "../types";
 import EntryMenu from "../ui/EntryMenu";
@@ -40,9 +41,9 @@ const DriverCard: FC<IProps> = ({ driver }) => {
       <span className="w-10/12">
         <h2 className="font-bold text-slate-800">{driver.name}</h2>
         <h3 className="text-sm font-medium capitalize text-slate-800/80">
-          {driver.address}
+          {driver?.address ?? "Address not setup"}
         </h3>
-        <div className="mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500">
+        {/* <div className="mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500">
           <p>{driver.break_slots.length} break(s)</p>
           <span>&middot;</span>
           <p>{driver.max_travel_time} min max travel</p>
@@ -52,7 +53,7 @@ const DriverCard: FC<IProps> = ({ driver }) => {
         <p className="font-lg mt-1 flex space-x-1 text-xs leading-4 text-gray-500">
           Shift from {convertTime(driver.time_window.startTime)} -{" "}
           {convertTime(driver.time_window.endTime)}
-        </p>
+        </p> */}
       </span>
       <EntryMenu
         editCallback={onEdit}

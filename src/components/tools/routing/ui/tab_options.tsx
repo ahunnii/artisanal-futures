@@ -25,6 +25,7 @@ const TabOptions: FC<IProps> = ({ type, className, children }) => {
   const { setDrivers, setActiveDriver } = useDrivers((state) => state);
   const { data: session, status } = useSession();
   const { onOpen, setIsViewOnly } = useSheet();
+
   const typeData = {
     stop: {
       setType: setLocations,
@@ -65,6 +66,7 @@ const TabOptions: FC<IProps> = ({ type, className, children }) => {
         console.error(err);
       });
   };
+
   const handleCSVUpload = <T extends Driver | Stop>(
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -105,24 +107,26 @@ const TabOptions: FC<IProps> = ({ type, className, children }) => {
       <Button
         variant={"secondary"}
         className="basis-1/4 "
-        onClick={isUserArtisan ? populateCustomerCSV : populateFromDatabase}
+        // onClick={isUserArtisan ? populateCustomerCSV : populateFromDatabase}
+        onClick={populateFromDatabase}
         disabled={status === "loading"}
       >
         {status === "loading" && (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         )}
-        {isUserArtisan ? "Import " : "Autofill"}
+        {"Autofill"}
+        {/* {isUserArtisan ? "Import " : "Autofill"} */}
       </Button>
 
       <UploadBtn handleOnChange={handleCSVUpload} className="basis-1/4 " />
 
-      <Button
+      {/* <Button
         className="basis-1/4"
         variant={"secondary"}
         onClick={onModifyOpen}
       >
         Modify...
-      </Button>
+      </Button> */}
 
       {children}
     </div>

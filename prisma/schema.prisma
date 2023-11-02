@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = [ "fullTextSearch", "fullTextIndex"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 enum Role {
@@ -11,6 +11,7 @@ enum Role {
   ADMIN
   ARTISAN
 }
+
 datasource db {
   provider     = "mysql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
@@ -55,9 +56,9 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
   title         String?
@@ -160,3 +161,136 @@ model Comment {
   @@index([authorId])
   @@index([postId])
 }
+
+model RouteDepot {
+  id        String     @id @default(cuid())
+  ownerId   String
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  zip       String?
+  country   String?
+  lat       Float?
+  lng       Float?
+  drivers   Driver[]   @relation("DepotToDriver")
+  stops     Stop[]
+  routes    Route[]
+  customers Customer[] @relation("CustomerToDepot")
+}
+
+model Driver {
+  id            String      @id @default(cuid())
+  routeDepotId  String
+  routeDepot    RouteDepot  @relation("DepotToDriver", fields: [routeDepotId], references: [id])
+  name          String
+  phone         String?
+  email         String?
+  route         Route?      @relation(fields: [routeId], references: [id])
+  routeId       String?
+  routeData      DriverRouteInfo[]
+}
+
+model TimeWindow {
+  id    String   @id @default(cuid())
+  start DateTime
+  end   DateTime
+
+  Driver DriverRouteInfo[]
+  stop   Stop?    @relation(fields: [stopId], references: [id])
+  stopId String?
+}
+
+model BreakTimeWindow {
+  id      String   @id @default(cuid())
+  start   DateTime
+  end     DateTime
+  break   Break?   @relation(fields: [breakId], references: [id])
+  breakId String?
+}
+
+model Break {
+  id          String            @id @default(cuid())
+  timeWindows BreakTimeWindow[]
+  duration    Int?
+  driverData      DriverRouteInfo?           @relation(fields: [driverDataId], references: [id])
+  driverDataId    String?
+}
+
+model Customer {
+  id           String     @id @default(cuid())
+  routeDepotId String
+  routeDepot   RouteDepot @relation("CustomerToDepot", fields: [routeDepotId], references: [id])
+  name         String
+  phone        String?
+  email        String?
+  address      String?
+  city         String?
+  state        String?
+  zip          String?
+  country      String?
+  lat          Float?
+  lng          Float?
+  stop         Stop[]
+}
+
+model Stop {
+  id               String       @id @default(cuid())
+  routeDepotId     String
+  routeDepot       RouteDepot   @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
+  customerId       String
+  customer         Customer     @relation(fields: [customerId], references: [id])
+  timeWindows      TimeWindow[]
+  dropOffDuration  Int?
+  prepTimeDuration Int?
+  priority         Int?
+  description      String?
+  route            Route?       @relation(fields: [routeId], references: [id])
+  routeId          String?
+}
+
+model OptimizedRoute {
+  id       String   @id @default(cuid())
+  fileName String
+  date     DateTime
+  routeId  String   @unique
+  route    Route    @relation(fields: [routeId], references: [id])
+}
+
+model Route {
+  id               String          @id @default(cuid())
+  routeDepotId     String
+  routeDepot       RouteDepot      @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
+  date             DateTime
+  stops            Stop[]
+  drivers          Driver[]
+  optimizedRoute   OptimizedRoute? 
+  optimizedRouteId String?
+}
+
+
+model DriverRouteInfo{
+  id           String   @id @default(cuid())
+  driverId     String
+  driver       Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  address       String?
+  city          String?
+  state         String?
+  zip           String?
+  country       String?
+  lat           Float?
+  lng           Float?
+  maxStops      Int?
+  maxTravelTime Int?
+  breaks        Break[]
+  timeWindowId  String?
+  timeWindow    TimeWindow? @relation(fields: [timeWindowId], references: [id])
+  routeId   String?
+  date      DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([driverId])
+}
+

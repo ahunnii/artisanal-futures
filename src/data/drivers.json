@@ -3,7 +3,9 @@
     "id": 0,
     "name": "David Martinez",
     "address": "2555 Oak Valley Dr, Ann Arbor, MI 48103",
-    "coordinates": { "latitude": 42.24977, "longitude": -83.77077 },
+    "lat": 42.24977,
+    "lng": -83.77077,
+
     "time_window": { "startTime": "08:00", "endTime": "18:00" },
     "max_travel_time": 30,
     "max_stops": 5,
@@ -19,7 +21,9 @@
     "id": 1,
     "name": "Dorio Lucas",
     "address": "3300 Ann Arbor Saline Rd, Ann Arbor, MI 48103",
-    "coordinates": { "latitude": 42.23938, "longitude": -83.77182 },
+    "lat": 42.23938,
+    "lng": -83.77182,
+
     "time_window": { "startTime": "08:00", "endTime": "18:00" },
     "max_travel_time": 60,
     "max_stops": 3,
@@ -43,7 +47,9 @@
     "id": 2,
     "name": "Lucy Smith",
     "address": "3400 Nixon Rd, Ann Arbor, MI 48105",
-    "coordinates": { "latitude": 42.323231, "longitude": -83.707939 },
+    "lat": 42.323231,
+    "lng": -83.707939,
+
     "time_window": { "startTime": "08:00", "endTime": "18:00" },
     "max_travel_time": 45,
     "max_stops": 6,
