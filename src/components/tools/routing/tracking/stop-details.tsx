@@ -1,20 +1,56 @@
 import { Dialog, Transition } from "@headlessui/react";
 
+import axios from "axios";
 import { X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { Fragment } from "react";
-import type { StepData } from "../types";
+import type { RouteData, StepData } from "../types";
 import { CurrentStopForm } from "./current-stop-form";
 
 export default function StopDetails({
   stop,
   open,
   setOpen,
+
+  route,
 }: {
   stop: StepData;
   open: boolean;
   setOpen: (open: boolean) => void;
+  handleOnMessage?: ({
+    body,
+    address,
+    status,
+  }: {
+    body: string;
+    address: string;
+    status: string;
+  }) => void;
+  route?: RouteData;
 }) {
   const { address } = JSON.parse(stop.description ?? "{}");
+  const { data: session } = useSession();
+
+  const sendMessage = ({
+    deliveryNotes,
+    status,
+  }: {
+    deliveryNotes: string;
+    status?: "success" | "failed" | "pending";
+  }) => {
+    axios
+      .post("/api/contact-dispatch", {
+        userId: session?.user?.id ?? 0,
+        deliveryNotes,
+        address,
+        status,
+        route,
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     // <Transition.Root show={open} as={Fragment}>
     //   <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -124,7 +160,7 @@ export default function StopDetails({
               </button>
             </div>
             <div className=" relative flex-1 overflow-y-scroll px-6 py-2">
-              <CurrentStopForm />
+              <CurrentStopForm callback={sendMessage} />
             </div>
           </Dialog.Panel>
         </Transition.Child>

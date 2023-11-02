@@ -164,3 +164,10 @@ export type PusherUserData = {
   fileId?: string;
   route: RouteData;
 };
+export type PusherMessage = {
+  userId: string;
+  name: string;
+  deliveryNotes: string;
+  address: string;
+  status?: "success" | "failed" | "pending";
+};

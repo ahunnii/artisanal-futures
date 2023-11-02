@@ -5,15 +5,23 @@ import Head from "next/head";
 
 import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
-
 import { SimplifiedRouteCard } from "~/components/tools/routing/solutions/route-card";
 import StopDetails from "~/components/tools/routing/tracking/stop-details";
 import type {
+  PusherMessage,
   PusherUserData,
   RouteData,
   StepData,
 } from "~/components/tools/routing/types";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { env } from "~/env.mjs";
 import ToolLayout from "~/layouts/tool-layout";
@@ -28,6 +36,8 @@ const LazyTrackingMap = dynamic(
 
 const TrackingPage = () => {
   const [activeUsers, setActiveUsers] = useState<PusherUserData[]>([]);
+
+  const [messages, setMessages] = useState<PusherMessage[]>([]);
   const [currentRoutes, setCurrentRoutes] = useState<RouteData[]>([]);
   const [selected, setSelected] = useState<StepData | null>(null);
 
@@ -39,7 +49,7 @@ const TrackingPage = () => {
     const channel = pusher.subscribe("map");
 
     channel.bind("update-locations", setActiveUsers);
-
+    channel.bind("update-messages", setMessages);
     axios
       .get("/api/fetch-routes")
       .then(function (response) {
@@ -58,9 +68,6 @@ const TrackingPage = () => {
     setSelected(data);
     setOpen(true);
   }, []);
-  useEffect(() => {
-    console.log(activeUsers);
-  }, [activeUsers]);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {
@@ -71,6 +78,8 @@ const TrackingPage = () => {
     }
     return false;
   };
+
+  console.log(messages);
   return (
     <>
       <Head>
@@ -84,7 +93,7 @@ const TrackingPage = () => {
             <h1 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
               All Routes
             </h1>{" "}
-            <ScrollArea className="h-4/5 w-full rounded-md border p-4">
+            <ScrollArea className="h-3/5 w-full rounded-md border p-4">
               {" "}
               {currentRoutes &&
                 currentRoutes.length > 0 &&
@@ -103,6 +112,38 @@ const TrackingPage = () => {
                     />
                   </div>
                 ))}{" "}
+            </ScrollArea>
+            <ScrollArea className="h-2/5 w-full rounded-md border p-4">
+              <h3>Incoming Messages from Drivers</h3>
+
+              {messages &&
+                messages.length > 0 &&
+                messages.map((message, idx) => {
+                  return (
+                    <Card key={idx}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center justify-between gap-4">
+                          {message.name}
+
+                          <Badge>{message.status}</Badge>
+                        </CardTitle>
+                        <CardDescription>{message.address}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="grid gap-1">
+                        <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              Message
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {message.deliveryNotes}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </ScrollArea>
           </div>
 

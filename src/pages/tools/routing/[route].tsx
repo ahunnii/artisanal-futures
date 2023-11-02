@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { env } from "~/env.mjs";
 
 import dynamic from "next/dynamic";
@@ -44,7 +45,11 @@ const DynamicMapWithNoSSR = dynamic(
 
 const RoutePage: FC<IProps> = ({ data, steps }) => {
   const [, setActiveUsers] = useState([]);
-  const [enableTracking, setEnableTracking] = useState(false);
+
+  const [, setMessages] = useState([]);
+
+  const [isTracking, setIsTracking] = useState<boolean>(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const [open, setOpen] = useState(false);
 
@@ -58,8 +63,10 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
     const channel = pusher.subscribe("map");
 
     channel.bind("update-locations", setActiveUsers);
+    channel.bind("update-messages", setMessages);
 
     return () => {
+      removeUser();
       pusher.unsubscribe("map");
     };
   }, []);
@@ -81,9 +88,7 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
           fileId: route,
           route: data,
         })
-        .then(() => {
-          setEnableTracking(true);
-        })
+
         .catch((error) => {
           console.log(error);
         });
@@ -96,6 +101,37 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
     setSelected(data);
     setOpen(true);
   }, []);
+
+  const removeUser = () => {
+    axios
+      .post("/api/update-location", {
+        userId: session?.user?.id ?? 0,
+        removeUser: true,
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    if (isTracking) {
+      const id = setInterval(triggerActiveUser, 10000); // 10000ms = 10s
+      setIntervalId(id);
+    } else if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+
+      removeUser();
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        removeUser();
+      }
+    };
+  }, [isTracking]);
+
   return (
     <ToolLayout>
       <section className="h-6/12 flex w-full flex-col justify-between  md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
@@ -113,12 +149,12 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
             />
           )}
           <Button
-            onClick={triggerActiveUser}
-            disabled={enableTracking}
-            variant={enableTracking ? "secondary" : "default"}
+            onClick={() => setIsTracking(true)}
+            disabled={isTracking}
+            variant={isTracking ? "secondary" : "default"}
           >
             {" "}
-            {enableTracking && (
+            {isTracking && (
               <svg
                 className="-ml-1 mr-3 h-5 w-5 animate-spin text-gray-500"
                 xmlns="http://www.w3.org/2000/svg"
@@ -140,20 +176,22 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
                 ></path>
               </svg>
             )}
-            {enableTracking
+            {isTracking
               ? "Broadcasting location with dispatch..."
               : "Start Route"}
           </Button>{" "}
-          {enableTracking && (
-            <Button
-              onClick={() => setEnableTracking(false)}
-              variant={"default"}
-            >
-              Disable Tracking
+          {isTracking && (
+            <Button onClick={() => setIsTracking(false)} variant={"default"}>
+              Stop broadcasting location with dispatch
             </Button>
           )}
           {selected && (
-            <StopDetails stop={selected} open={open} setOpen={setOpen} />
+            <StopDetails
+              stop={selected}
+              open={open}
+              setOpen={setOpen}
+              route={data}
+            />
           )}
         </div>
       </section>

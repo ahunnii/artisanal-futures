@@ -22,12 +22,12 @@ import { toast } from "~/components/ui/use-toast";
 
 const notificationsFormSchema = z.object({
   status: z
-    .enum(["failed", "success", "pending", "cancelled"], {
+    .enum(["failed", "success", "pending"], {
       required_error: "You need to select a notification type.",
     })
     .optional(),
 
-  delivery_notes: z.string().optional(),
+  deliveryNotes: z.string(),
 });
 
 type NotificationsFormValues = z.infer<typeof notificationsFormSchema>;
@@ -37,7 +37,11 @@ const defaultValues: Partial<NotificationsFormValues> = {
   status: "pending",
 };
 
-export function CurrentStopForm() {
+export function CurrentStopForm({
+  callback,
+}: {
+  callback: (data: NotificationsFormValues) => void;
+}) {
   const form = useForm<NotificationsFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues,
@@ -52,6 +56,8 @@ export function CurrentStopForm() {
         </pre>
       ),
     });
+
+    callback(data);
   }
 
   return (
@@ -127,7 +133,7 @@ export function CurrentStopForm() {
 
         <FormField
           control={form.control}
-          name="delivery_notes"
+          name="deliveryNotes"
           render={({ field }) => (
             <FormItem className="flex flex-col  justify-between rounded-lg border p-4">
               <div className="space-y-0.5">

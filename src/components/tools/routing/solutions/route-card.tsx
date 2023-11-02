@@ -34,6 +34,15 @@ import RouteQRModal from "../ui/RouteQRModal";
 interface CardProps extends React.ComponentProps<typeof Card> {
   data: RouteData;
   handleOnStopClick?: (stop: StepData | null) => void;
+  handleOnMessage?: ({
+    deliveryNotes,
+    address,
+    status,
+  }: {
+    deliveryNotes: string;
+    address: string;
+    status: string;
+  }) => void;
 }
 
 export function RouteCard({ data, className, ...props }: CardProps) {
@@ -199,6 +208,7 @@ function getCurrentDateFormatted(): string {
 export function SimplifiedRouteCard({
   data,
   handleOnStopClick,
+
   className,
   ...props
 }: CardProps) {

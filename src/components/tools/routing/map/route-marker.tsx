@@ -56,7 +56,9 @@ export const StopIcon = (color: string, id: number) => {
     className: "my-custom-pin",
     iconAnchor: [0, 24],
     popupAnchor: [0, -36],
-    html: `<span style="${markerHtmlStyles}"><span class="-rotate-45 text-white font-bold fixed  h-full w-full items-center flex justify-center ">${id}</span></span>`,
+    html: `<span style="${markerHtmlStyles}"><span class="-rotate-45 text-white font-bold fixed  h-full w-full items-center flex justify-center ">${
+      id ?? ""
+    }</span></span>`,
   });
 };
 
