@@ -80,3 +80,32 @@ export const convertSecondsToComponents = (seconds: number) => {
           }`,
   };
 };
+export function getCurrentDateFormatted(): string {
+  // Create a new Date object for the current date and time
+  const currentDate = new Date();
+
+  // Array of days and months to get names instead of numbers
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the day of the week, month, and the date
+  const day = days[currentDate.getDay()];
+  const month = months[currentDate.getMonth()];
+  const date = currentDate.getDate();
+
+  // Return the formatted string
+  return `${day}, ${month} ${date}`;
+}

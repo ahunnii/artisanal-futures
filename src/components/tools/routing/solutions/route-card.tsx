@@ -22,10 +22,12 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 
 import { Separator } from "~/components/ui/separator";
+import { getColor } from "~/utils/routing/color-handling";
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import {
   convertSecondsToComponents,
   convertSecondsToTime,
+  getCurrentDateFormatted,
 } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
 import type { RouteData, StepData } from "../types";
@@ -175,35 +177,6 @@ export function RouteCard({ data, className, ...props }: CardProps) {
     </AccordionItem>
   );
 }
-function getCurrentDateFormatted(): string {
-  // Create a new Date object for the current date and time
-  const currentDate = new Date();
-
-  // Array of days and months to get names instead of numbers
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Get the day of the week, month, and the date
-  const day = days[currentDate.getDay()];
-  const month = months[currentDate.getMonth()];
-  const date = currentDate.getDate();
-
-  // Return the formatted string
-  return `${day}, ${month} ${date}`;
-}
 
 export function SimplifiedRouteCard({
   data,
@@ -319,10 +292,10 @@ const FulfillmentLine = ({
         </div>
         <div className=" col-start-4 col-end-12 my-2 mr-auto flex w-full items-center justify-between  rounded-xl p-4 ">
           <div className="basis-2/3 flex-col">
-            <h3 className="mb-1 text-lg font-semibold text-slate-500">
+            <h3 className="mb-1 text-base font-semibold text-slate-500">
               {name}
             </h3>
-            <p className="w-full text-justify leading-tight text-slate-400">
+            <p className="w-full text-justify text-sm leading-tight text-slate-400">
               {address}
             </p>
           </div>
@@ -353,10 +326,10 @@ const BreakLine = ({ step }: { step: StepData }) => {
 
       <div className="my-2 mr-auto flex w-full items-center justify-between rounded-xl p-4  ">
         <div className="basis-2/3 flex-col">
-          <h3 className="mb-1 text-lg font-semibold text-slate-500">
+          <h3 className="mb-1 text-base font-semibold text-slate-500">
             Break Time
           </h3>
-          <p className="w-full text-justify leading-tight text-slate-400">
+          <p className="w-full text-justify text-sm leading-tight text-slate-400">
             Duration is {convertSecondsToComponents(step?.service).formatted}
           </p>
         </div>
@@ -385,10 +358,10 @@ const HomeLine = ({ step, address }: { step: StepData; address: string }) => {
       </div>
       <div className="col-start-4 col-end-12 my-2 mr-auto flex w-full items-center  justify-between rounded-xl p-4">
         <div className="basis-2/3 flex-col">
-          <h3 className="mb-1 text-lg font-semibold text-slate-500">
+          <h3 className="mb-1 text-base font-semibold text-slate-500">
             {step.type === "start" ? "Start from" : "End back at"}
           </h3>
-          <p className="w-full text-justify leading-tight text-slate-400">
+          <p className="w-full text-justify text-sm leading-tight text-slate-400">
             {address}
           </p>
         </div>
@@ -402,17 +375,27 @@ const HomeLine = ({ step, address }: { step: StepData; address: string }) => {
   );
 };
 
+interface MinimalCardProps extends CardProps {
+  handleOnArchive: (geometry: string) => void;
+  handleOnRouteClick: (route: RouteData | null) => void;
+  isOnline: boolean;
+  textColor?: number;
+}
+
 export function MinimalRouteCard({
   data,
   handleOnStopClick,
+  handleOnArchive,
+  handleOnRouteClick,
+  isOnline,
+  textColor,
   className,
   ...props
-}: CardProps) {
+}: MinimalCardProps) {
   const { name: driverName, address: startingAddress } = JSON.parse(
     data.description ?? "{}"
   );
 
-  const date = getCurrentDateFormatted();
   const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
   const endTime = convertSecondsToTime(
     (data?.steps?.[0]?.arrival ?? 0) +
@@ -427,27 +410,46 @@ export function MinimalRouteCard({
   ).length;
 
   let jobIndex = 0;
+
   return (
     <Card className={cn("w-full", className)} {...props}>
       <Accordion type="single" collapsible>
         <AccordionItem value="item-1">
-          <AccordionTrigger className="pr-4 text-left">
-            {" "}
-            <CardHeader>
+          <AccordionTrigger className="py-1 pr-4 text-left">
+            <CardHeader className="py-1">
+              <CardTitle
+                className="flex  flex-row items-center gap-4 text-base"
+                onClick={() => handleOnRouteClick(data)}
+              >
+                <div
+                  className={cn(
+                    "flex basis-2/3 font-bold",
+                    getColor(textColor!).text
+                  )}
+                >
+                  {driverName}
+                </div>
+
+                {isOnline && (
+                  <div className="flex basis-1/3 items-center gap-2">
+                    <span className="text-sm text-green-500">Online</span>
+                    <span className="relative flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+                    </span>
+                  </div>
+                )}
+              </CardTitle>
               <CardDescription>
-                Start {startTime} • End {endTime} • {numberOfStops} stops •{" "}
+                {startTime} to {endTime} • {numberOfStops} stops •{" "}
                 {convertMetersToMiles(data?.distance)} miles
               </CardDescription>{" "}
-              <CardTitle>{date}</CardTitle>{" "}
-              <CardTitle className="text-lg font-normal">
-                {driverName}
-              </CardTitle>
             </CardHeader>
           </AccordionTrigger>
-          <AccordionContent>
-            <CardContent className="grid gap-4">
-              <ScrollArea className="h-96 w-full rounded-md border">
-                <div className="w-full p-4">
+          <AccordionContent className="">
+            <CardContent className="grid gap-4 ">
+              <ScrollArea className="my-4 h-80 w-full rounded-md border">
+                <div className="w-full px-4 ">
                   {data?.steps?.map((notification, index) => {
                     return (
                       <div key={index} className="w-full">
@@ -474,6 +476,15 @@ export function MinimalRouteCard({
                 </div>
               </ScrollArea>
             </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full"
+                onClick={() => handleOnArchive(data.geometry)}
+              >
+                <CheckIcon className="mr-2 h-4 w-4" /> Mark as complete and
+                archive
+              </Button>
+            </CardFooter>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

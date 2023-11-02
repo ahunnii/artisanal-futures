@@ -73,7 +73,7 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({
       <AccordionItem value="item-1">
         <AccordionTrigger>
           {" "}
-          <p className=" block flex w-full flex-col text-left font-bold text-slate-800">
+          <p className="  flex w-full flex-col text-left font-bold text-slate-800">
             <span>{drivers.get(route.vehicle)?.name}</span>
             <span>
               {startTime} to {endTime}

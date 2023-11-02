@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Map } from "leaflet";
+import type { LatLngExpression, Map } from "leaflet";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type FC } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 
 import { convertSecondsToTime } from "~/utils/routing";
@@ -11,11 +11,23 @@ import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 import { useSession } from "next-auth/react";
 
-import { LayersControl, LayerGroup as LeafletLayerGroup } from "react-leaflet";
+import {
+  GeoJSON,
+  LayersControl,
+  LayerGroup as LeafletLayerGroup,
+} from "react-leaflet";
 
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import type { PusherUserData } from "../types";
+import type {
+  GeoJsonData,
+  Polyline,
+  PusherUserData,
+  RouteData,
+} from "../types";
 
+import polyline from "@mapbox/polyline";
+import L from "leaflet";
+import { getStyle } from "~/utils/routing/color-handling";
 import RouteMarker from "./route-marker";
 
 // type FilteredLocation = {
@@ -38,7 +50,16 @@ import RouteMarker from "./route-marker";
 //   accuracy: number;
 // };
 
-const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
+interface TrackingMapProps {
+  activeUsers: PusherUserData[];
+  currentRoutes: RouteData[];
+  selectedRoute: RouteData | null;
+}
+const TrackingMap: FC<TrackingMapProps> = ({
+  activeUsers,
+  currentRoutes,
+  selectedRoute,
+}) => {
   // const [markers, setMarkers] = useState<L.Marker[]>([]);
   // const [circles, setCircles] = useState<L.Circle[]>([]);
   // const [pusherLocations, setPusherLocations] = useState<PusherLocation[]>([]);
@@ -46,6 +67,37 @@ const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
 
   const mapRef = useRef<Map>(null);
 
+  useEffect(() => {
+    if (mapRef.current && selectedRoute) {
+      const stepCoordinates = selectedRoute?.steps
+        ?.filter((step) => step.type !== "break")
+        .map(
+          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
+        );
+
+      if (stepCoordinates.length === 0) return;
+      const bounds = L.latLngBounds(stepCoordinates);
+
+      mapRef.current.fitBounds(bounds);
+    }
+  }, [selectedRoute, mapRef]);
+
+  useEffect(() => {
+    if (mapRef.current && currentRoutes) {
+      const allSteps = currentRoutes.map((route) => route?.steps);
+      const stepCoordinates = allSteps
+        .flat(1)
+        ?.filter((step) => step.type !== "break")
+        .map(
+          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
+        );
+
+      if (stepCoordinates.length === 0) return;
+      const bounds = L.latLngBounds(stepCoordinates);
+
+      mapRef.current.fitBounds(bounds);
+    }
+  }, [currentRoutes, mapRef]);
   // const trackingMarker = ({ colorMapping }: MarkerProps) => {
   //   const color = getColor(colorMapping).fill!;
 
@@ -158,6 +210,24 @@ const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
   //     mapRef.current!.fitBounds(featureGroup.getBounds());
   //   }
   // }, [pusherLocations]);
+
+  const convertToGeoJson = useCallback((geometry: string, color: number) => {
+    const temp = polyline.toGeoJSON(geometry) as Polyline;
+
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            ...temp,
+            properties: { color },
+          },
+        },
+      ],
+    };
+  }, []);
+
   return (
     <MapContainer
       ref={mapRef}
@@ -229,7 +299,67 @@ const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
                 );
               })}{" "}
           </LeafletLayerGroup>
-        </LayersControl.Overlay>
+        </LayersControl.Overlay>{" "}
+        {currentRoutes?.length > 0 &&
+          currentRoutes.map((route, idx) => {
+            const { name: driverName } = JSON.parse(route?.description ?? "{}");
+            return (
+              <LayersControl.Overlay name={driverName} checked key={idx}>
+                <LeafletLayerGroup>
+                  {" "}
+                  <>
+                    {route?.steps?.length &&
+                      route?.steps
+                        ?.filter((step) => step.type !== "break")
+                        .map((stop, index) => {
+                          const { name, address, description } = JSON.parse(
+                            stop?.description ?? "{}"
+                          );
+
+                          return (
+                            <RouteMarker
+                              key={index}
+                              variant="stop"
+                              id={index}
+                              position={[stop?.location[1], stop?.location[0]]}
+                              color={idx}
+                            >
+                              <div className="flex flex-col space-y-2">
+                                <span className="block text-base font-bold capitalize ">
+                                  {name ?? "Fulfillment "}
+                                </span>
+                                <span className="block">
+                                  {" "}
+                                  <span className="block font-semibold text-slate-600">
+                                    Fulfillment Location
+                                  </span>
+                                  {address}
+                                </span>
+
+                                <span className=" block">
+                                  {" "}
+                                  <span className="block font-semibold text-slate-600">
+                                    Fulfillment Details
+                                  </span>
+                                  {description === ""
+                                    ? "Not filled out"
+                                    : description}
+                                </span>
+                              </div>
+                            </RouteMarker>
+                          );
+                        })}{" "}
+                    <GeoJSON
+                      data={
+                        convertToGeoJson(route?.geometry, idx) as GeoJsonData
+                      }
+                      style={getStyle}
+                    />
+                  </>
+                </LeafletLayerGroup>
+              </LayersControl.Overlay>
+            );
+          })}
       </LayersControl>
 
       {/* 
@@ -241,7 +371,6 @@ const TrackingMap = ({ activeUsers }: { activeUsers: PusherUserData[] }) => {
         }
       /> */}
       {/* @ts-ignore */}
-      {/* {geojsonData && <GeoJSON data={geojsonData} style={getStyle} />} */}
     </MapContainer>
   );
 };
