@@ -5,7 +5,7 @@ import {
   getColor,
 } from "~/utils/routing";
 
-import { useCallback, type FC } from "react";
+import { type FC } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -18,13 +18,14 @@ import { Fragment } from "react";
 import RouteQRModal from "~/components/tools/routing/ui/RouteQRModal";
 import type {
   CustomerResponseData,
-  Step,
-  VehicleInfo,
+  // Step,
+  // VehicleInfo,
   VehicleResponseData,
 } from "~/types";
+import type { RouteData, StepData } from "../types";
 
 interface OptimizationProps {
-  route: VehicleInfo;
+  route: RouteData;
   drivers: Map<number, VehicleResponseData>;
   locations: Map<number, CustomerResponseData>;
 }
@@ -35,22 +36,24 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({
 }) => {
   const color = getColor(route.vehicle);
 
-  const extractRouteInfo = useCallback(() => {
-    const vehicles: VehicleInfo = {
-      vehicle: route.vehicle,
-      description: route.description,
-      steps: route.steps.map((step: Step) => ({
-        type: step.type,
-        id: step.id,
-        job: step.job ?? null,
-        location: step.location,
-        arrival: step.arrival,
-        duration: step.duration,
-      })),
-      geometry: route.geometry,
-    };
-    return vehicles;
-  }, [route]);
+  // const extractRouteInfo = useCallback(() => {
+  //   const vehicles: Partial<RouteData> = {
+  //     vehicle: route.vehicle,
+  //     description: route.description,
+  //     steps: route.steps.map((step: Partial<StepData>) => ({
+  //       type: step.type,
+  //       id: step.id,
+  //       job: step.job ?? null,
+  //       location: step.location,
+  //       arrival: step.arrival,
+  //       duration: step.duration,
+  //       setup: 0,
+  //       violations: [],
+  //     })) as unknown as StepData[],
+  //     geometry: route.geometry,
+  //   };
+  //   return vehicles;
+  // }, [route]);
 
   const startTime = formatTime(route.steps[0]?.arrival ?? 0);
   const endTime = formatTime(route.steps[route.steps.length - 1]?.arrival ?? 0);
@@ -77,7 +80,7 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({
             </span>
           </p>
           <span className="flex items-center gap-4">
-            <RouteQRModal data={extractRouteInfo()} />{" "}
+            <RouteQRModal data={route} />{" "}
           </span>
         </AccordionTrigger>
         <AccordionContent>
@@ -94,7 +97,7 @@ const OptimizationRouteCard: FC<OptimizationProps> = ({
                 {drivers.get(route.vehicle)?.address}
               </span>
             </li>
-            {route.steps.map((step: Step, idx: number) => (
+            {route.steps.map((step: StepData, idx: number) => (
               <Fragment key={idx}>
                 {step.id && step.id >= 0 && (
                   <li key={`step-${step.id}`}>
