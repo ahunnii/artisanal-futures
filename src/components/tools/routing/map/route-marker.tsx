@@ -13,7 +13,7 @@ import {
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useSheet } from "~/hooks/routing/use-sheet";
 import { useStops } from "~/hooks/routing/use-stops";
-import { getColor } from "~/utils/routing";
+import { getColor } from "~/utils/routing/color-handling";
 
 interface IProps extends MarkerProps {
   variant: "stop" | "car" | "currentPosition";
@@ -142,67 +142,3 @@ const RouteMarker: FC<IProps> = ({
 };
 
 export default RouteMarker;
-
-interface TrackingMarker extends IProps {
-  iconColor?: string;
-}
-
-export const TrackingMarker: FC<TrackingMarker> = ({
-  position,
-  color,
-  variant,
-  id,
-  stopId,
-  iconColor,
-
-  children,
-}) => {
-  const { onOpen } = useSheet();
-  const { setActiveLocationById } = useStops((state) => state);
-  const { setActiveDriverById } = useDrivers((state) => state);
-
-  const calculatedColor = useMemo(() => {
-    if (color == -1)
-      return {
-        fill: "#0000003a",
-        text: "#00000001",
-      };
-
-    return getColor(color);
-  }, [color]);
-
-  const onEdit = () => {
-    if (variant === "stop") {
-      setActiveLocationById(id);
-      onOpen();
-    } else {
-      setActiveDriverById(id);
-      onOpen();
-    }
-  };
-
-  const icon =
-    variant === "stop"
-      ? StopIcon(calculatedColor.fill!, stopId!)
-      : variant === "currentPosition"
-      ? PositionIcon()
-      : TruckIcon(calculatedColor.text!);
-  const { route } = useParams();
-
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        {" "}
-        <Marker position={position} icon={icon}>
-          <Popup>{children}</Popup>
-        </Marker>
-      </ContextMenuTrigger>
-
-      {!route && (
-        <ContextMenuContent>
-          <ContextMenuItem onClick={onEdit}>Edit... </ContextMenuItem>
-        </ContextMenuContent>
-      )}
-    </ContextMenu>
-  );
-};

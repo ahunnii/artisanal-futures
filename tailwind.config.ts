@@ -16,6 +16,10 @@ module.exports = {
       },
     },
     extend: {
+      gridTemplateRows: {
+        layout: "max-content 1fr max-content",
+      },
+
       backgroundImage: {
         femaleForm:
           "url('https://media.githubusercontent.com/media/robinsonkwame/af-parametric-sewing/main/static/model-breasts-standing.jpg')",

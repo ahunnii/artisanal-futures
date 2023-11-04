@@ -35,8 +35,9 @@ import { env } from "~/env.mjs";
 import RouteLayout from "~/layouts/route-layout";
 
 import { cn } from "~/utils/styles";
+
 const LazyTrackingMap = dynamic(
-  () => import("~/components/tools/routing/map/TrackingMap"),
+  () => import("~/components/tools/routing/map/tracking-map"),
   {
     ssr: false,
     loading: () => <div>loading...</div>,

@@ -10,10 +10,11 @@ import { useStops } from "~/hooks/routing/use-stops";
 import { Button } from "~/components/ui/button";
 import type { RouteData } from "../types";
 
+import { ScrollArea } from "~/components/ui/scroll-area";
 import DriverSheet from "../drivers/driver_sheet";
 import FulfillmentSheet from "../stops/fulfillment_sheet";
+import { MinimalRouteCard } from "./minimal-route-card";
 import { OptimizationSummary } from "./optimization-summary";
-import { RouteCard } from "./route-card";
 /**
  * This component is responsible for displaying the calculated routes from the our own VROOM optimization server.
  */
@@ -46,7 +47,7 @@ const CalculationsTab = () => {
         <OptimizationSummary data={currentRoutingSolution?.data} />
       )}
 
-      {currentRoutingSolution && (
+      {/* {currentRoutingSolution && (
         <Accordion
           type="single"
           collapsible
@@ -54,10 +55,20 @@ const CalculationsTab = () => {
         >
           {currentRoutingSolution?.data?.routes.map(
             (route: RouteData, idx: number) => (
-              <RouteCard key={idx} data={route} />
+              <MinimalRouteCard key={idx} data={route} textColor={idx} />
             )
           )}
         </Accordion>
+      )} */}
+
+      {currentRoutingSolution && (
+        <ScrollArea className="my-4 w-full flex-1 rounded-md border">
+          {currentRoutingSolution?.data?.routes.map(
+            (route: RouteData, idx: number) => (
+              <MinimalRouteCard key={idx} data={route} textColor={idx} />
+            )
+          )}
+        </ScrollArea>
       )}
     </>
   );

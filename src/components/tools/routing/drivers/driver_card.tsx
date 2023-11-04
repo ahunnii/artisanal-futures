@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useSheet } from "~/hooks/routing/use-sheet";
-import { convertTime } from "~/utils/routing";
+import { convertTimeFromMilitaryToStandard } from "~/utils/routing/time-formatting";
 import type { Driver } from "../types";
 import EntryMenu from "../ui/EntryMenu";
 
@@ -50,8 +50,9 @@ const DriverCard: FC<IProps> = ({ driver }) => {
           <p>{driver.max_stops} stops max</p>
         </div>{" "}
         <p className="font-lg mt-1 flex space-x-1 text-xs leading-4 text-gray-500">
-          Shift from {convertTime(driver.time_window.startTime)} -{" "}
-          {convertTime(driver.time_window.endTime)}
+          Shift from{" "}
+          {convertTimeFromMilitaryToStandard(driver.time_window.startTime)} -{" "}
+          {convertTimeFromMilitaryToStandard(driver.time_window.endTime)}
         </p>
       </span>
       <EntryMenu

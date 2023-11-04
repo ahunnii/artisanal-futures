@@ -1,6 +1,11 @@
 import { uniqueId } from "lodash";
 import * as Papa from "papaparse";
-import type { Break, Driver, Stop } from "~/components/tools/routing/types";
+import type {
+  Break,
+  Driver,
+  FileData,
+  Stop,
+} from "~/components/tools/routing/types";
 
 import type { DriverCSVData, StopCSVData } from "~/types";
 
@@ -96,7 +101,7 @@ export const handleIncomingData = async <T extends Stop | Driver>(
       });
 
     console.log(fetchedData);
-
+    updateDataVersion(fetchedData as FileData);
     const parsedData = fetchedData.map((data: T) => {
       return {
         ...data,
@@ -154,4 +159,9 @@ export const parseIncomingDBData = async (data: Blob) => {
   //       }
   //   }
   // }
+};
+
+export const updateDataVersion = (data: FileData) => {
+  if (data?.lat) console.log("lat exists");
+  else console.log("lat does not exist");
 };

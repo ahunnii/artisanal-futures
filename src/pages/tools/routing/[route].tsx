@@ -35,8 +35,8 @@ interface IProps {
   steps: StepData[];
 }
 
-const DynamicMapWithNoSSR = dynamic(
-  () => import("~/components/tools/routing/map/TempMap"),
+const LazyDriverMap = dynamic(
+  () => import("~/components/tools/routing/map/driver-map"),
   {
     loading: () => <p>Loading...</p>,
     ssr: false,
@@ -198,7 +198,7 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
       <section className="relative z-0 flex aspect-square w-full flex-grow overflow-hidden  md:pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
         {data?.geometry && steps && (
           <Suspense fallback={<p>Loading map...</p>}>
-            <DynamicMapWithNoSSR
+            <LazyDriverMap
               steps={steps}
               geometry={data?.geometry}
               focusedStop={selected}

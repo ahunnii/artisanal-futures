@@ -22,7 +22,7 @@ const DriversTab = () => {
         </div>
       )}
 
-      <DriverSheet driver={activeDriver} />
+      {/* <DriverSheet driver={activeDriver} /> */}
 
       <div className="flex h-full w-full grow flex-col justify-start gap-4 overflow-y-auto p-4 py-3 ">
         {drivers.length > 0 &&

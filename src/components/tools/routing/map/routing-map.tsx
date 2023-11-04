@@ -15,7 +15,7 @@ import {
   TileLayer,
 } from "react-leaflet";
 
-import { getStyle } from "~/utils/routing";
+import { getStyle } from "~/utils/routing/color-handling";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
@@ -38,7 +38,7 @@ interface MapRef {
 
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const drivers = useDrivers((state) => state.drivers);
-  const locations = useStops((state) => state.locations);
+  const { locations, activeLocation } = useStops((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
   const { filteredLocations, invalidateRoutes } = useRouteOptimization();
 
@@ -82,6 +82,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     invalidateRoutes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locations, drivers]);
+
+  useEffect(() => {
+    if (activeLocation && mapRef.current) {
+      mapRef.current.flyTo(
+        [
+          activeLocation?.coordinates?.latitude,
+          activeLocation?.coordinates?.longitude,
+        ],
+        15
+      );
+    }
+  }, [activeLocation]);
 
   const geoJson = useMemo(() => {
     return {
@@ -186,7 +198,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                         <span className="block font-semibold text-slate-600">
                           Fulfillment Details
                         </span>
-                        {location.description ?? "Not filled out"}
+                        {location.details ?? "Not filled out"}
                       </span>
                     </div>
                   </RouteMarker>
@@ -220,7 +232,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                         <span className="block font-semibold text-slate-600">
                           Fulfillment Details
                         </span>
-                        {location.description ?? "Not filled out"}
+                        {location.details ?? "Not filled out"}
                       </span>
                     </div>
                   </RouteMarker>
@@ -241,7 +253,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                     filteredLocations.find(
                       (item: { job_id: number; vehicle_id: number }) =>
                         location.id === item.job_id
-                    )?.vehicle_id ?? 1
+                    )?.vehicle_id ?? 3
                   }
                 >
                   {/* {location.address} {location.id} {location.description} */}
@@ -263,7 +275,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                       <span className="block font-semibold text-slate-600">
                         Fulfillment Details
                       </span>
-                      {location.description ?? "Not filled out"}
+                      {location.details ?? "Not filled out"}
                     </span>
                   </div>
                 </RouteMarker>

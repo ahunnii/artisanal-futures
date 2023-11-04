@@ -6,6 +6,7 @@ interface useSheetStore {
   onClose: () => void;
   isViewOnly: boolean;
   setIsViewOnly: (isViewOnly: boolean) => void;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
 export const useSheet = create<useSheetStore>((set) => ({
@@ -14,4 +15,5 @@ export const useSheet = create<useSheetStore>((set) => ({
   onClose: () => set({ isOpen: false }),
   isViewOnly: false,
   setIsViewOnly: (isViewOnly) => set({ isViewOnly }),
+  setIsOpen: (isOpen) => set({ isOpen }),
 }));

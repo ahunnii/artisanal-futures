@@ -3,7 +3,7 @@ import type { LatLngBounds, Map } from "leaflet";
 import L, { type LatLngExpression } from "leaflet";
 import { useEffect, useMemo, useRef, useState, type FC } from "react";
 
-import { getStyle } from "~/utils/routing";
+import { getStyle } from "~/utils/routing/color-handling";
 
 import { Circle, GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 
@@ -20,12 +20,6 @@ interface IProps {
 }
 
 const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
-  // const {
-  //   currentLocation,
-  //   getActiveUsers,
-  //   pusherLocations,
-  //   triggerActiveUser,
-  // } = useTracking();
   const mapRef = useRef<Map>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
   const [currentLocation, setCurrentLocation] = useState({

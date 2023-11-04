@@ -4,7 +4,10 @@ import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment_sheet
 import StopCard from "~/components/tools/routing/stops/stop_card";
 
 import FileUpload from "~/components/tools/routing/ui/FileUpload";
-import TabOptions from "~/components/tools/routing/ui/tab_options";
+import TabOptions, {
+  ImportOptionsBtn,
+} from "~/components/tools/routing/ui/tab_options";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 /**
  * Tab container component that allows users to add, edit, and delete stops.
@@ -21,12 +24,40 @@ const StopsTab = () => {
         </div>
       )}
       <FulfillmentSheet stop={activeLocation} />
-      <div className="flex h-full w-full grow flex-col justify-start gap-4 overflow-y-auto p-4 py-3 ">
+      <ScrollArea className=" flex grow">
         {locations?.length > 0 &&
           locations.map((listing, idx) => (
             <StopCard key={idx} stop={listing} />
           ))}
-      </div>{" "}
+      </ScrollArea>
+    </>
+  );
+};
+
+export const StopsDynamicTab = () => {
+  const { locations, activeLocation } = useStops((state) => state);
+  return (
+    <>
+      <div className="flex flex-col">
+        <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">
+          Stops{" "}
+          <span className="rounded-lg border border-slate-300 px-2">
+            {locations?.length ?? 0}
+          </span>
+        </h2>
+
+        <TabOptions type="stop" />
+
+        <ImportOptionsBtn type="stop" />
+      </div>
+      <ScrollArea className="px-4">
+        {locations?.length > 0 &&
+          locations.map((listing, idx) => (
+            <>
+              <StopCard key={idx} stop={listing} />
+            </>
+          ))}
+      </ScrollArea>
     </>
   );
 };

@@ -5,11 +5,10 @@ import type { LatLngExpression, Map } from "leaflet";
 import { useCallback, useEffect, useRef, type FC } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 
-import { convertSecondsToTime } from "~/utils/routing";
+import { convertSecondsToTimeString } from "~/utils/routing/data-formatting";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
-import { useSession } from "next-auth/react";
 
 import {
   GeoJSON,
@@ -30,26 +29,6 @@ import L from "leaflet";
 import { getStyle } from "~/utils/routing/color-handling";
 import RouteMarker from "./route-marker";
 
-// type FilteredLocation = {
-//   job_id: number;
-//   vehicle_id: number;
-// };
-
-// type CachedOptimization = {
-//   geometry: any;
-//   data: any;
-// };
-// interface MarkerProps {
-//   colorMapping: number;
-// }
-
-// type PusherLocation = {
-//   userId: number;
-//   latitude: number;
-//   longitude: number;
-//   accuracy: number;
-// };
-
 interface TrackingMapProps {
   activeUsers: PusherUserData[];
   currentRoutes: RouteData[];
@@ -60,11 +39,6 @@ const TrackingMap: FC<TrackingMapProps> = ({
   currentRoutes,
   selectedRoute,
 }) => {
-  // const [markers, setMarkers] = useState<L.Marker[]>([]);
-  // const [circles, setCircles] = useState<L.Circle[]>([]);
-  // const [pusherLocations, setPusherLocations] = useState<PusherLocation[]>([]);
-  const { data: session } = useSession();
-
   const mapRef = useRef<Map>(null);
 
   useEffect(() => {
@@ -98,118 +72,6 @@ const TrackingMap: FC<TrackingMapProps> = ({
       mapRef.current.fitBounds(bounds);
     }
   }, [currentRoutes, mapRef]);
-  // const trackingMarker = ({ colorMapping }: MarkerProps) => {
-  //   const color = getColor(colorMapping).fill!;
-
-  //   const markerHtmlStyles = `
-  //         background-color: ${color ?? "#6366f1"};
-  //         width: 2rem;
-  //         height: 2rem;
-  //         display: block;
-  //         left: -0.5rem;
-  //         top: -0.5rem;
-  //         position: relative;
-  //         border-radius: 3rem 3rem 0;
-  //         transform: rotate(45deg);
-  //     box-shadow: 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  //         border: 3px solid #FFFFFF`;
-
-  //   const icon = divIcon({
-  //     className: "my-custom-pin",
-  //     iconAnchor: [0, 24],
-  //     popupAnchor: [0, -36],
-  //     html: `<span style="${markerHtmlStyles}" />`,
-  //   });
-
-  //   return icon;
-  // };
-
-  // const { pusherLocations } = useTracking();
-
-  useEffect(() => {
-    // if (!navigator.geolocation) {
-    //   console.log("Your browser doesn't support the geolocation feature!");
-    //   return;
-    // }
-    // const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
-    //   cluster: "us2",
-    // });
-    // const channel = pusher.subscribe("map");
-    // const intervalId = setInterval(() => {
-    //   navigator.geolocation.getCurrentPosition((position) => {
-    //     const { latitude, longitude, accuracy } = position.coords;
-    //     channel.bind("update-locations", (data: PusherLocation[]) => {
-    //       console.log(data);
-    //       setPusherLocations(data);
-    //     });
-    //     fetch("/api/update-location", {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({
-    //         userId: session?.user?.id ?? 0,
-    //         latitude,
-    //         longitude,
-    //         accuracy,
-    //       }),
-    //     }).catch((error) => {
-    //       console.log(error);
-    //     });
-    //   });
-    // }, 5000);
-    // return () => {
-    //   clearInterval(intervalId);
-    // };
-  }, [session]);
-  // useEffect(() => {
-  //   if (pusherLocations?.length) {
-  //     // Clear previous markers and circles
-  //     if (markers) markers?.forEach((marker) => marker.remove());
-  //     circles?.forEach((circle) => circle.remove());
-
-  //     const newMarkers: L.Marker[] = [];
-  //     const newCircles: L.Circle[] = [];
-
-  //     // // Your existing code to add marker and circle for the current user
-  //     // const newMarker = L.marker([lat, long], {
-  //     //   icon: trackingMarker({
-  //     //     colorMapping: 0,
-  //     //   }),
-  //     // });
-  //     // const newCircle = L.circle([lat, long], { radius: accuracy });
-
-  //     // newMarkers.push(newMarker);
-  //     // newCircles.push(newCircle);
-
-  //     // Mapping through pusherLocations to add new markers and circles
-  //     pusherLocations.forEach((loc) => {
-  //       const pusherMarker = L.marker([loc?.latitude, loc?.longitude], {
-  //         icon: trackingMarker({
-  //           colorMapping: 0,
-  //         }),
-  //       });
-  //       const pusherCircle = L.circle([loc?.latitude, loc?.longitude], {
-  //         radius: loc.accuracy,
-  //       });
-
-  //       newMarkers.push(pusherMarker);
-  //       newCircles.push(pusherCircle);
-  //     });
-
-  //     // Add new markers and circles to the map
-  //     newMarkers.forEach((marker) => marker.addTo(mapRef.current!));
-  //     newCircles.forEach((circle) => circle.addTo(mapRef.current!));
-
-  //     // Update state with new markers and circles
-  //     setMarkers(newMarkers);
-  //     setCircles(newCircles);
-
-  //     const featureGroup = L.featureGroup([...newMarkers, ...newCircles]).addTo(
-  //       mapRef.current!
-  //     );
-
-  //     mapRef.current!.fitBounds(featureGroup.getBounds());
-  //   }
-  // }, [pusherLocations]);
 
   const convertToGeoJson = useCallback((geometry: string, color: number) => {
     const temp = polyline.toGeoJSON(geometry) as Polyline;
@@ -260,10 +122,10 @@ const TrackingMap: FC<TrackingMapProps> = ({
                   vehicle?.route?.description ?? "{}"
                 );
 
-                const startTime = convertSecondsToTime(
+                const startTime = convertSecondsToTimeString(
                   vehicle?.route?.steps?.[0]?.arrival ?? 0
                 );
-                const endTime = convertSecondsToTime(
+                const endTime = convertSecondsToTimeString(
                   (vehicle?.route?.steps?.[0]?.arrival ?? 0) +
                     vehicle?.route?.setup +
                     vehicle?.route?.service +
@@ -361,16 +223,6 @@ const TrackingMap: FC<TrackingMapProps> = ({
             );
           })}
       </LayersControl>
-
-      {/* 
-      <MapSearch
-        provider={
-          new GoogleProvider({
-            apiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-          })
-        }
-      /> */}
-      {/* @ts-ignore */}
     </MapContainer>
   );
 };

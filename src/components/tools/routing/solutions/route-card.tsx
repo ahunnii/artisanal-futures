@@ -49,7 +49,6 @@ interface CardProps extends React.ComponentProps<typeof Card> {
 
 export function RouteCard({ data, className, ...props }: CardProps) {
   const drivers = useDrivers((state) => state.drivers);
-  console.log(data);
 
   const { name: driverName, address: startingAddress } = JSON.parse(
     data.description ?? "{}"

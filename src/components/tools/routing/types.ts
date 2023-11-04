@@ -35,8 +35,9 @@ export type Stop = {
   priority: number;
   drop_off_duration: number;
   prep_time_duration: number;
-  contact_info?: string;
-  description?: string;
+  email?: string;
+  phone?: string;
+  details?: string;
 };
 
 type SummaryData = {
@@ -170,4 +171,32 @@ export type PusherMessage = {
   deliveryNotes: string;
   address: string;
   status?: "success" | "failed" | "pending";
+};
+
+export type FileData = {
+  customer_name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  drop_off_duration: number;
+  prep_time_duration: number;
+  priority: number;
+  time_windows: string;
+  id: number;
+  lat?: number;
+};
+
+export type ParsedStop = {
+  name: string;
+  address: string;
+  duration: number;
+  prep: number;
+  priorityLevel: string;
+  fulfillmentTimesFormatted: {
+    startTime: string;
+    endTime: string;
+  }[];
+  fulfillmentTimes: [number, number][];
+  latitude: number;
+  longitude: number;
 };

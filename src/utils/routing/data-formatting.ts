@@ -1,10 +1,16 @@
+import polyline from "@mapbox/polyline";
 import type {
   Break,
   Driver,
+  ParsedStop,
+  Polyline,
   Stop,
   TimeWindow,
 } from "~/components/tools/routing/types";
-import { convertTimeWindowToSeconds } from "./time-formatting";
+import {
+  convertTimeFromMilitaryToStandard,
+  convertTimeWindowToSeconds,
+} from "./time-formatting";
 
 export const convertMetersToMiles = (meters: number) => {
   return (meters / 1609.344).toFixed(1);
@@ -27,8 +33,8 @@ const stringifyStopDescriptionData = (stop: Stop) => {
   const data = {
     name: stop.customer_name,
     address: stop.address,
-    contact_info: stop?.contact_info ?? "",
-    description: stop?.description ?? "",
+    email: stop?.email ?? "",
+    details: stop?.details ?? "",
   };
 
   return JSON.stringify(data);
@@ -88,16 +94,6 @@ const convertSecondsToMilitaryTimeString = (seconds: number) => {
   return `${hours > 0 ? `${hours}:` : ""}${minutes > 0 ? `${minutes}` : "00"}`;
 };
 
-// const convertMilitaryTimeStringToStandardTimeString = (timeString: string) => {
-//   const time = timeString.split(":");
-//   const hours = parseInt(time[0]);
-//   const minutes = parseInt(time[1]);
-//   const ampm = hours >= 12 ? "pm" : "am";
-//   const standardHours = hours % 12;
-//   const standardMinutes = minutes < 10 ? `0${minutes}` : minutes;
-//   return `${standardHours}:${standardMinutes} ${ampm}`;
-// };
-
 export const convertSecondsToTimeString = (seconds: number) => {
   // const time = convertSecondsToMilitaryTimeString(seconds);
   return convertSecondsToMilitaryTimeString(seconds);
@@ -105,7 +101,60 @@ export const convertSecondsToTimeString = (seconds: number) => {
 
 export const parseDescriptionData = (des: string) => {
   if (!des) return {};
-  const { name, address, contact_info, description } = JSON.parse(des ?? {});
+  const { name, address, email, details } = JSON.parse(des ?? {});
 
-  return { name, address, contact_info, description };
+  return { name, address, email, details };
+};
+
+export const convertToGeoJson = (geometry: string, color: number) => {
+  const temp = polyline.toGeoJSON(geometry) as Polyline;
+
+  return {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: {
+          ...temp,
+          properties: { color },
+        },
+      },
+    ],
+  };
+};
+
+export const parseDataFromStop = (stop: Stop | null) => {
+  if (!stop) return {};
+  const priorityLevel =
+    stop?.priority < 50 ? "Low" : stop?.priority < 100 ? "Normal" : "High";
+
+  const formattedTimeWindows = stop?.time_windows?.map((tw) => {
+    return {
+      startTime: convertTimeFromMilitaryToStandard(tw.startTime),
+      endTime: convertTimeFromMilitaryToStandard(tw.endTime),
+    };
+  });
+
+  const parsedTimeWindows = stop?.time_windows?.map((tw) => [
+    convertTimeWindowToSeconds(tw.startTime),
+    convertTimeWindowToSeconds(tw.endTime),
+  ]);
+
+  return {
+    name: stop?.customer_name ?? "Fulfillment",
+    address: stop?.address.split(", United States")[0]?.split(", USA")[0] ?? "",
+    duration: stop?.drop_off_duration ?? 5,
+    prep: stop?.prep_time_duration ?? 0,
+    priorityLevel,
+    priorityValue: stop?.priority ?? 0,
+    fulfillmentTimesFormatted: formattedTimeWindows,
+    fulfillmentTimes: parsedTimeWindows,
+    fulfillmentTimeValues: stop?.time_windows,
+
+    latitude: stop?.coordinates?.latitude ?? 0,
+    longitude: stop?.coordinates?.longitude ?? 0,
+
+    email: stop?.email ?? "",
+    details: stop?.details ?? "No details provided",
+  };
 };

@@ -109,3 +109,10 @@ export function getCurrentDateFormatted(): string {
   // Return the formatted string
   return `${day}, ${month} ${date}`;
 }
+
+export const convertTimeFromMilitaryToStandard = (time: string) => {
+  const [hours, minutes] = time.split(":");
+  return `${parseInt(hours!) % 12 || 12}:${minutes} ${
+    parseInt(hours!) >= 12 ? "PM" : "AM"
+  }`;
+};

@@ -179,17 +179,7 @@ model RouteDepot {
   customers Customer[] @relation("CustomerToDepot")
 }
 
-model Driver {
-  id            String      @id @default(cuid())
-  routeDepotId  String
-  routeDepot    RouteDepot  @relation("DepotToDriver", fields: [routeDepotId], references: [id])
-  name          String
-  phone         String?
-  email         String?
-  route         Route?      @relation(fields: [routeId], references: [id])
-  routeId       String?
-  routeData      DriverRouteInfo[]
-}
+
 
 model TimeWindow {
   id    String   @id @default(cuid())
@@ -263,31 +253,53 @@ model Route {
   routeDepot       RouteDepot      @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
   date             DateTime
   stops            Stop[]
-  drivers          Driver[]
+  drivers          DriverRouteDetails[]
   optimizedRoute   OptimizedRoute? 
   optimizedRouteId String?
 }
 
 
-model DriverRouteInfo{
-  id           String   @id @default(cuid())
-  driverId     String
-  driver       Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
-  address       String?
-  city          String?
-  state         String?
-  zip           String?
-  country       String?
-  lat           Float?
-  lng           Float?
-  maxStops      Int?
-  maxTravelTime Int?
-  breaks        Break[]
-  timeWindowId  String?
-  timeWindow    TimeWindow? @relation(fields: [timeWindowId], references: [id])
+model Driver {
+  id            String      @id @default(cuid())
+  routeDepotId  String
+  routeDepot    RouteDepot  @relation("DepotToDriver", fields: [routeDepotId], references: [id])
+  name          String
+  email         String
+  phone         String?
+
+  route         Route?      @relation(fields: [routeId], references: [id])
   routeId       String?
-  date          DateTime
+  routeDetails  DriverRouteDetails[]
+}
+
+
+
+model DriverRouteDetails{
+  id            String   @id @default(cuid())
+  driverId      String
+  driver        Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  routeId       String?
+
+  startAddress  String
+  startLat      Float
+  startLng      Float
+
+  endAddress    String?
+  endLat        Float?
+  endLng        Float?
+
+  maxStops      Int?
+  maxTravel     Int?
+  maxDistance   Int?
+
+  speed         Float?
+
+  shiftStart    DateTime
+  shiftEnd      DateTime
+
+  breaks        Break[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
