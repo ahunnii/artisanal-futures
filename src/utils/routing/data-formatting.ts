@@ -158,3 +158,37 @@ export const parseDataFromStop = (stop: Stop | null) => {
     details: stop?.details ?? "No details provided",
   };
 };
+
+export const parseDataFromDriver = (driver: Driver | null) => {
+  if (!driver) return {};
+
+  return {
+    name: driver?.name ?? "Driver",
+    address:
+      driver?.address.split(", United States")[0]?.split(", USA")[0] ?? "",
+
+    shiftFormatted: {
+      startTime: convertTimeFromMilitaryToStandard(
+        driver?.time_window?.startTime
+      ),
+      endTime: convertTimeFromMilitaryToStandard(driver?.time_window?.endTime),
+    },
+
+    shiftValues: driver?.time_window,
+    shiftTimes: [
+      convertTimeWindowToSeconds(driver?.time_window.startTime),
+      convertTimeWindowToSeconds(driver?.time_window.endTime),
+    ],
+
+    breaks: driver?.break_slots ?? [],
+    formattedBreaks: driver.break_slots.map((tw) => formatBreak(tw)),
+    maxTravel: driver?.max_travel_time ?? 0,
+    maxStops: driver?.max_stops ?? 0,
+
+    latitude: driver?.coordinates?.latitude ?? 0,
+    longitude: driver?.coordinates?.longitude ?? 0,
+
+    email: driver?.email ?? "",
+    details: driver?.details ?? "No details provided",
+  };
+};

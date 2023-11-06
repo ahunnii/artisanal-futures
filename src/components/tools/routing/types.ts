@@ -24,6 +24,9 @@ export type Driver = {
   max_stops: number;
   contact_info?: string;
   description?: string;
+  email?: string;
+  phone?: string;
+  details?: string;
 };
 
 export type Stop = {

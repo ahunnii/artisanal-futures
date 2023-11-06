@@ -18,7 +18,7 @@ interface IProps {
  * @param onEdit Callback function to handle when the user clicks the edit button.
  */
 
-const StopCard: FC<IProps> = ({ stop }) => {
+const StopMinimalCard: FC<IProps> = ({ stop }) => {
   const { onOpen, setIsViewOnly } = useSheet();
 
   const { setActiveLocation, activeLocation } = useStops((state) => state);
@@ -69,4 +69,4 @@ const StopCard: FC<IProps> = ({ stop }) => {
   );
 };
 
-export default StopCard;
+export default StopMinimalCard;

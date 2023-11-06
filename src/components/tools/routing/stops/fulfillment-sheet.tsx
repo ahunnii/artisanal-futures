@@ -3,7 +3,7 @@ import { type FC } from "react";
 import { useSheet } from "~/hooks/routing/use-sheet";
 
 import type { Stop } from "../types";
-import { StopForm } from "./stop_form";
+import { StopForm } from "./stop-form";
 
 import {
   Sheet,

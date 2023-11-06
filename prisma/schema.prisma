@@ -68,6 +68,8 @@ model User {
   likedPosts    LikedPosts[]
   comments      Comment[]
   role          Role         @default(USER)
+  depotId       String?
+  depot         Depot?       @relation(fields: [depotId], references: [id])
 }
 
 model VerificationToken {
@@ -162,147 +164,59 @@ model Comment {
   @@index([postId])
 }
 
-model RouteDepot {
-  id        String     @id @default(cuid())
-  ownerId   String
-  name      String
-  address   String?
-  city      String?
-  state     String?
-  zip       String?
-  country   String?
-  lat       Float?
-  lng       Float?
-  drivers   Driver[]   @relation("DepotToDriver")
-  stops     Stop[]
-  routes    Route[]
-  customers Customer[] @relation("CustomerToDepot")
-}
-
-
-
-model TimeWindow {
-  id    String   @id @default(cuid())
-  start DateTime
-  end   DateTime
-
-  Driver DriverRouteInfo[]
-  stop   Stop?    @relation(fields: [stopId], references: [id])
-  stopId String?
-}
-
-model BreakTimeWindow {
-  id      String   @id @default(cuid())
-  start   DateTime
-  end     DateTime
-  break   Break?   @relation(fields: [breakId], references: [id])
-  breakId String?
-}
-
-model Break {
-  id          String            @id @default(cuid())
-  timeWindows BreakTimeWindow[]
-  duration    Int?
-  driverData      DriverRouteInfo?           @relation(fields: [driverDataId], references: [id])
-  driverDataId    String?
-}
-
-model Customer {
-  id           String     @id @default(cuid())
-  routeDepotId String
-  routeDepot   RouteDepot @relation("CustomerToDepot", fields: [routeDepotId], references: [id])
+model Depot {
+  id           String         @id @default(cuid())
   name         String
-  phone        String?
-  email        String?
   address      String?
-  city         String?
-  state        String?
-  zip          String?
-  country      String?
-  lat          Float?
-  lng          Float?
-  stop         Stop[]
-}
-
-model Stop {
-  id               String       @id @default(cuid())
-  routeDepotId     String
-  routeDepot       RouteDepot   @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
-  customerId       String
-  customer         Customer     @relation(fields: [customerId], references: [id])
-  timeWindows      TimeWindow[]
-  dropOffDuration  Int?
-  prepTimeDuration Int?
-  priority         Int?
-  description      String?
-  route            Route?       @relation(fields: [routeId], references: [id])
-  routeId          String?
-}
-
-model OptimizedRoute {
-  id       String   @id @default(cuid())
-  fileName String
-  date     DateTime
-  routeId  String   @unique
-  route    Route    @relation(fields: [routeId], references: [id])
-}
-
-model Route {
-  id               String          @id @default(cuid())
-  routeDepotId     String
-  routeDepot       RouteDepot      @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
-  date             DateTime
-  stops            Stop[]
-  drivers          DriverRouteDetails[]
-  optimizedRoute   OptimizedRoute? 
-  optimizedRouteId String?
+  users        User[]
+  drivers      Driver[]
 }
 
 
 
 model Driver {
-  id            String      @id @default(cuid())
-  routeDepotId  String
-  routeDepot    RouteDepot  @relation("DepotToDriver", fields: [routeDepotId], references: [id])
-  name          String
-  email         String
-  phone         String?
-
-  route         Route?      @relation(fields: [routeId], references: [id])
-  routeId       String?
-  routeDetails  DriverRouteDetails[]
+  id      String         @id @default(cuid())
+  name    String
+  address String?
+  phone   String?
+  email   String?
+  depotId String
+  depot   Depot          @relation(fields: [depotId], references: [id])
+  details DriverDetail[]
 }
 
 
 
-model DriverRouteDetails{
-  id            String   @id @default(cuid())
-  driverId      String
-  driver        Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+model DriverDetail {
+  id         String  @id @default(cuid())
+  driverId   String
+  driver     Driver  @relation(fields: [driverId], references: [id])
 
-  routeId       String?
-
-  startAddress  String
-  startLat      Float
-  startLng      Float
-
-  endAddress    String?
-  endLat        Float?
-  endLng        Float?
-
-  maxStops      Int?
-  maxTravel     Int?
-  maxDistance   Int?
-
-  speed         Float?
-
-  shiftStart    DateTime
-  shiftEnd      DateTime
-
-  breaks        Break[]
+  shiftStart String
+  shiftEnd   String
+  address    String?
+  latitude   Float
+  longitude  Float
+  maxTravel  Int
+  maxStops   Int
+  notes      String?
+  breaks     Break[]
+  email     String?
+  phone     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@index([driverId])
+
+  routeId   String?
 }
+
+model Break {
+  id             String        @id @default(cuid())
+  detailId       String
+  start          String
+  end            String
+  driverDetail   DriverDetail? @relation(fields: [driverDetailId], references: [id])
+  driverDetailId String?
+}
+
 

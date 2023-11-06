@@ -37,7 +37,7 @@ interface MapRef {
 }
 
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
-  const drivers = useDrivers((state) => state.drivers);
+  const { drivers, activeDriver } = useDrivers((state) => state);
   const { locations, activeLocation } = useStops((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
   const { filteredLocations, invalidateRoutes } = useRouteOptimization();
@@ -94,6 +94,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
       );
     }
   }, [activeLocation]);
+
+  useEffect(() => {
+    if (activeDriver && mapRef.current) {
+      mapRef.current.flyTo(
+        [
+          activeDriver?.coordinates?.latitude,
+          activeDriver?.coordinates?.longitude,
+        ],
+        15
+      );
+    }
+  }, [activeDriver]);
 
   const geoJson = useMemo(() => {
     return {

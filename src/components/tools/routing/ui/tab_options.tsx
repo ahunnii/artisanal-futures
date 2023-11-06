@@ -1,11 +1,20 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
-import type { FC, HTMLAttributes } from "react";
+import { useState, type FC, type HTMLAttributes } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import locationData from "~/data/addresses.json";
 
-import { ChevronDownIcon, PlusIcon, StarIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronDownIcon,
+  DownloadCloud,
+  File,
+  FilePlus,
+  Plus,
+  PlusIcon,
+  StarIcon,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -22,7 +31,14 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import driverData from "~/data/drivers.json";
+import { useDriverSheet } from "~/hooks/routing/use-driver-sheet";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useModifyModal } from "~/hooks/routing/use-modify-modal";
 import { useSheet } from "~/hooks/routing/use-sheet";
@@ -42,6 +58,8 @@ const TabOptions: FC<IProps> = ({ type, className, children }) => {
   const { setDrivers, setActiveDriver } = useDrivers((state) => state);
   const { data: session, status } = useSession();
   const { onOpen, setIsViewOnly } = useSheet();
+  const { onOpen: onDriverOpen, setIsViewOnly: setDriverIsViewOnly } =
+    useDriverSheet();
   const typeData = {
     stop: {
       setType: setLocations,
@@ -101,8 +119,14 @@ const TabOptions: FC<IProps> = ({ type, className, children }) => {
 
   const addStop = () => {
     typeData[type].setActive(null);
-    setIsViewOnly(false);
-    onOpen();
+
+    if (type === "driver") {
+      setDriverIsViewOnly(false);
+      onDriverOpen();
+    } else {
+      setIsViewOnly(false);
+      onOpen();
+    }
   };
 
   const isUserArtisan =
@@ -144,6 +168,9 @@ export const ImportOptionsBtn: FC<IProps> = ({ type, className, children }) => {
   const { setDrivers, setActiveDriver } = useDrivers((state) => state);
   const { data: session, status } = useSession();
   const { onOpen, setIsViewOnly } = useSheet();
+  const { onOpen: onDriverOpen, setIsViewOnly: setDriverIsViewOnly } =
+    useDriverSheet();
+  const [isOpen, setIsOpen] = useState(false);
   const typeData = {
     stop: {
       setType: setLocations,
@@ -160,6 +187,7 @@ export const ImportOptionsBtn: FC<IProps> = ({ type, className, children }) => {
   };
 
   const populateFromDatabase = <T extends Driver | Stop>() => {
+    setIsOpen(false);
     handleIncomingData(
       typeData[type].autofill,
       type,
@@ -171,6 +199,7 @@ export const ImportOptionsBtn: FC<IProps> = ({ type, className, children }) => {
   };
 
   const populateCustomerCSV = <T extends Driver | Stop>() => {
+    setIsOpen(false);
     handleIncomingData(
       typeData[type].db,
       type,
@@ -187,6 +216,7 @@ export const ImportOptionsBtn: FC<IProps> = ({ type, className, children }) => {
   const handleCSVUpload = <T extends Driver | Stop>(
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setIsOpen(false);
     handleIncomingData(
       event.target.files![0]!,
       type,
@@ -202,115 +232,67 @@ export const ImportOptionsBtn: FC<IProps> = ({ type, className, children }) => {
   };
 
   const addStop = () => {
+    setIsOpen(false);
     typeData[type].setActive(null);
-    setIsViewOnly(false);
-    onOpen();
-  };
 
+    if (type === "driver") {
+      setDriverIsViewOnly(false);
+      onDriverOpen();
+    } else {
+      setIsViewOnly(false);
+      onOpen();
+    }
+  };
   const isUserArtisan =
     session?.user &&
     (session?.user.role === "ARTISAN" || session?.user.role === "ADMIN");
   return (
-    <div className="flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
+    <div className="z-30 flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
       <Button
         variant="secondary"
-        disabled={status === "loading"}
         className="px-3 shadow-none"
-        onClick={isUserArtisan ? populateCustomerCSV : populateFromDatabase}
+        onClick={addStop}
       >
-        <StarIcon className="mr-2 h-4 w-4" />
+        {status !== "loading" && <Plus className="mr-2 h-4 w-4 " />}
         {status === "loading" && (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         )}
-        {isUserArtisan ? "Import " : "Autofill"}
+        Add {type}
       </Button>
       <Separator orientation="vertical" className="h-[20px]" />
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="px-2 shadow-none">
-            <ChevronDownIcon className="h-4 w-4 text-secondary-foreground" />
-          </Button>
+          <ChevronDownIcon />
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          alignOffset={-5}
-          className="w-[200px]"
-          forceMount
-        >
-          <DropdownMenuLabel>Suggested Lists</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <label
-              className={cn(
-                "flex w-full cursor-pointer text-center",
-                className
-              )}
-            >
-              <span className="inline-flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-                Upload...
-              </span>
-              <input
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={handleCSVUpload}
-              />
-            </label>
-          </DropdownMenuItem>
-
-          <DropdownMenuCheckboxItem>
-            {" "}
-            <Button
-              variant={"secondary"}
-              className="basis-1/3 "
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              disabled={status === "loading"}
+              className={"flex w-full cursor-pointer "}
               onClick={
                 isUserArtisan ? populateCustomerCSV : populateFromDatabase
               }
-              disabled={status === "loading"}
             >
-              {status === "loading" && (
-                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {isUserArtisan ? "Import " : "Autofill"}
-            </Button>
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <PlusIcon className="mr-2 h-4 w-4" />{" "}
-            <Button onClick={addStop} className="basis-1/3 capitalize">
-              Add {type}
-            </Button>
-          </DropdownMenuItem>
+              <DownloadCloud className="mr-2 h-4 w-4 " />
+              {isUserArtisan ? "Import from DB" : "Autofill Example"}
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <label className={"flex w-full cursor-pointer "}>
+                {" "}
+                <FilePlus className="mr-2 h-4 w-4 " />
+                Upload CSV file
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={handleCSVUpload}
+                />
+              </label>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
-      </DropdownMenu>{" "}
+      </DropdownMenu>
     </div>
-
-    // <div
-    //   className={cn(
-    //     "mx-auto my-2 flex w-full items-center justify-center gap-4 bg-white p-3 shadow ",
-    //     className
-    //   )}
-    // >
-    //   <Button onClick={addStop} className="basis-1/3 capitalize">
-    //     Add {type}
-    //   </Button>
-
-    //   <Button
-    //     variant={"secondary"}
-    //     className="basis-1/3 "
-    //     onClick={isUserArtisan ? populateCustomerCSV : populateFromDatabase}
-    //     disabled={status === "loading"}
-    //   >
-    //     {status === "loading" && (
-    //       <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-    //     )}
-    //     {isUserArtisan ? "Import " : "Autofill"}
-    //   </Button>
-
-    //   <UploadBtn handleOnChange={handleCSVUpload} className="basis-1/3 " />
-
-    //   {children}
-    // </div>
   );
 };
 export default TabOptions;

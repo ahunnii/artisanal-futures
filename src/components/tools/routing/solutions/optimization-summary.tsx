@@ -15,6 +15,8 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Separator } from "~/components/ui/separator";
+import { useSheet } from "~/hooks/routing/use-sheet";
+import { useStops } from "~/hooks/routing/use-stops";
 
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import { convertSecondsToMinutesAndHours } from "~/utils/routing/time-formatting";
@@ -25,6 +27,9 @@ interface CardProps extends ComponentProps<typeof Card> {
 }
 export function OptimizationSummary({ data, className, ...props }: CardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { setActiveLocationById } = useStops((state) => state);
+  const { onOpen } = useSheet();
+  console.log(data);
 
   return (
     <Card className={cn("w-full", className)} {...props}>
@@ -93,6 +98,10 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
                   <div
                     key={index}
                     className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
+                    onClick={() => {
+                      setActiveLocationById(notification.id);
+                      onOpen();
+                    }}
                   >
                     <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                     <div className="space-y-0.5 text-left">

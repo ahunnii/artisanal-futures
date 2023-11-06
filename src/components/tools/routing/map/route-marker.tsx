@@ -10,6 +10,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
+import { useDriverSheet } from "~/hooks/routing/use-driver-sheet";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useSheet } from "~/hooks/routing/use-sheet";
 import { useStops } from "~/hooks/routing/use-stops";
@@ -92,6 +93,7 @@ const RouteMarker: FC<IProps> = ({
   children,
 }) => {
   const { onOpen } = useSheet();
+  const { onOpen: onDriverOpen } = useDriverSheet();
   const { setActiveLocationById } = useStops((state) => state);
   const { setActiveDriverById } = useDrivers((state) => state);
 
@@ -111,7 +113,7 @@ const RouteMarker: FC<IProps> = ({
       onOpen();
     } else {
       setActiveDriverById(id);
-      onOpen();
+      onDriverOpen();
     }
   };
 
@@ -132,11 +134,11 @@ const RouteMarker: FC<IProps> = ({
         </Marker>
       </ContextMenuTrigger>
 
-      {!route && (
+      {/* {!route && (
         <ContextMenuContent>
           <ContextMenuItem onClick={onEdit}>Edit... </ContextMenuItem>
         </ContextMenuContent>
-      )}
+      )} */}
     </ContextMenu>
   );
 };
