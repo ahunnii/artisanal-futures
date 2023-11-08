@@ -1,6 +1,7 @@
 // "use client";
 
 import { useEffect, useState } from "react";
+import { ShopModal } from "~/components/admin/modals/shop-modal";
 
 // import { ShopModal } from "~/components/admin/modals/shop-modal";
 import { ModifyModal } from "~/components/tools/routing/ui/modify-modal";
@@ -19,6 +20,7 @@ export const ModalProvider = () => {
   return (
     <>
       <ModifyModal />
+      <ShopModal />
     </>
   );
 };

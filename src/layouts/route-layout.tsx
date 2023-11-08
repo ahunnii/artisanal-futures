@@ -4,7 +4,10 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="fixed flex h-screen w-full flex-col  ">
       <Navbar />
-      <div className="md:p-08 relative flex  h-[calc(100vh-64px)]   flex-col-reverse bg-slate-50 p-2 md:flex-row">
+      <div
+        className="md:p-08 s relative flex  h-[calc(100vh-64px)]  flex-col-reverse  bg-slate-50 p-2  max-md:overflow-auto md:flex-row
+      "
+      >
         {children}
       </div>
     </main>

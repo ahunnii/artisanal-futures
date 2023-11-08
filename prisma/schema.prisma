@@ -68,8 +68,7 @@ model User {
   likedPosts    LikedPosts[]
   comments      Comment[]
   role          Role         @default(USER)
-  depotId       String?
-  depot         Depot?       @relation(fields: [depotId], references: [id])
+  depots        Depot[]
 }
 
 model VerificationToken {
@@ -165,19 +164,23 @@ model Comment {
 }
 
 model Depot {
-  id           String         @id @default(cuid())
-  name         String
-  address      String?
-  users        User[]
-  drivers      Driver[]
+  id      String   @id @default(cuid())
+  ownerId String
+  name    String
+  address String?
+  latitude Float
+  longitude Float
+  drivers Driver[]
+  User    User[]
+
 }
-
-
 
 model Driver {
   id      String         @id @default(cuid())
   name    String
   address String?
+  latitude Float?
+  longitude Float?
   phone   String?
   email   String?
   depotId String
@@ -185,12 +188,10 @@ model Driver {
   details DriverDetail[]
 }
 
-
-
 model DriverDetail {
-  id         String  @id @default(cuid())
-  driverId   String
-  driver     Driver  @relation(fields: [driverId], references: [id])
+  id       String @id @default(cuid())
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
 
   shiftStart String
   shiftEnd   String
@@ -201,13 +202,13 @@ model DriverDetail {
   maxStops   Int
   notes      String?
   breaks     Break[]
-  email     String?
-  phone     String?
+  email      String?
+  phone      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  routeId   String?
+  routeId String?
 }
 
 model Break {
@@ -218,5 +219,3 @@ model Break {
   driverDetail   DriverDetail? @relation(fields: [driverDetailId], references: [id])
   driverDetailId String?
 }
-
-
