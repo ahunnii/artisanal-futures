@@ -1,14 +1,17 @@
 import Head from "next/head";
-
-import type { GetServerSidePropsContext } from "next";
-import type { FC } from "react";
-import type { Profile } from "~/types";
+import { useParams } from "next/navigation";
 
 import Body from "~/components/body";
 import ProfileCard from "~/components/shops/profile-card";
-import { prisma } from "~/server/db";
+import PageLoader from "~/components/ui/page-loader";
 
-const ProfilePage: FC<{ data: Profile }> = ({ data }) => {
+import { api } from "~/utils/api";
+
+const ProfilePage = () => {
+  const params = useParams();
+  const { data: shop, isLoading } = api.shops.getShopById.useQuery({
+    id: (params?.shopId as string) ?? "",
+  });
   return (
     <>
       <Head>
@@ -17,29 +20,14 @@ const ProfilePage: FC<{ data: Profile }> = ({ data }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Body>
-        <ProfileCard className="mx-auto  h-full " {...data} />
+        {isLoading ? (
+          <PageLoader />
+        ) : (
+          <ProfileCard className="mx-auto  h-full " {...shop} />
+        )}
       </Body>
     </>
   );
 };
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const data = await prisma.shop.findFirst({
-    where: {
-      id: ctx.query.shopId as string,
-    },
-  });
-
-  return {
-    props: {
-      data: data
-        ? {
-            ...data,
-            createdAt: data.createdAt.toISOString(),
-            updatedAt: data.updatedAt.toISOString(),
-          }
-        : null,
-    },
-  };
-};
 export default ProfilePage;

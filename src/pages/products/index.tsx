@@ -5,14 +5,30 @@ import Body from "~/components/body";
 import { Popover, Transition } from "@headlessui/react";
 
 import { ChevronDown } from "lucide-react";
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  FC,
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import AiSort from "~/components/products/ai-sort";
 import ArtisanField from "~/components/products/artisan-field";
 import AttributeField from "~/components/products/attribute-field";
 import ProductCard from "~/components/products/product-card";
 import SearchBar from "~/components/products/search-bar";
 import PageLoader from "~/components/ui/page-loader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+
 import useProducts from "~/hooks/useProducts";
+import { Product } from "~/types";
 
 const ProductsPage: React.FC = () => {
   const {
@@ -82,32 +98,27 @@ const ProductsPage: React.FC = () => {
     setFilteredProducts(sorted);
   };
 
-  // Handle principle selection
-  const handlePrincipleSelect = (principle: string) => {
-    const isSelected = selectedPrinciples.includes(principle);
-    let updatedPrinciples = [...selectedPrinciples];
-
-    if (isSelected) {
-      updatedPrinciples = updatedPrinciples.filter((p) => p !== principle);
-    } else {
-      updatedPrinciples.push(principle);
-    }
-
-    setSelectedPrinciples(updatedPrinciples);
+  const selectionMethod = {
+    artisan: {
+      set: setSelectedArtisans,
+      get: selectedArtisans,
+    },
+    principle: {
+      set: setSelectedPrinciples,
+      get: selectedPrinciples,
+    },
   };
 
-  // Handle artisan selection
-  const handleArtisanSelect = (artisan: string) => {
-    const isSelected = selectedArtisans.includes(artisan);
-    let updatedArtisans = [...selectedArtisans];
+  const handleSelect = (data: string, type: "artisan" | "principle") => {
+    const isSelected = selectionMethod[type].get.includes(data);
+    let updated = [...selectionMethod[type].get];
 
     if (isSelected) {
-      updatedArtisans = updatedArtisans.filter((a) => a !== artisan);
+      updated = updated.filter((t) => t !== data);
     } else {
-      updatedArtisans.push(artisan);
+      updated.push(data);
     }
-
-    setSelectedArtisans(updatedArtisans);
+    selectionMethod[type].set(updated);
   };
 
   // Handle search term input
@@ -118,10 +129,8 @@ const ProductsPage: React.FC = () => {
   };
 
   // Handle sort option change
-  const handleSortOptionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const option = event.target.value;
+  const handleSortOptionChange = (option: string) => {
+    // const option = event.target.value;
     setSortOption(option);
     sortProducts(option);
   };
@@ -167,8 +176,8 @@ const ProductsPage: React.FC = () => {
       </Head>
       <Body>
         {" "}
-        <h1 className="text-5xl font-semibold">Products</h1>
-        <p className="lead mb-3 mt-2 text-2xl text-slate-400">
+        <h1 className="text-4xl font-semibold">Products</h1>
+        <p className="mb-3 mt-2 text-xl text-muted-foreground">
           Search through all our artisans&apos; products and support small
           businesses
         </p>
@@ -201,32 +210,18 @@ const ProductsPage: React.FC = () => {
                     <Popover.Panel className="   absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
                       <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                         <div className="relative grid  bg-white p-7 lg:grid-cols-2">
-                          {/* <h2 className="font-semibold text-lg text-slate-800">Filters</h2> */}
-                          <SearchBar
-                            handleOnSearch={handleSearchTermChange}
-                            query={searchTerm}
-                          />
-                          <AttributeField
-                            attributes={principles}
-                            selectedAttributes={selectedPrinciples}
-                            filteredAttributes={filteredPrinciples}
-                            handleSelect={handlePrincipleSelect}
-                          />
-
-                          <ArtisanField
+                          <ProductFilter
+                            principles={principles}
+                            selectedPrinciples={selectedPrinciples}
+                            filteredPrinciples={filteredPrinciples}
+                            handleSelect={handleSelect}
                             artisans={artisans}
                             selectedArtisans={selectedArtisans}
-                            handleSelect={handleArtisanSelect}
                             applicableArtisans={applicableArtisans}
+                            handleSearchTermChange={handleSearchTermChange}
+                            searchTerm={searchTerm}
+                            resetFilters={resetFilters}
                           />
-                        </div>
-                        <div className="bg-gray-50 p-4">
-                          <button
-                            onClick={resetFilters}
-                            className="w-full rounded-md bg-indigo-500 px-4 py-2 text-base font-semibold text-white hover:bg-indigo-700"
-                          >
-                            Reset Filters
-                          </button>
                         </div>
                       </div>
                     </Popover.Panel>
@@ -237,36 +232,45 @@ const ProductsPage: React.FC = () => {
 
             <section className="hidden md:flex md:flex-col">
               <h2 className="text-lg font-semibold text-slate-800">Filters</h2>
-              <SearchBar
-                handleOnSearch={handleSearchTermChange}
-                query={searchTerm}
-              />
-              <AttributeField
-                attributes={principles}
-                selectedAttributes={selectedPrinciples}
-                filteredAttributes={filteredPrinciples}
-                handleSelect={handlePrincipleSelect}
-              />
-
-              <ArtisanField
+              <ProductFilter
+                principles={principles}
+                selectedPrinciples={selectedPrinciples}
+                filteredPrinciples={filteredPrinciples}
+                handleSelect={handleSelect}
                 artisans={artisans}
                 selectedArtisans={selectedArtisans}
-                handleSelect={handleArtisanSelect}
                 applicableArtisans={applicableArtisans}
+                handleSearchTermChange={handleSearchTermChange}
+                searchTerm={searchTerm}
+                resetFilters={resetFilters}
               />
-
-              <button
-                onClick={resetFilters}
-                className="rounded-md bg-indigo-500 px-4 py-2 text-base font-semibold text-white hover:bg-indigo-700"
-              >
-                Reset Filters
-              </button>
             </section>
           </div>
           <div className="w-full flex-grow p-4 md:w-3/4">
             <h2>Filtered Products {products?.length}</h2>
             <div>
-              <label htmlFor="sortOption">Sort by:</label>
+              <label
+                htmlFor="sortOption"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Sort by:
+              </label>
+
+              <Select
+                onValueChange={handleSortOptionChange}
+                defaultValue={sortOption}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a verified email to display" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="atoz">A to Z</SelectItem>
+                  <SelectItem value="ztoa">Z to A</SelectItem>
+                  <SelectItem value="ai">Keyword with AI</SelectItem>
+                </SelectContent>
+              </Select>
+              {/* 
               <select
                 id="sortOption"
                 value={sortOption}
@@ -277,7 +281,7 @@ const ProductsPage: React.FC = () => {
                 <option value="atoz">A to Z</option>
                 <option value="ztoa">Z to A</option>
                 <option value="ai">Keyword with AI</option>
-              </select>
+              </select> */}
 
               {isAISortVisible && (
                 <AiSort
@@ -287,20 +291,7 @@ const ProductsPage: React.FC = () => {
                 />
               )}
             </div>
-            <div className="flex flex-col md:flex-row md:flex-wrap">
-              {products !== null ? (
-                products.map((product) => (
-                  <div
-                    className="flex basis-full p-4 md:basis-1/2 lg:basis-1/3 "
-                    key={product.name}
-                  >
-                    <ProductCard {...product} key={product.craftID} />
-                  </div>
-                ))
-              ) : (
-                <div>No products found.</div>
-              )}
-            </div>
+            <ProductGrid products={products} />
           </div>
         </div>
       </Body>
@@ -308,4 +299,77 @@ const ProductsPage: React.FC = () => {
   );
 };
 
+interface ProductGridProps {
+  products: Product[];
+}
+const ProductGrid: FC<ProductGridProps> = ({ products }) => {
+  return (
+    <div className="flex flex-col md:flex-row md:flex-wrap">
+      {products !== null ? (
+        products.map((product) => (
+          <div
+            className="flex basis-full justify-center p-4 md:basis-1/2 lg:basis-1/3"
+            key={product.name}
+          >
+            <ProductCard {...product} key={product.craftID} />
+          </div>
+        ))
+      ) : (
+        <div>No products found.</div>
+      )}
+    </div>
+  );
+};
+
+interface ProductFilterProps {
+  principles: Array<string>;
+  selectedPrinciples: Array<string>;
+  filteredPrinciples: Array<string>;
+  handleSelect: (data: string, type: "artisan" | "principle") => void;
+  artisans: Array<string>;
+  selectedArtisans: Array<string>;
+  applicableArtisans: Array<string>;
+  handleSearchTermChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  searchTerm: string;
+  resetFilters: () => void;
+}
+
+const ProductFilter: FC<ProductFilterProps> = ({
+  handleSearchTermChange,
+  searchTerm,
+  principles,
+  selectedPrinciples,
+  filteredPrinciples,
+  handleSelect,
+  artisans,
+  selectedArtisans,
+  applicableArtisans,
+  resetFilters,
+}) => {
+  return (
+    <>
+      <SearchBar handleOnSearch={handleSearchTermChange} query={searchTerm} />
+      <AttributeField
+        attributes={principles}
+        selectedAttributes={selectedPrinciples}
+        filteredAttributes={filteredPrinciples}
+        handleSelect={handleSelect}
+      />
+
+      <ArtisanField
+        artisans={artisans}
+        selectedArtisans={selectedArtisans}
+        handleSelect={handleSelect}
+        applicableArtisans={applicableArtisans}
+      />
+
+      <button
+        onClick={resetFilters}
+        className="rounded-md bg-indigo-500 px-4 py-2 text-base font-semibold text-white hover:bg-indigo-700"
+      >
+        Reset Filters
+      </button>
+    </>
+  );
+};
 export default ProductsPage;

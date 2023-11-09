@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -25,9 +26,13 @@ const formSchema = z.object({
 export const ShopModal = () => {
   const ShopModal = useShopModal();
 
+  const { data: sessionData } = useSession();
+
   const { mutate } = api.shops.createShop.useMutation({
     onSuccess: ({ id }) => {
-      updateRole({ role: "ARTISAN" });
+      if (sessionData?.user?.role !== "ADMIN") {
+        updateRole({ role: "ARTISAN" });
+      }
       window.location.assign(`/profile/shop/${id}`);
       setLoading(false);
     },

@@ -12,7 +12,7 @@ import Head from "next/head";
 
 import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
-import { MinimalRouteCard } from "~/components/tools/routing/solutions/route-card";
+import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
 import StopDetails from "~/components/tools/routing/tracking/stop-details";
 import type {
   PusherMessage,
@@ -171,9 +171,10 @@ const TrackingPage = () => {
                             data={route}
                             className="w-full"
                             handleOnStopClick={handleOnStopClick}
-                            handleOnRouteClick={handleOnRouteClick}
-                            handleOnArchive={handleOnArchive}
+                            // handleOnRouteClick={handleOnRouteClick}
+                            // handleOnArchive={handleOnArchive}
                             isOnline={checkIfOnline(route.vehicle)}
+                            isTracking={true}
                             textColor={idx}
                           />
                         </div>
@@ -214,7 +215,7 @@ const TrackingPage = () => {
                       })}
                   </ScrollArea>
 
-                  <Button>Adjust Routes</Button>
+                  {/* <Button>Adjust Routes</Button> */}
 
                   {selected && (
                     <StopDetails

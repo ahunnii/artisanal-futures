@@ -73,7 +73,7 @@ export const DriversDynamicTab = () => {
             </span>
           </h2>
           {drivers?.length !== 0 && <ImportOptionsBtn type="driver" />}
-          {databaseDrivers?.length !== 0 && (
+          {/* {databaseDrivers?.length !== 0 && (
             <Sheet>
               <SheetTrigger>Open</SheetTrigger>
               <SheetContent>
@@ -115,7 +115,7 @@ export const DriversDynamicTab = () => {
                 </div>
               </SheetContent>
             </Sheet>
-          )}
+          )} */}
         </div>
         {drivers?.length === 0 && (
           <p>No drivers have been added to this route yet.</p>

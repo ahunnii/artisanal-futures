@@ -9,9 +9,16 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
 import { ArrowRight } from "lucide-react";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Dialog as ShadDialog,
+} from "~/components/ui/dialog";
 import type { RouteData } from "../types";
 import RouteQRCode from "./RouteQRCode";
-
 interface IProps {
   data: RouteData;
 }
@@ -379,9 +386,15 @@ export const DynamicRouteQRModal = ({ data }: IProps) => {
 
   return (
     <>
-      <Button type="button" onClick={() => void openModal()} className="gap-2 ">
-        Send to Driver <ArrowRight />
-        {/* <svg
+      <ShadDialog>
+        <DialogTrigger asChild>
+          <Button
+            type="button"
+            onClick={() => void openModal()}
+            className="gap-2 "
+          >
+            Send to Driver <ArrowRight />
+            {/* <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -400,55 +413,28 @@ export const DynamicRouteQRModal = ({ data }: IProps) => {
             d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"
           />
         </svg> */}
-      </Button>
-
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-50" onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle> Route QR Code for {driverName}</DialogTitle>
+            <DialogDescription>
+              <Link
+                href={`/tools/routing/${encodeURIComponent(fileID)}`}
+                target="_blank"
               >
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Route QR Code for {driverName}
-                  </Dialog.Title>
-                  <div className="mt-2 h-full w-full">
-                    {fileID && <RouteQRCode url={fileID} />}
-                  </div>
-                  <Link
-                    href={`/tools/routing/${encodeURIComponent(fileID)}`}
-                    target="_blank"
-                  >
-                    Link to generated route
-                  </Link>
-
-                  <div className="py-5">
-                    <label className="block py-2 text-lg font-medium text-slate-700">
-                      Driver&apos;s Email
-                    </label>
-                    {/* <div className="  flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
+                Link to generated route
+              </Link>
+            </DialogDescription>
+          </DialogHeader>{" "}
+          <div className="mt-2 h-full w-full">
+            {fileID && <RouteQRCode url={fileID} />}
+          </div>{" "}
+          <div className="py-5">
+            <label className="block py-2 text-lg font-medium text-slate-700">
+              Driver&apos;s Email
+            </label>
+            {/* <div className="  flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
                       <PhoneInputWithCountry
                         className="flex flex-1 text-sm"
                         placeholder="Enter phone number"
@@ -470,37 +456,24 @@ export const DynamicRouteQRModal = ({ data }: IProps) => {
                       </button>
                     </div> */}
 
-                    <div className=" flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
-                      <Input
-                        className="flex flex-1 text-sm"
-                        placeholder="Enter email address"
-                        type="email"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                      />
-                      <Button
-                        className="rounded bg-green-500 px-2 font-semibold text-white"
-                        onClick={() => void sendEmail()}
-                      >
-                        Send Link
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex w-full gap-x-2">
-                    <button
-                      type="button"
-                      className="mr-auto inline-flex justify-center rounded-md border border-transparent bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
+            <div className=" flex  w-full flex-row  gap-4 rounded-md   text-lg sm:text-sm">
+              <Input
+                className="flex flex-1 text-sm"
+                placeholder="Enter email address"
+                type="email"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+              <Button
+                className="rounded bg-green-500 px-2 font-semibold text-white"
+                onClick={() => void sendEmail()}
+              >
+                Send Link
+              </Button>
             </div>
           </div>
-        </Dialog>
-      </Transition>
+        </DialogContent>
+      </ShadDialog>
     </>
   );
 };

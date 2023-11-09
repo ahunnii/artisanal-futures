@@ -476,13 +476,13 @@ export function MinimalRouteCard({
               </ScrollArea>
             </CardContent>
             <CardFooter>
-              <Button
+              {/* <Button
                 className="w-full"
                 onClick={() => handleOnArchive(data.geometry)}
               >
                 <CheckIcon className="mr-2 h-4 w-4" /> Mark as complete and
                 archive
-              </Button>
+              </Button> */}
             </CardFooter>
           </AccordionContent>
         </AccordionItem>

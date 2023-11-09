@@ -1,12 +1,14 @@
 import type { FC } from "react";
 
+import { Checkbox } from "~/components/ui/checkbox";
+
+import { cn } from "~/utils/styles";
+
 interface IProps {
   attributes: Array<string>;
   selectedAttributes: Array<string>;
   filteredAttributes: Array<string>;
-  handleSelect: (data: string) => void;
-
-  // handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSelect: (data: string, type: "artisan" | "principle") => void;
 }
 const AttributeField: FC<IProps> = ({
   attributes,
@@ -19,32 +21,28 @@ const AttributeField: FC<IProps> = ({
       <legend className="text-sm font-semibold leading-6 text-gray-900">
         Store Attributes
       </legend>
-      <div className="mt-6 space-y-2">
-        {attributes &&
-          attributes.length > 0 &&
-          attributes.map((principle) => (
-            <div className="relative flex gap-x-3" key={principle}>
-              <div className="flex h-6 items-center">
-                <input
-                  id={`${principle}-opt`}
-                  name={`${principle}-opt`}
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  checked={selectedAttributes.includes(principle)}
-                  disabled={!filteredAttributes.includes(principle)}
-                  onChange={() => handleSelect(principle)}
-                />
-              </div>
-              <div className="text-sm leading-6">
-                <label
-                  htmlFor={`${principle}-opt`}
-                  className="font-medium capitalize text-gray-900"
-                >
-                  {principle}
-                </label>
-              </div>
-            </div>
-          ))}
+      <div className="mt-6 space-y-4">
+        {attributes.map((principle) => (
+          <div className="group flex items-center space-x-2" key={principle}>
+            <Checkbox
+              id={`${principle}-opt`}
+              name={`${principle}-opt`}
+              checked={selectedAttributes.includes(principle)}
+              disabled={!filteredAttributes.includes(principle)}
+              onCheckedChange={() => handleSelect(principle, "principle")}
+            />
+            <label
+              htmlFor="terms"
+              className={cn(
+                "text-sm font-medium capitalize leading-none disabled:line-through peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                !filteredAttributes.includes(principle) &&
+                  "text-gray-900/25 line-through"
+              )}
+            >
+              {principle}
+            </label>
+          </div>
+        ))}
       </div>
     </fieldset>
   );

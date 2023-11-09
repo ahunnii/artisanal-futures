@@ -25,6 +25,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
+import { getSession, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import LogoUpload from "../ui/logo-upload";
 import { Textarea } from "../ui/textarea";
@@ -54,6 +55,7 @@ interface SettingsFormProps {
 export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
   const params = useRouter();
   const router = useNavigationRouter();
+  const { data: sessionData } = useSession();
 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -105,7 +107,9 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
 
   const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
     onSuccess: () => {
-      updateRole({ role: "USER" });
+      if (sessionData?.user?.role !== "ADMIN") {
+        updateRole({ role: "USER" });
+      }
       router.push("/profile");
       toast.success("Shop deleted.");
     },

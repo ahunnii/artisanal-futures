@@ -145,10 +145,10 @@ const PageHeader = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   return (
     <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between ">
-      <h2 className="hidden text-3xl font-bold tracking-tight md:flex">
+      {/* <h2 className="hidden text-3xl font-bold tracking-tight md:flex">
         Dashboard
-      </h2>
-      <div className="flex  items-center space-x-2">
+      </h2> */}
+      {/* <div className="flex  items-center space-x-2">
         <div className="flex w-full flex-col  md:w-auto">
           <Popover>
             <PopoverTrigger asChild>
@@ -180,7 +180,7 @@ const PageHeader = () => {
             </PopoverContent>
           </Popover>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
