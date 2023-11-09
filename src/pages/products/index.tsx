@@ -1,18 +1,17 @@
 import Head from "next/head";
-
-import Body from "~/components/body";
-
-import { Popover, Transition } from "@headlessui/react";
-
-import { ChevronDown } from "lucide-react";
 import React, {
-  FC,
   Fragment,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type FC,
 } from "react";
+
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDown } from "lucide-react";
+
+import Body from "~/components/body";
 import AiSort from "~/components/products/ai-sort";
 import ArtisanField from "~/components/products/artisan-field";
 import AttributeField from "~/components/products/attribute-field";
@@ -28,7 +27,7 @@ import {
 } from "~/components/ui/select";
 
 import useProducts from "~/hooks/useProducts";
-import { Product } from "~/types";
+import type { Product } from "~/types";
 
 const ProductsPage: React.FC = () => {
   const {

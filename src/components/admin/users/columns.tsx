@@ -1,8 +1,8 @@
-import type { ColumnDef } from "@tanstack/react-table";
-
 import type { User } from "@prisma/client";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import type { ColumnDef } from "@tanstack/react-table";
+
 import { Button } from "~/components/ui/button";
 import { CellAction } from "./cell-action";
 

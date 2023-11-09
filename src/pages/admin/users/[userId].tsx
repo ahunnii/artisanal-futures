@@ -1,12 +1,12 @@
 import type { GetServerSidePropsContext } from "next";
 import type { FC } from "react";
 
-import { api } from "~/utils/api";
-import { authenticateSession } from "~/utils/auth";
-
 import { UserForm } from "~/components/admin/users/user-form";
 import PageLoader from "~/components/ui/page-loader";
 import AdminLayout from "~/layouts/admin-layout";
+
+import { api } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 interface IProps {
   userId: string;
@@ -15,8 +15,6 @@ const UserPage: FC<IProps> = ({ userId }) => {
   const { data: user } = api.user.getUser.useQuery({
     userId,
   });
-
-  console.log(user);
 
   return (
     <AdminLayout>
@@ -31,12 +29,12 @@ const UserPage: FC<IProps> = ({ userId }) => {
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const store = await authenticateSession(ctx);
+  const user = await authenticateUser(ctx);
 
-  if (!store) {
+  if (user.props!.user.role !== "ADMIN") {
     return {
       redirect: {
-        destination: `/admin`,
+        destination: "/admin",
         permanent: false,
       },
     };

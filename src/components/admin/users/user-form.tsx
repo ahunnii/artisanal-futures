@@ -1,4 +1,9 @@
+import { useRouter as useNavigationRouter } from "next/navigation";
+import { useRouter } from "next/router";
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Account, Session, User } from "@prisma/client";
 import {
   CalendarIcon,
   EnvelopeClosedIcon,
@@ -8,19 +13,12 @@ import {
   RocketIcon,
 } from "@radix-ui/react-icons";
 import { Trash } from "lucide-react";
-import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
-import {
-  useEffect,
-  useState,
-  type MouseEvent,
-  type MouseEventHandler,
-} from "react";
-
-import type { Account, Session, User } from "@prisma/client";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
+
+import { AlertModal } from "~/components/admin/modals/alert-modal";
+import { Button } from "~/components/ui/button";
 import {
   CommandDialog,
   CommandEmpty,
@@ -39,11 +37,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-
-import { api } from "~/utils/api";
-
-import { AlertModal } from "~/components/admin/modals/alert-modal";
-import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
@@ -57,6 +50,8 @@ import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 
+import { api } from "~/utils/api";
+
 const formSchema = z.object({
   name: z.string().min(2),
   accounts: z.array(
@@ -69,20 +64,21 @@ const formSchema = z.object({
   ),
 });
 
-type ColorFormValues = z.infer<typeof formSchema>;
+type UserFormValues = z.infer<typeof formSchema>;
 
-type ExtendedAccount = Account & {
-  user: User;
-};
 type ExtendedUser = User & {
   accounts: Account[];
   sessions: Session[];
 };
-interface ColorFormProps {
+
+type ExtendedAccount = Account & {
+  user: User;
+};
+interface UserFormProps {
   initialData: ExtendedUser | null;
 }
 
-export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
+export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
   const params = useRouter();
   const router = useNavigationRouter();
   const utils = api.useContext();
@@ -98,7 +94,7 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
   const toastMessage = initialData ? "User updated." : "User created.";
   const action = initialData ? "Save changes" : "Create";
 
-  const form = useForm<ColorFormValues>({
+  const form = useForm<UserFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name ?? "",
@@ -106,7 +102,7 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control: form.control,
     name: "accounts",
   });
@@ -129,24 +125,6 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  // const { mutate: createColor } = api.user.createColor.useMutation({
-  //   onSuccess: () => {
-  //     router.push(`/admin/${params.query.storeId as string}/colors/`);
-  //     toast.success(toastMessage);
-  //   },
-  //   onError: (error) => {
-  //     toast.error("Something went wrong");
-  //     console.error(error);
-  //   },
-  //   onMutate: () => {
-  //     setLoading(true);
-  //   },
-  //   onSettled: () => {
-  //     setLoading(false);
-  //     void utils.colors.getColor.invalidate();
-  //   },
-  // });
-
   const { mutate: deleteUser } = api.user.deleteUser.useMutation({
     onSuccess: () => {
       router.push(`/admin/users`);
@@ -166,20 +144,13 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  const onSubmit = (data: ColorFormValues) => {
+  const onSubmit = (data: UserFormValues) => {
     if (initialData) {
       patchUser({
         id: params?.query?.userId as string,
         name: data.name,
       });
     }
-    // } else {
-    //   createColor({
-    //     storeId: params?.query?.storeId as string,
-    //     name: data.name,
-    //     value: data.value,
-    //   });
-    // }
   };
 
   const onDelete = () => {
@@ -249,7 +220,7 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
                             <FormLabel>Account</FormLabel>
                             <div className="flex gap-2">
                               <Input
-                                disabled={loading}
+                                disabled
                                 {...field}
                                 className="capitalize"
                               />
@@ -258,6 +229,7 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
                                 variant="destructive"
                                 className="flex-grow"
                                 type="button"
+                                disabled
                               >
                                 <Trash /> Remove
                               </Button>
@@ -275,7 +247,7 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
               </ScrollArea>
 
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild disabled>
                   <Button variant="outline">Link Accounts (WIP)</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="relative w-56 ">
@@ -306,7 +278,8 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
                       >
                         <p className="text-sm capitalize">{account.provider}</p>
                         <p className="text-xs text-muted-foreground">
-                          {account?.user?.name} -- {account?.user?.email}
+                          {(account as ExtendedAccount)?.user?.name} --{" "}
+                          {(account as ExtendedAccount)?.user?.email}
                         </p>
                       </DropdownMenuCheckboxItem>
                     ))}

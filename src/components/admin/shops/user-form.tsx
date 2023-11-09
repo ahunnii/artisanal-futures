@@ -306,7 +306,8 @@ export const UserForm: React.FC<ColorFormProps> = ({ initialData }) => {
                       >
                         <p className="text-sm capitalize">{account.provider}</p>
                         <p className="text-xs text-muted-foreground">
-                          {account?.user?.name} -- {account?.user?.email}
+                          {(account as ExtendedAccount)?.user?.name} --{" "}
+                          {(account as ExtendedAccount)?.user?.email}
                         </p>
                       </DropdownMenuCheckboxItem>
                     ))}

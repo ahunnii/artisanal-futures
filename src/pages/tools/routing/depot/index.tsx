@@ -10,13 +10,14 @@ import { Calendar } from "~/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
+import { Shop } from "@prisma/client";
 import { DepotModal } from "~/components/tools/routing/ui/depot-modal";
 import { useDepotModal } from "~/hooks/routing/use-depot-modal";
 import ToolLayout from "~/layouts/tool-layout";
 
-const DepotDashboardPage = ({ shop }) => {
+const DepotDashboardPage = ({ shop }: { shop: Shop }) => {
   const onOpen = useDepotModal((state) => state.onOpen);
-  const isOpen = useDepotModal((state) => state.isOpen);
+  // const isOpen = useDepotModal((state) => state.isOpen);
 
   useEffect(() => {
     // if (!isOpen) {
@@ -46,18 +47,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     },
   });
 
-  //   if (depot) {
-  //     console.log("yeet");
-  //     const deletedDepot = await prisma.routeDepot.delete({
-  //       where: {
-  //         id: depot.id,
-  //         ownerId: session.user.id,
-  //       },
-  //     });
-
-  //     console.log("deleted depot", deletedDepot);
-  //   }
-
   const shop = await prisma.shop.findFirst({
     where: {
       ownerId: session.user.id,
@@ -69,7 +58,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     return {
       redirect: {
-        destination: `/tools/routing/depot/${depot.id as string}`,
+        destination: `/tools/routing/depot/${depot.id}`,
         permanent: false,
       },
     };

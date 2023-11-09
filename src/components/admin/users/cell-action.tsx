@@ -1,8 +1,10 @@
-import { Briefcase, Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
 import { useState } from "react";
+
+import type { User } from "@prisma/client";
+import { Briefcase, Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { toast } from "react-hot-toast";
+
 import { AlertModal } from "~/components/admin/modals/alert-modal";
 import { Button } from "~/components/ui/button";
 import {
@@ -20,8 +22,6 @@ import {
 } from "~/components/ui/dropdown-menu";
 
 import { api } from "~/utils/api";
-// import type { ColorColumn } from "./columns";
-import type { User } from "@prisma/client";
 
 interface CellActionProps {
   data: User;
@@ -30,21 +30,17 @@ interface CellActionProps {
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useNavigationRouter();
   const utils = api.useContext();
-  const params = useRouter();
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { mutate: deleteSize } = api.user.deleteUser.useMutation({
-    onSuccess: () => {
-      toast.success("User deleted.");
-    },
+  const { mutate: deleteUser } = api.user.deleteUser.useMutation({
+    onSuccess: () => toast.success("User deleted."),
     onError: (error) => {
       toast.error("Make sure you removed all products using this color first.");
       console.error(error);
     },
-    onMutate: () => {
-      setLoading(true);
-    },
+    onMutate: () => setLoading(true),
     onSettled: async () => {
       setLoading(false);
       setOpen(false);
@@ -52,20 +48,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     },
   });
 
-  const onConfirm = () => {
-    deleteSize({
-      id: data.id,
-    });
-  };
+  const onConfirm = () => deleteUser({ id: data.id });
 
   const onCopy = (id: string) => {
     navigator.clipboard
       .writeText(id)
       .then(() => {
-        toast.success("Color ID copied to clipboard.");
+        toast.success("User ID copied to clipboard.");
       })
       .catch(() => {
-        toast.error("Failed to copy color ID to clipboard.");
+        toast.error("Failed to copy user ID to clipboard.");
       });
   };
 

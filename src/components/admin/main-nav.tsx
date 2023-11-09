@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 import { cn } from "~/utils/styles";
 
@@ -9,16 +8,12 @@ export function MainNav({
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   const pathname = usePathname();
-  const params = useParams();
-  const router = useRouter();
-
-  console.log();
 
   const routes = [
     {
-      href: `/admin/`,
+      href: `/admin`,
       label: "Overview",
-      active: pathname === `/admin/`,
+      active: pathname === `/admin`,
     },
     {
       href: `/admin/users`,

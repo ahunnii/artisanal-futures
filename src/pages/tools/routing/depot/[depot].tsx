@@ -371,7 +371,7 @@ const PageHeader = () => {
   );
 };
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+export const getServerSideProps = () => {
   // try {
   //   await prisma.driver.deleteMany({
   //     where: {

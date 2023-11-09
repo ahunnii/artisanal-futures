@@ -1,10 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-
 import { useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
+
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -16,7 +17,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Modal } from "~/components/ui/modal";
+
 import { useShopModal } from "~/hooks/use-shop-modal";
+
 import { api } from "~/utils/api";
 
 const formSchema = z.object({

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { parseDriver, parseStop } from "~/utils/routing";
+import { parseDriver, parseStop } from "~/utils/routing/file-handling";
 import { classNames } from "~/utils/styles";
 
 import * as Papa from "papaparse";

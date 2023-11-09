@@ -1,23 +1,20 @@
-import { Plus } from "lucide-react";
-import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
-
-import { Button } from "~/components/ui/button";
-import { DataTable } from "~/components/ui/data-table";
-import { Heading } from "~/components/ui/heading";
-import { Separator } from "~/components/ui/separator";
-
 import type { User } from "@prisma/client";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "~/components/ui/checkbox";
 
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import { DataTable } from "~/components/ui/data-table";
+import { Heading } from "~/components/ui/heading";
+import { Separator } from "~/components/ui/separator";
 import { CellAction } from "./cell-action";
-// import { columns } from "./columns";
-interface ColorClientProps {
+import InviteNewUser from "./invite-new-user";
+
+interface UserClientProps {
   data: User[];
 }
 
+// Originally I had this separate, but for some reason, the select checkboxes were not showing. So I moved it here.
 const columns: ColumnDef<User>[] = [
   {
     id: "select",
@@ -71,9 +68,7 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-export const UserClient: React.FC<ColorClientProps> = ({ data }) => {
-  const navigate = useNavigationRouter();
-
+export const UserClient: React.FC<UserClientProps> = ({ data }) => {
   return (
     <>
       <div className="flex items-center justify-between">
@@ -81,9 +76,8 @@ export const UserClient: React.FC<ColorClientProps> = ({ data }) => {
           title={`Users (${data.length})`}
           description="Manage users for AF"
         />
-        <Button onClick={() => navigate.push(`/admin/users/new`)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New
-        </Button>
+
+        <InviteNewUser />
       </div>
       <Separator />
       <DataTable searchKey="name" columns={columns} data={data} />
