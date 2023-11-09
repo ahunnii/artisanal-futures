@@ -1,4 +1,5 @@
 import type { Shop } from "@prisma/client";
+import Image from "next/image";
 import type { FC } from "react";
 import React from "react";
 
@@ -10,8 +11,8 @@ const ProfileCard: FC<IProps> = ({
   shopName,
   ownerName,
   bio,
-  ownerPhoto,
   className,
+  logoPhoto,
 }) => {
   return (
     <div className={cn("flex w-10/12 items-center ", className)}>
@@ -22,11 +23,14 @@ const ProfileCard: FC<IProps> = ({
         <p>{bio}</p>
       </div>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={ownerPhoto ?? ""}
-        alt=""
+      <Image
+        width={200}
+        height={160}
+        src={logoPhoto ?? ""}
+        alt="Artisan logo or profile photo"
         className="aspect-[3/4] w-4/12 object-cover "
+        loading="lazy"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
     </div>
   );

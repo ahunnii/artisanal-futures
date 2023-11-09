@@ -1,12 +1,8 @@
-import { useSession } from "next-auth/react";
-import { Suspense, useEffect, useState } from "react";
 import Container from "~/components/ui/container";
 import Footer from "./footer";
 import Navbar from "./navbar";
-import PageLoader from "./ui/page-loader";
-const Body = ({ children }: { children: React.ReactNode }) => {
-  const [loading, setLoading] = useState(true);
 
+const Body = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <main className="flex min-h-screen flex-col">

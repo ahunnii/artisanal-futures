@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, type SyntheticEvent } from "react";
+import { useEffect, useState } from "react";
 import Moveable from "react-moveable";
 
 import {
@@ -12,23 +12,21 @@ import VirtualizedInchMarker from "./virtualized-inch-marker";
 import Image from "next/image";
 
 const VirtualResize = () => {
-  const [largestWidth, setLargestWidth] = useState<number>(0);
-  const [largestHeight, setLargestHeight] = useState<number>(0);
-  const { bodyParts, pixels_per_inch, actual_pattern } = useSizerStore(
-    (state) => state
-  );
+  const [, setLargestWidth] = useState<number>(0);
+  const [, setLargestHeight] = useState<number>(0);
+  const { bodyParts, actual_pattern } = useSizerStore((state) => state);
 
   // pre-scale the image so it's not such a pain to resize rulers onto it
-  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
-    if (!event.currentTarget) return;
-    event.currentTarget.width = largestWidth * pixels_per_inch;
-    event.currentTarget.height = largestHeight * pixels_per_inch;
+  // const handleImageLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+  //   if (!event.currentTarget) return;
+  //   event.currentTarget.width = largestWidth * pixels_per_inch;
+  //   event.currentTarget.height = largestHeight * pixels_per_inch;
 
-    actual_pattern.width = event.currentTarget.width;
-    actual_pattern.height = event.currentTarget.height;
+  //   actual_pattern.width = event.currentTarget.width;
+  //   actual_pattern.height = event.currentTarget.height;
 
-    actual_pattern.blob = "/img/sankofa-sizer-demo.jpg";
-  };
+  //   actual_pattern.blob = "/img/sankofa-sizer-demo.jpg";
+  // };
 
   useEffect(() => {
     const the_heights = Object.entries(bodyParts).map(([_, part]) =>

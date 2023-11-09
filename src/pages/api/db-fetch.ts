@@ -3,7 +3,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as Papa from "papaparse";
 import { supabase } from "~/server/supabase/client";
-import { parseDriver, parseStop } from "~/utils/routing";
+import { parseDriver, parseStop } from "~/utils/routing/file-handling";
 
 const dbFetchHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {

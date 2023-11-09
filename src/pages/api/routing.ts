@@ -4,6 +4,12 @@ import { supabase } from "~/server/supabase/client";
 const routingHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
+      const fetchAll = req.query.fetchAll;
+
+      if (fetchAll) {
+        const { data } = await supabase.storage.from("routes").list();
+        return res.status(200).json(data);
+      }
       const { data } = await supabase.storage.from("routes").list();
 
       console.log(req.body);

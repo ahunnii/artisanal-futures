@@ -1,6 +1,8 @@
-import polyline from "@mapbox/polyline";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { env } from "~/env.mjs";
 
 import dynamic from "next/dynamic";
+import Pusher from "pusher-js";
 import React, {
   Suspense,
   useCallback,
@@ -11,25 +13,202 @@ import React, {
 
 import ToolLayout from "~/layouts/tool-layout";
 import { supabase } from "~/server/supabase/client";
-import type { CalculatedStep, GeoJsonData, VehicleInfo } from "~/types";
-import {
-  convertSecondsToTime,
-  formatTime,
-  lookupAddress,
-} from "~/utils/routing";
 
-const DynamicMapWithNoSSR = dynamic(
-  () => import("~/components/tools/routing/organisms/TempMap"),
+import "leaflet-geosearch/dist/geosearch.css";
+import "leaflet/dist/leaflet.css";
+import type { GetServerSidePropsContext } from "next";
+import { Beforeunload } from "react-beforeunload";
+import { SimplifiedRouteCard } from "~/components/tools/routing/solutions/route-card";
+import type { RouteData, StepData } from "~/components/tools/routing/types";
+import { Button } from "~/components/ui/button";
+
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+
+import StopDetails from "~/components/tools/routing/tracking/stop-details";
+
+import { parseIncomingDBData } from "~/utils/routing/file-handling";
+
+interface IProps {
+  data: RouteData;
+  steps: StepData[];
+}
+
+const LazyDriverMap = dynamic(
+  () => import("~/components/tools/routing/map/driver-map"),
   {
     loading: () => <p>Loading...</p>,
     ssr: false,
   }
 );
 
-import "leaflet-geosearch/dist/geosearch.css";
-import "leaflet/dist/leaflet.css";
+const RoutePage: FC<IProps> = ({ data, steps }) => {
+  const [, setActiveUsers] = useState([]);
 
-import type { GetServerSidePropsContext } from "next";
+  const [, setMessages] = useState([]);
+
+  const [isTracking, setIsTracking] = useState<boolean>(false);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+
+  const [open, setOpen] = useState(false);
+
+  const { route } = useParams();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+      cluster: "us2",
+    });
+    const channel = pusher.subscribe("map");
+
+    channel.bind("update-locations", setActiveUsers);
+    channel.bind("update-messages", setMessages);
+
+    return () => {
+      removeUser();
+      pusher.unsubscribe("map");
+    };
+  }, []);
+
+  const triggerActiveUser = () => {
+    if (!navigator.geolocation) {
+      console.log("Your browser doesn't support the geolocation feature!");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      axios
+        .post("/api/update-location", {
+          userId: session?.user?.id ?? 0,
+          latitude,
+          longitude,
+          accuracy,
+          fileId: route,
+          route: data,
+        })
+
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+  };
+
+  const [selected, setSelected] = useState<StepData | null>(null);
+
+  const handleOnStopClick = useCallback((data: StepData | null) => {
+    setSelected(data);
+    setOpen(true);
+  }, []);
+
+  const removeUser = () => {
+    axios
+      .post("/api/update-location", {
+        userId: session?.user?.id ?? 0,
+        removeUser: true,
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    if (isTracking) {
+      const id = setInterval(triggerActiveUser, 10000); // 10000ms = 10s
+      setIntervalId(id);
+    } else if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+
+      removeUser();
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        removeUser();
+      }
+    };
+  }, [isTracking]);
+
+  return (
+    <ToolLayout>
+      <section className="h-6/12 flex w-full flex-col justify-between  md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
+        <div className="flex flex-col gap-2">
+          <Beforeunload
+            onBeforeunload={(event) => {
+              event.preventDefault();
+            }}
+          />
+          {steps && steps.length > 0 && (
+            <SimplifiedRouteCard
+              data={data}
+              className="w-full"
+              handleOnStopClick={handleOnStopClick}
+            />
+          )}
+          <Button
+            onClick={() => setIsTracking(true)}
+            disabled={isTracking}
+            variant={isTracking ? "secondary" : "default"}
+          >
+            {" "}
+            {isTracking && (
+              <svg
+                className="-ml-1 mr-3 h-5 w-5 animate-spin text-gray-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            )}
+            {isTracking
+              ? "Broadcasting location with dispatch..."
+              : "Start Route"}
+          </Button>{" "}
+          {isTracking && (
+            <Button onClick={() => setIsTracking(false)} variant={"default"}>
+              Stop broadcasting location with dispatch
+            </Button>
+          )}
+          {selected && (
+            <StopDetails
+              stop={selected}
+              open={open}
+              setOpen={setOpen}
+              route={data}
+            />
+          )}
+        </div>
+      </section>
+      <section className="relative z-0 flex aspect-square w-full flex-grow overflow-hidden  md:pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
+        {data?.geometry && steps && (
+          <Suspense fallback={<p>Loading map...</p>}>
+            <LazyDriverMap
+              steps={steps}
+              geometry={data?.geometry}
+              focusedStop={selected}
+            />
+          </Suspense>
+        )}
+      </section>
+    </ToolLayout>
+  );
+};
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
@@ -38,7 +217,7 @@ export const getServerSideProps = async (
     .from("routes")
     .download(`${context.query.route as string}.json`);
 
-  if (!data)
+  if (!data || error)
     return {
       redirect: {
         destination: `/tools/routing`,
@@ -46,138 +225,9 @@ export const getServerSideProps = async (
       },
     };
 
-  if (error)
-    return {
-      redirect: {
-        destination: `/tools/routing`,
-        permanent: false,
-      },
-    };
+  const jsonObject = await parseIncomingDBData(data);
 
-  const arrayBuffer = await data.arrayBuffer();
-  const jsonString = new TextDecoder("utf-8").decode(arrayBuffer);
-  const jsonObject = JSON.parse(jsonString);
-
-  const addresses: string[] = [];
-
-  if (jsonObject.steps && jsonObject.steps.length > 0) {
-    for (const step of jsonObject.steps) {
-      if (step.location)
-        try {
-          const { display_name } = await lookupAddress(
-            String(step?.location[1]),
-            String(step?.location[0])
-          );
-          addresses.push(display_name as string);
-        } catch (error) {
-          addresses.push("Address not found");
-          console.error("Error while reverse geocoding:", error);
-        }
-    }
-  }
-
-  return { props: { data: jsonObject, steps: jsonObject.steps, addresses } };
-};
-
-interface IProps {
-  data: VehicleInfo;
-  steps: CalculatedStep[];
-  addresses: string[];
-}
-
-const RoutePage: FC<IProps> = ({ data, steps, addresses }) => {
-  const [geometry, setGeometry] = useState<GeoJsonData | null>(null);
-
-  const generateGeometry = useCallback((rawGeo: string) => {
-    const geo = polyline.toGeoJSON(rawGeo);
-    return { ...geo, properties: { color: 2 } };
-  }, []);
-
-  useEffect(() => {
-    if (data) {
-      setGeometry(generateGeometry(data.geometry) as unknown as GeoJsonData);
-    }
-  }, [data, addresses, generateGeometry]);
-
-  const startTime = formatTime(steps[0]?.arrival ?? 0);
-  const endTime = formatTime(steps[steps.length - 1]?.arrival ?? 0);
-
-  return (
-    <ToolLayout>
-      <section className="h-6/12 flex w-full flex-col justify-between bg-white md:w-full lg:h-full lg:w-5/12 xl:w-4/12 2xl:w-4/12">
-        <div className="flex flex-col gap-2">
-          {addresses && steps && steps.length > 0 && addresses.length > 0 && (
-            <div className="bg-white p-2 shadow">
-              <div className="flex items-center justify-between">
-                <p className="pb-2 font-bold text-slate-800">
-                  {data.description} (
-                  <span>
-                    {startTime} to {endTime}
-                  </span>
-                  )
-                </p>
-              </div>
-              <ul
-                role="list"
-                className="list-disc space-y-3 pl-5 text-slate-500 marker:text-sky-400"
-              >
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {startTime}
-                  </span>{" "}
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    Start at:&nbsp;
-                  </span>{" "}
-                  <span className="flex w-full text-sm font-semibold  text-slate-700">
-                    {" "}
-                    {addresses[0]}
-                  </span>
-                </li>
-                {steps.map((step: CalculatedStep, idx: number) => (
-                  <>
-                    {step.id && step.id >= 0 && (
-                      <li key={`step-${step.id}`}>
-                        <span className="flex w-full text-sm font-medium capitalize">
-                          {convertSecondsToTime(step?.arrival)}
-                        </span>
-
-                        <span className="font-base flex w-full text-sm text-slate-700">
-                          {step.type === "job" ? "Delivery at:" : `Break time `}
-                          &nbsp;
-                        </span>
-                        <span className="flex w-full text-sm font-semibold text-slate-700">
-                          {step.type === "job" ? addresses[idx] : ""}
-                        </span>
-                      </li>
-                    )}
-                  </>
-                ))}
-                <li>
-                  <span className="flex w-full text-sm font-bold">
-                    {endTime}
-                  </span>
-
-                  <span className="font-base flex w-full text-sm text-slate-700">
-                    End back at:&nbsp;
-                  </span>
-                  <span className="flex w-full text-sm font-semibold text-slate-700">
-                    {addresses[0]}
-                  </span>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </section>
-      <section className="relative z-0  flex aspect-square w-full flex-grow overflow-hidden  pl-8 lg:aspect-auto lg:w-7/12 xl:w-9/12 2xl:w-9/12">
-        {geometry && steps && (
-          <Suspense fallback={<p>Loading map...</p>}>
-            <DynamicMapWithNoSSR steps={steps} geojson={geometry} />
-          </Suspense>
-        )}
-      </section>
-    </ToolLayout>
-  );
+  return { props: { data: jsonObject, steps: jsonObject.steps } };
 };
 
 export default RoutePage;

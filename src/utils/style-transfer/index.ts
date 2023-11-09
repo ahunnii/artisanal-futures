@@ -20,7 +20,6 @@
 import type { GraphModel } from "@tensorflow/tfjs";
 import * as tf from "@tensorflow/tfjs";
 import "babel-polyfill";
-import { FC } from "react";
 
 tf.ENV.set("WEBGL_PACK", false); // This needs to be done otherwise things run very slow v1.0.4
 

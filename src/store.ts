@@ -3,7 +3,8 @@
 import { type GraphModel } from "@tensorflow/tfjs";
 import { create } from "zustand";
 
-import type { CustomerResponseData, Route, VehicleResponseData } from "~/types";
+import type { CustomerResponseData, VehicleResponseData } from "~/types";
+import type { OptimizationData } from "./components/tools/routing/types";
 interface LocationTableRow {
   address: string;
   duration: number;
@@ -11,37 +12,33 @@ interface LocationTableRow {
   priority: string;
 }
 
-type Coordinates = [number, number];
-type Geometry = {
-  type: string;
-  coordinates: Coordinates[];
-};
+// type Coordinates = [number, number];
+// type Geometry = {
+//   type: string;
+//   coordinates: Coordinates[];
+// };
 
-type Data = {
-  code: number;
-  summary: {
-    cost: number;
-    unassigned: number;
-    delivery: number[];
-    amount: number[];
-    pickup: number[];
-    service: number;
-    duration: number;
-    waiting_time: number;
-    distance: number;
-    computing_times: {
-      loading: number;
-      solving: number;
-      routing: number;
-    };
-  };
-  unassigned: unknown[];
-  routes: Route[];
-};
-interface Result {
-  geometry: Geometry[];
-  data: Data;
-}
+// type Data = {
+//   code: number;
+//   summary: {
+//     cost: number;
+//     unassigned: number;
+//     delivery: number[];
+//     amount: number[];
+//     pickup: number[];
+//     service: number;
+//     duration: number;
+//     waiting_time: number;
+//     distance: number;
+//     computing_times: {
+//       loading: number;
+//       solving: number;
+//       routing: number;
+//     };
+//   };
+//   unassigned: unknown[];
+//   routes: Route[];
+// };
 
 interface LocationTableState {
   rows: LocationTableRow[];
@@ -128,8 +125,8 @@ interface RequestState {
   cachedDirections: Map<string, unknown>;
   cachedIsochrones: Map<string, unknown>;
   cachedOptimizations: Map<string, unknown>;
-  optimization: Result | null;
-  setOptimization: (optimization: Result | null) => void;
+  optimization: OptimizationData | null;
+  setOptimization: (optimization: OptimizationData | null) => void;
   setMap: <T>(mapName: string, cachedRequests: Map<string, T>) => void;
   appendMap: <T>(mapName: string, address: string, response: T) => void;
   [key: string]: unknown;

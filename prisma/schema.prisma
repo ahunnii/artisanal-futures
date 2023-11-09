@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = [ "fullTextSearch", "fullTextIndex"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 enum Role {
@@ -11,6 +11,7 @@ enum Role {
   ADMIN
   ARTISAN
 }
+
 datasource db {
   provider     = "mysql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
@@ -55,9 +56,9 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
   title         String?
@@ -67,6 +68,7 @@ model User {
   likedPosts    LikedPosts[]
   comments      Comment[]
   role          Role         @default(USER)
+  depots        Depot[]
 }
 
 model VerificationToken {
@@ -159,4 +161,61 @@ model Comment {
 
   @@index([authorId])
   @@index([postId])
+}
+
+model Depot {
+  id      String   @id @default(cuid())
+  ownerId String
+  name    String
+  address String?
+  latitude Float
+  longitude Float
+  drivers Driver[]
+  User    User[]
+
+}
+
+model Driver {
+  id      String         @id @default(cuid())
+  name    String
+  address String?
+  latitude Float?
+  longitude Float?
+  phone   String?
+  email   String?
+  depotId String
+  depot   Depot          @relation(fields: [depotId], references: [id])
+  details DriverDetail[]
+}
+
+model DriverDetail {
+  id       String @id @default(cuid())
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
+
+  shiftStart String
+  shiftEnd   String
+  address    String?
+  latitude   Float
+  longitude  Float
+  maxTravel  Int
+  maxStops   Int
+  notes      String?
+  breaks     Break[]
+  email      String?
+  phone      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  routeId String?
+}
+
+model Break {
+  id             String        @id @default(cuid())
+  detailId       String
+  start          String
+  end            String
+  driverDetail   DriverDetail? @relation(fields: [driverDetailId], references: [id])
+  driverDetailId String?
 }

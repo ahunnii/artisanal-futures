@@ -256,6 +256,7 @@ export type StopCSVData = {
   longitude: number;
 
   drop_off_duration: number;
+  prep_time_duration: number;
   priority: number;
   time_windows: string;
   id: number;

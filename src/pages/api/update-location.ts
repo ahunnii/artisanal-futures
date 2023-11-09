@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Pusher from "pusher";
+import type { RouteData } from "~/components/tools/routing/types";
 import { env } from "~/env.mjs";
 
 const pusher = new Pusher({
@@ -15,14 +16,26 @@ type UserLocation = {
   latitude: number;
   longitude: number;
   accuracy: number;
+  removeUser?: boolean;
+  fileId?: string;
+  route: RouteData;
 };
 let userLocations: UserLocation[] = [];
 const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
-    const { userId, latitude, longitude, accuracy } = req.body;
+    const { userId, latitude, longitude, accuracy, removeUser, fileId, route } =
+      req.body;
     // Update the location of the user
     userLocations = userLocations.filter((user) => user.userId !== userId);
-    userLocations.push({ userId, latitude, longitude, accuracy });
+    if (!removeUser)
+      userLocations.push({
+        userId,
+        latitude,
+        longitude,
+        accuracy,
+        fileId,
+        route,
+      });
 
     // Trigger a Pusher event with the updated locations
     await pusher.trigger("map", "update-locations", userLocations);

@@ -1,8 +1,21 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 export const shopsRouter = createTRPCRouter({
+  getAllValidShops: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.shop.findMany({
+      where: {
+        shopName: { not: "" },
+        logoPhoto: { not: "" },
+        website: { not: "" },
+      },
+    });
+  }),
   getAllShops: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.shop.findMany({
       where: {
@@ -11,6 +24,15 @@ export const shopsRouter = createTRPCRouter({
     });
   }),
 
+  getShopById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.shop.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
   getShop: protectedProcedure
     .input(z.object({ shopId: z.string() }))
     .query(({ ctx, input }) => {
@@ -21,6 +43,7 @@ export const shopsRouter = createTRPCRouter({
         },
       });
     }),
+
   getCurrentUserShop: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.shop.findFirst({
       where: {
