@@ -20,6 +20,11 @@ export function MainNav({
       label: "Users",
       active: pathname === `/admin/users`,
     },
+    {
+      href: `/admin/shops`,
+      label: "Shops",
+      active: pathname === `/admin/shops`,
+    },
   ];
 
   return (

@@ -7,7 +7,7 @@ import { DataTable } from "~/components/ui/data-table";
 import { Heading } from "~/components/ui/heading";
 import { Separator } from "~/components/ui/separator";
 
-import type { User } from "@prisma/client";
+import type { Shop, User } from "@prisma/client";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -15,10 +15,10 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { CellAction } from "./cell-action";
 // import { columns } from "./columns";
 interface ColorClientProps {
-  data: User[];
+  data: Shop[];
 }
 
-const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<Shop>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -39,29 +39,50 @@ const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("role")}</div>,
+    accessorKey: "shopName",
+    header: "Shop Name",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("shopName")}</div>
+    ),
   },
   {
-    accessorKey: "email",
+    accessorKey: "ownerId",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          Owner Id
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue("ownerId")}</div>
+    ),
   },
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    accessorKey: "ownerName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Owner Name
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue("ownerName")}</div>
+    ),
+  },
+  {
+    accessorKey: "website",
+    header: "Website",
+    cell: ({ row }) => <div>{row.getValue("website")}</div>,
   },
 
   {
@@ -71,22 +92,22 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-export const UserClient: React.FC<ColorClientProps> = ({ data }) => {
+export const ShopClient: React.FC<ColorClientProps> = ({ data }) => {
   const navigate = useNavigationRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
         <Heading
-          title={`Users (${data.length})`}
-          description="Manage users for AF"
+          title={`Shops (${data.length})`}
+          description="Manage new and existing shops for AF"
         />
-        <Button onClick={() => navigate.push(`/admin/users/new`)}>
+        <Button onClick={() => navigate.push(`/admin/shops/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="name" columns={columns} data={data} />
+      <DataTable searchKey="shopName" columns={columns} data={data} />
     </>
   );
 };

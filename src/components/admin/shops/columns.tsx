@@ -1,12 +1,12 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
-import type { User } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Button } from "~/components/ui/button";
 import { CellAction } from "./cell-action";
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<Shop>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -27,30 +27,52 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("role")}</div>,
+    accessorKey: "shopName",
+    header: "Shop Name",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("shopName")}</div>
+    ),
   },
   {
-    accessorKey: "email",
+    accessorKey: "ownerId",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          Owner Id
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue("ownerId")}</div>
+    ),
   },
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    accessorKey: "ownerName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Owner Name
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue("ownerName")}</div>
+    ),
   },
+  {
+    accessorKey: "website",
+    header: "Website",
+    cell: ({ row }) => <div>{row.getValue("website")}</div>,
+  },
+
   {
     id: "actions",
     enableHiding: false,

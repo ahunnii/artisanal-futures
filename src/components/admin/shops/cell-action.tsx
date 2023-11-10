@@ -1,6 +1,6 @@
-import { Briefcase, Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
+
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { AlertModal } from "~/components/admin/modals/alert-modal";
@@ -10,36 +10,30 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
 import { api } from "~/utils/api";
 // import type { ColorColumn } from "./columns";
-import type { User } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 
 interface CellActionProps {
-  data: User;
+  data: Shop;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useNavigationRouter();
   const utils = api.useContext();
-  const params = useRouter();
+
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { mutate: deleteSize } = api.user.deleteUser.useMutation({
+  const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
     onSuccess: () => {
-      toast.success("User deleted.");
+      toast.success("Shop deleted.");
     },
     onError: (error) => {
-      toast.error("Make sure you removed all products using this color first.");
+      toast.error("There was an error in deleting the shop. Try again later.");
       console.error(error);
     },
     onMutate: () => {
@@ -48,13 +42,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     onSettled: async () => {
       setLoading(false);
       setOpen(false);
-      await utils.user.getAllUsers.invalidate();
+      await utils.shops.getAllShops.invalidate();
     },
   });
 
   const onConfirm = () => {
-    deleteSize({
-      id: data.id,
+    deleteShop({
+      shopId: data.id,
     });
   };
 
@@ -62,23 +56,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     navigator.clipboard
       .writeText(id)
       .then(() => {
-        toast.success("Color ID copied to clipboard.");
+        toast.success("Shop ID copied to clipboard.");
       })
       .catch(() => {
-        toast.error("Failed to copy color ID to clipboard.");
+        toast.error("Failed to copy shop ID to clipboard.");
       });
   };
-
-  const { mutate: updateRole } = api.user.updateUserRole.useMutation({
-    onSuccess: async () => {
-      await utils.user.getAllUsers.invalidate();
-      toast.success("Role updated.");
-    },
-    onError: (error) => {
-      toast.error("Something went wrong");
-      console.error(error);
-    },
-  });
 
   return (
     <>
@@ -100,38 +83,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
             <Copy className="mr-2 h-4 w-4" /> Copy Id
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              {" "}
-              <Briefcase className="mr-2 h-4 w-4" />
-              Role
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup value={data.role}>
-                <DropdownMenuRadioItem
-                  value={"USER"}
-                  onClick={() => updateRole({ role: "USER", id: data.id })}
-                >
-                  User
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem
-                  value={"ARTISAN"}
-                  onClick={() => updateRole({ role: "ARTISAN", id: data.id })}
-                >
-                  Artisan
-                </DropdownMenuRadioItem>{" "}
-                <DropdownMenuRadioItem
-                  value={"ADMIN"}
-                  onClick={() => updateRole({ role: "ADMIN", id: data.id })}
-                >
-                  Admin
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>{" "}
+
           <DropdownMenuItem
-            onClick={() => router.push(`/admin/users/${data.id}`)}
+            onClick={() => router.push(`/admin/shops/${data.id}`)}
           >
             <Edit className="mr-2 h-4 w-4" /> Update
           </DropdownMenuItem>
