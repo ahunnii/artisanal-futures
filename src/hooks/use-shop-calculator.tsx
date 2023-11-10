@@ -16,7 +16,15 @@ export type MaterialCosts = {
   expenses?: {
     name: string;
     amount: number;
+    metric: string;
+    cost: number;
+    amountUsed: number;
   }[];
+};
+
+export type LaborCosts = {
+  hours: number;
+  rate: number;
 };
 interface useShopCalculatorProps {
   monthly: number;
@@ -24,6 +32,7 @@ interface useShopCalculatorProps {
   materials: number;
   materialExpenses: MaterialCosts;
   labor: number;
+  laborExpenses: LaborCosts;
 
   setMonthly: (val: number) => void;
 
@@ -31,6 +40,7 @@ interface useShopCalculatorProps {
   setMaterials: (val: number) => void;
   setMaterialExpenses: (val: MaterialCosts) => void;
   setLabor: (val: number) => void;
+  setLaborExpenses: (val: LaborCosts) => void;
 }
 
 export const useShopCalculator = create<useShopCalculatorProps>((set) => ({
@@ -49,10 +59,16 @@ export const useShopCalculator = create<useShopCalculatorProps>((set) => ({
     maintenance: 0,
     cart: [],
   },
+
+  laborExpenses: {
+    hours: 0,
+    rate: 0,
+  },
   setMonthly: (val: number) => set({ monthly: val }),
 
   setMonthlyExpenses: (val: MonthlyCosts) => set({ monthlyExpenses: val }),
   setMaterialExpenses: (val: MaterialCosts) => set({ materialExpenses: val }),
+  setLaborExpenses: (val: LaborCosts) => set({ laborExpenses: val }),
   setMaterials: (val: number) => set({ materials: val }),
   setLabor: (val: number) => set({ labor: val }),
 }));

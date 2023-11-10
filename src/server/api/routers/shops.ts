@@ -17,11 +17,7 @@ export const shopsRouter = createTRPCRouter({
     });
   }),
   getAllShops: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.shop.findMany({
-      where: {
-        ownerId: ctx.session.user.id,
-      },
-    });
+    return ctx.prisma.shop.findMany();
   }),
 
   getShopById: publicProcedure
@@ -52,24 +48,43 @@ export const shopsRouter = createTRPCRouter({
     });
   }),
   createShop: protectedProcedure
-    .input(z.object({ shopName: z.string() }))
+    .input(
+      z.object({
+        shopName: z.string(),
+        ownerId: z.string().optional(),
+        ownerName: z.string().optional(),
+        bio: z.string().optional().or(z.null()),
+        description: z.string().optional().or(z.null()),
+        logoPhoto: z.string().optional().or(z.null()),
+        country: z.string().optional().or(z.null()),
+        address: z.string().optional().or(z.null()),
+        city: z.string().optional().or(z.null()),
+        state: z.string().optional().or(z.null()),
+        zip: z.string().optional().or(z.null()),
+        phone: z.string().optional().or(z.null()),
+        email: z.string().optional().or(z.null()),
+        website: z.string().optional().or(z.null()),
+      })
+    )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.shop.create({
         data: {
           shopName: input.shopName,
-          ownerName: ctx.session.user?.name ?? "",
-          ownerId: ctx.session.user.id,
-          bio: "",
-          description: "",
-          logoPhoto: "",
-          address: "",
-          city: "",
-          state: "",
-          zip: "",
-          country: "",
-          phone: "",
-          email: "",
-          website: "",
+          ownerName: input.ownerName
+            ? input.ownerName
+            : ctx.session.user?.name ?? "",
+          ownerId: input.ownerId ? input.ownerId : ctx.session.user.id,
+          bio: input.bio ?? "",
+          description: input.description ?? "",
+          logoPhoto: input.logoPhoto ?? "",
+          address: input.address ?? "",
+          city: input.city ?? "",
+          state: input.state ?? "",
+          zip: input.zip ?? "",
+          country: input.country ?? "",
+          phone: input.phone ?? "",
+          email: input.email ?? "",
+          website: input.website ?? "",
         },
       });
     }),
@@ -80,6 +95,7 @@ export const shopsRouter = createTRPCRouter({
         shopId: z.string(),
         shopName: z.string(),
         ownerName: z.string(),
+        ownerId: z.string().optional(),
         bio: z.string().optional().or(z.null()),
         description: z.string().optional().or(z.null()),
         logoPhoto: z.string().optional().or(z.null()),
@@ -114,7 +130,7 @@ export const shopsRouter = createTRPCRouter({
           },
         })
         .then((shopByUserId) => {
-          if (!shopByUserId) {
+          if (ctx.session.user.role !== "ADMIN" && !shopByUserId) {
             throw new TRPCError({
               code: "UNAUTHORIZED",
               message: "Shop id does not belong to current user",
@@ -130,6 +146,7 @@ export const shopsRouter = createTRPCRouter({
               shopName: input.shopName,
               ownerName: input.ownerName,
               bio: input?.bio ?? "",
+              ownerId: input?.ownerId ?? ctx.session.user.id,
               description: input?.description ?? "",
               logoPhoto: input?.logoPhoto ?? "",
               address: input?.address ?? "",
@@ -174,7 +191,7 @@ export const shopsRouter = createTRPCRouter({
           },
         })
         .then((shopByUserId) => {
-          if (!shopByUserId) {
+          if (ctx.session.user.role !== "ADMIN" && !shopByUserId) {
             throw new TRPCError({
               code: "UNAUTHORIZED",
               message: "Shop id does not belong to current user",

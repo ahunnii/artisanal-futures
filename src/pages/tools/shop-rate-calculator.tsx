@@ -11,6 +11,7 @@ import HourlyPieChart from "~/components/tools/shop-rate-calculator/hourly-pie-c
 import { MaterialsCostForm } from "~/components/tools/shop-rate-calculator/panels/materials-form";
 import { MonthlyCostForm } from "~/components/tools/shop-rate-calculator/panels/monthly-form";
 // import ProfitsPanel from "~/components/tools/shop-rate-calculator/panels/profit-panel";
+import { LaborCostForm } from "~/components/tools/shop-rate-calculator/panels/labor-form";
 import { useShopCalculator } from "~/hooks/use-shop-calculator";
 
 export default function ShopRateCalculator() {
@@ -23,11 +24,15 @@ export default function ShopRateCalculator() {
     profits: "#f472b6",
   };
 
-  const { monthly, materials } = useShopCalculator((state) => state);
+  const { monthly, materials, laborExpenses } = useShopCalculator(
+    (state) => state
+  );
+  const hoursWorked = laborExpenses?.hours ?? 0 * 4.33 * 12;
 
   const breakdown = useMemo(() => {
     return {
       monthlyCost: monthly,
+
       // monthlyHourly: monthlyExpenses?.cart
       //   ? monthlyExpenses?.cart.reduce((total, item) => {
       //       return (
@@ -67,6 +72,9 @@ export default function ShopRateCalculator() {
               </TabsContent>
               <TabsContent value="material">
                 <MaterialsCostForm />
+              </TabsContent>{" "}
+              <TabsContent value="labor">
+                <LaborCostForm />
               </TabsContent>
             </Tabs>
           </div>
