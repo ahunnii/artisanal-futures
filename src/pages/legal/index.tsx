@@ -29,7 +29,7 @@ const PolicyInformationPage = () => {
             </a>
           </li>{" "}
           <li className="transition-all hover:text-blue-600 hover:underline ">
-            <a href={`/legal/help-center}`}>Help Center</a>
+            <a href={`/legal/help-center`}>Help Center</a>
           </li>
         </ul>
       </Body>
