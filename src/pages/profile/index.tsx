@@ -1,15 +1,17 @@
 import type { GetServerSidePropsContext } from "next";
+import type { FC } from "react";
+
 import type { Session } from "next-auth";
 import { useRouter } from "next/router";
-import type { FC } from "react";
-import { Button } from "~/components/ui/button";
+import { toast } from "react-hot-toast";
 
+import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import ProfileLayout from "~/layouts/profile-layout";
+
 import { api } from "~/utils/api";
 import { authenticateSession } from "~/utils/auth";
 
-import { toast } from "react-hot-toast";
 const isDev = process.env.NODE_ENV === "development";
 
 const ProfilePage: FC = () => {
@@ -18,7 +20,6 @@ const ProfilePage: FC = () => {
   const { mutate: updateRole } = api.auth.changeRole.useMutation({
     onSuccess: () => {
       toast.success("Role updated.");
-
       router.reload();
     },
     onError: (error) => {
@@ -40,7 +41,7 @@ const ProfilePage: FC = () => {
         <p>
           Welcome! We are still a work in progress, so more settings will be
           available soon.
-        </p>{" "}
+        </p>
         {isDev && (
           <section>
             <p>Test Roles</p>
@@ -64,7 +65,7 @@ const ProfilePage: FC = () => {
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = (await authenticateSession(ctx)) as Session;
 
-  if (!session) {
+  if (!session.user) {
     return {
       redirect: {
         destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(

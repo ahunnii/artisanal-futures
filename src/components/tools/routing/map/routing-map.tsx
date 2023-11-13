@@ -1,11 +1,14 @@
 import L, { type LatLngExpression, type Map } from "leaflet";
 
 import {
+  MouseEventHandler,
+  SyntheticEvent,
   forwardRef,
   useEffect,
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   GeoJSON,
@@ -13,12 +16,19 @@ import {
   LayerGroup as LeafletLayerGroup,
   MapContainer,
   TileLayer,
+  useMapEvents,
 } from "react-leaflet";
-
-import { getStyle } from "~/utils/routing/color-handling";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuLabel,
+  ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import { getStyle } from "~/utils/routing/color-handling";
 
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
@@ -37,10 +47,17 @@ interface MapRef {
 }
 
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
-  const { drivers, activeDriver } = useDrivers((state) => state);
-  const { locations, activeLocation } = useStops((state) => state);
+  const { drivers, activeDriver, addDriverByLatLng } = useDrivers(
+    (state) => state
+  );
+  const { locations, activeLocation, addLocationByLatLng } = useStops(
+    (state) => state
+  );
   const { currentRoutingSolution } = useRoutingSolutions();
   const { filteredLocations, invalidateRoutes } = useRouteOptimization();
+
+  const [userSpecifiedLocation, setUserSpecifiedLocation] =
+    useState<LatLngExpression | null>(null);
 
   const assignedLocations = locations.filter((stop) =>
     filteredLocations.some(
@@ -118,189 +135,227 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
       }),
     };
   }, [currentRoutingSolution?.geometry]);
+  const [latLng, setLatLng] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const handleRightClick = (event: MouseEvent) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const clickedLatLng = map.mouseEventToLatLng(event);
+
+    setLatLng(clickedLatLng);
+  };
 
   return (
-    <MapContainer
-      ref={mapRef}
-      center={[42.33085782908872, -83.05011192993956]}
-      zoom={13}
-      doubleClickZoom={false}
-      maxBounds={[
-        [40.70462625, -91.6624658],
-        [49.29755475, -80.8782742],
-      ]}
-      minZoom={6.5}
-      style={{
-        height: "100%",
-        width: "100%",
-        zIndex: -1,
-      }}
-      className={cn(className, "relative")}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-      />
-
-      <LayersControl position="topright">
+    <ContextMenu>
+      <ContextMenuTrigger
+        className=" h-full w-full"
+        onContextMenu={
+          handleRightClick as unknown as MouseEventHandler<HTMLDivElement>
+        }
+      >
         {" "}
-        <LayersControl.Overlay name="Drivers" checked>
-          <LeafletLayerGroup>
-            {drivers?.length &&
-              drivers.map((vehicle, idx) => (
-                <RouteMarker
-                  key={idx}
-                  variant="car"
-                  id={vehicle.id}
-                  position={[
-                    vehicle.coordinates?.latitude,
-                    vehicle.coordinates?.longitude,
-                  ]}
-                  color={vehicle?.id ?? 2}
-                >
-                  <div className="flex flex-col space-y-2">
-                    <span className="block text-base font-bold capitalize">
-                      {vehicle?.name ?? "Driver "}
-                    </span>
-                    <span className="block">
-                      <span className="block font-semibold text-slate-600">
-                        Start and End Location
-                      </span>
-                      {vehicle.address}
-                    </span>
-                  </div>
-                </RouteMarker>
-              ))}{" "}
-          </LeafletLayerGroup>
-        </LayersControl.Overlay>
-        <LayersControl.Overlay name="Stops" checked>
-          <LeafletLayerGroup>
-            {assignedLocations?.length > 0 ? (
-              <>
-                {assignedLocations.map((location, idx) => (
-                  <RouteMarker
-                    key={idx}
-                    variant="stop"
-                    id={location.id}
-                    position={[
-                      location.coordinates?.latitude,
-                      location.coordinates?.longitude,
-                    ]}
-                    color={
-                      filteredLocations.find(
-                        (item: { job_id: number; vehicle_id: number }) =>
-                          location.id === item.job_id
-                      )?.vehicle_id ?? 1
-                    }
-                  >
-                    <div className="flex flex-col space-y-2">
-                      <span className="block text-base font-bold  capitalize ">
-                        {location?.customer_name ?? "Driver "}
-                      </span>
-                      <span className="block">
-                        {" "}
-                        <span className="block font-semibold text-slate-600">
-                          Fulfillment Location
+        <MapContainer
+          ref={mapRef}
+          center={[42.33085782908872, -83.05011192993956]}
+          zoom={13}
+          doubleClickZoom={false}
+          maxBounds={[
+            [40.70462625, -91.6624658],
+            [49.29755475, -80.8782742],
+          ]}
+          minZoom={6.5}
+          style={{
+            height: "100%",
+            width: "100%",
+            zIndex: 0,
+          }}
+          className={cn(className, "relative")}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+          />
+          <LayersControl position="topright">
+            {" "}
+            <LayersControl.Overlay name="Drivers" checked>
+              <LeafletLayerGroup>
+                {drivers?.length &&
+                  drivers.map((vehicle, idx) => (
+                    <RouteMarker
+                      key={idx}
+                      variant="car"
+                      id={vehicle.id}
+                      position={[
+                        vehicle.coordinates?.latitude,
+                        vehicle.coordinates?.longitude,
+                      ]}
+                      color={vehicle?.id ?? 2}
+                    >
+                      <div className="flex flex-col space-y-2">
+                        <span className="block text-base font-bold capitalize">
+                          {vehicle?.name ?? "Driver "}
                         </span>
-                        {location.address}
-                      </span>
-
-                      <span className=" block">
-                        {" "}
-                        <span className="block font-semibold text-slate-600">
-                          Fulfillment Details
+                        <span className="block">
+                          <span className="block font-semibold text-slate-600">
+                            Start and End Location
+                          </span>
+                          {vehicle.address}
                         </span>
-                        {location.details ?? "Not filled out"}
-                      </span>
-                    </div>
-                  </RouteMarker>
-                ))}
+                      </div>
+                    </RouteMarker>
+                  ))}{" "}
+              </LeafletLayerGroup>
+            </LayersControl.Overlay>
+            <LayersControl.Overlay name="Stops" checked>
+              <LeafletLayerGroup>
+                {assignedLocations?.length > 0 ? (
+                  <>
+                    {assignedLocations.map((location, idx) => (
+                      <RouteMarker
+                        key={idx}
+                        variant="stop"
+                        id={location.id}
+                        position={[
+                          location.coordinates?.latitude,
+                          location.coordinates?.longitude,
+                        ]}
+                        color={
+                          filteredLocations.find(
+                            (item: { job_id: number; vehicle_id: number }) =>
+                              location.id === item.job_id
+                          )?.vehicle_id ?? 1
+                        }
+                      >
+                        <div className="flex flex-col space-y-2">
+                          <span className="block text-base font-bold  capitalize ">
+                            {location?.customer_name ?? "Driver "}
+                          </span>
+                          <span className="block">
+                            {" "}
+                            <span className="block font-semibold text-slate-600">
+                              Fulfillment Location
+                            </span>
+                            {location.address}
+                          </span>
 
-                {unassignedLocations?.map((location, idx) => (
-                  <RouteMarker
-                    key={idx}
-                    variant="stop"
-                    id={location.id}
-                    position={[
-                      location.coordinates?.latitude,
-                      location.coordinates?.longitude,
-                    ]}
-                    color={-1}
-                  >
-                    <div className="flex flex-col space-y-2">
-                      <span className="block text-base font-bold capitalize ">
-                        {location?.customer_name ?? "Driver "}
-                      </span>
-                      <span className="block">
-                        {" "}
-                        <span className="block font-semibold text-slate-600">
-                          Fulfillment Location
+                          <span className=" block">
+                            {" "}
+                            <span className="block font-semibold text-slate-600">
+                              Fulfillment Details
+                            </span>
+                            {location.details ?? "Not filled out"}
+                          </span>
+                        </div>
+                      </RouteMarker>
+                    ))}
+
+                    {unassignedLocations?.map((location, idx) => (
+                      <RouteMarker
+                        key={idx}
+                        variant="stop"
+                        id={location.id}
+                        position={[
+                          location.coordinates?.latitude,
+                          location.coordinates?.longitude,
+                        ]}
+                        color={-1}
+                      >
+                        <div className="flex flex-col space-y-2">
+                          <span className="block text-base font-bold capitalize ">
+                            {location?.customer_name ?? "Driver "}
+                          </span>
+                          <span className="block">
+                            {" "}
+                            <span className="block font-semibold text-slate-600">
+                              Fulfillment Location
+                            </span>
+                            {location.address}
+                          </span>
+
+                          <span className=" block">
+                            {" "}
+                            <span className="block font-semibold text-slate-600">
+                              Fulfillment Details
+                            </span>
+                            {location.details ?? "Not filled out"}
+                          </span>
+                        </div>
+                      </RouteMarker>
+                    ))}
+                  </>
+                ) : (
+                  locations?.length &&
+                  locations.map((location, idx) => (
+                    <RouteMarker
+                      key={idx}
+                      variant="stop"
+                      id={location.id}
+                      position={[
+                        location.coordinates?.latitude,
+                        location.coordinates?.longitude,
+                      ]}
+                      color={
+                        filteredLocations.find(
+                          (item: { job_id: number; vehicle_id: number }) =>
+                            location.id === item.job_id
+                        )?.vehicle_id ?? 3
+                      }
+                    >
+                      {/* {location.address} {location.id} {location.description} */}
+
+                      <div className="flex flex-col space-y-2">
+                        <span className="block text-base font-bold capitalize ">
+                          {location?.customer_name ?? "Driver "}
                         </span>
-                        {location.address}
-                      </span>
-
-                      <span className=" block">
-                        {" "}
-                        <span className="block font-semibold text-slate-600">
-                          Fulfillment Details
+                        <span className="block">
+                          {" "}
+                          <span className="block font-semibold text-slate-600">
+                            Fulfillment Location
+                          </span>
+                          {location.address}
                         </span>
-                        {location.details ?? "Not filled out"}
-                      </span>
-                    </div>
-                  </RouteMarker>
-                ))}
-              </>
-            ) : (
-              locations?.length &&
-              locations.map((location, idx) => (
-                <RouteMarker
-                  key={idx}
-                  variant="stop"
-                  id={location.id}
-                  position={[
-                    location.coordinates?.latitude,
-                    location.coordinates?.longitude,
-                  ]}
-                  color={
-                    filteredLocations.find(
-                      (item: { job_id: number; vehicle_id: number }) =>
-                        location.id === item.job_id
-                    )?.vehicle_id ?? 3
-                  }
-                >
-                  {/* {location.address} {location.id} {location.description} */}
 
-                  <div className="flex flex-col space-y-2">
-                    <span className="block text-base font-bold capitalize ">
-                      {location?.customer_name ?? "Driver "}
-                    </span>
-                    <span className="block">
-                      {" "}
-                      <span className="block font-semibold text-slate-600">
-                        Fulfillment Location
-                      </span>
-                      {location.address}
-                    </span>
+                        <span className=" block">
+                          {" "}
+                          <span className="block font-semibold text-slate-600">
+                            Fulfillment Details
+                          </span>
+                          {location.details ?? "Not filled out"}
+                        </span>
+                      </div>
+                    </RouteMarker>
+                  ))
+                )}{" "}
+              </LeafletLayerGroup>
+            </LayersControl.Overlay>
+          </LayersControl>
 
-                    <span className=" block">
-                      {" "}
-                      <span className="block font-semibold text-slate-600">
-                        Fulfillment Details
-                      </span>
-                      {location.details ?? "Not filled out"}
-                    </span>
-                  </div>
-                </RouteMarker>
-              ))
-            )}{" "}
-          </LeafletLayerGroup>
-        </LayersControl.Overlay>
-      </LayersControl>
+          {currentRoutingSolution && (
+            <GeoJSON data={geoJson as GeoJsonData} style={getStyle} />
+          )}
+        </MapContainer>
+      </ContextMenuTrigger>
 
-      {currentRoutingSolution && (
-        <GeoJSON data={geoJson as GeoJsonData} style={getStyle} />
+      {latLng && (
+        <ContextMenuContent className="z-50">
+          <ContextMenuLabel>
+            {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
+          </ContextMenuLabel>
+          <ContextMenuItem
+            onClick={() => addLocationByLatLng(latLng?.lat, latLng?.lng)}
+          >
+            Add as Stop
+          </ContextMenuItem>
+          <ContextMenuItem
+            onClick={() => addDriverByLatLng(latLng?.lat, latLng?.lng)}
+          >
+            Add as Driver
+          </ContextMenuItem>
+        </ContextMenuContent>
       )}
-    </MapContainer>
+    </ContextMenu>
   );
 });
 RoutingMap.displayName = "RoutingMap";

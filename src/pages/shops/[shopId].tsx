@@ -23,7 +23,7 @@ const ProfilePage = () => {
         {isLoading ? (
           <PageLoader />
         ) : (
-          <ProfileCard className="mx-auto  h-full " {...shop} />
+          <ProfileCard className="mx-auto h-full " {...shop} />
         )}
       </Body>
     </>
