@@ -1,5 +1,25 @@
+import { uniqueId } from "lodash";
 import { create } from "zustand";
 import type { Driver } from "~/components/tools/routing/types";
+
+const driverData = (lat: number, lng: number) => {
+  return {
+    id: parseInt(uniqueId()),
+    name: "New Driver",
+    address: "Address via LatLng",
+    max_travel_time: 60,
+    time_window: { startTime: "09:00", endTime: "17:00" },
+    max_stops: 10,
+    break_slots: [
+      {
+        id: parseInt(uniqueId()),
+        time_windows: [{ startTime: "12:00", endTime: "13:00" }],
+        service: 30,
+      },
+    ],
+    coordinates: { latitude: lat, longitude: lng },
+  };
+};
 
 interface useDriversStore {
   drivers: Driver[];
@@ -12,6 +32,7 @@ interface useDriversStore {
   updateDriver: (id: number, data: Partial<Driver>) => void;
   removeDriver: (id: number) => void;
   appendDriver: (driver: Driver) => void;
+  addDriverByLatLng: (lat: number, lng: number) => void;
 }
 
 export const useDrivers = create<useDriversStore>((set) => ({
@@ -37,4 +58,6 @@ export const useDrivers = create<useDriversStore>((set) => ({
     })),
   appendDriver: (driver) =>
     set((state) => ({ drivers: [...state.drivers, driver] })),
+  addDriverByLatLng: (lat, lng) =>
+    set((state) => ({ drivers: [...state.drivers, driverData(lat, lng)] })),
 }));

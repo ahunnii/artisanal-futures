@@ -10,8 +10,10 @@ import { ButtonLink } from "~/components/forum/button-link";
 import { Footer } from "~/components/forum/footer";
 import { IconButton } from "~/components/forum/icon-button";
 import { SearchIcon } from "~/components/forum/icons";
+import Navbar from "~/components/forum/navbar";
 
 import { SearchDialog } from "~/components/forum/search-dialog";
+import Container from "~/components/ui/container";
 import UserNav from "~/components/ui/user-nav";
 
 type LayoutProps = {
@@ -22,10 +24,13 @@ const ForumLayout = ({ children }: LayoutProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
 
   return (
-    <main className="light flex min-h-screen flex-col bg-forum-primary">
-      <div className=" flex h-full w-full flex-grow flex-row items-stretch p-8  ">
-        <div className="mx-auto w-full  max-w-7xl  px-6">
-          <header className="flex items-center justify-between gap-4 py-12 md:py-20">
+    <main className="flex min-h-screen flex-col">
+      <>
+        <>
+          <Container>
+            <Navbar />
+          </Container>
+          {/* <header className="flex items-center justify-between gap-4 py-12 md:py-20">
             <div className="flex flex-col gap-y-3">
               <Link href="/" className="flex  gap-x-2 ">
                 <Image
@@ -56,22 +61,26 @@ const ForumLayout = ({ children }: LayoutProps) => {
                 <span className="hidden shrink-0 sm:block">New post</span>
               </ButtonLink>
             </div>
-          </header>
-
-          <main>{children}</main>
-
+          </header> */}
+          <Container className="flex h-full flex-grow flex-col items-stretch p-8">
+            <div className="flex flex-row">
+              <div className="w-5/6">{children}</div>
+              <aside className="h-fit w-1/6 bg-slate-50">
+                <h2>Popular Communities</h2>
+              </aside>
+            </div>
+          </Container>
           <div className="py-20">
             <Footer />
           </div>
-
           <SearchDialog
             isOpen={isSearchDialogOpen}
             onClose={() => {
               setIsSearchDialogOpen(false);
             }}
           />
-        </div>
-      </div>
+        </>
+      </>
     </main>
   );
 };
