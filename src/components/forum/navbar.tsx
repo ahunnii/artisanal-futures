@@ -31,7 +31,12 @@ const Navbar = () => {
               height={20}
             />
           </Link>
-          <p className="ml-1 hidden text-base font-medium md:block">Forums</p>
+          <Link
+            className="ml-1 hidden text-base font-medium md:block"
+            href="/forum"
+          >
+            Forums
+          </Link>
           {/* <MainNav className="mx-6" /> */}
           <Button
             onClick={() => {

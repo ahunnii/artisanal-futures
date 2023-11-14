@@ -195,33 +195,6 @@ const Home: FC<IProps> = ({ user }) => {
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
 
-  const post = await prisma.post.update({
-    where: {
-      id: 16,
-    },
-    data: {
-      hidden: true,
-    },
-  });
-
-  // const mainPost = await prisma.post.update({
-  //   where: {
-  //     id: 3,
-  //   },
-  //   data: {
-  //     comments: {
-  //       create: [
-  //         {
-  //           content: post!.content,
-  //           contentHtml: post!.contentHtml,
-  //           createdAt: post!.createdAt,
-  //           authorId: post!.authorId,
-  //         },
-  //       ],
-  //     },
-  //   },
-  // });
-  // console.log(post);
   return user;
 }
 export default Home;

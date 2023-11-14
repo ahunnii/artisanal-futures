@@ -367,14 +367,6 @@ const PostPage = () => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-
-  const post = await prisma.comment.delete({
-    where: {
-      id: 15,
-    },
-  });
-
-  console.log(post);
   return user;
 }
 export default PostPage;
