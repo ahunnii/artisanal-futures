@@ -4,6 +4,7 @@ import type { GetServerSidePropsContext } from "next";
 
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import type { FC } from "react";
 
@@ -13,7 +14,10 @@ import {
 } from "~/components/forum/pagination";
 import type { PostSummaryProps } from "~/components/forum/post-summary";
 import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
+import { SortButton } from "~/components/forum/sort-button";
+import { Button } from "~/components/ui/button";
 import ForumLayout from "~/layouts/forum-layout";
+import { prisma } from "~/server/db";
 
 import { api, type RouterInputs } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
@@ -119,23 +123,40 @@ const Home: FC<IProps> = ({ user }) => {
               There are no published posts to show yet.
             </div>
           ) : (
-            <div className="flow-root">
-              <ul className="-my-12 divide-y divide-forum-primary">
-                {feedQuery.data.posts.map((post) => (
-                  <li key={post.id} className="py-10">
-                    <PostSummary
-                      post={post}
-                      onLike={() => {
-                        likeMutation.mutate(post.id);
-                      }}
-                      onUnlike={() => {
-                        unlikeMutation.mutate(post.id);
-                      }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <>
+              <div className="flex justify-between p-4">
+                <Link href="/forum/new">
+                  <Button className="rounded-full">
+                    <span className="sm:hidden">Post</span>
+                    <span className="hidden shrink-0 sm:block">
+                      Create a post
+                    </span>
+                  </Button>
+                </Link>
+
+                <SortButton />
+              </div>
+              <div className="flow-root">
+                <ul className=" space-y-2 divide-y divide-forum-primary">
+                  {feedQuery.data.posts.map((post) => (
+                    <li
+                      key={post.id}
+                      className="px-4 py-10 hover:rounded-2xl hover:bg-slate-50"
+                    >
+                      <PostSummary
+                        post={post}
+                        onLike={() => {
+                          likeMutation.mutate(post.id);
+                        }}
+                        onUnlike={() => {
+                          unlikeMutation.mutate(post.id);
+                        }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
           )}
 
           <Pagination
@@ -173,6 +194,7 @@ const Home: FC<IProps> = ({ user }) => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
+
   return user;
 }
 export default Home;

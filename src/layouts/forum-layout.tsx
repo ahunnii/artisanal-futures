@@ -62,17 +62,14 @@ const ForumLayout = ({ children }: LayoutProps) => {
               </ButtonLink>
             </div>
           </header> */}
-          <Container className="flex h-full flex-grow flex-col items-stretch p-8">
-            <div className="flex flex-row">
+          <Container className="flex h-full flex-grow flex-col items-stretch  p-8">
+            <div className="flex flex-row gap-4">
               <div className="w-5/6">{children}</div>
-              <aside className="h-fit w-1/6 bg-slate-50">
-                <h2>Popular Communities</h2>
-              </aside>
             </div>
           </Container>
-          <div className="py-20">
+          <Container className="py-20">
             <Footer />
-          </div>
+          </Container>
           <SearchDialog
             isOpen={isSearchDialogOpen}
             onClose={() => {

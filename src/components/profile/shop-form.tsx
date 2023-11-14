@@ -3,7 +3,7 @@ import type { Shop } from "@prisma/client";
 
 import { Trash } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
@@ -78,6 +78,24 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       website: initialData?.website ?? "",
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      shopName: initialData?.shopName ?? "",
+      ownerName: initialData?.ownerName ?? "",
+      bio: initialData?.bio ?? "",
+      description: initialData?.description ?? "",
+      logoPhoto: initialData?.logoPhoto ?? "",
+      address: initialData?.address ?? "",
+      city: initialData?.city ?? "",
+      state: initialData?.state ?? "",
+      zip: initialData?.zip ?? "",
+      country: initialData?.country ?? "",
+      phone: initialData?.phone ?? "",
+      email: initialData?.email ?? "",
+      website: initialData?.website ?? "",
+    });
+  }, [initialData, form]);
 
   const { mutate: updateRole } = api.auth.changeRole.useMutation({
     onSuccess: () => {

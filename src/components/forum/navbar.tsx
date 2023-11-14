@@ -31,7 +31,12 @@ const Navbar = () => {
               height={20}
             />
           </Link>
-          <p className="ml-1 hidden text-base font-medium md:block">Forums</p>
+          <Link
+            className="ml-1 hidden text-base font-medium md:block"
+            href="/forum"
+          >
+            Forums
+          </Link>
           {/* <MainNav className="mx-6" /> */}
           <Button
             onClick={() => {
@@ -45,12 +50,12 @@ const Navbar = () => {
           </Button>
           <div className="ml-auto flex items-center space-x-4">
             <UserNav />
-            <Link href="/forum/new">
+            {/* <Link href="/forum/new">
               <Button className="rounded-full">
                 <span className="sm:hidden">Post</span>
-                <span className="hidden shrink-0 sm:block">New post</span>
+                <span className="hidden shrink-0 sm:block">C post</span>
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
