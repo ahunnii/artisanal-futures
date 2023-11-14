@@ -1,16 +1,19 @@
 import type { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 
 import { authenticateSession } from "~/utils/auth";
 
 import type { Shop } from "@prisma/client";
 
 import type { Session } from "next-auth";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 import { ShopForm } from "~/components/profile/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
 
 interface DashboardPageProps {
   shop: Shop;
@@ -28,7 +31,7 @@ const DashboardPage: FC<DashboardPageProps> = ({ shop }) => {
       <ProfileLayout>
         <div className="space-y-6">
           {typeof shop === "undefined" && <PageLoader />}
-          {typeof shop === "object" && <ShopForm initialData={shop} />}
+          {typeof shop === "object" && shop && <ShopForm initialData={shop} />}
         </div>
       </ProfileLayout>
     </>
@@ -37,6 +40,15 @@ const DashboardPage: FC<DashboardPageProps> = ({ shop }) => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = (await authenticateSession(ctx)) as Session;
+
+  if (!session.user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
   const shop = await prisma.shop.findFirst({
     where: {

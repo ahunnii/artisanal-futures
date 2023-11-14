@@ -1,10 +1,13 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 
 import Body from "~/components/body";
+import ShopSwitcher from "~/components/profile/shop-switcher";
 import { SidebarNav } from "~/components/profile/sidebar-nav";
+import { Label } from "~/components/ui/label";
 import PageLoader from "~/components/ui/page-loader";
 import { Separator } from "~/components/ui/separator";
 import { api } from "~/utils/api";
@@ -14,10 +17,11 @@ interface SettingsLayoutProps {
 }
 
 export default function ProfileLayout({ children }: SettingsLayoutProps) {
-  const shop = api.shops.getCurrentUserShop.useQuery();
+  const { data: shop } = api.shops.getCurrentUserShop.useQuery();
   const { data: sessionData, status } = useSession();
-
+  const { data: shops } = api.shops.getAllCurrentUserShops.useQuery();
   const router = useRouter();
+  const params = useParams();
 
   const navItems = useMemo(() => {
     return [
@@ -25,13 +29,13 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         title: "Profile",
         href: "/profile",
       },
-      shop && shop.data
+      shop
         ? {
-            title: "Shop",
-            href: "/profile/shop/" + shop.data.id,
+            title: "Shops",
+            href: `/profile/shop/${params?.shopId as string}`,
           }
         : {
-            title: "Shop",
+            title: "Shops",
             href: "/profile/shop",
           },
       {
@@ -39,7 +43,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         href: "/profile/survey",
       },
     ];
-  }, [shop]);
+  }, [shop, params?.shopId]);
 
   return (
     <>
@@ -54,11 +58,21 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         ) : (
           <>
             <div className=" block space-y-6 py-5 pb-16">
-              <div className="space-y-0.5">
-                <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-                <p className="text-muted-foreground">
-                  Manage your account settings and set e-mail preferences.
-                </p>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5 ">
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    Settings
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Manage your account settings and set e-mail preferences.
+                  </p>
+                </div>
+
+                <div className="flex flex-col space-y-1">
+                  {" "}
+                  <Label>Switch Current Shop:</Label>
+                  {shops && shops.length > 0 && <ShopSwitcher items={shops} />}
+                </div>
               </div>
               <Separator className="my-6" />
               <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">

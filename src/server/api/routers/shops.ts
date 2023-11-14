@@ -20,6 +20,14 @@ export const shopsRouter = createTRPCRouter({
     return ctx.prisma.shop.findMany();
   }),
 
+  getAllCurrentUserShops: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.shop.findMany({
+      where: {
+        ownerId: ctx.session.user.id,
+      },
+    });
+  }),
+
   getShopById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
