@@ -40,6 +40,7 @@ import ConfirmDeleteDialog from "~/components/forum/post/confirm-delete-dialog";
 import ConfirmHideDialog from "~/components/forum/post/confirm-hide-dialog";
 import ConfirmUnhideDialog from "~/components/forum/post/confirm-unhide-dialog";
 import ForumLayout from "~/layouts/forum-layout";
+import { prisma } from "~/server/db";
 import { authenticateUser } from "~/utils/auth";
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };
@@ -148,7 +149,7 @@ const PostPage = () => {
                 </Banner>
               )}
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="my-6 flex items-center justify-between gap-4 ">
                 <h1 className="text-3xl font-semibold tracking-tighter md:text-4xl">
                   {postQuery.data.title}
                 </h1>
@@ -366,6 +367,14 @@ const PostPage = () => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
+
+  const post = await prisma.comment.delete({
+    where: {
+      id: 15,
+    },
+  });
+
+  console.log(post);
   return user;
 }
 export default PostPage;

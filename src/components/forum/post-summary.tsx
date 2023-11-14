@@ -72,9 +72,9 @@ export function PostSummary({ post, hideAuthor = false }: PostSummaryProps) {
             <AuthorWithDate author={post.author} date={post.createdAt} />
           )}
         </div>
-
-        <HtmlView html={summary} className={hideAuthor ? "mt-4" : "mt-6"} />
-
+        <Link href={`/forum/post/${post.id}`}>
+          <HtmlView html={summary} className={hideAuthor ? "mt-4" : "mt-6"} />
+        </Link>
         <div className="clear-both mt-4 flex items-center gap-4">
           {hasMore && (
             <Link href={`/forum/post/${post.id}`}>

@@ -45,12 +45,12 @@ const Navbar = () => {
           </Button>
           <div className="ml-auto flex items-center space-x-4">
             <UserNav />
-            <Link href="/forum/new">
+            {/* <Link href="/forum/new">
               <Button className="rounded-full">
                 <span className="sm:hidden">Post</span>
-                <span className="hidden shrink-0 sm:block">New post</span>
+                <span className="hidden shrink-0 sm:block">C post</span>
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

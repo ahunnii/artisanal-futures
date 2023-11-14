@@ -32,10 +32,9 @@ export function Avatar({ size = "md", name, src }: AvatarProps) {
           <Image
             src={src}
             alt={name}
-            layout="fixed"
             width={dimension[size]}
             height={dimension[size]}
-            className="rounded-full object-cover"
+            className="rounded-full object-cover "
           />
           <div className="absolute inset-0 rounded-full border border-[rgba(0,0,0,0.04)]" />
         </>

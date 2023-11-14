@@ -13,7 +13,7 @@ const BlurImage: FC<IProps> = ({ src, ...props }) => {
     <Image
       {...props}
       src={src}
-      layout="fill"
+      fill
       objectFit="cover"
       alt=""
       className={cn(
