@@ -61,7 +61,7 @@ export function DriverRouteBreakdown({
 
   return (
     <>
-      <CardHeader className="flex flex-row items-center justify-between py-1 pt-3 shadow-inner">
+      <CardHeader className="flex w-full flex-row items-center justify-between py-1 pt-3 shadow-inner">
         <div>
           <CardTitle className="flex  flex-row items-center gap-4 text-base ">
             <div className={cn("flex basis-2/3 font-bold", colorText)}>

@@ -68,52 +68,54 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
       <RouteLayout>
-        <section className="flex flex-1 flex-row border-2 ">
-          <div className="flex flex-col gap-2">
-            <Beforeunload
-              onBeforeunload={(event) => {
-                event.preventDefault();
-              }}
-            />
-            {steps.length > 0 && (
-              <DriverRouteBreakdown
-                data={data}
+        <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
+          <div className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
+            <>
+              <Beforeunload
+                onBeforeunload={(event) => {
+                  event.preventDefault();
+                }}
+              />
+              {steps.length > 0 && (
+                <DriverRouteBreakdown
+                  data={data}
+                  steps={stops}
+                  textColor={data?.vehicle}
+                />
+              )}
+              <Button
+                onClick={() => setIsTrackingCurrentUser(true)}
+                disabled={isTrackingCurrentUser}
+                variant={isTrackingCurrentUser ? "secondary" : "default"}
+              >
+                {isTrackingCurrentUser && <LoadingIndicator />}
+                {isTrackingCurrentUser
+                  ? "Broadcasting location with dispatch..."
+                  : "Start Route"}
+              </Button>{" "}
+              {isTrackingCurrentUser && (
+                <Button
+                  onClick={() => setIsTrackingCurrentUser(false)}
+                  variant={"default"}
+                >
+                  Stop broadcasting location with dispatch
+                </Button>
+              )}
+              {selectedStop && (
+                <StopDetails open={open} setOpen={setOpen} routeData={data} />
+              )}
+            </>
+          </div>
+          <div className="z-0 flex w-full flex-col  max-lg:grow lg:w-7/12 xl:w-9/12">
+            {data?.geometry && stops && (
+              <LazyDriverMap
                 steps={stops}
-                textColor={data?.vehicle}
+                geometry={data?.geometry}
+                focusedStop={selectedStop}
+                vehicleId={data?.vehicle}
               />
             )}
-            <Button
-              onClick={() => setIsTrackingCurrentUser(true)}
-              disabled={isTrackingCurrentUser}
-              variant={isTrackingCurrentUser ? "secondary" : "default"}
-            >
-              {isTrackingCurrentUser && <LoadingIndicator />}
-              {isTrackingCurrentUser
-                ? "Broadcasting location with dispatch..."
-                : "Start Route"}
-            </Button>{" "}
-            {isTrackingCurrentUser && (
-              <Button
-                onClick={() => setIsTrackingCurrentUser(false)}
-                variant={"default"}
-              >
-                Stop broadcasting location with dispatch
-              </Button>
-            )}
-            {selectedStop && (
-              <StopDetails open={open} setOpen={setOpen} routeData={data} />
-            )}
           </div>
-        </section>
-        <section className="z-0 flex w-full flex-col lg:w-7/12 xl:w-9/12">
-          {data?.geometry && stops && (
-            <LazyDriverMap
-              steps={stops}
-              geometry={data?.geometry}
-              focusedStop={selectedStop}
-              vehicleId={data?.vehicle}
-            />
-          )}
         </section>
       </RouteLayout>
     </>

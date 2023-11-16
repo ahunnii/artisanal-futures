@@ -40,6 +40,7 @@ import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useStops } from "~/hooks/routing/use-stops";
 
+import { router } from "@trpc/server";
 import DriverSheet from "~/components/tools/routing/drivers/driver_sheet";
 import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
 import { cn } from "~/utils/styles";
@@ -72,12 +73,12 @@ const RoutingPage = () => {
       <DriverSheet driver={activeDriver} />
 
       <RouteLayout>
-        <section className="flex flex-1 flex-row border-2 ">
+        <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
           <Tabs
             defaultValue="plan"
             value={tabValue}
             onValueChange={setTabValue}
-            className="flex flex-col gap-4 lg:w-5/12 xl:w-3/12"
+            className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12"
           >
             <TabsList className=" flex ">
               <TabsTrigger value="plan" className="w-full">
@@ -94,6 +95,16 @@ const RoutingPage = () => {
               >
                 Calculate
               </TabsTrigger>{" "}
+              <Button
+                className="w-full"
+                variant={"ghost"}
+                disabled={locations.length === 0 || drivers.length === 0}
+                onClick={() => {
+                  window.open("/tools/routing/tracking", "_blank");
+                }}
+              >
+                Track
+              </Button>
             </TabsList>
             <TabsContent value="plan" asChild>
               <>
@@ -132,7 +143,7 @@ const RoutingPage = () => {
               </>
             </TabsContent>
           </Tabs>
-          <section className="z-0 flex w-full flex-col lg:w-7/12 xl:w-9/12">
+          <section className="z-0 flex w-full flex-col  max-lg:grow lg:w-7/12 xl:w-9/12">
             <LazyRoutingMap />
           </section>
         </section>
