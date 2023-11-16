@@ -151,12 +151,13 @@ export type GeoJsonData = {
 };
 
 export interface ExpandedStepData extends StepData {
-  status: "failed" | "success" | "pending" | "cancelled";
-  notes?: string;
+  status?: "failed" | "success" | "pending";
+  deliveryNotes?: string;
 }
 
 export interface ExpandedRouteData extends RouteData {
   steps: ExpandedStepData[];
+  routeId?: string;
 }
 
 export type PusherUserData = {
@@ -174,6 +175,8 @@ export type PusherMessage = {
   deliveryNotes: string;
   address: string;
   status?: "success" | "failed" | "pending";
+  routeId: string;
+  stopId: number;
 };
 
 export type FileData = {
@@ -203,3 +206,8 @@ export type ParsedStop = {
   latitude: number;
   longitude: number;
 };
+
+export interface ExtendedStepData extends StepData {
+  status?: "pending" | "success" | "failed";
+  deliveryNotes?: string;
+}

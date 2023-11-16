@@ -26,6 +26,7 @@ import type {
 
 import polyline from "@mapbox/polyline";
 import L from "leaflet";
+import { map } from "lodash";
 import { getStyle } from "~/utils/routing/color-handling";
 import RouteMarker from "./route-marker";
 
@@ -40,6 +41,7 @@ const TrackingMap: FC<TrackingMapProps> = ({
   selectedRoute,
 }) => {
   const mapRef = useRef<Map>(null);
+  const tempRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (mapRef.current && selectedRoute) {
@@ -164,7 +166,11 @@ const TrackingMap: FC<TrackingMapProps> = ({
         </LayersControl.Overlay>{" "}
         {currentRoutes?.length > 0 &&
           currentRoutes.map((route, idx) => {
-            const { name: driverName } = JSON.parse(route?.description ?? "{}");
+            const {
+              name: driverName,
+              address: driverAddress,
+              description: driverDescription,
+            } = JSON.parse(route?.description ?? "{}");
             return (
               <LayersControl.Overlay name={driverName} checked key={idx}>
                 <LeafletLayerGroup>
@@ -174,46 +180,130 @@ const TrackingMap: FC<TrackingMapProps> = ({
                       route?.steps
                         ?.filter((step) => step.type !== "break")
                         .map((stop, index) => {
-                          const { name, address, description } = JSON.parse(
-                            stop?.description ?? "{}"
-                          );
+                          const {
+                            name: fulfillmentClient,
+                            address: fulfillmentAddress,
 
-                          return (
-                            <RouteMarker
-                              key={index}
-                              variant="stop"
-                              id={index}
-                              position={[stop?.location[1], stop?.location[0]]}
-                              color={idx}
-                            >
-                              <div className="flex flex-col space-y-2">
-                                <span className="block text-base font-bold capitalize ">
-                                  {name ?? "Fulfillment "}
-                                </span>
-                                <span className="block">
-                                  {" "}
-                                  <span className="block font-semibold text-slate-600">
-                                    Fulfillment Location
-                                  </span>
-                                  {address}
-                                </span>
+                            description: fulfillmentDescription,
+                          } = JSON.parse(stop.description ?? "{}");
 
-                                <span className=" block">
-                                  {" "}
-                                  <span className="block font-semibold text-slate-600">
-                                    Fulfillment Details
+                          if (stop.type === "job")
+                            return (
+                              <RouteMarker
+                                id={stop?.id ?? 0}
+                                stopId={index}
+                                variant="stop"
+                                key={index}
+                                position={
+                                  [
+                                    stop?.location?.[1] ?? 0,
+                                    stop?.location?.[0] ?? 0,
+                                  ] as [number, number]
+                                }
+                                color={route?.vehicle}
+                              >
+                                <div className="flex flex-col space-y-2">
+                                  <span className="block text-base font-bold  capitalize ">
+                                    {fulfillmentClient ??
+                                      "Fulfillment Location "}
                                   </span>
-                                  {description === ""
-                                    ? "Not filled out"
-                                    : description}
-                                </span>
-                              </div>
-                            </RouteMarker>
-                          );
+                                  <span className="block">
+                                    {" "}
+                                    <span className="block font-semibold text-slate-600">
+                                      Fulfillment Location
+                                    </span>
+                                    {fulfillmentAddress}
+                                  </span>
+
+                                  <span className=" block">
+                                    {" "}
+                                    <span className="block font-semibold text-slate-600">
+                                      Fulfillment Details
+                                    </span>
+                                    {fulfillmentDescription === ""
+                                      ? "Not filled out"
+                                      : fulfillmentDescription}
+                                  </span>
+                                </div>
+                              </RouteMarker>
+                            );
+                          else
+                            return (
+                              <RouteMarker
+                                id={stop?.id ?? 0}
+                                key={index}
+                                variant="car"
+                                position={
+                                  [
+                                    stop?.location?.[1] ?? 0,
+                                    stop?.location?.[0] ?? 0,
+                                  ] as [number, number]
+                                }
+                                color={route?.vehicle}
+                              >
+                                <div className="flex flex-col space-y-2">
+                                  <span className="block text-base font-bold capitalize ">
+                                    {driverName ?? "Driver "}
+                                  </span>
+                                  <span className="block">
+                                    {" "}
+                                    <span className="block font-semibold text-slate-600">
+                                      Roundtrip Location
+                                    </span>
+                                    {driverAddress}
+                                  </span>
+
+                                  <span className=" block">
+                                    {" "}
+                                    <span className="block font-semibold text-slate-600">
+                                      Fulfillment Details
+                                    </span>
+                                    {driverDescription === ""
+                                      ? "Not filled out"
+                                      : driverDescription}
+                                  </span>
+                                </div>
+                              </RouteMarker>
+                            );
+                          // return (
+                          //   <RouteMarker
+                          //     key={index}
+                          //     variant="stop"
+                          //     id={index}
+                          //     position={[stop?.location[1], stop?.location[0]]}
+                          //     color={route?.vehicle}
+                          //   >
+                          //     <div className="flex flex-col space-y-2">
+                          //       <span className="block text-base font-bold capitalize ">
+                          //         {name ?? "Fulfillment "}
+                          //       </span>
+                          //       <span className="block">
+                          //         {" "}
+                          //         <span className="block font-semibold text-slate-600">
+                          //           Fulfillment Location
+                          //         </span>
+                          //         {address}
+                          //       </span>
+
+                          //       <span className=" block">
+                          //         {" "}
+                          //         <span className="block font-semibold text-slate-600">
+                          //           Fulfillment Details
+                          //         </span>
+                          //         {description === ""
+                          //           ? "Not filled out"
+                          //           : description}
+                          //       </span>
+                          //     </div>
+                          //   </RouteMarker>
+                          // );
                         })}{" "}
                     <GeoJSON
                       data={
-                        convertToGeoJson(route?.geometry, idx) as GeoJsonData
+                        convertToGeoJson(
+                          route?.geometry,
+                          route?.vehicle
+                        ) as GeoJsonData
                       }
                       style={getStyle}
                     />

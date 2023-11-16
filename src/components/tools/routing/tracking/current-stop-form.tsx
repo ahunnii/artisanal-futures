@@ -27,27 +27,27 @@ const notificationsFormSchema = z.object({
     })
     .optional(),
 
-  deliveryNotes: z.string(),
+  deliveryNotes: z.string().optional(),
 });
 
-type NotificationsFormValues = z.infer<typeof notificationsFormSchema>;
+export type EditStopFormValues = z.infer<typeof notificationsFormSchema>;
 
 // This can come from your database or API.
-const defaultValues: Partial<NotificationsFormValues> = {
+const defaultValues: Partial<EditStopFormValues> = {
   status: "pending",
 };
 
 export function CurrentStopForm({
   callback,
 }: {
-  callback: (data: NotificationsFormValues) => void;
+  callback: (data: EditStopFormValues) => void;
 }) {
-  const form = useForm<NotificationsFormValues>({
+  const form = useForm<EditStopFormValues>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues,
   });
 
-  function onSubmit(data: NotificationsFormValues) {
+  function onSubmit(data: EditStopFormValues) {
     toast({
       title: "You submitted the following values:",
       description: (
@@ -73,7 +73,7 @@ export function CurrentStopForm({
             <FormItem className="space-y-1">
               <FormLabel>Status</FormLabel>
               <FormDescription>
-                Select the theme for the dashboard.
+                Select the status for this stop.
               </FormDescription>
               <FormMessage />
               <RadioGroup

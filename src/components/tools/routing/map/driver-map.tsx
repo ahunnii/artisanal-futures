@@ -10,19 +10,23 @@ import { Circle, GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
+import { getCurrentLocation } from "~/utils/routing/realtime-utils";
 import type { GeoJsonData, Polyline, StepData } from "../types";
 import RouteMarker from "./route-marker";
 
 interface IProps {
+  vehicleId: number;
   steps: StepData[];
   geometry: string;
   focusedStop: StepData | null;
 }
 
-const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
+const TempMap: FC<IProps> = ({ steps, vehicleId, geometry, focusedStop }) => {
   const mapRef = useRef<Map>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
-  const [currentLocation, setCurrentLocation] = useState({
+  const [currentLocation, setCurrentLocation] = useState<
+    Partial<GeolocationCoordinates>
+  >({
     latitude: 0,
     longitude: 0,
     accuracy: 0,
@@ -56,8 +60,7 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
   }, [bounds]);
 
   useEffect(() => {
-    // if (!currentLocation && mapRef.current) {
-    getCurrentLocation();
+    getCurrentLocation(setCurrentLocation);
   }, []);
 
   const geoJson = useMemo(() => {
@@ -70,12 +73,12 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
           type: "Feature",
           geometry: {
             ...temp,
-            properties: { color: 3 },
+            properties: { color: vehicleId },
           },
         },
       ],
     };
-  }, [geometry]);
+  }, [geometry, vehicleId]);
 
   useEffect(() => {
     if (focusedStop && mapRef.current) {
@@ -85,18 +88,6 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
       );
     }
   }, [focusedStop, mapRef]);
-
-  const getCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      console.log("Your browser doesn't support the geolocation feature!");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      const { latitude, longitude, accuracy } = position.coords;
-      setCurrentLocation({ latitude, longitude, accuracy });
-    });
-  };
 
   return (
     <MapContainer
@@ -124,15 +115,15 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
         <RouteMarker
           id={0}
           variant="currentPosition"
-          position={[currentLocation?.latitude, currentLocation?.longitude]}
+          position={[currentLocation.latitude!, currentLocation.longitude!]}
           color={3}
         >
           Current Location
           <Circle
             center={
               [
-                currentLocation?.latitude,
-                currentLocation?.longitude,
+                currentLocation.latitude!,
+                currentLocation.longitude!,
               ] as LatLngExpression
             }
             radius={currentLocation?.accuracy}
@@ -166,11 +157,11 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
                       number
                     ]
                   }
-                  color={3}
+                  color={vehicleId}
                 >
                   <div className="flex flex-col space-y-2">
                     <span className="block text-base font-bold  capitalize ">
-                      {fulfillmentClient ?? "Fullfillment Location "}
+                      {fulfillmentClient ?? "Fulfillment Location "}
                     </span>
                     <span className="block">
                       {" "}
@@ -204,7 +195,7 @@ const TempMap: FC<IProps> = ({ steps, geometry, focusedStop }) => {
                       number
                     ]
                   }
-                  color={3}
+                  color={vehicleId}
                 >
                   <div className="flex flex-col">
                     {/* <span>{vehicle?.name ?? "Driver"}</span>

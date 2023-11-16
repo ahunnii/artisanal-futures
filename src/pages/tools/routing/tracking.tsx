@@ -1,28 +1,13 @@
-import axios from "axios";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
-import Pusher from "pusher-js";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
-import StopDetails from "~/components/tools/routing/tracking/stop-details";
-import type {
-  PusherMessage,
-  PusherUserData,
-  RouteData,
-  StepData,
-} from "~/components/tools/routing/types";
+
+import type { ExpandedRouteData } from "~/components/tools/routing/types";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
+
 import {
   Card,
   CardContent,
@@ -31,10 +16,11 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { env } from "~/env.mjs";
-import RouteLayout from "~/layouts/route-layout";
 
-import { cn } from "~/utils/styles";
+import { useDepot } from "~/hooks/routing/use-depot";
+import useRealTime from "~/hooks/routing/use-realtime";
+import RouteLayout from "~/layouts/route-layout";
+import { fetchAllRoutes } from "~/utils/routing/supabase-utils";
 
 const LazyTrackingMap = dynamic(
   () => import("~/components/tools/routing/map/tracking-map"),
@@ -45,68 +31,24 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  const [activeUsers, setActiveUsers] = useState<PusherUserData[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { selectedRoute, routes, setRoutes, setSelectedRoute } = useDepot(
+    (state) => state
+  );
 
-  const [messages, setMessages] = useState<PusherMessage[]>([]);
-  const [currentRoutes, setCurrentRoutes] = useState<RouteData[]>([]);
-  const [selected, setSelected] = useState<StepData | null>(null);
-
-  const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
-
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
-      cluster: "us2",
-    });
-    const channel = pusher.subscribe("map");
-
-    channel.bind("update-locations", setActiveUsers);
-    channel.bind("update-messages", setMessages);
-
-    fetchAllRoutes();
-
-    return () => {
-      pusher.unsubscribe("map");
-    };
-  }, []);
-
-  const handleOnStopClick = useCallback((data: StepData | null) => {
-    setSelected(data);
-    setOpen(true);
-  }, []);
+  const { activeUsers, messages } = useRealTime();
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {
       const user = activeUsers.find((user) => user.route.vehicle === idx);
-      if (user) {
-        return true;
-      }
+      if (user) return true;
     }
     return false;
   };
 
-  const fetchAllRoutes = () => {
-    axios
-      .get("/api/fetch-routes")
-      .then(function (response) {
-        setCurrentRoutes(response.data.data as RouteData[]);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
+  useEffect(() => {
+    fetchAllRoutes(setRoutes);
+  }, [setRoutes]);
 
-  const handleOnArchive = (geometry: string) => {
-    setCurrentRoutes((prev) =>
-      prev.filter((route) => route.geometry !== geometry)
-    );
-  };
-
-  const handleOnRouteClick = (route: RouteData | null) => {
-    setSelectedRoute(route);
-  };
   return (
     <>
       <Head>
@@ -115,126 +57,87 @@ const TrackingPage = () => {
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
       <RouteLayout>
-        <section className="flex w-full flex-col">
-          <div className="">
-            <div className="flex items-center justify-between space-y-2">
-              <h2 className="text-3xl font-bold tracking-tight">Depot View</h2>
-              <div className="flex items-center space-x-2">
-                <div className="flex flex-col">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        disabled
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
-                        {selectedDate ? (
-                          format(selectedDate, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(e) => {
-                          setSelectedDate(e!);
-                        }}
-                        initialFocus
+        <section className="flex flex-1 flex-row border-2 ">
+          <section className="flex flex-col gap-4 p-4 lg:w-5/12 xl:w-3/12">
+            <h2 className="text-3xl font-bold tracking-tight">Depot View</h2>
+            <ScrollArea className=" h-3/5 w-full  rounded-md border p-4 ">
+              {" "}
+              {routes &&
+                routes.length > 0 &&
+                routes.map((route: ExpandedRouteData, idx: number) => {
+                  const steps = messages?.filter(
+                    (message) => message.routeId === route?.routeId
+                  );
+
+                  return (
+                    <Button
+                      onClick={() => setSelectedRoute(route)}
+                      variant={"ghost"}
+                      key={idx}
+                      className="  my-2 ml-auto  flex h-auto  w-full p-0 text-left"
+                    >
+                      <MinimalRouteCard
+                        data={route}
+                        className="w-full"
+                        isOnline={checkIfOnline(route.vehicle)}
+                        isTracking={true}
+                        textColor={route?.vehicle}
+                        messages={steps}
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                    </Button>
+                  );
+                })}{" "}
+            </ScrollArea>
+            <ScrollArea className="h-2/5 w-full flex-1 rounded-md border p-4">
+              <h3>Incoming Messages from Drivers</h3>
 
-                <Button disabled>View Routes</Button>
-              </div>
-            </div>
-          </div>
+              {messages &&
+                messages.length > 0 &&
+                messages.map((message, idx) => {
+                  return (
+                    <Card key={idx}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center justify-between gap-4">
+                          {message.name}
 
-          <div className="relative flex h-full flex-col overflow-y-hidden ">
-            <div className=" h-full rounded-xl  p-3">
-              <div className="flex h-full flex-col-reverse gap-4 md:flex-row">
-                <div className="flex  grow basis-2/6  flex-col lg:basis-1/6">
-                  <ScrollArea className="h-3/5 w-full rounded-md border p-4">
-                    {" "}
-                    {currentRoutes &&
-                      currentRoutes.length > 0 &&
-                      currentRoutes.map((route: RouteData, idx: number) => (
-                        <div key={idx}>
-                          <MinimalRouteCard
-                            data={route}
-                            className="w-full"
-                            handleOnStopClick={handleOnStopClick}
-                            // handleOnRouteClick={handleOnRouteClick}
-                            // handleOnArchive={handleOnArchive}
-                            isOnline={checkIfOnline(route.vehicle)}
-                            isTracking={true}
-                            textColor={idx}
-                          />
+                          <Badge>{message.status}</Badge>
+                        </CardTitle>
+                        <CardDescription>{message.address}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="grid gap-1">
+                        <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              Message
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {message.deliveryNotes} {message?.routeId}
+                            </p>
+                          </div>
                         </div>
-                      ))}{" "}
-                  </ScrollArea>
-                  <ScrollArea className="h-2/5 w-full rounded-md border p-4">
-                    <h3>Incoming Messages from Drivers</h3>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </ScrollArea>
 
-                    {messages &&
-                      messages.length > 0 &&
-                      messages.map((message, idx) => {
-                        return (
-                          <Card key={idx}>
-                            <CardHeader className="pb-3">
-                              <CardTitle className="flex items-center justify-between gap-4">
-                                {message.name}
+            {/* <Button>Adjust Routes</Button> */}
 
-                                <Badge>{message.status}</Badge>
-                              </CardTitle>
-                              <CardDescription>
-                                {message.address}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid gap-1">
-                              <div className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground">
-                                <div className="space-y-1">
-                                  <p className="text-sm font-medium leading-none">
-                                    Message
-                                  </p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {message.deliveryNotes}
-                                  </p>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                  </ScrollArea>
-
-                  {/* <Button>Adjust Routes</Button> */}
-
-                  {selected && (
+            {/* {selected && (
                     <StopDetails
-                      stop={selected}
                       open={open}
                       setOpen={setOpen}
+                      routeData={selected}
                     />
-                  )}
-                </div>
-                <div className="relative z-0 flex aspect-square  grow basis-4/6 flex-col lg:aspect-auto lg:basis-7/12 xl:basis-9/12 2xl:basis-9/12">
-                  <LazyTrackingMap
-                    activeUsers={activeUsers}
-                    currentRoutes={currentRoutes}
-                    selectedRoute={selectedRoute}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+                  )} */}
+          </section>
+          <section className="z-0 flex w-full flex-col lg:w-7/12 xl:w-9/12">
+            <LazyTrackingMap
+              activeUsers={activeUsers}
+              currentRoutes={routes}
+              selectedRoute={selectedRoute}
+            />
+          </section>
         </section>
       </RouteLayout>
     </>
