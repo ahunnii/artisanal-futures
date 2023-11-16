@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 
 import { useEffect } from "react";
+import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
 import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
 
 import type { ExpandedRouteData } from "~/components/tools/routing/types";
@@ -15,12 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import PageLoader from "~/components/ui/page-loader";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useDepot } from "~/hooks/routing/use-depot";
 import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
 import { fetchAllRoutes } from "~/utils/routing/supabase-utils";
+import { cn } from "~/utils/styles";
 
 const LazyTrackingMap = dynamic(
   () => import("~/components/tools/routing/map/tracking-map"),
@@ -57,11 +60,20 @@ const TrackingPage = () => {
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
       <RouteLayout>
-        <section className="flex flex-1 flex-row border-2 ">
-          <section className="flex flex-col gap-4 p-4 lg:w-5/12 xl:w-3/12">
+        <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
+          <section className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
             <h2 className="text-3xl font-bold tracking-tight">Depot View</h2>
-            <ScrollArea className=" h-3/5 w-full  rounded-md border p-4 ">
+            <ScrollArea className={cn(" h-3/5 w-full  rounded-md border p-4 ")}>
               {" "}
+              {(!routes || routes.length == 0) && (
+                <div className="">
+                  {" "}
+                  <div className=" flex p-5 ">
+                    <LoadingIndicator />{" "}
+                    <p className="font-semibold"> Fetching routes...</p>
+                  </div>
+                </div>
+              )}
               {routes &&
                 routes.length > 0 &&
                 routes.map((route: ExpandedRouteData, idx: number) => {
@@ -89,7 +101,20 @@ const TrackingPage = () => {
                 })}{" "}
             </ScrollArea>
             <ScrollArea className="h-2/5 w-full flex-1 rounded-md border p-4">
-              <h3>Incoming Messages from Drivers</h3>
+              <h3 className="text-lg font-medium">
+                Incoming Messages from Drivers
+              </h3>
+
+              {messages.length == 0 && (
+                <div className="">
+                  {" "}
+                  <div className=" flex py-5 ">
+                    <p className="font-normal">
+                      No messages have been sent this session
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {messages &&
                 messages.length > 0 &&
@@ -131,7 +156,7 @@ const TrackingPage = () => {
                     />
                   )} */}
           </section>
-          <section className="z-0 flex w-full flex-col lg:w-7/12 xl:w-9/12">
+          <section className="z-0 flex w-full flex-col  max-lg:grow lg:w-7/12 xl:w-9/12">
             <LazyTrackingMap
               activeUsers={activeUsers}
               currentRoutes={routes}
