@@ -1,11 +1,11 @@
 export const TOOLS_DATA = [
-  {
-    title: "Shop Rate",
-    subtitle: "Calculates per hour cost of your shop",
-    type: "Finance",
-    image: "img/shop_rate.png",
-    url: "/tools/shop-rate-calculator",
-  },
+  // {
+  //   title: "Shop Rate",
+  //   subtitle: "Calculates per hour cost of your shop",
+  //   type: "Finance",
+  //   image: "img/shop_rate.png",
+  //   url: "/tools/shop-rate-calculator",
+  // },
   {
     title: "Optimize Routing",
     subtitle: "Optimize your delivery route",
@@ -14,13 +14,13 @@ export const TOOLS_DATA = [
     url: "/tools/routing",
   },
 
-  {
-    title: "Craft Recomposition",
-    subtitle: "Break down an image into its bill of materials",
-    type: "Logistics",
-    image: "img/craft_composition.png",
-    url: "/tools/craft-recomposition",
-  },
+  // {
+  //   title: "Craft Recomposition",
+  //   subtitle: "Break down an image into its bill of materials",
+  //   type: "Logistics",
+  //   image: "img/craft_composition.png",
+  //   url: "/tools/craft-recomposition",
+  // },
 
   {
     title: "Neural Style Transfer",
