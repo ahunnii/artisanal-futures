@@ -101,7 +101,7 @@ model Shop {
   id          String   @id @default(cuid())
   shopName    String
   ownerName   String
-  bio         String?
+  bio         String?   @db.LongText
   description String?
   ownerPhoto  String?
   logoPhoto   String?

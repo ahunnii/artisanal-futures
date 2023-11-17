@@ -17,12 +17,13 @@ const ShopCard: FC<IProps> = ({
   logoPhoto,
   bio,
   className,
+  ownerPhoto,
 }) => {
   return (
     <div className={cn("", className)}>
       <div className="w-full rounded bg-slate-50 p-4 shadow">
         <div className="relative aspect-square w-full">
-          <BlurImage src={logoPhoto ?? ""} alt="" />
+          <BlurImage src={ownerPhoto! ?? logoPhoto! ?? ""} alt="" />
         </div>
 
         <div className="flex w-full items-center justify-between">
@@ -32,7 +33,7 @@ const ShopCard: FC<IProps> = ({
           </div>
 
           <div className="flex  gap-2">
-            {/* {bio && logoPhoto && (
+            {bio && logoPhoto && (
               <a
                 className="block rounded bg-slate-400 p-2 text-white"
                 href={`/shops/${id}`}
@@ -40,7 +41,7 @@ const ShopCard: FC<IProps> = ({
                 <span className="sr-only">Head to artisan profile</span>
                 <User />
               </a>
-            )} */}
+            )}
 
             {website && (
               <a

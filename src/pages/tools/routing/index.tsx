@@ -31,8 +31,8 @@ const LazyRoutingMap = dynamic(
 const RoutingPage = () => {
   const [tabValue, setTabValue] = useState("plan");
 
-  const { locations, activeLocation } = useStops((state) => state);
-  const { drivers, activeDriver } = useDrivers((state) => state);
+  const { locations } = useStops((state) => state);
+  const { drivers } = useDrivers((state) => state);
 
   const { getRoutes } = useRouteOptimization();
 

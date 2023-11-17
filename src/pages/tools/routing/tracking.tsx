@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import PageLoader from "~/components/ui/page-loader";
+
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useDepot } from "~/hooks/routing/use-depot";

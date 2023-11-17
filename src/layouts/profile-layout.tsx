@@ -32,7 +32,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
       shop
         ? {
             title: "Shops",
-            href: `/profile/shop/${params?.shopId as string}`,
+            href: `/profile/shop/${shop?.id}`,
           }
         : {
             title: "Shops",
@@ -43,7 +43,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         href: "/profile/survey",
       },
     ];
-  }, [shop, params?.shopId]);
+  }, [shop]);
 
   return (
     <>
@@ -64,15 +64,19 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
                     Settings
                   </h2>
                   <p className="text-muted-foreground">
-                    Manage your account settings and set e-mail preferences.
+                    Manage your account settings , shop settings, and update
+                    preferences.
                   </p>
                 </div>
 
-                <div className="flex flex-col space-y-1">
-                  {" "}
-                  <Label>Switch Current Shop:</Label>
-                  {shops && shops.length > 0 && <ShopSwitcher items={shops} />}
-                </div>
+                {sessionData?.user?.role === "ADMIN" && (
+                  <div className="flex flex-col space-y-1">
+                    <Label>Switch Current Shop:</Label>
+                    {shops && shops.length > 0 && (
+                      <ShopSwitcher items={shops} />
+                    )}
+                  </div>
+                )}
               </div>
               <Separator className="my-6" />
               <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
