@@ -29,11 +29,11 @@ import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import { parseDataFromDriver } from "~/utils/routing/data-formatting";
-import type { Coordinates, Driver } from "../types";
+import type { Coordinates } from "../types";
 
 type Library = "places";
-
 const libraries: Library[] = ["places"];
+
 const driverFormSchema = z.object({
   id: z.number(),
   name: z
@@ -77,16 +77,13 @@ const driverFormSchema = z.object({
     longitude: z.number(),
   }),
 });
-
 type DriverFormValues = z.infer<typeof driverFormSchema>;
 
-// This can come from your database or API.
+type TDriverForm = {
+  handleOnOpenChange: (data: boolean) => void;
+};
 
-interface IProps {
-  callback: () => void;
-}
-
-export const DriverForm: FC<IProps> = ({ callback }) => {
+export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
   const { appendDriver, updateDriver, activeDriver, drivers, setDrivers } =
     useDrivers((state) => state);
 
@@ -97,11 +94,8 @@ export const DriverForm: FC<IProps> = ({ callback }) => {
     breaks,
     maxTravel,
     maxStops,
-
     latitude,
     longitude,
-    email,
-    details,
   } = useMemo(() => parseDataFromDriver(activeDriver), [activeDriver]);
 
   const defaultValues: Partial<DriverFormValues> = {
@@ -139,7 +133,7 @@ export const DriverForm: FC<IProps> = ({ callback }) => {
       ),
     });
 
-    callback();
+    handleOnOpenChange(false);
   }
 
   const { isLoaded } = useJsApiLoader({
@@ -156,7 +150,7 @@ export const DriverForm: FC<IProps> = ({ callback }) => {
   const onDelete = () => {
     const temp = drivers.filter((loc) => loc.id !== activeDriver?.id);
     setDrivers(temp);
-    callback();
+    handleOnOpenChange(false);
   };
 
   return (
@@ -490,7 +484,7 @@ export const DriverForm: FC<IProps> = ({ callback }) => {
             Delete
           </Button>
           <Button type="submit" className="flex-1">
-            {activeDriver ? "Update" : "Add"} stop
+            {activeDriver ? "Update" : "Add"} driver
           </Button>
         </div>
       </form>

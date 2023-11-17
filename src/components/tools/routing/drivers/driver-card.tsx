@@ -8,46 +8,34 @@ import { parseDataFromDriver } from "~/utils/routing/data-formatting";
 import { cn } from "~/utils/styles";
 import type { Driver } from "../types";
 
-interface IProps extends React.HTMLAttributes<HTMLDivElement> {
+type TDriverCard = {
   driver: Driver;
-}
+};
 
-/**
- * Card component that displays a driver's information.
- * @param driver The driver to display.
- * @param onEdit Callback function to handle when the user clicks the edit button.
- */
-
-const DriverMinimalCard: FC<IProps> = ({ driver, className }) => {
-  const { onOpen, setIsViewOnly } = useDriverSheet();
+const DriverCard: FC<TDriverCard> = ({ driver }) => {
+  const { onOpen } = useDriverSheet();
   const { setActiveDriver, activeDriver } = useDrivers((state) => state);
+  const { name } = useMemo(() => parseDataFromDriver(driver), [driver]);
 
   const onEdit = () => {
     setActiveDriver(driver);
     onOpen();
-    setIsViewOnly(false);
   };
 
-  const setCurrentDriver = () => onEdit();
-
-  const { name } = useMemo(() => parseDataFromDriver(driver), [driver]);
+  const isActive = activeDriver?.id === driver.id;
 
   return (
     <div
       className={cn(
         "flex w-full items-center justify-between p-3 text-left font-medium shadow odd:bg-slate-300/50 even:bg-slate-100 hover:ring-1 hover:ring-slate-800/30",
-        activeDriver?.id === driver.id &&
-          "odd:bg-indigo-300/50 even:bg-indigo-100",
-        className
+        isActive && "odd:bg-indigo-300/50 even:bg-indigo-100"
       )}
     >
-      <span className="group w-10/12 cursor-pointer" onClick={setCurrentDriver}>
+      <span className="group w-10/12 cursor-pointer" onClick={onEdit}>
         <h2
           className={cn(
             "text-sm font-bold capitalize ",
-            activeDriver?.id === driver.id
-              ? "text-indigo-800 "
-              : "text-slate-800 "
+            isActive ? "text-indigo-800 " : "text-slate-800 "
           )}
         >
           {name}
@@ -58,4 +46,4 @@ const DriverMinimalCard: FC<IProps> = ({ driver, className }) => {
   );
 };
 
-export default DriverMinimalCard;
+export default DriverCard;
