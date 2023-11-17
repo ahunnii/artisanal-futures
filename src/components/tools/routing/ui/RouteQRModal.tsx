@@ -17,6 +17,7 @@ import {
   DialogTrigger,
   Dialog as ShadDialog,
 } from "~/components/ui/dialog";
+import LoadingIndicator from "../solutions/loading-indicator";
 import type { RouteData } from "../types";
 import RouteQRCode from "./RouteQRCode";
 interface IProps {
@@ -429,6 +430,7 @@ export const DynamicRouteQRModal = ({ data }: IProps) => {
           </DialogHeader>{" "}
           <div className="mt-2 h-full w-full">
             {fileID && <RouteQRCode url={fileID} />}
+            {!fileID && <LoadingIndicator />}
           </div>{" "}
           <div className="py-5">
             <label className="block py-2 text-lg font-medium text-slate-700">

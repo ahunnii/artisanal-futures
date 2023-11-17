@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import React, { useCallback, useEffect, useState, type FC } from "react";
+import React, { useEffect, useState, type FC } from "react";
 
 import { supabase } from "~/server/supabase/client";
 

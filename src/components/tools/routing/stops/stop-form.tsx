@@ -39,6 +39,9 @@ import { useStops } from "~/hooks/routing/use-stops";
 import { parseDataFromStop } from "~/utils/routing/data-formatting";
 import type { Coordinates } from "../types";
 
+type Library = "places";
+const libraries: Library[] = ["places"];
+
 const stopFormSchema = z.object({
   id: z.number(),
   customer_name: z
@@ -71,20 +74,13 @@ const stopFormSchema = z.object({
   email: z.string().optional(),
   details: z.string().optional(),
 });
-
-type Library = "places";
-
-const libraries: Library[] = ["places"];
-
 type StopFormValues = z.infer<typeof stopFormSchema>;
 
-// This can come from your database or API.
+type TStopForm = {
+  handleOnOpenChange: (data: boolean) => void;
+};
 
-interface IProps {
-  callback: () => void;
-}
-
-export const StopForm: FC<IProps> = ({ callback }) => {
+export const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
   const {
     appendLocation,
     updateLocation,
@@ -140,7 +136,7 @@ export const StopForm: FC<IProps> = ({ callback }) => {
       ),
     });
 
-    callback();
+    handleOnOpenChange(false);
   }
 
   const { isLoaded } = useJsApiLoader({
@@ -157,7 +153,7 @@ export const StopForm: FC<IProps> = ({ callback }) => {
   const onDelete = () => {
     const temp = locations.filter((loc) => loc.id !== activeLocation?.id);
     setLocations(temp);
-    callback();
+    handleOnOpenChange(false);
   };
 
   return (

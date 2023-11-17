@@ -29,6 +29,7 @@ import L from "leaflet";
 import { map } from "lodash";
 import { getStyle } from "~/utils/routing/color-handling";
 import RouteMarker from "./route-marker";
+import StopPopup from "./stop-popup";
 
 interface TrackingMapProps {
   activeUsers: PusherUserData[];
@@ -180,12 +181,10 @@ const TrackingMap: FC<TrackingMapProps> = ({
                       route?.steps
                         ?.filter((step) => step.type !== "break")
                         .map((stop, index) => {
-                          const {
-                            name: fulfillmentClient,
-                            address: fulfillmentAddress,
-
-                            description: fulfillmentDescription,
-                          } = JSON.parse(stop.description ?? "{}");
+                          const position = [
+                            stop?.location?.[1] ?? 0,
+                            stop?.location?.[0] ?? 0,
+                          ] as [number, number];
 
                           if (stop.type === "job")
                             return (
@@ -194,37 +193,10 @@ const TrackingMap: FC<TrackingMapProps> = ({
                                 stopId={index}
                                 variant="stop"
                                 key={index}
-                                position={
-                                  [
-                                    stop?.location?.[1] ?? 0,
-                                    stop?.location?.[0] ?? 0,
-                                  ] as [number, number]
-                                }
+                                position={position}
                                 color={route?.vehicle}
                               >
-                                <div className="flex flex-col space-y-2">
-                                  <span className="block text-base font-bold  capitalize ">
-                                    {fulfillmentClient ??
-                                      "Fulfillment Location "}
-                                  </span>
-                                  <span className="block">
-                                    {" "}
-                                    <span className="block font-semibold text-slate-600">
-                                      Fulfillment Location
-                                    </span>
-                                    {fulfillmentAddress}
-                                  </span>
-
-                                  <span className=" block">
-                                    {" "}
-                                    <span className="block font-semibold text-slate-600">
-                                      Fulfillment Details
-                                    </span>
-                                    {fulfillmentDescription === ""
-                                      ? "Not filled out"
-                                      : fulfillmentDescription}
-                                  </span>
-                                </div>
+                                <StopPopup step={stop} />
                               </RouteMarker>
                             );
                           else
@@ -233,12 +205,7 @@ const TrackingMap: FC<TrackingMapProps> = ({
                                 id={stop?.id ?? 0}
                                 key={index}
                                 variant="car"
-                                position={
-                                  [
-                                    stop?.location?.[1] ?? 0,
-                                    stop?.location?.[0] ?? 0,
-                                  ] as [number, number]
-                                }
+                                position={position}
                                 color={route?.vehicle}
                               >
                                 <div className="flex flex-col space-y-2">

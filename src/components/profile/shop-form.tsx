@@ -16,6 +16,7 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -36,6 +37,7 @@ const formSchema = z.object({
   bio: z.string().optional(),
   description: z.string().optional(),
   logoPhoto: z.string().optional(),
+  ownerPhoto: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -68,6 +70,7 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       bio: initialData?.bio ?? "",
       description: initialData?.description ?? "",
       logoPhoto: initialData?.logoPhoto ?? "",
+      ownerPhoto: initialData?.ownerPhoto ?? "",
       address: initialData?.address ?? "",
       city: initialData?.city ?? "",
       state: initialData?.state ?? "",
@@ -86,6 +89,7 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       bio: initialData?.bio ?? "",
       description: initialData?.description ?? "",
       logoPhoto: initialData?.logoPhoto ?? "",
+      ownerPhoto: initialData?.ownerPhoto ?? "",
       address: initialData?.address ?? "",
       city: initialData?.city ?? "",
       state: initialData?.state ?? "",
@@ -236,6 +240,26 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
               render={({ field }) => (
                 <FormItem className="sm:col-span-3">
                   <FormLabel>Logo</FormLabel>
+                  <FormDescription>The logo for your shop</FormDescription>
+                  <FormControl>
+                    <LogoUpload
+                      value={field.value ?? ""}
+                      disabled={loading}
+                      onChange={(url) => field.onChange(url)}
+                      onRemove={() => field.onChange("")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="ownerPhoto"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-3">
+                  <FormLabel>Picture of Owner</FormLabel>
+                  <FormDescription>Shown on the shop pages</FormDescription>
                   <FormControl>
                     <LogoUpload
                       value={field.value ?? ""}

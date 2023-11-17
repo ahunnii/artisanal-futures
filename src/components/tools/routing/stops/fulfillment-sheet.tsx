@@ -1,10 +1,4 @@
-import { type FC } from "react";
-
-import { useSheet } from "~/hooks/routing/use-sheet";
-
-import type { Stop } from "../types";
-import { StopForm } from "./stop-form";
-
+import { StopForm } from "~/components/tools/routing/stops/stop-form";
 import {
   Sheet,
   SheetContent,
@@ -12,24 +6,27 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/components/ui/map-sheet";
+
+import { useSheet } from "~/hooks/routing/use-sheet";
 import { useStops } from "~/hooks/routing/use-stops";
 
-interface IProps {
-  stop?: Stop | null;
-}
-const FulfillmentSheet: FC<IProps> = () => {
-  const { isOpen, onClose, setIsOpen } = useSheet();
-  const { activeLocation } = useStops((state) => state);
+const FulfillmentSheet = () => {
+  const { isOpen, setIsOpen } = useSheet();
+  const { activeLocation, setActiveLocation } = useStops((state) => state);
+
+  const handleOnOpenChange = (state: boolean) => {
+    setActiveLocation(null);
+    setIsOpen(state);
+  };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side={"left"}
         className="flex w-full max-w-full flex-col  sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">
-            {" "}
             {activeLocation ? "Edit Stop" : "Add Stop"}
           </SheetTitle>
           <SheetDescription className="text-center md:text-left">
@@ -37,7 +34,7 @@ const FulfillmentSheet: FC<IProps> = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <StopForm callback={onClose} />
+        <StopForm handleOnOpenChange={handleOnOpenChange} />
       </SheetContent>
     </Sheet>
   );

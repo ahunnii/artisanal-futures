@@ -26,12 +26,7 @@ import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import { archiveRoute, fetchAllRoutes } from "~/utils/routing/supabase-utils";
 import { convertSecondsToTime } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
-import type {
-  ExpandedRouteData,
-  PusherMessage,
-  RouteData,
-  StepData,
-} from "../types";
+import type { ExpandedRouteData, PusherMessage, StepData } from "../types";
 import { DynamicRouteQRModal } from "../ui/RouteQRModal";
 import StepLineSegment from "./step-line-segment";
 
@@ -122,6 +117,9 @@ export function MinimalRouteCard({
     return temp === numberOfStops;
   }, [routeSteps, numberOfStops]);
 
+  const distance = convertMetersToMiles(data?.distance);
+  const colorText = getColor(textColor!).text;
+
   return (
     <>
       <Card
@@ -132,12 +130,7 @@ export function MinimalRouteCard({
         <CardHeader className="flex flex-row items-center justify-between py-1">
           <div>
             <CardTitle className="flex  flex-row items-center gap-4 text-base ">
-              <div
-                className={cn(
-                  "flex basis-2/3 font-bold",
-                  getColor(textColor!).text
-                )}
-              >
+              <div className={cn("flex basis-2/3 font-bold", colorText)}>
                 {driverName} {routeStatus && "✅"}
               </div>
               {isOnline && (
@@ -151,9 +144,9 @@ export function MinimalRouteCard({
               )}
             </CardTitle>
             <CardDescription>
-              {startTime} to {endTime} • {numberOfStops} stops •{" "}
-              {convertMetersToMiles(data?.distance)} miles
-            </CardDescription>{" "}
+              {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
+              miles
+            </CardDescription>
           </div>
           <ChevronRight className="text-slate-800 group-hover:bg-opacity-30" />
         </CardHeader>
@@ -162,15 +155,11 @@ export function MinimalRouteCard({
         <SheetContent className="flex flex-1 flex-col">
           <SheetHeader>
             <SheetTitle>
-              Route for
-              <span className={cn(getColor(textColor!).text)}>
-                {" "}
-                {driverName}
-              </span>
+              Route for <span className={cn(colorText)}>{driverName}</span>
             </SheetTitle>
             <SheetDescription>
-              {startTime} to {endTime} • {numberOfStops} stops •{" "}
-              {convertMetersToMiles(data?.distance)} miles
+              {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
+              miles
             </SheetDescription>
           </SheetHeader>{" "}
           <ScrollArea className="flex-1 bg-slate-50 shadow-inner">
