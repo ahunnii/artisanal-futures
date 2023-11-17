@@ -36,9 +36,7 @@ const StopsDynamicTab = () => {
       <ScrollArea className="flex-1 px-4">
         {locations?.length > 0 &&
           locations.map((listing, idx) => (
-            <>
-              <StopCard key={idx} stop={listing} />
-            </>
+            <StopCard key={idx} stop={listing} />
           ))}
       </ScrollArea>
     </>

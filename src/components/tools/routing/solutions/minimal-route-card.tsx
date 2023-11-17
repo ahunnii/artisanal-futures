@@ -155,8 +155,7 @@ export function MinimalRouteCard({
         <SheetContent className="flex flex-1 flex-col">
           <SheetHeader>
             <SheetTitle>
-              Route for
-              <span className={cn(colorText)}>{driverName}</span>
+              Route for <span className={cn(colorText)}>{driverName}</span>
             </SheetTitle>
             <SheetDescription>
               {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}

@@ -1,5 +1,7 @@
-import { CaretSortIcon } from "@radix-ui/react-icons";
 import { useState, type ComponentProps } from "react";
+
+import { CaretSortIcon } from "@radix-ui/react-icons";
+
 import type { OptimizationData } from "~/components/tools/routing/types";
 import { Button } from "~/components/ui/button";
 import {
@@ -15,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { Separator } from "~/components/ui/separator";
+
 import { useSheet } from "~/hooks/routing/use-sheet";
 import { useStops } from "~/hooks/routing/use-stops";
 
@@ -29,8 +32,16 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { setActiveLocationById } = useStops((state) => state);
   const { onOpen } = useSheet();
-  console.log(data);
 
+  const duration = convertSecondsToMinutesAndHours(
+    data?.summary?.duration
+  ).formatted;
+
+  const serviceTime = convertSecondsToMinutesAndHours(
+    data?.summary?.service
+  ).formatted;
+
+  const millage = convertMetersToMiles(data?.summary?.distance);
   return (
     <Card className={cn("w-full", className)} {...props}>
       <CardHeader>
@@ -43,34 +54,22 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
         <div className="grid grid-cols-3">
           <div className=" flex grow items-center rounded-md border p-4">
             <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {
-                  convertSecondsToMinutesAndHours(data?.summary?.duration)
-                    .formatted
-                }
-              </p>
+              <p className="text-sm font-medium leading-none">{duration}</p>
               <p className="text-sm text-muted-foreground">Travel Time</p>
             </div>
           </div>{" "}
           <div className=" flex grow items-center rounded-md border p-4">
             <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {
-                  convertSecondsToMinutesAndHours(data?.summary?.service)
-                    .formatted
-                }
-              </p>
+              <p className="text-sm font-medium leading-none">{serviceTime}</p>
               <p className="text-sm text-muted-foreground">Service Time</p>
             </div>
           </div>{" "}
           <div className=" flex grow items-center rounded-md border p-4">
             <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {convertMetersToMiles(data?.summary?.distance)}mi
-              </p>
+              <p className="text-sm font-medium leading-none">{millage}mi</p>
               <p className="text-sm text-muted-foreground">Distance Covered</p>
             </div>
-          </div>{" "}
+          </div>
         </div>
         <Separator />
         <div>
@@ -80,8 +79,7 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
           </CardDescription>
         </div>
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <CollapsibleTrigger>
-            {" "}
+          <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2">
               {isOpen ? "Hide" : "Show"} unassigned
               <CaretSortIcon className="h-4 w-4" />
@@ -90,16 +88,14 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="py-4">
-              {data?.unassigned.map((notification, index) => {
-                const { name, address } = JSON.parse(
-                  notification.description ?? "{}"
-                );
+              {data?.unassigned.map((stop, index) => {
+                const { name, address } = JSON.parse(stop.description ?? "{}");
                 return (
                   <div
                     key={index}
                     className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
                     onClick={() => {
-                      setActiveLocationById(notification.id);
+                      setActiveLocationById(stop.id);
                       onOpen();
                     }}
                   >
@@ -107,7 +103,7 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
                     <div className="space-y-0.5 text-left">
                       <p className="text-sm font-medium capitalize leading-none">
                         {name}
-                      </p>{" "}
+                      </p>
                       <p className="text-xs font-medium leading-none">
                         {address}
                       </p>
@@ -119,11 +115,6 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
           </CollapsibleContent>
         </Collapsible>
       </CardContent>
-      {/* <CardFooter>
-        <Button className="w-full">
-          <CheckIcon className="mr-2 h-4 w-4" /> Mark all as read
-        </Button>
-      </CardFooter> */}
     </Card>
   );
 }

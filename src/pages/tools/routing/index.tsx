@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
 import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
-import CalculationsDynamicTab from "~/components/tools/routing/solutions/calculations_tab";
+import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
 import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
 import StopsDynamicTab from "~/components/tools/routing/stops/stops-tab";
 import { Button } from "~/components/ui/button";
@@ -106,7 +106,7 @@ const RoutingPage = () => {
             </TabsContent>
             <TabsContent value="calculate" asChild>
               <>
-                <CalculationsDynamicTab />
+                <CalculationsTab />
                 <div className=" flex h-16 items-center justify-end bg-white p-4">
                   <Button
                     onClick={calculateOptimalPaths}
