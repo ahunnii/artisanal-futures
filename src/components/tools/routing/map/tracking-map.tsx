@@ -1,11 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { LatLngExpression, Map } from "leaflet";
+import type { Map } from "leaflet";
 
-import { useCallback, useEffect, useRef, type FC } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
-
-import { convertSecondsToTimeString } from "~/utils/routing/data-formatting";
 
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
@@ -16,166 +12,84 @@ import {
   LayerGroup as LeafletLayerGroup,
 } from "react-leaflet";
 
-import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import type {
-  GeoJsonData,
-  Polyline,
-  PusherUserData,
-  RouteData,
-} from "../types";
+import type { PusherUserData } from "../types";
 
-import polyline from "@mapbox/polyline";
-import L from "leaflet";
-import { map } from "lodash";
+import { useDepot } from "~/hooks/routing/use-depot";
+import useMap from "~/hooks/routing/use-map";
 import { getStyle } from "~/utils/routing/color-handling";
+import DepotPopup from "./depot-popup";
+import DriverPopup from "./driver-popup";
 import RouteMarker from "./route-marker";
 import StopPopup from "./stop-popup";
 
 interface TrackingMapProps {
   activeUsers: PusherUserData[];
-  currentRoutes: RouteData[];
-  selectedRoute: RouteData | null;
 }
-const TrackingMap: FC<TrackingMapProps> = ({
-  activeUsers,
-  currentRoutes,
-  selectedRoute,
-}) => {
-  const mapRef = useRef<Map>(null);
-  const tempRef = useRef<unknown>(null);
 
-  useEffect(() => {
-    if (mapRef.current && selectedRoute) {
-      const stepCoordinates = selectedRoute?.steps
-        ?.filter((step) => step.type !== "break")
-        .map(
-          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
-        );
+interface MapRef {
+  reactLeafletMap: Map | null;
+}
 
-      if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates);
+const TrackingMap = forwardRef<MapRef, TrackingMapProps>(
+  ({ activeUsers }, ref) => {
+    const mapRef = useRef<Map>(null);
 
-      mapRef.current.fitBounds(bounds);
-    }
-  }, [selectedRoute, mapRef]);
-
-  useEffect(() => {
-    if (mapRef.current && currentRoutes) {
-      const allSteps = currentRoutes.map((route) => route?.steps);
-      const stepCoordinates = allSteps
-        .flat(1)
-        ?.filter((step) => step.type !== "break")
-        .map(
-          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
-        );
-
-      if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates);
-
-      mapRef.current.fitBounds(bounds);
-    }
-  }, [currentRoutes, mapRef]);
-
-  const convertToGeoJson = useCallback((geometry: string, color: number) => {
-    const temp = polyline.toGeoJSON(geometry) as Polyline;
-
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            ...temp,
-            properties: { color },
-          },
-        },
-      ],
+    const params = {
+      mapRef: mapRef.current!,
+      trackingEnabled: true,
     };
-  }, []);
 
-  return (
-    <MapContainer
-      ref={mapRef}
-      center={[42.331429, -83.045753]}
-      zoom={12}
-      doubleClickZoom={false}
-      maxBounds={[
-        [40.70462625, -91.6624658],
-        [49.29755475, -80.8782742],
-      ]}
-      minZoom={6.5}
-      style={{
-        height: "100%",
-        width: "100%",
-        zIndex: -1,
-      }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-      />
+    const { routes } = useDepot((state) => state);
 
-      <LayersControl position="topright">
-        {" "}
-        <LayersControl.Overlay name="Drivers" checked>
-          <LeafletLayerGroup>
-            {activeUsers?.length &&
-              activeUsers.map((vehicle, idx) => {
-                const { name } = JSON.parse(
-                  vehicle?.route?.description ?? "{}"
-                );
+    const { convertToGeoJSON } = useMap(params);
 
-                const startTime = convertSecondsToTimeString(
-                  vehicle?.route?.steps?.[0]?.arrival ?? 0
-                );
-                const endTime = convertSecondsToTimeString(
-                  (vehicle?.route?.steps?.[0]?.arrival ?? 0) +
-                    vehicle?.route?.setup +
-                    vehicle?.route?.service +
-                    vehicle?.route?.waiting_time +
-                    vehicle?.route?.duration
-                );
-                const numberOfStops = vehicle?.route?.steps?.filter(
-                  (step) => step.type === "job"
-                ).length;
+    useImperativeHandle(ref, () => ({
+      reactLeafletMap: mapRef.current,
+    }));
 
-                return (
-                  <RouteMarker
-                    key={idx}
-                    variant="car"
-                    id={idx}
-                    position={[vehicle.latitude, vehicle.longitude]}
-                    color={idx}
-                  >
-                    <div className="flex flex-col space-y-2">
-                      <span className="block text-base font-bold capitalize">
-                        {name ?? "Driver "}
-                      </span>
-                      <span className="block">
-                        <span className="block font-semibold text-slate-600">
-                          Route Details
-                        </span>
-                        Start {startTime} • End {endTime} • {numberOfStops}{" "}
-                        stops • {convertMetersToMiles(vehicle?.route?.distance)}{" "}
-                        miles
-                      </span>
-                    </div>
-                  </RouteMarker>
-                );
-              })}{" "}
-          </LeafletLayerGroup>
-        </LayersControl.Overlay>{" "}
-        {currentRoutes?.length > 0 &&
-          currentRoutes.map((route, idx) => {
-            const {
-              name: driverName,
-              address: driverAddress,
-              description: driverDescription,
-            } = JSON.parse(route?.description ?? "{}");
+    return (
+      <MapContainer
+        ref={mapRef}
+        center={[42.331429, -83.045753]}
+        zoom={12}
+        doubleClickZoom={false}
+        maxBounds={[
+          [40.70462625, -91.6624658],
+          [49.29755475, -80.8782742],
+        ]}
+        minZoom={6.5}
+        style={{
+          height: "100%",
+          width: "100%",
+          zIndex: -1,
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+        />
+
+        <LayersControl position="topright">
+          <LayersControl.Overlay name="Drivers" checked>
+            <LeafletLayerGroup>
+              {activeUsers.map((vehicle, idx) => (
+                <RouteMarker
+                  key={idx}
+                  variant="car"
+                  id={idx}
+                  position={[vehicle.latitude, vehicle.longitude]}
+                  color={vehicle?.route?.vehicle}
+                >
+                  <DriverPopup route={vehicle?.route} />
+                </RouteMarker>
+              ))}
+            </LeafletLayerGroup>
+          </LayersControl.Overlay>
+          {routes.map((route, idx) => {
+            const { name } = JSON.parse(route?.description ?? "{}");
             return (
-              <LayersControl.Overlay name={driverName} checked key={idx}>
+              <LayersControl.Overlay name={name} checked key={idx}>
                 <LeafletLayerGroup>
-                  {" "}
                   <>
                     {route?.steps?.length &&
                       route?.steps
@@ -186,102 +100,33 @@ const TrackingMap: FC<TrackingMapProps> = ({
                             stop?.location?.[0] ?? 0,
                           ] as [number, number];
 
-                          if (stop.type === "job")
-                            return (
-                              <RouteMarker
-                                id={stop?.id ?? 0}
-                                stopId={index}
-                                variant="stop"
-                                key={index}
-                                position={position}
-                                color={route?.vehicle}
-                              >
+                          return (
+                            <RouteMarker
+                              id={stop?.id ?? 0}
+                              key={index}
+                              variant={stop.type === "job" ? "stop" : "depot"}
+                              position={position}
+                              color={route?.vehicle}
+                            >
+                              {stop.type === "job" ? (
                                 <StopPopup step={stop} />
-                              </RouteMarker>
-                            );
-                          else
-                            return (
-                              <RouteMarker
-                                id={stop?.id ?? 0}
-                                key={index}
-                                variant="car"
-                                position={position}
-                                color={route?.vehicle}
-                              >
-                                <div className="flex flex-col space-y-2">
-                                  <span className="block text-base font-bold capitalize ">
-                                    {driverName ?? "Driver "}
-                                  </span>
-                                  <span className="block">
-                                    {" "}
-                                    <span className="block font-semibold text-slate-600">
-                                      Roundtrip Location
-                                    </span>
-                                    {driverAddress}
-                                  </span>
-
-                                  <span className=" block">
-                                    {" "}
-                                    <span className="block font-semibold text-slate-600">
-                                      Fulfillment Details
-                                    </span>
-                                    {driverDescription === ""
-                                      ? "Not filled out"
-                                      : driverDescription}
-                                  </span>
-                                </div>
-                              </RouteMarker>
-                            );
-                          // return (
-                          //   <RouteMarker
-                          //     key={index}
-                          //     variant="stop"
-                          //     id={index}
-                          //     position={[stop?.location[1], stop?.location[0]]}
-                          //     color={route?.vehicle}
-                          //   >
-                          //     <div className="flex flex-col space-y-2">
-                          //       <span className="block text-base font-bold capitalize ">
-                          //         {name ?? "Fulfillment "}
-                          //       </span>
-                          //       <span className="block">
-                          //         {" "}
-                          //         <span className="block font-semibold text-slate-600">
-                          //           Fulfillment Location
-                          //         </span>
-                          //         {address}
-                          //       </span>
-
-                          //       <span className=" block">
-                          //         {" "}
-                          //         <span className="block font-semibold text-slate-600">
-                          //           Fulfillment Details
-                          //         </span>
-                          //         {description === ""
-                          //           ? "Not filled out"
-                          //           : description}
-                          //       </span>
-                          //     </div>
-                          //   </RouteMarker>
-                          // );
-                        })}{" "}
-                    <GeoJSON
-                      data={
-                        convertToGeoJson(
-                          route?.geometry,
-                          route?.vehicle
-                        ) as GeoJsonData
-                      }
-                      style={getStyle}
-                    />
+                              ) : (
+                                <DepotPopup route={route} />
+                              )}
+                            </RouteMarker>
+                          );
+                        })}
+                    <GeoJSON data={convertToGeoJSON(route)} style={getStyle} />
                   </>
                 </LeafletLayerGroup>
               </LayersControl.Overlay>
             );
           })}
-      </LayersControl>
-    </MapContainer>
-  );
-};
+        </LayersControl>
+      </MapContainer>
+    );
+  }
+);
+TrackingMap.displayName = "TrackingMap";
 
 export default TrackingMap;

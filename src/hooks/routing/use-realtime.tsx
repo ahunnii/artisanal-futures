@@ -4,10 +4,10 @@ import Pusher from "pusher-js";
 import { env } from "~/env.mjs";
 
 import { useEffect, useState } from "react";
-import {
+import type {
   PusherMessage,
   PusherUserData,
-  type RouteData,
+  RouteData,
 } from "~/components/tools/routing/types";
 import {
   removeCurrentLocation,

@@ -17,6 +17,7 @@ import {
   DialogTrigger,
   Dialog as ShadDialog,
 } from "~/components/ui/dialog";
+import { saveRoute } from "~/utils/routing/supabase-utils";
 import LoadingIndicator from "../solutions/loading-indicator";
 import type { RouteData } from "../types";
 import RouteQRCode from "./RouteQRCode";
@@ -34,58 +35,68 @@ const RouteQRModal = ({ data }: IProps) => {
   const closeModal = () => setIsOpen(false);
   const [value, setValue] = useState<string>();
 
+  const successCallback = (filename: string) => {
+    setFileID(filename);
+    setIsOpen(true);
+  };
+
+  const errorCallback = (error: string) => {
+    console.error("Error uploading files:", error);
+    setFileID("");
+    setIsOpen(false);
+  };
   const openModal = async () => {
-    if (data) {
-      // Take that name and shorten it to 50 characters, making sure that it it stays unique. data.geometry must always turn into this
-      const fileName = data.geometry
-        .replace(/[^a-z0-9]/gi, "_")
-        .toLowerCase()
-        .substring(0, 50);
+    if (!data) return;
+    await saveRoute(data, successCallback, errorCallback);
+    // Take that name and shorten it to 50 characters, making sure that it it stays unique. data.geometry must always turn into this
+    // const fileName = data.geometry
+    //   .replace(/[^a-z0-9]/gi, "_")
+    //   .toLowerCase()
+    //   .substring(0, 50);
 
-      const listData = await fetch("/api/routing").then((res) => res.json());
+    // const listData = await fetch("/api/routing").then((res) => res.json());
 
-      //Check if file name exists in listData
-      if (listData) {
-        const fileExists = listData.some(
-          (file: File) => file.name === `${fileName}.json`
-        );
-        if (!fileExists) {
-          await fetch("/api/routing", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              file: data,
-              fileName: fileName,
-            }),
-          })
-            .then((res) => res.json())
+    // //Check if file name exists in listData
+    // if (listData) {
+    //   const fileExists = listData.some(
+    //     (file: File) => file.name === `${fileName}.json`
+    //   );
+    //   if (!fileExists) {
+    //     await fetch("/api/routing", {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({
+    //         file: data,
+    //         fileName: fileName,
+    //       }),
+    //     })
+    //       .then((res) => res.json())
 
-            .then((data) => {
-              if (data.error) {
-                console.error("Error uploading files:", data.error as string);
-                setFileID("");
-                setIsOpen(false);
-                throw new Error(data.error as string);
-              }
+    //       .then((data) => {
+    //         if (data.error) {
+    //           console.error("Error uploading files:", data.error as string);
+    //           setFileID("");
+    //           setIsOpen(false);
+    //           throw new Error(data.error as string);
+    //         }
 
-              console.log("File uploaded successfully:", data.data);
-              setFileID(fileName);
-              setIsOpen(true);
-            })
-            .catch((error) => {
-              console.error("Error uploading files:", error);
-              setFileID("");
-              setIsOpen(false);
-            });
-        } else {
-          console.log("File already exists", `${fileName}.json`);
-          setFileID(fileName);
-          setIsOpen(true);
-        }
-      }
-    }
+    //         console.log("File uploaded successfully:", data.data);
+    //         setFileID(fileName);
+    //         setIsOpen(true);
+    //       })
+    //       .catch((error) => {
+    //         console.error("Error uploading files:", error);
+    //         setFileID("");
+    //         setIsOpen(false);
+    //       });
+    //   } else {
+    //     console.log("File already exists", `${fileName}.json`);
+    //     setFileID(fileName);
+    //     setIsOpen(true);
+    //   }
+    // }
   };
 
   // const sendLink = async () => {
@@ -280,59 +291,21 @@ export const DynamicRouteQRModal = ({ data }: IProps) => {
 
   const closeModal = () => setIsOpen(false);
   const [value, setValue] = useState<string>();
+  const successCallback = (filename: string) => {
+    console.log("yee");
+    setFileID(filename);
+    setIsOpen(true);
+  };
 
+  const errorCallback = (error: string) => {
+    console.error("Error uploading files:", error);
+    setFileID("");
+    setIsOpen(false);
+  };
   const openModal = async () => {
-    if (data) {
-      // Take that name and shorten it to 50 characters, making sure that it it stays unique. data.geometry must always turn into this
-      const fileName = data.geometry
-        .replace(/[^a-z0-9]/gi, "_")
-        .toLowerCase()
-        .substring(0, 50);
+    if (!data) return;
 
-      const listData = await fetch("/api/routing").then((res) => res.json());
-
-      //Check if file name exists in listData
-      if (listData) {
-        const fileExists = listData.some(
-          (file: File) => file.name === `${fileName}.json`
-        );
-        if (!fileExists) {
-          await fetch("/api/routing", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              file: data,
-              fileName: fileName,
-            }),
-          })
-            .then((res) => res.json())
-
-            .then((data) => {
-              if (data.error) {
-                console.error("Error uploading files:", data.error as string);
-                setFileID("");
-                setIsOpen(false);
-                throw new Error(data.error as string);
-              }
-
-              console.log("File uploaded successfully:", data.data);
-              setFileID(fileName);
-              setIsOpen(true);
-            })
-            .catch((error) => {
-              console.error("Error uploading files:", error);
-              setFileID("");
-              setIsOpen(false);
-            });
-        } else {
-          console.log("File already exists", `${fileName}.json`);
-          setFileID(fileName);
-          setIsOpen(true);
-        }
-      }
-    }
+    await saveRoute(data, successCallback, errorCallback);
   };
 
   // const sendLink = async () => {

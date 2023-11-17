@@ -110,9 +110,8 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
             {data?.geometry && stops && (
               <LazyDriverMap
                 steps={stops}
-                geometry={data?.geometry}
                 focusedStop={selectedStop}
-                vehicleId={data?.vehicle}
+                vehicle={data}
               />
             )}
           </div>

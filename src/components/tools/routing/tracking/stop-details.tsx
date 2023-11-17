@@ -32,12 +32,17 @@ const StopDetails: FC<IProps> = ({ open, setOpen, routeData }) => {
   const { route } = useParams();
   const contactDispatch = (data: EditStopFormValues) => {
     sendMessage(data, driverRoute, route as string, routeData).finally(() => {
-      setOpen(false);
+      handleOnOpenChange(false);
     });
   };
 
+  const handleOnOpenChange = (toggle: boolean) => {
+    driverRoute.setSelectedStop(null);
+    setOpen(toggle);
+  };
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOnOpenChange}>
       <SheetContent side={"bottom"}>
         <SheetHeader>
           <SheetTitle>{address}</SheetTitle>

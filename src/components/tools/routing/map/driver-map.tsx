@@ -1,7 +1,6 @@
-import polyline from "@mapbox/polyline";
-import type { LatLngBounds, Map } from "leaflet";
-import L, { type LatLngExpression } from "leaflet";
-import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import type { Map } from "leaflet";
+import { type LatLngExpression } from "leaflet";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { getStyle } from "~/utils/routing/color-handling";
 
@@ -10,84 +9,35 @@ import { Circle, GeoJSON, MapContainer, TileLayer } from "react-leaflet";
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
-import { getCurrentLocation } from "~/utils/routing/realtime-utils";
-import type { GeoJsonData, Polyline, StepData } from "../types";
+import useMap from "~/hooks/routing/use-map";
+
+import type { RouteData, StepData } from "../types";
+import DriverPopup from "./driver-popup";
 import RouteMarker from "./route-marker";
+import StopPopup from "./stop-popup";
 
 interface IProps {
-  vehicleId: number;
   steps: StepData[];
-  geometry: string;
+
   focusedStop: StepData | null;
+  vehicle: RouteData;
 }
-
-const TempMap: FC<IProps> = ({ steps, vehicleId, geometry, focusedStop }) => {
+interface MapRef {
+  reactLeafletMap: Map | null;
+}
+const TempMap = forwardRef<MapRef, IProps>(({ steps, vehicle }, ref) => {
   const mapRef = useRef<Map>(null);
-  const [bounds, setBounds] = useState<LatLngBounds | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<
-    Partial<GeolocationCoordinates>
-  >({
-    latitude: 0,
-    longitude: 0,
-    accuracy: 0,
-  });
 
-  useEffect(() => {
-    if (steps) {
-      const stepMap = steps
-        .filter((step: StepData) => step.type !== "break")
-        .map((step: StepData) => [
-          step?.location?.[1] ?? 0,
-          step?.location?.[0] ?? 0,
-        ]);
+  useImperativeHandle(ref, () => ({
+    reactLeafletMap: mapRef.current,
+  }));
 
-      const totalBounds = [
-        ...stepMap,
-        [currentLocation.latitude, currentLocation.longitude],
-      ];
-      const temp = L.latLngBounds(totalBounds as LatLngExpression[]);
-      setBounds(temp);
-    }
-  }, [steps, currentLocation]);
+  const params = {
+    mapRef: mapRef.current!,
+    driverEnabled: true,
+  };
 
-  //Recalculate the bounds of the current map
-  useEffect(() => {
-    if (bounds && mapRef.current) {
-      const increasedBounds = bounds.pad(0.15);
-      mapRef.current.fitBounds(increasedBounds);
-      mapRef.current.getBoundsZoom(increasedBounds);
-    }
-  }, [bounds]);
-
-  useEffect(() => {
-    getCurrentLocation(setCurrentLocation);
-  }, []);
-
-  const geoJson = useMemo(() => {
-    const temp = polyline.toGeoJSON(geometry) as Polyline;
-
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            ...temp,
-            properties: { color: vehicleId },
-          },
-        },
-      ],
-    };
-  }, [geometry, vehicleId]);
-
-  useEffect(() => {
-    if (focusedStop && mapRef.current) {
-      mapRef.current.flyTo(
-        [focusedStop.location[1], focusedStop.location[0]],
-        15
-      );
-    }
-  }, [focusedStop, mapRef]);
+  const { convertToGeoJSON, currentLocation } = useMap(params);
 
   return (
     <MapContainer
@@ -132,81 +82,37 @@ const TempMap: FC<IProps> = ({ steps, vehicleId, geometry, focusedStop }) => {
         </RouteMarker>
       )}
 
-      {steps &&
-        steps.length > 0 &&
-        steps
-          .filter((step: StepData) => step.type !== "break")
-          .map((step: StepData, index: number) => {
-            const {
-              name: fulfillmentClient,
-              address: fulfillmentAddress,
-
-              description: fulfillmentDescription,
-            } = JSON.parse(step.description ?? "{}");
-
-            if (step.type === "job")
-              return (
-                <RouteMarker
-                  id={step?.id ?? 0}
-                  stopId={index}
-                  variant="stop"
-                  key={index}
-                  position={
-                    [step?.location?.[1] ?? 0, step?.location?.[0] ?? 0] as [
-                      number,
-                      number
-                    ]
-                  }
-                  color={vehicleId}
-                >
-                  <div className="flex flex-col space-y-2">
-                    <span className="block text-base font-bold  capitalize ">
-                      {fulfillmentClient ?? "Fulfillment Location "}
-                    </span>
-                    <span className="block">
-                      {" "}
-                      <span className="block font-semibold text-slate-600">
-                        Fulfillment Location
-                      </span>
-                      {fulfillmentAddress}
-                    </span>
-
-                    <span className=" block">
-                      {" "}
-                      <span className="block font-semibold text-slate-600">
-                        Fulfillment Details
-                      </span>
-                      {fulfillmentDescription === ""
-                        ? "Not filled out"
-                        : fulfillmentDescription}
-                    </span>
-                  </div>
-                </RouteMarker>
-              );
-            else
-              return (
-                <RouteMarker
-                  id={step?.id ?? 0}
-                  key={index}
-                  variant="car"
-                  position={
-                    [step?.location?.[1] ?? 0, step?.location?.[0] ?? 0] as [
-                      number,
-                      number
-                    ]
-                  }
-                  color={vehicleId}
-                >
-                  <div className="flex flex-col">
-                    {/* <span>{vehicle?.name ?? "Driver"}</span>
-                  <span>{vehicle?.address ?? "Start and End Location"}</span> */}
-                  </div>
-                </RouteMarker>
-              );
-          })}
-      {<GeoJSON data={geoJson as GeoJsonData} style={getStyle} />}
+      {steps
+        ?.filter((step: StepData) => step.type !== "break")
+        .map((step: StepData, index: number) => (
+          <RouteMarker
+            id={step?.id ?? 0}
+            stopId={index}
+            variant={step.type === "job" ? "stop" : "car"}
+            key={index}
+            position={
+              [step?.location?.[1] ?? 0, step?.location?.[0] ?? 0] as [
+                number,
+                number
+              ]
+            }
+            color={vehicle.vehicle}
+          >
+            {step.type === "job" ? (
+              <StopPopup step={step} />
+            ) : (
+              <DriverPopup route={vehicle} />
+            )}
+          </RouteMarker>
+        ))}
+      {
+        <GeoJSON
+          data={convertToGeoJSON(null, vehicle.geometry, vehicle.vehicle)}
+          style={getStyle}
+        />
+      }
     </MapContainer>
   );
-};
-
+});
+TempMap.displayName = "TempMap";
 export default TempMap;

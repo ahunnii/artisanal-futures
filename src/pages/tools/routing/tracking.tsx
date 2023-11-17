@@ -7,7 +7,6 @@ import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-r
 
 import type { ExpandedRouteData } from "~/components/tools/routing/types";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 
 import {
   Card,
@@ -34,11 +33,13 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  const { selectedRoute, routes, setRoutes, setSelectedRoute } = useDepot(
-    (state) => state
-  );
+  const { routes, setRoutes } = useDepot((state) => state);
 
   const { activeUsers, messages } = useRealTime();
+
+  useEffect(() => {
+    fetchAllRoutes(setRoutes);
+  }, [setRoutes]);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {
@@ -47,10 +48,6 @@ const TrackingPage = () => {
     }
     return false;
   };
-
-  useEffect(() => {
-    fetchAllRoutes(setRoutes);
-  }, [setRoutes]);
 
   return (
     <>
@@ -87,21 +84,15 @@ const TrackingPage = () => {
                   );
 
                   return (
-                    <Button
-                      onClick={() => setSelectedRoute(route)}
-                      variant={"ghost"}
+                    <MinimalRouteCard
                       key={idx}
-                      className="  my-2 ml-auto  flex h-auto  w-full p-0 text-left"
-                    >
-                      <MinimalRouteCard
-                        data={route}
-                        className="w-full"
-                        isOnline={checkIfOnline(route.vehicle)}
-                        isTracking={true}
-                        textColor={route?.vehicle}
-                        messages={steps}
-                      />
-                    </Button>
+                      data={route}
+                      className="w-full"
+                      isOnline={checkIfOnline(route.vehicle)}
+                      isTracking={true}
+                      textColor={route?.vehicle}
+                      messages={steps}
+                    />
                   );
                 })}{" "}
             </ScrollArea>
@@ -150,23 +141,9 @@ const TrackingPage = () => {
                   );
                 })}
             </ScrollArea>
-
-            {/* <Button>Adjust Routes</Button> */}
-
-            {/* {selected && (
-                    <StopDetails
-                      open={open}
-                      setOpen={setOpen}
-                      routeData={selected}
-                    />
-                  )} */}
           </section>
           <section className="z-0 flex w-full flex-col  max-lg:grow lg:w-7/12 xl:w-9/12">
-            <LazyTrackingMap
-              activeUsers={activeUsers}
-              currentRoutes={routes}
-              selectedRoute={selectedRoute}
-            />
+            <LazyTrackingMap activeUsers={activeUsers} />
           </section>
         </section>
       </RouteLayout>

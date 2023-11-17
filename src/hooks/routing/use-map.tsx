@@ -1,0 +1,179 @@
+import polyline from "@mapbox/polyline";
+import L, { type LatLngExpression, type Map } from "leaflet";
+import { useCallback, useEffect, useState } from "react";
+import type {
+  Coordinates,
+  GeoJsonData,
+  Polyline,
+  RouteData,
+  StepData,
+  VroomResponse,
+} from "~/components/tools/routing/types";
+import { useDepot } from "./use-depot";
+import { useDrivers } from "./use-drivers";
+
+import { getCurrentLocation } from "~/utils/routing/realtime-utils";
+import { useDriverRoute } from "./use-driver-routes";
+import { useStops } from "./use-stops";
+
+type TUseMapProps = {
+  mapRef: Map;
+  currentLocation?: Partial<GeolocationCoordinates>;
+  trackingEnabled?: boolean;
+  driverEnabled?: boolean;
+};
+
+const useMap = ({
+  mapRef,
+  trackingEnabled = false,
+  driverEnabled = false,
+}: TUseMapProps) => {
+  const { selectedRoute, routes } = useDepot((state) => state);
+  const { drivers, activeDriver } = useDrivers((state) => state);
+  const { locations, activeLocation } = useStops((state) => state);
+  const { stops, setStops, selectedStop } = useDriverRoute((state) => state);
+
+  const [currentLocation, setCurrentLocation] = useState<
+    Partial<GeolocationCoordinates>
+  >({
+    latitude: 0,
+    longitude: 0,
+    accuracy: 0,
+  });
+
+  const flyTo = useCallback(
+    (coordinates: Coordinates, zoom: number) => {
+      console.log("pain");
+      mapRef.flyTo([coordinates.latitude, coordinates.longitude], zoom);
+    },
+    [mapRef]
+  );
+
+  const convertToGeoJSON = (
+    route?: RouteData | null,
+    geometry?: string,
+    color?: number
+  ) => {
+    const temp = polyline.toGeoJSON(route?.geometry ?? geometry!) as Polyline;
+    return {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            ...temp,
+            properties: { color: route?.vehicle ?? color! },
+          },
+        },
+      ],
+    } as GeoJsonData;
+  };
+
+  const convertSolutionToGeoJSON = (solution: VroomResponse) => {
+    return {
+      type: "FeatureCollection",
+      features: solution?.geometry.map((geometry: Polyline) => {
+        return {
+          type: "Feature",
+          geometry,
+        };
+      }),
+    };
+  };
+
+  useEffect(() => {
+    getCurrentLocation(setCurrentLocation);
+  }, [driverEnabled]);
+
+  //   Solutions to tracking map. Focuses on the selected route.
+  useEffect(() => {
+    if (selectedRoute && mapRef && trackingEnabled) {
+      const stepCoordinates = selectedRoute?.steps
+        ?.filter((step) => step.type !== "break")
+        .map(
+          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
+        );
+
+      if (stepCoordinates.length === 0) return;
+      const bounds = L.latLngBounds(stepCoordinates);
+
+      mapRef.fitBounds(bounds);
+    }
+  }, [selectedRoute, mapRef, trackingEnabled]);
+
+  useEffect(() => {
+    if (mapRef && routes && trackingEnabled) {
+      const allSteps = routes.map((route) => route?.steps);
+      const stepCoordinates = allSteps
+        .flat(1)
+        ?.filter((step) => step.type !== "break")
+        .map(
+          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
+        );
+
+      if (stepCoordinates.length === 0) return;
+      const bounds = L.latLngBounds(stepCoordinates);
+
+      mapRef.fitBounds(bounds);
+    }
+  }, [routes, mapRef, trackingEnabled]);
+
+  useEffect(() => {
+    if (activeDriver && mapRef) flyTo(activeDriver?.coordinates, 15);
+  }, [activeDriver, mapRef, flyTo]);
+
+  useEffect(() => {
+    if (activeLocation && mapRef) flyTo(activeLocation?.coordinates, 15);
+  }, [activeLocation, mapRef, flyTo]);
+
+  useEffect(() => {
+    if (
+      ((locations && locations.length > 0) ||
+        (drivers && drivers.length > 0)) &&
+      mapRef
+    ) {
+      const bounds = L.latLngBounds(
+        [...locations, ...drivers].map(
+          (location) =>
+            [
+              location?.coordinates?.latitude,
+              location?.coordinates?.longitude,
+            ] as LatLngExpression
+        )
+      );
+
+      mapRef.fitBounds(bounds);
+    }
+  }, [locations, drivers, mapRef]);
+
+  useEffect(() => {
+    if (mapRef && stops && driverEnabled) {
+      const stepMap = stops
+        .filter((step: StepData) => step.type !== "break")
+        .map((step: StepData) => [
+          step?.location?.[1] ?? 0,
+          step?.location?.[0] ?? 0,
+        ]);
+
+      const totalBounds = [
+        ...stepMap,
+        currentLocation
+          ? [currentLocation.latitude, currentLocation.longitude]
+          : [],
+      ];
+      const temp = L.latLngBounds(totalBounds as LatLngExpression[]).pad(0.15);
+      mapRef.fitBounds(temp);
+      mapRef.getBoundsZoom(temp);
+    }
+  }, [stops, mapRef, currentLocation, driverEnabled]);
+
+  useEffect(() => {
+    if (selectedStop && mapRef && driverEnabled) {
+      mapRef.flyTo([selectedStop.location[1], selectedStop.location[0]], 15);
+    }
+  }, [selectedStop, mapRef, driverEnabled]);
+
+  return { flyTo, convertToGeoJSON, convertSolutionToGeoJSON, currentLocation };
+};
+
+export default useMap;
