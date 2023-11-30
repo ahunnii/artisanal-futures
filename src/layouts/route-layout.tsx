@@ -2,11 +2,13 @@ import Navbar from "~/components/navbar";
 
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <main className="h-[calc(100vh - calc(100vh - 100%))] fixed flex w-full flex-col ">
+    <main className="fixed flex h-full w-full flex-col bg-orange-500">
       <Navbar />
-      <div className=" h-[calc(100vh - calc(100vh - 100%))] relative flex  flex-col-reverse  bg-slate-50  p-2 max-md:overflow-auto  md:flex-row lg:h-[calc(100vh-64px)]">
+      <div className="relative flex  flex-col-reverse  bg-slate-50  p-2 max-md:overflow-auto  md:flex-row lg:h-[calc(100vh-64px)]">
         {children}
       </div>
+
+      <p className="mt-auto">Artisanal Futures 2023</p>
     </main>
 
     // <main className="flex h-full flex-col">
