@@ -160,7 +160,7 @@ export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
         className=" flex  h-full flex-grow flex-col justify-between space-y-8"
       >
         <ScrollArea className="relative flex h-full max-h-[75vh] w-full flex-1 max-md:max-h-[60vh]">
-          <div className=" flex  flex-col  space-y-4">
+          <div className=" flex  w-full  flex-col space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -473,7 +473,7 @@ export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
             </div>
           </div>
         </ScrollArea>
-        <div className="mt-auto flex gap-4">
+        <div className="flex gap-4 lg:mt-auto">
           <Button
             type="button"
             className="flex gap-4"
