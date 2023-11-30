@@ -23,6 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import RouteLayout from "~/layouts/route-layout";
 
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useStops } from "~/hooks/routing/use-stops";
@@ -185,14 +186,14 @@ const RoutingPage = () => {
                   transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
                   className="fixed bottom-0 left-0 right-0 z-10 w-full rounded-t-3xl border-2 border-b-0 border-gray-50 bg-white shadow-[0px_-8px_20px_-6px_rgba(0,0,0,0.3)]"
                 >
-                  <div ref={bottomSheetRef} className="h-[60vh]  p-4">
+                  <div ref={bottomSheetRef} className="h-[60vh] p-4">
                     <div className="mb-2 flex justify-end">
                       <X className="w-6" onClick={() => setOpen(false)} />
                     </div>
-                    <div className="flex h-full flex-col space-y-3 overflow-auto">
+                    <ScrollArea className="h-96 gap-5 ">
                       <DriversDynamicTab />
                       <StopsDynamicTab />
-                    </div>
+                    </ScrollArea>
                   </div>
                 </motion.div>
               )}
@@ -204,29 +205,13 @@ const RoutingPage = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent
-                side={"left"}
-                className="flex w-full max-w-full flex-col  overflow-y-scroll sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
+                side={"bottom"}
+                className=" h-[60vh] rounded-t-3xl p-4"
               >
-                <SheetHeader>
-                  <SheetTitle className="text-left">Plan</SheetTitle>
-                </SheetHeader>{" "}
-                <>
+                <div className="relative flex h-full flex-col space-y-3 overflow-auto">
                   <DriversDynamicTab />
                   <StopsDynamicTab />
-                  <div className=" flex h-16 items-center justify-end bg-white p-4">
-                    {/* {" "}
-                    <Button
-                      onClick={() => {
-                        setTabValue("calculate");
-                        void getRoutes();
-                      }}
-                      className="gap-2"
-                      disabled={isRouteDataMissing}
-                    >
-                      Calculate Routes <ArrowRight />
-                    </Button> */}
-                  </div>
-                </>
+                </div>
               </SheetContent>
             </Sheet>
             <Sheet>
