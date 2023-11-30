@@ -70,7 +70,7 @@ const RoutingPage = () => {
       <DriverSheet />
 
       <RouteLayout>
-        <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
+        <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
           <Tabs
             defaultValue="plan"
             value={tabValue}
@@ -132,7 +132,7 @@ const RoutingPage = () => {
             </TabsContent>
           </Tabs>
 
-          <LazyRoutingMap className="lg:w-7/12 xl:w-9/12" />
+          <LazyRoutingMap className="max-md:aspect-video lg:w-7/12 xl:w-9/12" />
           <div className="flex lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
