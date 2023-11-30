@@ -160,17 +160,17 @@ export const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     <Form {...form}>
       <form
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-        className=" flex h-full flex-col justify-between space-y-8 bg-yellow-500 lg:flex-grow"
+        className=" flex h-full flex-col justify-between space-y-8 bg-yellow-500 lg:flex-grow "
       >
-        <ScrollArea className="relative flex h-full max-h-[75vh] w-full flex-1 bg-green-500 max-md:max-h-[60vh]">
-          <div className=" w-full space-y-4">
+        <ScrollArea className=" space-y-4  bg-green-500 p-4  max-md:max-h-[60vh]">
+          <div className="flex w-full flex-col ">
             <FormField
               control={form.control}
               name="customer_name"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="bg-red-400">
                   <FormLabel>Name</FormLabel>
-                  <FormControl>
+                  <FormControl className="bg-purple-400">
                     <Input placeholder="Your customer's name" {...field} />
                   </FormControl>
 
