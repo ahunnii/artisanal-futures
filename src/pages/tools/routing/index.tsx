@@ -186,11 +186,11 @@ const RoutingPage = () => {
                   transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
                   className="fixed bottom-0 left-0 right-0 z-10 w-full rounded-t-3xl border-2 border-b-0 border-gray-50 bg-white shadow-[0px_-8px_20px_-6px_rgba(0,0,0,0.3)]"
                 >
-                  <div ref={bottomSheetRef} className="h-[60vh] p-4">
+                  <div ref={bottomSheetRef} className="h-[75vh]  p-2">
                     <div className="mb-2 flex justify-end">
                       <X className="w-6" onClick={() => setOpen(false)} />
                     </div>
-                    <ScrollArea className="h-96 gap-5 ">
+                    <ScrollArea className="h-[calc(100%-64px)] gap-5 bg-orange-500 p-4">
                       <DriversDynamicTab />
                       <StopsDynamicTab />
                     </ScrollArea>
