@@ -23,7 +23,7 @@ const DriverSheet = () => {
     <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side={"left"}
-        className="flex  h-[100svh] w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
+        className="flex  h-screen w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">
