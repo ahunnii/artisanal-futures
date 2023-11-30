@@ -35,7 +35,6 @@ const FulfillmentSheet = () => {
         </SheetHeader>
 
         <StopForm handleOnOpenChange={handleOnOpenChange} />
-        <p>Test</p>
       </SheetContent>
     </Sheet>
   );
