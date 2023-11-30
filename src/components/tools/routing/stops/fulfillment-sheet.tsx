@@ -23,7 +23,7 @@ const FulfillmentSheet = () => {
     <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side={"left"}
-        className="radix-dialog-content flex w-full  max-w-full flex-col bg-orange-500 sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
+        className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">

@@ -23,6 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import RouteLayout from "~/layouts/route-layout";
 
+import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
@@ -55,23 +56,6 @@ const RoutingPage = () => {
     window.open("/tools/routing/tracking", "_blank");
 
   const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
-
-  const [open, setOpen] = useState<boolean>(false);
-  const bottomSheetRef = useRef(null);
-  function useOutsideAlerter(ref: any) {
-    useEffect(() => {
-      function handleClickOutside(event: MouseEvent) {
-        if (ref.current && !ref.current.contains(event.target)) {
-          setOpen(false);
-        }
-      }
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [ref]);
-  }
-  useOutsideAlerter(bottomSheetRef);
 
   return (
     <>
@@ -153,99 +137,19 @@ const RoutingPage = () => {
 
           <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
           <div className="flex lg:hidden">
-            {" "}
-            <>
-              <Button
-                onClick={() => setOpen(true)}
-                variant={"ghost"}
-                className="w-full"
-              >
-                Plan
-              </Button>
-            </>
-            <motion.div
-              animate={
-                open
-                  ? { opacity: 0.6, zIndex: 3 }
-                  : { opacity: 0, display: "none" }
-              }
-              initial={{ opacity: 0 }}
-              className="fixed bottom-0 left-0 right-0 top-0 h-full w-screen bg-black"
-            />
-            <AnimatePresence initial={false}>
-              {open && (
-                <motion.div
-                  key="content"
-                  initial="collapsed"
-                  animate="open"
-                  exit="collapsed"
-                  variants={{
-                    open: { y: 0, height: "auto" },
-                    collapsed: { y: "100%", height: 0 },
-                  }}
-                  transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-                  className="fixed bottom-0 left-0 right-0 z-10 w-full rounded-t-3xl border-2 border-b-0 border-gray-50 bg-white shadow-[0px_-8px_20px_-6px_rgba(0,0,0,0.3)]"
-                >
-                  <div ref={bottomSheetRef} className="h-[75vh]  p-2">
-                    <div className="mb-2 flex justify-end">
-                      <X className="w-6" onClick={() => setOpen(false)} />
-                    </div>
-                    <ScrollArea className="h-[calc(100%-64px)] gap-5 bg-orange-500 p-4">
-                      <DriversDynamicTab />
-                      <StopsDynamicTab />
-                    </ScrollArea>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant={"ghost"} className="w-full">
-                  Plan
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side={"bottom"}
-                className=" h-[60vh] rounded-t-3xl p-4"
-              >
-                <div className="relative flex h-full flex-col space-y-3 overflow-auto">
-                  <DriversDynamicTab />
-                  <StopsDynamicTab />
-                </div>
-              </SheetContent>
-            </Sheet>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  onClick={calculateOptimalPaths}
-                  className="gap-2"
-                  disabled={locations.length === 0 || drivers.length === 0}
-                  variant={"ghost"}
-                >
-                  Calculate
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side={"left"}
-                className="flex w-full max-w-full flex-col  overflow-y-scroll sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"
-              >
-                <SheetHeader>
-                  <SheetTitle>Calculate</SheetTitle>
-                </SheetHeader>{" "}
-                <>
-                  <CalculationsTab />
-                  <div className=" flex h-16 items-center justify-end bg-white p-4">
-                    {/* <Button
-                      onClick={calculateOptimalPaths}
-                      className="gap-2"
-                      disabled={locations.length === 0 || drivers.length === 0}
-                    >
-                      Calculate Routes <ArrowRight />
-                    </Button> */}
-                  </div>
-                </>
-              </SheetContent>
-            </Sheet>
+            <BottomSheet title="Plan">
+              <DriversDynamicTab />
+              <StopsDynamicTab />
+            </BottomSheet>
+
+            <BottomSheet
+              title="Calculate"
+              isDisabled={locations.length === 0 || drivers.length === 0}
+              handleOnClick={calculateOptimalPaths}
+            >
+              <CalculationsTab />
+            </BottomSheet>
+
             <Button
               className="w-full"
               variant={"ghost"}
