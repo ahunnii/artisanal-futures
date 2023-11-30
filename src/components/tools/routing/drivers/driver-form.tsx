@@ -157,9 +157,9 @@ export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
     <Form {...form}>
       <form
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-        className=" flex h-full flex-grow flex-col justify-between space-y-8"
+        className=" flex  flex-grow flex-col justify-between space-y-8"
       >
-        <ScrollArea className="relative flex h-full max-h-[80vh] w-full flex-1">
+        <ScrollArea className="relative flex h-full max-h-[75vh] w-full flex-1">
           <div className=" flex  flex-col  space-y-4">
             <FormField
               control={form.control}
