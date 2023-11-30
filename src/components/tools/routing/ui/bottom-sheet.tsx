@@ -83,7 +83,7 @@ const BottomSheet: FC<TProps> = ({
               <div className="mb-2 flex justify-end">
                 <X className="w-6" onClick={() => setOpen(false)} />
               </div>
-              <ScrollArea className="h-[calc(100%-64px)] gap-5 bg-orange-500 p-4">
+              <ScrollArea className="h-[calc(100%-64px)] gap-5 p-4">
                 {children}
               </ScrollArea>
             </div>

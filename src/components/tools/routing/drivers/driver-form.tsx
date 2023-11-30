@@ -473,7 +473,7 @@ export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
             </div>
           </div>
         </ScrollArea>
-        <div className="flex gap-4 lg:mt-auto">
+        <div className="mt-auto flex gap-4 ">
           <Button
             type="button"
             className="flex gap-4"
