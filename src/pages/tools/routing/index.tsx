@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 
+import { AnimatePresence, motion } from "framer-motion";
 import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
 import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
 import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
@@ -19,7 +21,6 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-
 import RouteLayout from "~/layouts/route-layout";
 
 import { useDrivers } from "~/hooks/routing/use-drivers";
@@ -53,6 +54,23 @@ const RoutingPage = () => {
     window.open("/tools/routing/tracking", "_blank");
 
   const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
+
+  const [open, setOpen] = useState<boolean>(false);
+  const bottomSheetRef = useRef(null);
+  function useOutsideAlerter(ref: any) {
+    useEffect(() => {
+      function handleClickOutside(event: MouseEvent) {
+        if (ref.current && !ref.current.contains(event.target)) {
+          setOpen(false);
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref]);
+  }
+  useOutsideAlerter(bottomSheetRef);
 
   return (
     <>
@@ -132,8 +150,53 @@ const RoutingPage = () => {
             </TabsContent>
           </Tabs>
 
-          <LazyRoutingMap className="max-md:aspect-video lg:w-7/12 xl:w-9/12" />
+          <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
           <div className="flex lg:hidden">
+            {" "}
+            <>
+              <Button
+                onClick={() => setOpen(true)}
+                variant={"ghost"}
+                className="w-full"
+              >
+                Plan
+              </Button>
+            </>
+            <motion.div
+              animate={
+                open
+                  ? { opacity: 0.6, zIndex: 3 }
+                  : { opacity: 0, display: "none" }
+              }
+              initial={{ opacity: 0 }}
+              className="fixed bottom-0 left-0 right-0 top-0 h-full w-screen bg-black"
+            />
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  key="content"
+                  initial="collapsed"
+                  animate="open"
+                  exit="collapsed"
+                  variants={{
+                    open: { y: 0, height: "auto" },
+                    collapsed: { y: "100%", height: 0 },
+                  }}
+                  transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  className="fixed bottom-0 left-0 right-0 z-10 w-full rounded-t-3xl border-2 border-b-0 border-gray-50 bg-white shadow-[0px_-8px_20px_-6px_rgba(0,0,0,0.3)]"
+                >
+                  <div ref={bottomSheetRef} className="h-[60vh]  p-4">
+                    <div className="mb-2 flex justify-end">
+                      <X className="w-6" onClick={() => setOpen(false)} />
+                    </div>
+                    <div className="flex h-full flex-col space-y-3 overflow-auto">
+                      <DriversDynamicTab />
+                      <StopsDynamicTab />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant={"ghost"} className="w-full">
@@ -151,7 +214,7 @@ const RoutingPage = () => {
                   <DriversDynamicTab />
                   <StopsDynamicTab />
                   <div className=" flex h-16 items-center justify-end bg-white p-4">
-                    {" "}
+                    {/* {" "}
                     <Button
                       onClick={() => {
                         setTabValue("calculate");
@@ -161,14 +224,19 @@ const RoutingPage = () => {
                       disabled={isRouteDataMissing}
                     >
                       Calculate Routes <ArrowRight />
-                    </Button>
+                    </Button> */}
                   </div>
                 </>
               </SheetContent>
             </Sheet>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant={"ghost"} className="w-full">
+                <Button
+                  onClick={calculateOptimalPaths}
+                  className="gap-2"
+                  disabled={locations.length === 0 || drivers.length === 0}
+                  variant={"ghost"}
+                >
                   Calculate
                 </Button>
               </SheetTrigger>
@@ -182,13 +250,13 @@ const RoutingPage = () => {
                 <>
                   <CalculationsTab />
                   <div className=" flex h-16 items-center justify-end bg-white p-4">
-                    <Button
+                    {/* <Button
                       onClick={calculateOptimalPaths}
                       className="gap-2"
                       disabled={locations.length === 0 || drivers.length === 0}
                     >
                       Calculate Routes <ArrowRight />
-                    </Button>
+                    </Button> */}
                   </div>
                 </>
               </SheetContent>
