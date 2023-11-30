@@ -69,7 +69,7 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
       </Head>
       <RouteLayout>
         <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
-          <div className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
+          <div className="flex w-full flex-col gap-4 max-lg:h-4/6 max-md:overflow-y-auto lg:w-5/12 xl:w-3/12">
             <>
               <Beforeunload
                 onBeforeunload={(event) => {

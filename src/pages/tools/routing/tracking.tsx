@@ -58,7 +58,7 @@ const TrackingPage = () => {
       </Head>
       <RouteLayout>
         <section className="flex flex-1  flex-col-reverse border-2 lg:flex-row">
-          <section className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
+          <section className="flex w-full flex-col gap-4 max-lg:h-4/6 max-md:overflow-y-auto lg:w-5/12 xl:w-3/12">
             <div className="p-4 ">
               <h2 className="text-3xl font-bold tracking-tight">
                 Dispatch Tracking

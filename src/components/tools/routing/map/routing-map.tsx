@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import {
+  Circle,
   GeoJSON,
   LayersControl,
   LayerGroup as LeafletLayerGroup,
@@ -43,6 +44,7 @@ import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useRoutingSolutions } from "~/hooks/routing/use-routing-solutions";
 import { useStops } from "~/hooks/routing/use-stops";
 
+import { Button } from "~/components/ui/button";
 import useMap from "~/hooks/routing/use-map";
 import { getStyle } from "~/utils/routing/color-handling";
 import { cn } from "~/utils/styles";
@@ -66,9 +68,11 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
 
   const params = {
     mapRef: mapRef.current!,
+    trackingEnabled: true,
   };
 
-  const { convertSolutionToGeoJSON } = useMap(params);
+  const { convertSolutionToGeoJSON, flyToCurrentLocation, currentLocation } =
+    useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
   const { drivers, addDriverByLatLng } = useDrivers((state) => state);
@@ -131,6 +135,34 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
+
+          <Button
+            className="absolute bottom-3 right-3 z-[1000]"
+            onClick={flyToCurrentLocation}
+          >
+            Center to Location
+          </Button>
+
+          {currentLocation && (
+            <RouteMarker
+              id={0}
+              variant="currentPosition"
+              position={[currentLocation.latitude!, currentLocation.longitude!]}
+              color={3}
+            >
+              Current Location
+              <Circle
+                center={
+                  [
+                    currentLocation.latitude!,
+                    currentLocation.longitude!,
+                  ] as LatLngExpression
+                }
+                radius={currentLocation?.accuracy}
+                color="blue"
+              />
+            </RouteMarker>
+          )}
           <LayersControl position="topright">
             <LayersControl.Overlay name="Drivers" checked>
               <LeafletLayerGroup>

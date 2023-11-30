@@ -63,7 +63,7 @@ const RoutingPage = () => {
             defaultValue="plan"
             value={tabValue}
             onValueChange={setTabValue}
-            className="flex w-full flex-col gap-4 max-lg:h-4/6 lg:w-5/12 xl:w-3/12"
+            className="flex w-full flex-col gap-4 max-lg:h-4/6 max-md:overflow-y-auto lg:w-5/12 xl:w-3/12"
           >
             <TabsList className=" flex ">
               <TabsTrigger value="plan" className="w-full">
@@ -91,6 +91,7 @@ const RoutingPage = () => {
                 <DriversDynamicTab />
                 <StopsDynamicTab />
                 <div className=" flex h-16 items-center justify-end bg-white p-4">
+                  {" "}
                   <Button
                     onClick={() => {
                       setTabValue("calculate");

@@ -81,6 +81,16 @@ const useMap = ({
     };
   };
 
+  const flyToCurrentLocation = () => {
+    if (currentLocation)
+      flyTo(
+        {
+          latitude: currentLocation.latitude!,
+          longitude: currentLocation.longitude!,
+        },
+        15
+      );
+  };
   useEffect(() => {
     getCurrentLocation(setCurrentLocation);
   }, [driverEnabled]);
@@ -173,7 +183,13 @@ const useMap = ({
     }
   }, [selectedStop, mapRef, driverEnabled]);
 
-  return { flyTo, convertToGeoJSON, convertSolutionToGeoJSON, currentLocation };
+  return {
+    flyTo,
+    convertToGeoJSON,
+    convertSolutionToGeoJSON,
+    currentLocation,
+    flyToCurrentLocation,
+  };
 };
 
 export default useMap;
