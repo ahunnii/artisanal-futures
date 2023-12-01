@@ -9,6 +9,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
 
 type TProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;
@@ -48,7 +56,7 @@ const BottomSheet: FC<TProps> = ({
   return (
     <>
       {" "}
-      <>
+      {/* <>
         <Button
           onClick={handleButton}
           variant={"ghost"}
@@ -89,7 +97,27 @@ const BottomSheet: FC<TProps> = ({
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button
+            onClick={handleButton}
+            variant={"ghost"}
+            className="w-full"
+            disabled={isDisabled}
+          >
+            {title}
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side={"bottom"}
+          className=" flex h-[75vh]    rounded-t-3xl p-2 "
+        >
+          <ScrollArea className="h-[calc(100%-64px)] w-full gap-5 p-4">
+            {children}
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
     </>
   );
 };
