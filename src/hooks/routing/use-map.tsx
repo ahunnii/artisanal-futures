@@ -191,7 +191,8 @@ const useMap = ({
       mapRef.fitBounds(temp);
       mapRef.getBoundsZoom(temp);
     }
-  }, [stops, mapRef, currentLocation, driverEnabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops, mapRef, driverEnabled]);
 
   useEffect(() => {
     if (selectedStop && mapRef && driverEnabled) {

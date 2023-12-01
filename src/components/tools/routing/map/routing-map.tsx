@@ -256,7 +256,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
           </ContextMenuLabel>
           <ContextMenuItem
-            onClick={() => addLocationByLatLng(latLng?.lat, latLng?.lng)}
+            onClick={() => {
+              addLocationByLatLng(latLng?.lat, latLng?.lng);
+            }}
           >
             Add as Stop
           </ContextMenuItem>

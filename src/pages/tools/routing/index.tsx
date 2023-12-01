@@ -45,6 +45,11 @@ const RoutingPage = () => {
   const { locations } = useStops((state) => state);
   const { drivers } = useDrivers((state) => state);
 
+  useEffect(() => {
+    void useStops.persist.rehydrate();
+    void useDrivers.persist.rehydrate();
+  }, []);
+
   const { getRoutes } = useRouteOptimization();
 
   const calculateOptimalPaths = () => {

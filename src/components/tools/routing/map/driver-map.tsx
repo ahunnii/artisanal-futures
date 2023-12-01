@@ -11,6 +11,7 @@ import "leaflet/dist/leaflet.css";
 
 import useMap from "~/hooks/routing/use-map";
 
+import { Button } from "~/components/ui/button";
 import { cn } from "~/utils/styles";
 import type { RouteData, StepData } from "../types";
 import DriverPopup from "./driver-popup";
@@ -40,14 +41,15 @@ const TempMap = forwardRef<MapRef, IProps>(
       constantUserTracking: true,
     };
 
-    const { convertToGeoJSON, currentLocation } = useMap(params);
+    const { convertToGeoJSON, currentLocation, flyToCurrentLocation } =
+      useMap(params);
 
     return (
       <div className={cn(className, "z-0 flex w-full flex-col max-lg:grow")}>
         <MapContainer
           ref={mapRef}
-          center={[42.279594, -83.732124]}
-          zoom={15}
+          center={[42.33085782908872, -83.05011192993956]}
+          zoom={13}
           doubleClickZoom={false}
           maxBounds={[
             [40.70462625, -91.6624658],
@@ -64,7 +66,12 @@ const TempMap = forwardRef<MapRef, IProps>(
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
-
+          <Button
+            className="absolute bottom-3 right-3 z-[1000]"
+            onClick={flyToCurrentLocation}
+          >
+            Center to Location
+          </Button>
           {currentLocation && (
             <RouteMarker
               id={0}
