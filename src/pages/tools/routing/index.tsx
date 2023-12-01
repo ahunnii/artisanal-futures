@@ -134,8 +134,6 @@ const RoutingPage = () => {
               </>
             </TabsContent>
           </Tabs>
-
-          <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
           <div className="flex lg:hidden">
             <BottomSheet title="Plan">
               <DriversDynamicTab />
@@ -159,6 +157,7 @@ const RoutingPage = () => {
               Track
             </Button>
           </div>
+          <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
         </section>
       </RouteLayout>
     </>

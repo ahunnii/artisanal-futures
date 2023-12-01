@@ -7,8 +7,6 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="relative flex h-full  flex-col-reverse  bg-slate-50 p-2  max-md:overflow-auto md:flex-row lg:h-[calc(100vh-64px)]">
         {children}
       </div>
-
-      <p className="mt-auto">Artisanal Futures 2023</p>
     </main>
 
     // <main className="flex h-full flex-col">

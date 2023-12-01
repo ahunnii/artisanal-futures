@@ -24,10 +24,16 @@ const UserNav = () => {
         <Button
           onClick={sessionData ? () => void signOut() : () => void signIn()}
           variant={"ghost"}
+          className="max-md:w-full"
         >
           Sign In
         </Button>
-        <Button onClick={() => void router.push(`/sign-up`)}>Sign Up</Button>
+        <Button
+          onClick={() => void router.push(`/sign-up`)}
+          className="max-md:w-full"
+        >
+          Sign Up
+        </Button>
       </>
     );
   } else

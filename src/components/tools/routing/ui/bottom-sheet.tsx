@@ -109,10 +109,15 @@ const BottomSheet: FC<TProps> = ({
             {title}
           </Button>
         </SheetTrigger>
+
         <SheetContent
           side={"bottom"}
-          className=" flex h-[75vh]    rounded-t-3xl p-2 "
+          className=" flex h-[75vh]    flex-col rounded-t-3xl p-2"
         >
+          {" "}
+          <SheetHeader className=" pt-4 ">
+            <SheetTitle>{title}</SheetTitle>
+          </SheetHeader>
           <ScrollArea className="h-[calc(100%-64px)] w-full gap-5 p-4">
             {children}
           </ScrollArea>
