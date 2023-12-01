@@ -1,5 +1,5 @@
 import { divIcon } from "leaflet";
-import { Truck } from "lucide-react";
+import { Building, Truck } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useMemo, type FC } from "react";
 import ReactDOMServer from "react-dom/server";
@@ -15,13 +15,15 @@ import { useDrivers } from "~/hooks/routing/use-drivers";
 import { useSheet } from "~/hooks/routing/use-sheet";
 import { useStops } from "~/hooks/routing/use-stops";
 import { getColor } from "~/utils/routing/color-handling";
+import type { Driver, RouteData, Stop } from "../types";
 
 interface IProps extends MarkerProps {
-  variant: "stop" | "car" | "currentPosition";
+  variant: "stop" | "car" | "depot" | "currentPosition";
   color: number;
   children: React.ReactNode;
   id: number;
   stopId?: number;
+  data?: Stop | Driver | RouteData;
 }
 
 export const TruckIcon = (color: string) => {
@@ -34,6 +36,20 @@ export const TruckIcon = (color: string) => {
         className={` relative -left-[0.5rem] -top-[0.5rem] block h-[2.5rem] w-[2.5rem] ${color} rounded-lg bg-white p-1 shadow-lg`}
       >
         <Truck className={`h-full w-full `} />
+      </span>
+    ),
+  });
+};
+export const DepotIcon = (color: string) => {
+  return divIcon({
+    className: "my-custom-pin",
+    iconAnchor: [0, 24],
+    popupAnchor: [0, -36],
+    html: ReactDOMServer.renderToString(
+      <span
+        className={` relative -left-[0.5rem] -top-[0.5rem] block h-[2.5rem] w-[2.5rem] ${color} rounded-lg bg-white p-1 shadow-lg`}
+      >
+        <Building className={`h-full w-full `} />
       </span>
     ),
   });
@@ -92,11 +108,6 @@ const RouteMarker: FC<IProps> = ({
   stopId,
   children,
 }) => {
-  const { onOpen } = useSheet();
-  const { onOpen: onDriverOpen } = useDriverSheet();
-  const { setActiveLocationById } = useStops((state) => state);
-  const { setActiveDriverById } = useDrivers((state) => state);
-
   const calculatedColor = useMemo(() => {
     if (color == -1)
       return {
@@ -107,39 +118,19 @@ const RouteMarker: FC<IProps> = ({
     return getColor(color);
   }, [color]);
 
-  const onEdit = () => {
-    if (variant === "stop") {
-      setActiveLocationById(id);
-      onOpen();
-    } else {
-      setActiveDriverById(id);
-      onDriverOpen();
-    }
-  };
-
   const icon =
     variant === "stop"
       ? StopIcon(calculatedColor.fill!, stopId!)
       : variant === "currentPosition"
       ? PositionIcon()
+      : variant === "depot"
+      ? DepotIcon(calculatedColor.text!)
       : TruckIcon(calculatedColor.text!);
-  const { route } = useParams();
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        {" "}
-        <Marker position={position} icon={icon}>
-          <Popup>{children}</Popup>
-        </Marker>
-      </ContextMenuTrigger>
-
-      {/* {!route && (
-        <ContextMenuContent>
-          <ContextMenuItem onClick={onEdit}>Edit... </ContextMenuItem>
-        </ContextMenuContent>
-      )} */}
-    </ContextMenu>
+    <Marker position={position} icon={icon}>
+      <Popup>{children}</Popup>
+    </Marker>
   );
 };
 

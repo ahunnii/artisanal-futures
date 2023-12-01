@@ -85,3 +85,14 @@ body,
 .moveable-resizable {
   opacity: 0;
 }
+
+body,
+.radix-dialog-content {
+  min-height: 100vh;
+  min-height: fill-available;
+  min-height: -webkit-fill-available;
+}
+html {
+  height: fill-available;
+  height: -webkit-fill-available;
+}

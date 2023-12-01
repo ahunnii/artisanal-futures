@@ -61,7 +61,6 @@ const useRouteOptimization = () => {
   const [filteredLocations, setFilteredLocations] = useState<
     FilteredLocation[]
   >([]);
-  const [geojsonData, setGeojsonData] = useState<Polyline[] | null>();
 
   const {
     currentRoutingSolution,
@@ -120,17 +119,16 @@ const useRouteOptimization = () => {
       setFilteredLocations(
         mapJobsToVehicles(currentRoutingSolution.data.routes)
       );
-      setGeojsonData(currentRoutingSolution.geometry);
     }
   }, [routingSolutions, drivers, locations, currentRoutingSolution]);
 
+  useEffect(() => {
+    setCurrentRoutingSolution(null);
+  }, [locations, drivers, setCurrentRoutingSolution]);
+
   return {
     filteredLocations,
-    geojsonData,
-    invalidateRoutes: () => {
-      setGeojsonData(null);
-      setCurrentRoutingSolution(null);
-    },
+
     getRoutes: async () => {
       const data = await fetchRoutes();
       setCurrentRoutingSolution(data as VroomResponse);

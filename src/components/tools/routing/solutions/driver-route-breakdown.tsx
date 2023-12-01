@@ -112,3 +112,46 @@ export function DriverRouteBreakdown({
     </>
   );
 }
+
+export function DriverRouteHeaderCard({
+  data,
+  steps,
+  textColor,
+  isOnline = false,
+}: MinimalCardProps) {
+  const { name: driverName } = JSON.parse(data.description ?? "{}");
+
+  const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
+  const endTime = convertSecondsToTime(
+    (data?.steps?.[0]?.arrival ?? 0) +
+      data?.setup +
+      data?.service +
+      data?.waiting_time +
+      data?.duration
+  );
+
+  const numberOfStops = data?.steps?.filter(
+    (step) => step.type === "job"
+  ).length;
+
+  const colorText = getColor(textColor!).text;
+
+  return (
+    <>
+      <CardHeader className="flex w-full flex-row items-center justify-between py-1 pt-3 shadow-inner">
+        <div>
+          <CardTitle className="flex  flex-row items-center gap-4 text-base ">
+            <div className={cn("flex basis-2/3 font-bold", colorText)}>
+              {driverName}
+            </div>
+            {isOnline && <OnlineIndicator />}
+          </CardTitle>
+          <CardDescription>
+            {startTime} to {endTime} • {numberOfStops} stops •{" "}
+            {convertMetersToMiles(data?.distance)} miles
+          </CardDescription>{" "}
+        </div>
+      </CardHeader>
+    </>
+  );
+}

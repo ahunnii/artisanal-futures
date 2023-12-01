@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import {
+  Circle,
   GeoJSON,
   LayersControl,
   LayerGroup as LeafletLayerGroup,
@@ -43,6 +44,8 @@ import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useRoutingSolutions } from "~/hooks/routing/use-routing-solutions";
 import { useStops } from "~/hooks/routing/use-stops";
 
+import { Button } from "~/components/ui/button";
+import useMap from "~/hooks/routing/use-map";
 import { getStyle } from "~/utils/routing/color-handling";
 import { cn } from "~/utils/styles";
 
@@ -63,16 +66,20 @@ type IdCluster = { job_id: number; vehicle_id: number };
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const mapRef = useRef<Map>(null);
 
+  const params = {
+    mapRef: mapRef.current!,
+    trackingEnabled: true,
+    constantUserTracking: true,
+  };
+
+  const { convertSolutionToGeoJSON, flyToCurrentLocation, currentLocation } =
+    useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
-  const { drivers, activeDriver, addDriverByLatLng } = useDrivers(
-    (state) => state
-  );
-  const { locations, activeLocation, addLocationByLatLng } = useStops(
-    (state) => state
-  );
+  const { drivers, addDriverByLatLng } = useDrivers((state) => state);
+  const { locations, addLocationByLatLng } = useStops((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
-  const { filteredLocations, invalidateRoutes } = useRouteOptimization();
+  const { filteredLocations } = useRouteOptimization();
 
   // Filter through current stops and mark if the optimized route has assigned it to a vehicle or not
   const assignedLocations = locations.map((stop) => {
@@ -89,65 +96,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   useImperativeHandle(ref, () => ({
     reactLeafletMap: mapRef.current,
   }));
-
-  //Recalculate the bounds of the current map
-  useEffect(() => {
-    if (
-      ((locations && locations.length > 0) ||
-        (drivers && drivers.length > 0)) &&
-      mapRef.current
-    ) {
-      const bounds = L.latLngBounds(
-        [...locations, ...drivers].map(
-          (location) =>
-            [
-              location?.coordinates?.latitude,
-              location?.coordinates?.longitude,
-            ] as LatLngExpression
-        )
-      );
-
-      mapRef.current.fitBounds(bounds);
-    }
-    invalidateRoutes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locations, drivers]);
-
-  useEffect(() => {
-    if (activeLocation && mapRef.current) {
-      mapRef.current.flyTo(
-        [
-          activeLocation?.coordinates?.latitude,
-          activeLocation?.coordinates?.longitude,
-        ],
-        15
-      );
-    }
-  }, [activeLocation]);
-
-  useEffect(() => {
-    if (activeDriver && mapRef.current) {
-      mapRef.current.flyTo(
-        [
-          activeDriver?.coordinates?.latitude,
-          activeDriver?.coordinates?.longitude,
-        ],
-        15
-      );
-    }
-  }, [activeDriver]);
-
-  const geoJson = useMemo(() => {
-    return {
-      type: "FeatureCollection",
-      features: currentRoutingSolution?.geometry.map((geometry: Polyline) => {
-        return {
-          type: "Feature",
-          geometry,
-        };
-      }),
-    };
-  }, [currentRoutingSolution?.geometry]);
 
   const handleRightClick = (event: MouseEvent) => {
     if (!mapRef.current) return;
@@ -188,6 +136,34 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
+
+          <Button
+            className="absolute bottom-3 right-3 z-[1000]"
+            onClick={flyToCurrentLocation}
+          >
+            Center to Location
+          </Button>
+
+          {currentLocation && (
+            <RouteMarker
+              id={0}
+              variant="currentPosition"
+              position={[currentLocation.latitude!, currentLocation.longitude!]}
+              color={3}
+            >
+              Current Location
+              <Circle
+                center={
+                  [
+                    currentLocation.latitude!,
+                    currentLocation.longitude!,
+                  ] as LatLngExpression
+                }
+                radius={currentLocation?.accuracy}
+                color="blue"
+              />
+            </RouteMarker>
+          )}
           <LayersControl position="topright">
             <LayersControl.Overlay name="Drivers" checked>
               <LeafletLayerGroup>
@@ -264,7 +240,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
           </LayersControl>
 
           {currentRoutingSolution && (
-            <GeoJSON data={geoJson as GeoJsonData} style={getStyle} />
+            <GeoJSON
+              data={
+                convertSolutionToGeoJSON(currentRoutingSolution) as GeoJsonData
+              }
+              style={getStyle}
+            />
           )}
         </MapContainer>
       </ContextMenuTrigger>
@@ -275,7 +256,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
           </ContextMenuLabel>
           <ContextMenuItem
-            onClick={() => addLocationByLatLng(latLng?.lat, latLng?.lng)}
+            onClick={() => {
+              addLocationByLatLng(latLng?.lat, latLng?.lng);
+            }}
           >
             Add as Stop
           </ContextMenuItem>

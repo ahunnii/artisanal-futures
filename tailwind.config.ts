@@ -38,6 +38,7 @@ module.exports = {
         "circle-grid": "url('/images/bg-circlegrid.svg')",
         "circle-grid-dark": "url('/images/bg-circlegrid-dark.svg')",
       },
+
       backgroundColor: {
         "forum-primary": "#fff",
         "forum-primary-inverse": "#1a1b21",

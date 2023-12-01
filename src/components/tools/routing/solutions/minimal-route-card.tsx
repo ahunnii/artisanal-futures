@@ -23,7 +23,11 @@ import { Button } from "~/components/ui/button";
 import { useDepot } from "~/hooks/routing/use-depot";
 import { getColor } from "~/utils/routing/color-handling";
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import { archiveRoute, fetchAllRoutes } from "~/utils/routing/supabase-utils";
+import {
+  archiveRoute,
+  fetchAllRoutes,
+  saveRoute,
+} from "~/utils/routing/supabase-utils";
 import { convertSecondsToTime } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
 import type { ExpandedRouteData, PusherMessage, StepData } from "../types";
@@ -53,6 +57,7 @@ export function MinimalRouteCard({
   className,
   isOnline = false,
   isTracking = false,
+
   messages = [],
   ...props
 }: MinimalCardProps) {
@@ -80,7 +85,7 @@ export function MinimalRouteCard({
 
   const [routeSteps, setRouteSteps] = useState<ExtendedStepData[]>([]);
 
-  const { setRoutes } = useDepot((state) => state);
+  const { setRoutes, setSelectedRoute } = useDepot((state) => state);
 
   const router = useRouter();
   const archiveRouteAndRefetch = () => {
@@ -94,8 +99,15 @@ export function MinimalRouteCard({
   };
 
   useEffect(() => {
-    if (data) setRouteSteps(data?.steps);
-  }, [data]);
+    if (!data) return;
+    const success = (data: string) => console.log(data);
+
+    const error = (error: string) => console.error(error);
+
+    setRouteSteps(data.steps);
+
+    if (!isTracking) void saveRoute(data, success, error);
+  }, [data, isTracking]);
 
   useEffect(() => {
     if (messages?.length > 0 && routeSteps) {
@@ -120,39 +132,54 @@ export function MinimalRouteCard({
   const distance = convertMetersToMiles(data?.distance);
   const colorText = getColor(textColor!).text;
 
+  const handleOnOpenChange = (toggle: boolean) => {
+    console.log(toggle);
+    if (!toggle) setSelectedRoute(null);
+    if (toggle) setSelectedRoute(data);
+    setOnOpen(toggle);
+  };
+
+  const handleOnOpen = () => {
+    setSelectedRoute(data);
+    setOnOpen(true);
+  };
+
   return (
     <>
-      <Card
-        className={cn("w-full cursor-pointer hover:bg-slate-50", className)}
-        {...props}
-        onClick={() => setOnOpen(true)}
+      <Button
+        variant={"ghost"}
+        className="my-2 ml-auto  flex h-auto  w-full p-0 text-left"
+        onClick={handleOnOpen}
       >
-        <CardHeader className="flex flex-row items-center justify-between py-1">
-          <div>
-            <CardTitle className="flex  flex-row items-center gap-4 text-base ">
-              <div className={cn("flex basis-2/3 font-bold", colorText)}>
-                {driverName} {routeStatus && "✅"}
-              </div>
-              {isOnline && (
-                <div className="flex basis-1/3 items-center gap-2">
-                  <span className="text-sm text-green-500">Online</span>
-                  <span className="relative flex h-3 w-3">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
-                  </span>
+        <Card className={cn("w-full  hover:bg-slate-50", className)} {...props}>
+          <CardHeader className="flex flex-row items-center justify-between py-1">
+            <div>
+              <CardTitle className="flex  flex-row items-center gap-4 text-base ">
+                <div className={cn("flex basis-2/3 font-bold", colorText)}>
+                  {driverName} {routeStatus && "✅"}
                 </div>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
-              miles
-            </CardDescription>
-          </div>
-          <ChevronRight className="text-slate-800 group-hover:bg-opacity-30" />
-        </CardHeader>
-      </Card>
-      <Sheet onOpenChange={setOnOpen} open={onOpen}>
-        <SheetContent className="flex flex-1 flex-col">
+                {isOnline && (
+                  <div className="flex basis-1/3 items-center gap-2">
+                    <span className="text-sm text-green-500">Online</span>
+                    <span className="relative flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+                    </span>
+                  </div>
+                )}
+              </CardTitle>
+              <CardDescription>
+                {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
+                miles
+              </CardDescription>
+            </div>
+            <ChevronRight className="text-slate-800 group-hover:bg-opacity-30" />
+          </CardHeader>
+        </Card>
+      </Button>
+
+      <Sheet onOpenChange={handleOnOpenChange} open={onOpen}>
+        <SheetContent className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg">
           <SheetHeader>
             <SheetTitle>
               Route for <span className={cn(colorText)}>{driverName}</span>

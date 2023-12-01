@@ -30,3 +30,42 @@ export const archiveRoute = async (routeId: string) => {
       toast.error("Error archiving route");
     });
 };
+
+export const saveRoute = async (
+  route: ExpandedRouteData,
+  success: (name: string) => void,
+  error: (error: string) => void
+) => {
+  // Take that name and shorten it to 50 characters, making sure that it it stays unique. data.geometry must always turn into this
+  const fileName = route.geometry
+    .replace(/[^a-z0-9]/gi, "_")
+    .toLowerCase()
+    .substring(0, 50);
+
+  const listData = await axios.get("/api/routing").then((res) => res.data);
+
+  if (!listData) return;
+
+  const fileExists = listData.some(
+    (file: File) => file.name === `${fileName}.json`
+  );
+  if (!fileExists) {
+    await axios
+      .post("/api/routing", {
+        file: route,
+        fileName: fileName,
+      })
+
+      .then((res) => res.data)
+      .then((data) => {
+        if (data.error) throw new Error(data.error as string);
+
+        console.log("File uploaded successfully:", data.data);
+        success(fileName);
+      })
+      .catch((err) => error(err as string));
+  } else {
+    console.log("File already exists", `${fileName}.json`);
+    success(fileName);
+  }
+};

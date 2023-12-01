@@ -1,13 +1,9 @@
-import type { FC } from "react";
-
 import type { GetServerSidePropsContext } from "next";
-
-import AdminLayout from "~/layouts/admin-layout";
+import type { FC } from "react";
 
 import AdminInfoCard from "~/components/admin/admin-info-card";
 import { Overview } from "~/components/admin/overview";
 import { RecentMembers } from "~/components/admin/recent-members";
-
 import {
   Card,
   CardContent,
@@ -19,15 +15,17 @@ import { Heading } from "~/components/ui/heading";
 import PageLoader from "~/components/ui/page-loader";
 import { Separator } from "~/components/ui/separator";
 
+import AdminLayout from "~/layouts/admin-layout";
+
 import { api } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
-interface IProps {
-  status: "authorized" | "unauthorized";
-}
-const AdminPage: FC<IProps> = ({ status }) => {
+type TAdminPageProps = { status: "authorized" | "unauthorized" };
+
+const AdminPage: FC<TAdminPageProps> = ({ status }) => {
   const { data: shops } = api.shops.getAllShops.useQuery();
   const { data: users } = api.user.getAllUsers.useQuery();
+  const { data: products } = api.products.getAllProducts.useQuery();
 
   const statData = [
     {
@@ -40,7 +38,7 @@ const AdminPage: FC<IProps> = ({ status }) => {
     },
     {
       title: "Products",
-      metric: 0,
+      metric: products?.products?.length ?? 0,
     },
   ];
 
@@ -81,14 +79,14 @@ const AdminPage: FC<IProps> = ({ status }) => {
                   </CardContent>
                 </Card>
 
-                <Card className="col-span-3">
+                <Card className="md:grid-cols-1 lg:col-span-3">
                   <CardHeader>
                     <CardTitle>Recent Members</CardTitle>
                     <CardDescription>
                       There were {users?.length ?? 0} users added this month.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex max-h-96">
+                  <CardContent className="flex max-h-[350px]">
                     {!users ? (
                       <PageLoader />
                     ) : (

@@ -14,7 +14,7 @@ const NavbarActions = () => {
   }
 
   return (
-    <div className="ml-auto flex items-center gap-x-4">
+    <div className="flex max-md:mt-auto max-md:w-full max-md:items-stretch max-md:justify-around lg:ml-auto lg:items-center lg:gap-x-4">
       <UserNav />
     </div>
   );
