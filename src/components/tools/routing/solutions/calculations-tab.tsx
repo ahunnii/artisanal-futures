@@ -18,7 +18,7 @@ const CalculationsTab = () => {
       <div className="flex flex-col px-4">
         <div className="flex items-center justify-between">
           <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">
-            Routes
+            Routes{" "}
             <span className="rounded-lg border border-slate-300 px-2">
               {currentRoutingSolution?.data?.routes?.length ?? 0}
             </span>

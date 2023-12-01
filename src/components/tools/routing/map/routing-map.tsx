@@ -69,6 +69,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const params = {
     mapRef: mapRef.current!,
     trackingEnabled: true,
+    constantUserTracking: true,
   };
 
   const { convertSolutionToGeoJSON, flyToCurrentLocation, currentLocation } =

@@ -179,7 +179,7 @@ export function MinimalRouteCard({
       </Button>
 
       <Sheet onOpenChange={handleOnOpenChange} open={onOpen}>
-        <SheetContent className="flex flex-1 flex-col">
+        <SheetContent className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg">
           <SheetHeader>
             <SheetTitle>
               Route for <span className={cn(colorText)}>{driverName}</span>
