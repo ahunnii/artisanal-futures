@@ -26,7 +26,7 @@ const TabOptions: FC<TTabOptions> = ({ type, className }) => {
   return (
     <div
       className={cn(
-        "mx-auto my-2 flex w-full items-center justify-center gap-4 bg-white p-3 shadow ",
+        "mx-auto my-2 flex w-full flex-row items-center justify-center gap-4 bg-white p-3 shadow ",
         className
       )}
     >

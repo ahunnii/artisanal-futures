@@ -14,7 +14,7 @@ const DriversDynamicTab = () => {
       <div className="flex flex-col px-4">
         <div className="flex items-center justify-between">
           <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">
-            Drivers
+            Drivers{" "}
             <span className="rounded-lg border border-slate-300 px-2">
               {drivers?.length ?? 0}
             </span>

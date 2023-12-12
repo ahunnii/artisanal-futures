@@ -21,12 +21,14 @@ type TUseMapProps = {
   currentLocation?: Partial<GeolocationCoordinates>;
   trackingEnabled?: boolean;
   driverEnabled?: boolean;
+  constantUserTracking?: boolean;
 };
 
 const useMap = ({
   mapRef,
   trackingEnabled = false,
   driverEnabled = false,
+  constantUserTracking = false,
 }: TUseMapProps) => {
   const { selectedRoute, routes } = useDepot((state) => state);
   const { drivers, activeDriver } = useDrivers((state) => state);
@@ -43,7 +45,6 @@ const useMap = ({
 
   const flyTo = useCallback(
     (coordinates: Coordinates, zoom: number) => {
-      console.log("pain");
       mapRef.flyTo([coordinates.latitude, coordinates.longitude], zoom);
     },
     [mapRef]
@@ -80,6 +81,31 @@ const useMap = ({
       }),
     };
   };
+
+  const flyToCurrentLocation = () => {
+    if (currentLocation)
+      flyTo(
+        {
+          latitude: currentLocation.latitude!,
+          longitude: currentLocation.longitude!,
+        },
+        15
+      );
+  };
+
+  const enableConstantTracking = () => {
+    setInterval(() => {
+      getCurrentLocation(setCurrentLocation);
+    }, 5000);
+  };
+
+  useEffect(() => {
+    console.log(currentLocation);
+  }, [currentLocation]);
+
+  useEffect(() => {
+    if (constantUserTracking) enableConstantTracking();
+  }, [constantUserTracking]);
 
   useEffect(() => {
     getCurrentLocation(setCurrentLocation);
@@ -165,7 +191,8 @@ const useMap = ({
       mapRef.fitBounds(temp);
       mapRef.getBoundsZoom(temp);
     }
-  }, [stops, mapRef, currentLocation, driverEnabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops, mapRef, driverEnabled]);
 
   useEffect(() => {
     if (selectedStop && mapRef && driverEnabled) {
@@ -173,7 +200,13 @@ const useMap = ({
     }
   }, [selectedStop, mapRef, driverEnabled]);
 
-  return { flyTo, convertToGeoJSON, convertSolutionToGeoJSON, currentLocation };
+  return {
+    flyTo,
+    convertToGeoJSON,
+    convertSolutionToGeoJSON,
+    currentLocation,
+    flyToCurrentLocation,
+  };
 };
 
 export default useMap;
