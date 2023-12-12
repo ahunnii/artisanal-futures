@@ -1,5 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import wait from "waait";
+import ImageCrossFade from "../ui/image-cross-fade";
 
 const Hero = () => {
   return (
@@ -36,16 +39,115 @@ const Hero = () => {
           </div>
         </div>
       </div>{" "}
-      <div className="block border border-solid border-transparent lg:absolute lg:bottom-0 lg:right-0 lg:top-0 lg:w-1/2">
-        <Image
-          width={200}
-          height={160}
-          src="/img/hero.jpg"
-          alt="Hero image of man from African Futurist Collective"
-          className="aspect-auto w-full"
-          loading="lazy"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <div className=" block border border-solid border-transparent lg:absolute lg:bottom-0 lg:right-0 lg:top-0 lg:w-1/2">
+        <>
+          {/* <ImageCrossFade
+            width={200}
+            height={160}
+            key={1}
+            // src="/img/AF montage.png"
+            src={images[image]!}
+            alt="Hero image of man from African Futurist Collective"
+            className=" aspect-auto w-full "
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          /> */}
+          {/* <ImageCrossFade
+            width={200}
+            height={160}
+            key={2}
+            // src="/img/AF montage.png"
+            src="/img/popup.jpg"
+            alt="Hero image of man from African Futurist Collective"
+            className="aspect-auto w-full animate-fade-hero animation-delay-400"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          <ImageCrossFade
+            width={200}
+            height={160}
+            key={3}
+            src="/img/AF montage.png"
+            // src="/img/popup.jpg"
+            alt="Hero image of man from African Futurist Collective"
+            className="aspect-auto w-full animate-fade-hero animation-delay-800"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          /> */}
+        </>
+
+        <div className="max-lg:aspect-[1.628] ">
+          {/* <div className="fade-pic" id="fade-pic3" />
+          <div className="fade-pic" id="fade-pic2" />
+          <div className="fade-pic" id="fade-pic1" /> */}
+          {/* <Image
+            width={200}
+            height={160}
+            key={3}
+            // src="/img/AF montage.png"
+            src="/img/montage1.png"
+            alt="Hero image of man from African Futurist Collective"
+            className="aspect-auto w-full"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          /> */}
+          <Image
+            width={200}
+            height={160}
+            // src="/img/AF montage.png"
+            src="/img/montage1.png"
+            id="fade-pic5"
+            alt="Hero image of man from African Futurist Collective"
+            className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          <Image
+            width={200}
+            height={160}
+            src="/img/montage2.png"
+            // src="/img/popup.jpg"
+            id="fade-pic4"
+            alt="Hero image of man from African Futurist Collective"
+            className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+
+          <Image
+            width={200}
+            height={160}
+            src="/img/montage3.png"
+            // src="/img/popup.jpg"
+            id="fade-pic3"
+            alt="Hero image of man from African Futurist Collective"
+            className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          <Image
+            width={200}
+            height={160}
+            src="/img/montage4.png"
+            // src="/img/popup.jpg"
+            id="fade-pic2"
+            alt="Hero image of man from African Futurist Collective"
+            className="fade-pic object absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          <Image
+            width={200}
+            height={160}
+            src="/img/montage5.png"
+            // src="/img/popup.jpg"
+            id="fade-pic1"
+            alt="Hero image of man from African Futurist Collective"
+            className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </div>
     </div>
   );

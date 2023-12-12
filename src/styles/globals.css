@@ -85,3 +85,111 @@ body,
 .moveable-resizable {
   opacity: 0;
 }
+
+.fade-container {
+  /* position: relative;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: 280px;
+  margin: 0 auto; */
+}
+.fade-pic {
+  /* position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; */
+  /* background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; */
+  -webkit-animation: fade 25s infinite;
+  animation: fade 25s infinite;
+}
+#fade-pic1 {
+  animation-delay: 0s;
+  /* background-image: url("https://www.devtwins.com/images/graphics/norway1.jpeg"); */
+}
+#fade-pic2 {
+  /* background-image: url("https://www.devtwins.com/images/graphics/norway2.jpeg"); */
+  animation-delay: 5s;
+}
+#fade-pic3 {
+  /* background-image: url("https://www.devtwins.com/images/graphics/norway3.jpeg"); */
+  animation-delay: 10s;
+}
+
+#fade-pic4 {
+  /* background-image: url("https://www.devtwins.com/images/graphics/norway3.jpeg"); */
+  animation-delay: 15s;
+}
+#fade-pic5 {
+  /* background-image: url("https://www.devtwins.com/images/graphics/norway3.jpeg"); */
+  animation-delay: 20s;
+}
+@-webkit-keyframes fade {
+  /* 0% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0;
+  }
+  88% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  } */
+
+  0% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade {
+  /* 0% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0;
+  }
+  88% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  } */
+
+  0% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
