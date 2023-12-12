@@ -4,6 +4,19 @@ import Image from "next/image";
 import Body from "~/components/body";
 import Hero from "~/components/homepage/hero";
 import HomePageCard from "~/components/homepage/homepage-card";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 
 import { CARD_DATA } from "~/data/homepage";
 
@@ -16,11 +29,38 @@ const HomePage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Body>
+        <div className="w-full rounded-md bg-green-400/30 p-2 text-center font-medium shadow">
+          <p>
+            Festive Christmas Popup Shop ONE DAY ONLY! Monday, December 18th
+            from 2 to 8pm. <PopupPopover />
+          </p>
+        </div>
         <Hero />
+
         <div className="mt-12 grid grid-cols-1 gap-5 bg-slate-200 p-4 md:grid-cols-3 md:gap-10">
           {CARD_DATA.map((item, idx) => (
             <HomePageCard {...item} key={idx} />
           ))}
+        </div>
+
+        <h1 className="mt-12  px-4 pt-4 text-2xl font-semibold">
+          Artisan Bulletin Board
+        </h1>
+        <p className="mb-3  px-4 text-muted-foreground">
+          Check out current and upcoming events, workshops, and other cool stuff
+        </p>
+        <div className=" rounded border border-slate-200 shadow-inner">
+          <div className=" grid grid-cols-2 gap-5 p-4 md:grid-cols-3 md:gap-10">
+            <Image
+              width={200}
+              height={160}
+              src="/img/popup.jpg"
+              alt="Flowchart showing the generative nature of artisanal tech"
+              className="aspect-auto w-full "
+              loading="lazy"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
         </div>
         <div className=" text-center">
           <h2 className="mt-12 text-3xl font-bold">
@@ -41,5 +81,30 @@ const HomePage = () => {
     </>
   );
 };
+
+export function PopupPopover() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <strong className="cursor-pointer hover:text-slate-700">
+          Click here for details!
+        </strong>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="grid gap-4 py-4">
+          <Image
+            width={200}
+            height={160}
+            src="/img/popup.jpg"
+            alt="Flowchart showing the generative nature of artisanal tech"
+            className="aspect-auto w-full "
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default HomePage;
