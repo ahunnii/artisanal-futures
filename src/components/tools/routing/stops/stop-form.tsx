@@ -160,7 +160,7 @@ export const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     <Form {...form}>
       <form
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-        className=" flex h-full flex-col justify-between space-y-8  lg:flex-grow"
+        className=" flex h-full flex-col justify-between space-y-8  md:h-[calc(100vh-15vh)] lg:flex-grow"
       >
         <ScrollArea className="relative flex h-full  w-full flex-1  max-md:max-h-[60vh]">
           <div className=" w-full space-y-4">
