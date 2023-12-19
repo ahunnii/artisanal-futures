@@ -1,6 +1,6 @@
-import { Shop } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import { Check, ChevronsUpDown, PlusCircle, Store } from "lucide-react";
-import { redirect, useRouter as useNavigationRouter } from "next/navigation";
+
 import { useRouter } from "next/router";
 import * as React from "react";
 import { Button } from "~/components/ui/button";

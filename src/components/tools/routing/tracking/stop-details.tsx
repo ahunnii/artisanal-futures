@@ -13,9 +13,11 @@ import {
 } from "~/components/tools/routing/tracking/current-stop-form";
 
 import { useParams } from "next/navigation";
+
 import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
+import { api } from "~/utils/api";
 import { sendMessage } from "~/utils/routing/realtime-utils";
-import type { RouteData } from "../types";
+import type { ExpandedRouteData, RouteData } from "../types";
 
 interface IProps {
   open: boolean;
@@ -27,10 +29,45 @@ interface IProps {
 // basic information about the stop, such as the status and delivery notes.
 const StopDetails: FC<IProps> = ({ open, setOpen, routeData }) => {
   const driverRoute = useDriverRoute((state) => state);
+  const apiContext = api.useContext();
 
   const { address } = JSON.parse(driverRoute.selectedStop!.description ?? "{}");
+
+  const { mutate } = api.finalizedRoutes.updateFinalizedRoute.useMutation({
+    onSettled: () => {
+      void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+      void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
+    },
+    onSuccess: () => {
+      // toast.success("Successfully updated stop!");
+    },
+  });
   const { route } = useParams();
+
   const contactDispatch = (data: EditStopFormValues) => {
+    const updatedSteps = routeData?.steps.map((step) => {
+      if (step.id === driverRoute?.selectedStop?.id) {
+        return {
+          ...step,
+          status: data.status,
+          deliveryNotes: data.deliveryNotes,
+        };
+      }
+
+      return step;
+    });
+
+    const updatedRoute = {
+      ...routeData,
+      steps: updatedSteps,
+      routeId: route as string,
+    };
+
+    mutate({
+      routeId: route as string,
+      route: updatedRoute as ExpandedRouteData,
+    });
+
     sendMessage(data, driverRoute, route as string, routeData).finally(() => {
       handleOnOpenChange(false);
     });

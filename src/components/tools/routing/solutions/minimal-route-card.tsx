@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Check, ChevronRight } from "lucide-react";
 
 import {
@@ -18,16 +19,17 @@ import {
   SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import { useDepot } from "~/hooks/routing/use-depot";
+import { api } from "~/utils/api";
 import { getColor } from "~/utils/routing/color-handling";
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import {
-  archiveRoute,
-  fetchAllRoutes,
-  saveRoute,
-} from "~/utils/routing/supabase-utils";
+// import {
+//   archiveRoute,
+//   fetchAllRoutes,
+//   saveRoute,
+// } from "~/utils/routing/supabase-utils";
 import { convertSecondsToTime } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
 import type { ExpandedRouteData, PusherMessage, StepData } from "../types";
@@ -82,31 +84,58 @@ export function MinimalRouteCard({
 
   const [onOpen, setOnOpen] = useState(false);
   const color = getColor(textColor!).background;
+  const apiContext = api.useContext();
+
+  const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
+    onError: (error) => {
+      toast.error(error.message);
+      console.error(error);
+    },
+  });
+
+  const { mutate: updateFinalizedRouteStatus } =
+    api.finalizedRoutes.updateFinalizedRouteStatus.useMutation({
+      onError: (error) => {
+        toast.error(error.message);
+        console.error(error);
+      },
+      onSettled: () => {
+        void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+        setOnOpen(false);
+      },
+    });
 
   const [routeSteps, setRouteSteps] = useState<ExtendedStepData[]>([]);
 
-  const { setRoutes, setSelectedRoute } = useDepot((state) => state);
+  const { setSelectedRoute } = useDepot((state) => state);
 
-  const router = useRouter();
+  // const router = useRouter();
   const archiveRouteAndRefetch = () => {
     if (!isTracking || !data?.routeId) return;
-    archiveRoute(data?.routeId)
-      .then(() => {
-        fetchAllRoutes(setRoutes);
-        router.reload();
-      })
-      .catch(console.error);
+
+    updateFinalizedRouteStatus({
+      routeId: data?.routeId,
+      status: "COMPLETED",
+    });
+
+    // archiveRoute(data?.routeId)
+    //   .then(() => {
+    //     fetchAllRoutes(setRoutes);
+    //     router.reload();
+    //   })
+    //   .catch(console.error);
   };
 
   useEffect(() => {
     if (!data) return;
-    const success = (data: string) => console.log(data);
+    // const success = (data: string) => console.log(data);
 
-    const error = (error: string) => console.error(error);
+    // const error = (error: string) => console.error(error);
 
     setRouteSteps(data.steps);
 
-    if (!isTracking) void saveRoute(data, success, error);
+    // if (!isTracking) void saveRoute(data, success, error);
+    if (!isTracking) mutate(data);
   }, [data, isTracking]);
 
   useEffect(() => {

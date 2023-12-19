@@ -2,7 +2,6 @@ import polyline from "@mapbox/polyline";
 import type {
   Break,
   Driver,
-  ParsedStop,
   Polyline,
   Stop,
   TimeWindow,

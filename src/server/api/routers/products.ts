@@ -6,7 +6,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { Artisan, Attribute, Product } from "~/types";
+import type { Artisan, Attribute, Product } from "~/types";
 
 const PRODUCT_ENDPOINT =
   "https://data.artisanalfutures.org/api/v1/products/search/";

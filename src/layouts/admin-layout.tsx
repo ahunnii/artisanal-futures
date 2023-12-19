@@ -1,29 +1,5 @@
 import Head from "next/head";
 import Navbar from "~/components/admin/navbar";
-import { Overview } from "~/components/admin/overview";
-import { RecentMembers } from "~/components/admin/recent-members";
-import Body from "~/components/body";
-import { SidebarNav } from "~/components/profile/sidebar-nav";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
-
-const sidebarNavItems = [
-  {
-    title: "Dashboard",
-    href: "/admin",
-  },
-  {
-    title: "Shops",
-    href: "/admin/shops",
-  },
-];
 
 interface SettingsLayoutProps {
   children: React.ReactNode;

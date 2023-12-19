@@ -40,7 +40,7 @@ import ConfirmDeleteDialog from "~/components/forum/post/confirm-delete-dialog";
 import ConfirmHideDialog from "~/components/forum/post/confirm-hide-dialog";
 import ConfirmUnhideDialog from "~/components/forum/post/confirm-unhide-dialog";
 import ForumLayout from "~/layouts/forum-layout";
-import { prisma } from "~/server/db";
+
 import { authenticateUser } from "~/utils/auth";
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };

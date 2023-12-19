@@ -4,19 +4,8 @@ import Image from "next/image";
 import Body from "~/components/body";
 import Hero from "~/components/homepage/hero";
 import HomePageCard from "~/components/homepage/homepage-card";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 
 import { CARD_DATA } from "~/data/homepage";
 

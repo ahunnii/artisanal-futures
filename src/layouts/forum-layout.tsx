@@ -1,20 +1,12 @@
-import { ArrowLeftSquare } from "lucide-react";
-
-import Image from "next/image";
-import Link from "next/link";
 import * as React from "react";
 import { useState, type ReactNode } from "react";
 
-import { ButtonLink } from "~/components/forum/button-link";
-
 import { Footer } from "~/components/forum/footer";
-import { IconButton } from "~/components/forum/icon-button";
-import { SearchIcon } from "~/components/forum/icons";
+
 import Navbar from "~/components/forum/navbar";
 
 import { SearchDialog } from "~/components/forum/search-dialog";
 import Container from "~/components/ui/container";
-import UserNav from "~/components/ui/user-nav";
 
 type LayoutProps = {
   children: ReactNode;

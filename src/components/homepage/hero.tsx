@@ -1,8 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import wait from "waait";
-import ImageCrossFade from "../ui/image-cross-fade";
 
 const Hero = () => {
   return (

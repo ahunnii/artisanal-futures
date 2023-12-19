@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 
-import type { Role } from "@prisma/client";
 import { toast } from "react-hot-toast";
 
 import { Button } from "~/components/ui/button";

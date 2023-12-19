@@ -6,12 +6,12 @@ const PRODUCT_ENDPOINT = "/api/products/get-store-products";
 
 const useStoreProducts = (storeName: string) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  // const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [artisans, setArtisans] = useState<Artisan[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
-  const [isSorting, setIsSorting] = useState<boolean>(false);
+  // const [isSorting, setIsSorting] = useState<boolean>(false);
 
   const fetchProducts = async () => {
     try {
@@ -61,6 +61,7 @@ const useStoreProducts = (storeName: string) => {
 
   useEffect(() => {
     if (storeName) void fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeName]);
 
   return {

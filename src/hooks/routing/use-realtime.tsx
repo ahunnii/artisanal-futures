@@ -5,9 +5,9 @@ import { env } from "~/env.mjs";
 
 import { useEffect, useState } from "react";
 import type {
+  ExpandedRouteData,
   PusherMessage,
   PusherUserData,
-  RouteData,
 } from "~/components/tools/routing/types";
 import {
   removeCurrentLocation,
@@ -16,7 +16,7 @@ import {
 
 const TRACKING_DURATION = 10000; // 10000ms = 10s
 
-const useRealTime = (routeData?: RouteData, routeId?: string) => {
+const useRealTime = (routeData?: ExpandedRouteData, routeId?: string) => {
   const [activeUsers, setActiveUsers] = useState<PusherUserData[]>([]);
   const [messages, setMessages] = useState<PusherMessage[]>([]);
   const [isTrackingCurrentUser, setIsTrackingCurrentUser] =

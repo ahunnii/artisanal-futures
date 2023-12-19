@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash } from "lucide-react";
 
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Button } from "~/components/ui/button";
@@ -15,21 +14,11 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { Separator } from "~/components/ui/separator";
 
 import { toast } from "~/components/ui/use-toast";
 import {
-  LaborCosts,
   useShopCalculator,
-  type MaterialCosts,
+  type LaborCosts,
 } from "~/hooks/use-shop-calculator";
 
 const laborFormSchema = z.object({

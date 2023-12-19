@@ -1,46 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  CalendarIcon,
-  CaretSortIcon,
-  EnvelopeClosedIcon,
-  FaceIcon,
-  GearIcon,
-  PersonIcon,
-  RocketIcon,
-} from "@radix-ui/react-icons";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import { CheckIcon, Trash } from "lucide-react";
 import { useRouter as useNavigationRouter } from "next/navigation";
 import { useRouter } from "next/router";
-import {
-  useEffect,
-  useState,
-  type MouseEvent,
-  type MouseEventHandler,
-} from "react";
+import { useState } from "react";
 
-import type { Account, Session, Shop, User } from "@prisma/client";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import type { Shop, User } from "@prisma/client";
+import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
 } from "~/components/ui/command";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+
 import {
   Popover,
   PopoverContent,
@@ -63,7 +39,7 @@ import {
 import { Heading } from "~/components/ui/heading";
 import { Input } from "~/components/ui/input";
 import LogoUpload from "~/components/ui/logo-upload";
-import { ScrollArea } from "~/components/ui/scroll-area";
+
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/utils/styles";

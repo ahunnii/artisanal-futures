@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Artisan, Attribute, Product } from "~/types";
+import type { Product } from "~/types";
 
 const PRODUCT_ENDPOINT = "/api/products";
 const ASSESSMENT_ENDPOINT = "/api/assessment";
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [additional, setAdditional] = useState<Product[]>([]);
+  const [, setAdditional] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
     const response = await fetch(PRODUCT_ENDPOINT);
@@ -46,6 +46,7 @@ export const useProducts = () => {
       .catch((error) => {
         console.log(error);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { products };

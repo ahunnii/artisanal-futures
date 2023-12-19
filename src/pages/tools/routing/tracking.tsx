@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
-import { useEffect } from "react";
 import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
 import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
 
@@ -15,22 +14,15 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-import { useDepot } from "~/hooks/routing/use-depot";
+
 import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
-import { fetchAllRoutes } from "~/utils/routing/supabase-utils";
+import { api } from "~/utils/api";
+
 import { cn } from "~/utils/styles";
 
 const LazyTrackingMap = dynamic(
@@ -42,13 +34,30 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  const { routes, setRoutes } = useDepot((state) => state);
+  // const { routes, setRoutes } = useDepot((state) => state);
 
   const { activeUsers, messages } = useRealTime();
 
-  useEffect(() => {
-    fetchAllRoutes(setRoutes);
-  }, [setRoutes]);
+  const { data: routes } =
+    api.finalizedRoutes.getAllFormattedFinalizedRoutes.useQuery({
+      filterOut: "COMPLETED",
+    });
+
+  // useEffect(() => {
+  //   console.log("changed");
+  //   if (depotRoutes && depotRoutes.length > 0) {
+  //     const filteredDepotRoutes = depotRoutes
+  //       .filter((dbRoute: FinalizedRoute) => dbRoute.status !== "COMPLETED")
+  //       .map((dbRoute: FinalizedRoute) => {
+  //         return {
+  //           ...(dbRoute.route as unknown as ExpandedRouteData),
+  //           routeId: dbRoute.id,
+  //         } as unknown as ExpandedRouteData;
+  //       }) as ExpandedRouteData[];
+  //     setRoutes(filteredDepotRoutes);
+  //   }
+  //   // fetchAllRoutes(setRoutes);
+  // }, [setRoutes, depotRoutes]);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {

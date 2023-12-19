@@ -11,14 +11,14 @@ import { getColor } from "~/utils/routing/color-handling";
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import { convertSecondsToTime } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
-import type { ExtendedStepData, RouteData, StepData } from "../types";
+import type { ExpandedRouteData, ExtendedStepData, StepData } from "../types";
 
 import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
 import OnlineIndicator from "./online-indicator";
 import StepLineSegment from "./step-line-segment";
 
 interface CardProps extends React.ComponentProps<typeof Card> {
-  data: RouteData;
+  data: ExpandedRouteData;
   handleOnStopClick?: (stop: StepData | null) => void;
 }
 
@@ -115,7 +115,6 @@ export function DriverRouteBreakdown({
 
 export function DriverRouteHeaderCard({
   data,
-  steps,
   textColor,
   isOnline = false,
 }: MinimalCardProps) {

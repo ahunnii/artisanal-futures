@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { PusherMessage } from "~/components/tools/routing/types";
+import type { PusherMessage } from "~/components/tools/routing/types";
 
 import { authOptions } from "~/server/auth";
 

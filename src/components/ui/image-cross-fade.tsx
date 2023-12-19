@@ -1,4 +1,4 @@
-import Image, { ImageProps } from "next/image";
+import Image, { type ImageProps } from "next/image";
 import React, { useEffect, useState } from "react";
 import wait from "waait";
 import { cn } from "~/utils/styles";

@@ -1,8 +1,6 @@
 import {
   forwardRef,
-  useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
   type MouseEventHandler,
@@ -17,7 +15,8 @@ import {
   TileLayer,
 } from "react-leaflet";
 
-import L, { type LatLngExpression, type Map } from "leaflet";
+import type L from "leaflet";
+import type { LatLngExpression, Map } from "leaflet";
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
 
@@ -33,11 +32,7 @@ import DriverPopup from "~/components/tools/routing/map/driver-popup";
 import RouteMarker from "~/components/tools/routing/map/route-marker";
 import StopPopup from "~/components/tools/routing/map/stop-popup";
 
-import type {
-  GeoJsonData,
-  Polyline,
-  Stop,
-} from "~/components/tools/routing/types";
+import type { GeoJsonData, Stop } from "~/components/tools/routing/types";
 
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";

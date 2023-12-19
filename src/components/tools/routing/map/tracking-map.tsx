@@ -12,10 +12,11 @@ import {
   LayerGroup as LeafletLayerGroup,
 } from "react-leaflet";
 
-import type { PusherUserData } from "../types";
+import type { ExpandedRouteData, PusherUserData } from "../types";
 
-import { useDepot } from "~/hooks/routing/use-depot";
+// import { useDepot } from "~/hooks/routing/use-depot";
 import useMap from "~/hooks/routing/use-map";
+import { api } from "~/utils/api";
 import { getStyle } from "~/utils/routing/color-handling";
 import { cn } from "~/utils/styles";
 import DepotPopup from "./depot-popup";
@@ -41,7 +42,12 @@ const TrackingMap = forwardRef<MapRef, TrackingMapProps>(
       trackingEnabled: true,
     };
 
-    const { routes } = useDepot((state) => state);
+    // const { routes } = useDepot((state) => state);
+
+    const { data: routes } =
+      api.finalizedRoutes.getAllFormattedFinalizedRoutes.useQuery({
+        filterOut: "COMPLETED",
+      });
 
     const { convertToGeoJSON } = useMap(params);
 
@@ -88,46 +94,51 @@ const TrackingMap = forwardRef<MapRef, TrackingMapProps>(
                 ))}
               </LeafletLayerGroup>
             </LayersControl.Overlay>
-            {routes.map((route, idx) => {
-              const { name } = JSON.parse(route?.description ?? "{}");
-              return (
-                <LayersControl.Overlay name={name} checked key={idx}>
-                  <LeafletLayerGroup>
-                    <>
-                      {route?.steps?.length &&
-                        route?.steps
-                          ?.filter((step) => step.type !== "break")
-                          .map((stop, index) => {
-                            const position = [
-                              stop?.location?.[1] ?? 0,
-                              stop?.location?.[0] ?? 0,
-                            ] as [number, number];
+            {routes &&
+              routes.length > 0 &&
+              routes.map((route, idx) => {
+                const { name } = JSON.parse(route?.description ?? "{}");
+                return (
+                  <LayersControl.Overlay name={name} checked key={idx}>
+                    <LeafletLayerGroup>
+                      <>
+                        {route?.steps?.length &&
+                          route?.steps
+                            ?.filter((step) => step.type !== "break")
+                            .map((stop, index) => {
+                              const position = [
+                                stop?.location?.[1] ?? 0,
+                                stop?.location?.[0] ?? 0,
+                              ] as [number, number];
 
-                            return (
-                              <RouteMarker
-                                id={stop?.id ?? 0}
-                                key={index}
-                                variant={stop.type === "job" ? "stop" : "depot"}
-                                position={position}
-                                color={route?.vehicle}
-                              >
-                                {stop.type === "job" ? (
-                                  <StopPopup step={stop} />
-                                ) : (
-                                  <DepotPopup route={route} />
-                                )}
-                              </RouteMarker>
-                            );
-                          })}
-                      <GeoJSON
-                        data={convertToGeoJSON(route)}
-                        style={getStyle}
-                      />
-                    </>
-                  </LeafletLayerGroup>
-                </LayersControl.Overlay>
-              );
-            })}
+                              return (
+                                <RouteMarker
+                                  id={stop?.id ?? 0}
+                                  key={index}
+                                  variant={
+                                    stop.type === "job" ? "stop" : "depot"
+                                  }
+                                  position={position}
+                                  color={route?.vehicle}
+                                >
+                                  {stop.type === "job" ? (
+                                    <StopPopup step={stop} />
+                                  ) : (
+                                    <DepotPopup route={route} />
+                                  )}
+                                </RouteMarker>
+                              );
+                            })}
+                        <GeoJSON
+                          data={convertToGeoJSON(route as ExpandedRouteData)}
+                          style={getStyle}
+                          key={route.routeId}
+                        />
+                      </>
+                    </LeafletLayerGroup>
+                  </LayersControl.Overlay>
+                );
+              })}
           </LayersControl>
         </MapContainer>
       </div>
