@@ -24,10 +24,7 @@ import { useParams } from "next/navigation";
 
 import StopDetails from "~/components/tools/routing/tracking/stop-details";
 
-import {
-  DriverRouteBreakdown,
-  DriverRouteHeaderCard,
-} from "~/components/tools/routing/solutions/driver-route-breakdown";
+import { DriverRouteBreakdown } from "~/components/tools/routing/solutions/driver-route-breakdown";
 
 import Head from "next/head";
 import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";

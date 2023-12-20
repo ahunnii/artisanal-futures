@@ -4,7 +4,7 @@ import type { PusherMessage } from "~/components/tools/routing/types";
 
 import { authOptions } from "~/server/auth";
 
-import { pusher } from "~/server/pusher/client";
+// import { pusher } from "~/server/pusher/client";
 import { pusherServer } from "~/server/soketi/server";
 
 const messages: PusherMessage[] = [];

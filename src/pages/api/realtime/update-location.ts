@@ -5,7 +5,7 @@ import type { RouteData } from "~/components/tools/routing/types";
 
 import { authOptions } from "~/server/auth";
 
-import { pusher } from "~/server/pusher/client";
+// import { pusher } from "~/server/pusher/client";
 import { pusherServer } from "~/server/soketi/server";
 
 type UserLocation = {

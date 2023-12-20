@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     .split("&")
     .map((str) => str.split("=")[1]);
 
-  const authResponse = pusherServer.authorizeChannel(socketId, channelName);
+  const authResponse = pusherServer.authorizeChannel(socketId!, channelName!);
 
   return new Response(JSON.stringify(authResponse));
 }
