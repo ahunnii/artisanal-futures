@@ -15,7 +15,20 @@ export const convertMetersToMiles = (meters: number) => {
   return (meters / 1609.344).toFixed(1);
 };
 
-const formatBreak = (breakSlot: Break) => {
+const formatBreak = (breakSlot: Break, shift: TimeWindow) => {
+  if (breakSlot.time_windows.length === 0) {
+    return {
+      ...breakSlot,
+      time_windows: [
+        [
+          convertTimeWindowToSeconds(shift.startTime),
+          convertTimeWindowToSeconds(shift.endTime),
+        ],
+      ],
+      service: breakSlot.service * 60,
+    };
+  }
+
   const timeSlots = breakSlot.time_windows.map((tw) => [
     convertTimeWindowToSeconds(tw.startTime),
     convertTimeWindowToSeconds(tw.endTime),
@@ -78,7 +91,7 @@ export const convertDriverToVehicle = (driver: Driver) => {
     max_tasks: driver.max_stops,
     capacity: [250],
     skills: [1],
-    breaks: driver.break_slots.map((tw) => formatBreak(tw)),
+    breaks: driver.break_slots.map((tw) => formatBreak(tw, driver.time_window)),
     time_window: [
       convertTimeWindowToSeconds(driver.time_window.startTime),
       convertTimeWindowToSeconds(driver.time_window.endTime),
@@ -180,7 +193,9 @@ export const parseDataFromDriver = (driver: Driver | null) => {
     ],
 
     breaks: driver?.break_slots ?? [],
-    formattedBreaks: driver.break_slots.map((tw) => formatBreak(tw)),
+    formattedBreaks: driver.break_slots.map((tw) =>
+      formatBreak(tw, driver?.time_window)
+    ),
     maxTravel: driver?.max_travel_time ?? 0,
     maxStops: driver?.max_stops ?? 0,
 

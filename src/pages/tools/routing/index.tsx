@@ -55,9 +55,9 @@ const RoutingPage = () => {
 
   const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
 
-  const { data: routes } = api.finalizedRoutes.getAllFinalizedRoutes.useQuery();
+  // const { data: routes } = api.finalizedRoutes.getAllFinalizedRoutes.useQuery();
 
-  console.log(routes);
+  // console.log(routes);
   return (
     <>
       <Head>

@@ -65,8 +65,8 @@ export const finalizedRouter = createTRPCRouter({
       });
 
       if (temp.length > 0) {
-        console.log("match");
-        console.log(temp[0]?.id);
+        // console.log("match");
+        // console.log(temp[0]?.id);
         return temp[0];
       }
       const route = await ctx.prisma.finalizedRoute.create({
@@ -76,8 +76,8 @@ export const finalizedRouter = createTRPCRouter({
         },
       });
 
-      console.log(route.id);
-      console.log(route);
+      // console.log(route.id);
+      // console.log(route);
       return route;
     }),
 

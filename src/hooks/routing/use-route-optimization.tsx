@@ -83,6 +83,8 @@ const useRouteOptimization = () => {
       },
     };
 
+    console.log(params);
+
     const { data } = await axios.post(address, params);
 
     if (!data)
