@@ -29,6 +29,7 @@ tf.ENV.set("WEBGL_PACK", false); // This needs to be done otherwise things run v
  * Main application to start on window load
  */
 class Main {
+
   constructor() {
     // @ts-ignore
     if (window.mobilecheck()) {
@@ -98,6 +99,11 @@ class Main {
       this.transformNet = transformNet;
       this.enableStylizeButtons();
     });
+
+    // @ts-ignore
+    // Don't know why this is throwing an error now...
+    this.camModal = undefined;
+
   }
 
   async loadMobileNetStyleModel() {
@@ -186,7 +192,12 @@ class Main {
 
   // @ts-ignore
   openModal(element) {
-    this.camModal.modal("show");
+    if (this.camModal) {
+      this.camModal.modal("show");
+      // rest of your code
+    } else {
+      console.error('camModal is undefined');
+    }
     // @ts-ignore
     this.snapButton.onclick = () => {
       const hiddenCanvas = document.getElementById("hidden-canvas");
