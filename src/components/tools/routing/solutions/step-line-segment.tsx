@@ -25,7 +25,7 @@ const StepLineSegment = ({
 
   const segmentType = {
     job: {
-      firstLine: name,
+      firstLine: name + " - " + step?.status,
       secondLine: address,
       Icon: <>{idx}</>,
     },

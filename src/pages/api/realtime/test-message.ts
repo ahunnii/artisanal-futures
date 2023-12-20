@@ -17,29 +17,30 @@ type UserLocation = {
   fileId?: string;
   route: RouteData;
 };
-let userLocations: UserLocation[] = [];
+// let userLocations: UserLocation[] = [];
 const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
-    const session = await getServerSession(req, res, authOptions);
-    const userId = session?.user?.id ?? "0";
+    // const session = await getServerSession(req, res, authOptions);
+    // const userId = session?.user?.id ?? "0";
 
-    const { latitude, longitude, accuracy, removeUser, fileId, route } =
-      req.body;
-    // Update the location of the user
-    userLocations = userLocations.filter((user) => user.userId !== userId);
+    // const { latitude, longitude, accuracy, removeUser, fileId, route } =
+    //   req.body;
+    // // Update the location of the user
+    // userLocations = userLocations.filter((user) => user.userId !== userId);
 
-    if (!removeUser)
-      userLocations.push({
-        userId,
-        latitude,
-        longitude,
-        accuracy,
-        fileId,
-        route,
-      });
+    // if (!removeUser)
+    //   userLocations.push({
+    //     userId,
+    //     latitude,
+    //     longitude,
+    //     accuracy,
+    //     fileId,
+    //     route,
+    //   });
 
     // Trigger a Pusher event with the updated locations
-    await pusherServer.trigger("map", "update-locations", userLocations);
+    console.log("triggering");
+    await pusherServer.trigger("map", "evt::test-message", "invalidate");
     res.status(200).send("Location updated");
   } else {
     res.status(405).send("Method not allowed");

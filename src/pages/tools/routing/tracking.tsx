@@ -23,6 +23,9 @@ import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
 import { api } from "~/utils/api";
 
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 
 const LazyTrackingMap = dynamic(
@@ -34,30 +37,37 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  // const { routes, setRoutes } = useDepot((state) => state);
-
   const { activeUsers, messages } = useRealTime();
+
+  console.log(messages);
+  const apiContext = api.useContext();
 
   const { data: routes } =
     api.finalizedRoutes.getAllFormattedFinalizedRoutes.useQuery({
       filterOut: "COMPLETED",
     });
 
-  // useEffect(() => {
-  //   console.log("changed");
-  //   if (depotRoutes && depotRoutes.length > 0) {
-  //     const filteredDepotRoutes = depotRoutes
-  //       .filter((dbRoute: FinalizedRoute) => dbRoute.status !== "COMPLETED")
-  //       .map((dbRoute: FinalizedRoute) => {
-  //         return {
-  //           ...(dbRoute.route as unknown as ExpandedRouteData),
-  //           routeId: dbRoute.id,
-  //         } as unknown as ExpandedRouteData;
-  //       }) as ExpandedRouteData[];
-  //     setRoutes(filteredDepotRoutes);
-  //   }
-  //   // fetchAllRoutes(setRoutes);
-  // }, [setRoutes, depotRoutes]);
+  const testMessage = (message: string) => {
+    if (message === "invalidate") {
+      // toast.success("Invalidate");
+
+      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+
+      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+      // void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
+
+      void apiContext.finalizedRoutes.invalidate();
+    }
+  };
+
+  useEffect(() => {
+    const channel = pusherClient.subscribe("map");
+    channel.bind("evt::test-message", testMessage);
+
+    return () => {
+      channel.unbind();
+    };
+  }, []);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {

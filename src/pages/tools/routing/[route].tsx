@@ -38,6 +38,7 @@ import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
 import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
 
+import RouteHeaderCard from "~/components/tools/routing/solutions/route-header-card";
 import { api } from "~/utils/api";
 
 interface IProps {
@@ -56,9 +57,15 @@ const LazyDriverMap = dynamic(
 const RoutePage: FC<IProps> = () => {
   const params = useParams();
 
-  const { data, isLoading } = api.finalizedRoutes.getFinalizedRoute.useQuery({
-    routeId: (params?.route as string) ?? "",
-  });
+  const { data, isLoading } = api.finalizedRoutes.getFinalizedRoute.useQuery(
+    {
+      routeId: (params?.route as string) ?? "",
+    },
+    {
+      refetchIntervalInBackground: true,
+      // refetchInterval: 1000,
+    }
+  );
 
   const { stops, setStops, selectedStop } = useDriverRoute((state) => state);
   const { isTrackingCurrentUser, setIsTrackingCurrentUser } = useRealTime(
@@ -144,9 +151,8 @@ const RoutePage: FC<IProps> = () => {
                 <div className="flex lg:hidden">
                   <Sheet open={dataOpen} onOpenChange={setDataOpen}>
                     <SheetTrigger>
-                      <DriverRouteHeaderCard
+                      <RouteHeaderCard
                         data={data?.route}
-                        steps={stops}
                         textColor={data?.route?.vehicle}
                       />
                     </SheetTrigger>

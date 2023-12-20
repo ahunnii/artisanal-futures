@@ -14,6 +14,7 @@ import {
 
 import { useParams } from "next/navigation";
 
+import axios from "axios";
 import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
 import { api } from "~/utils/api";
 import { sendMessage } from "~/utils/routing/realtime-utils";
@@ -30,6 +31,7 @@ interface IProps {
 const StopDetails: FC<IProps> = ({ open, setOpen, routeData }) => {
   const driverRoute = useDriverRoute((state) => state);
   const apiContext = api.useContext();
+  // const pain = api.useUtils();
 
   const { address } = JSON.parse(driverRoute.selectedStop!.description ?? "{}");
 
@@ -37,6 +39,9 @@ const StopDetails: FC<IProps> = ({ open, setOpen, routeData }) => {
     onSettled: () => {
       void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
       void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
+
+      void axios.post("/api/realtime/test-message");
+      // void apiContext.invalidate();
     },
     onSuccess: () => {
       // toast.success("Successfully updated stop!");
