@@ -1,33 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { AnimatePresence, motion } from "framer-motion";
 import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
 import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
 import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
 import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
 import StopsDynamicTab from "~/components/tools/routing/stops/stops-tab";
 import { Button } from "~/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import RouteLayout from "~/layouts/route-layout";
 
 import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-import { ScrollArea } from "~/components/ui/scroll-area";
+
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useStops } from "~/hooks/routing/use-stops";
+import { api } from "~/utils/api";
 
 const LazyRoutingMap = dynamic(
   () => import("~/components/tools/routing/map/routing-map"),
@@ -62,6 +55,9 @@ const RoutingPage = () => {
 
   const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
 
+  // const { data: routes } = api.finalizedRoutes.getAllFinalizedRoutes.useQuery();
+
+  // console.log(routes);
   return (
     <>
       <Head>

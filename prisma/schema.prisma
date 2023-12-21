@@ -71,6 +71,21 @@ model User {
   depots        Depot[]
 }
 
+enum RouteStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model FinalizedRoute {
+  id        String   @id @default(cuid())
+  userId    String
+  route     Json
+  status    RouteStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique

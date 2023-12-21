@@ -17,7 +17,6 @@ import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
 import { SortButton } from "~/components/forum/sort-button";
 import { Button } from "~/components/ui/button";
 import ForumLayout from "~/layouts/forum-layout";
-import { prisma } from "~/server/db";
 
 import { api, type RouterInputs } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";

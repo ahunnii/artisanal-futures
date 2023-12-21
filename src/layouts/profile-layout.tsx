@@ -1,7 +1,6 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/router";
+
 import { useMemo } from "react";
 
 import Body from "~/components/body";
@@ -20,8 +19,6 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
   const { data: shop } = api.shops.getCurrentUserShop.useQuery();
   const { data: sessionData, status } = useSession();
   const { data: shops } = api.shops.getAllCurrentUserShops.useQuery();
-  const router = useRouter();
-  const params = useParams();
 
   const navItems = useMemo(() => {
     return [

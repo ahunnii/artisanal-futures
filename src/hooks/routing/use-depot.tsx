@@ -1,9 +1,5 @@
-import { uniqueId } from "lodash";
 import { create } from "zustand";
-import type {
-  ExpandedRouteData,
-  ExtendedStepData,
-} from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/components/tools/routing/types";
 
 export interface useDepotStore {
   routes: ExpandedRouteData[];

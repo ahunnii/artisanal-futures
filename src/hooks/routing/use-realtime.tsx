@@ -4,39 +4,51 @@ import Pusher from "pusher-js";
 import { env } from "~/env.mjs";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import type {
+  ExpandedRouteData,
   PusherMessage,
   PusherUserData,
-  RouteData,
 } from "~/components/tools/routing/types";
+import { pusherClient } from "~/server/soketi/client";
+import { api } from "~/utils/api";
 import {
   removeCurrentLocation,
   sendCurrentLocation,
 } from "~/utils/routing/realtime-utils";
 
-const TRACKING_DURATION = 10000; // 10000ms = 10s
+const TRACKING_DURATION = 1000; // 10000ms = 10s
 
-const useRealTime = (routeData?: RouteData, routeId?: string) => {
+const useRealTime = (routeData?: ExpandedRouteData, routeId?: string) => {
   const [activeUsers, setActiveUsers] = useState<PusherUserData[]>([]);
   const [messages, setMessages] = useState<PusherMessage[]>([]);
   const [isTrackingCurrentUser, setIsTrackingCurrentUser] =
     useState<boolean>(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
+  // const apiContext = api.useContext();
   const triggerActiveUser = () => sendCurrentLocation(routeId!, routeData!);
+  // const testMessage = (message: string) => {
+  //   console.log(message);
+  //   if (message === "invalidate") {
+  //     void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+  //     toast.success("Invalidate");
+  //   }
+  // };
 
   useEffect(() => {
-    const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
-      cluster: "us2",
-    });
-    const channel = pusher.subscribe("map");
+    // const pusher = new Pusher(env.NEXT_PUBLIC_PUSHER_APP_KEY, {
+    //   cluster: "us2",
+    // });
+    const channel = pusherClient.subscribe("map");
 
     channel.bind("update-locations", setActiveUsers);
     channel.bind("update-messages", setMessages);
+    // channel.bind("evt::test-message", testMessage);
 
     return () => {
       removeCurrentLocation();
-      pusher.unsubscribe("map");
+      channel.unbind();
     };
   }, []);
 

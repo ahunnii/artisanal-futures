@@ -1,19 +1,17 @@
 import type { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import { useEffect, type FC } from "react";
+import { type FC } from "react";
 
 import { authenticateSession } from "~/utils/auth";
 
 import type { Shop } from "@prisma/client";
 
 import type { Session } from "next-auth";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/router";
+
 import { ShopForm } from "~/components/profile/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";
-import { api } from "~/utils/api";
 
 interface DashboardPageProps {
   shop: Shop;

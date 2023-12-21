@@ -1,38 +1,31 @@
-import { Check, ChevronRight } from "lucide-react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Check } from "lucide-react";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { Card } from "~/components/ui/card";
 
 import { useEffect, useMemo, useState } from "react";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import { useDepot } from "~/hooks/routing/use-depot";
+import { api } from "~/utils/api";
 import { getColor } from "~/utils/routing/color-handling";
-import { convertMetersToMiles } from "~/utils/routing/data-formatting";
-import {
-  archiveRoute,
-  fetchAllRoutes,
-  saveRoute,
-} from "~/utils/routing/supabase-utils";
-import { convertSecondsToTime } from "~/utils/routing/time-formatting";
+
+import axios from "axios";
+
 import { cn } from "~/utils/styles";
 import type { ExpandedRouteData, PusherMessage, StepData } from "../types";
 import { DynamicRouteQRModal } from "../ui/RouteQRModal";
-import StepLineSegment from "./step-line-segment";
+
+import { DriverDispatchMessaging } from "../ui/driver-dispatch-messaging";
+import RouteBreakdown from "./route-breakdown";
+import RouteHeaderCard from "./route-header-card";
 
 interface CardProps extends React.ComponentProps<typeof Card> {
   data: ExpandedRouteData;
@@ -61,65 +54,71 @@ export function MinimalRouteCard({
   messages = [],
   ...props
 }: MinimalCardProps) {
-  const { name: driverName, address: startingAddress } = JSON.parse(
-    data.description ?? "{}"
-  );
-
-  const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
-  const endTime = convertSecondsToTime(
-    (data?.steps?.[0]?.arrival ?? 0) +
-      data?.setup +
-      data?.service +
-      data?.waiting_time +
-      data?.duration
-  );
+  const { address: startingAddress } = JSON.parse(data.description ?? "{}");
 
   const numberOfStops = data?.steps?.filter(
     (step) => step.type === "job"
   ).length;
 
-  let jobIndex = 0;
-
   const [onOpen, setOnOpen] = useState(false);
   const color = getColor(textColor!).background;
+  const apiContext = api.useContext();
+
+  const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
+    onError: (error) => {
+      toast.error(error.message);
+      console.error(error);
+    },
+  });
+
+  const { mutate: updateFinalizedRouteStatus } =
+    api.finalizedRoutes.updateFinalizedRouteStatus.useMutation({
+      onError: (error) => {
+        toast.error(error.message);
+        console.error(error);
+      },
+      onSettled: () => {
+        console.log("etereed");
+        void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+
+        void axios.post("/api/realtime/test-message");
+        setOnOpen(false);
+      },
+    });
 
   const [routeSteps, setRouteSteps] = useState<ExtendedStepData[]>([]);
 
-  const { setRoutes, setSelectedRoute } = useDepot((state) => state);
+  const { setSelectedRoute } = useDepot((state) => state);
 
-  const router = useRouter();
+  // const router = useRouter();
   const archiveRouteAndRefetch = () => {
     if (!isTracking || !data?.routeId) return;
-    archiveRoute(data?.routeId)
-      .then(() => {
-        fetchAllRoutes(setRoutes);
-        router.reload();
-      })
-      .catch(console.error);
+
+    updateFinalizedRouteStatus({
+      routeId: data?.routeId,
+      status: "COMPLETED",
+    });
   };
 
   useEffect(() => {
     if (!data) return;
-    const success = (data: string) => console.log(data);
-
-    const error = (error: string) => console.error(error);
 
     setRouteSteps(data.steps);
 
-    if (!isTracking) void saveRoute(data, success, error);
+    if (!isTracking) mutate(data);
   }, [data, isTracking]);
 
-  useEffect(() => {
-    if (messages?.length > 0 && routeSteps) {
-      const temp = messages.map((message) => message.stopId);
+  // useEffect(() => {
+  //   if (messages?.length > 0 && routeSteps) {
+  //     const temp = messages.map((message) => message.stopId);
 
-      const temp2 = routeSteps.map((step) => {
-        return temp.includes(step.job!) ? { ...step, status: "success" } : step;
-      });
+  //     const temp2 = routeSteps.map((step) => {
+  //       return temp.includes(step.job!) ? { ...step, status: "success" } : step;
+  //     });
 
-      setRouteSteps(temp2 as ExtendedStepData[]);
-    }
-  }, [messages]);
+  //     setRouteSteps(temp2 as ExtendedStepData[]);
+  //   }
+  // }, [messages]);
 
   const routeStatus = useMemo(() => {
     const temp = routeSteps?.filter(
@@ -128,9 +127,6 @@ export function MinimalRouteCard({
 
     return temp === numberOfStops;
   }, [routeSteps, numberOfStops]);
-
-  const distance = convertMetersToMiles(data?.distance);
-  const colorText = getColor(textColor!).text;
 
   const handleOnOpenChange = (toggle: boolean) => {
     console.log(toggle);
@@ -143,79 +139,43 @@ export function MinimalRouteCard({
     setSelectedRoute(data);
     setOnOpen(true);
   };
-
+  const { name: driverName } = JSON.parse(data.description ?? "{}");
   return (
     <>
+      {" "}
       <Button
         variant={"ghost"}
         className="my-2 ml-auto  flex h-auto  w-full p-0 text-left"
         onClick={handleOnOpen}
       >
         <Card className={cn("w-full  hover:bg-slate-50", className)} {...props}>
-          <CardHeader className="flex flex-row items-center justify-between py-1">
-            <div>
-              <CardTitle className="flex  flex-row items-center gap-4 text-base ">
-                <div className={cn("flex basis-2/3 font-bold", colorText)}>
-                  {driverName} {routeStatus && "✅"}
-                </div>
-                {isOnline && (
-                  <div className="flex basis-1/3 items-center gap-2">
-                    <span className="text-sm text-green-500">Online</span>
-                    <span className="relative flex h-3 w-3">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
-                    </span>
-                  </div>
-                )}
-              </CardTitle>
-              <CardDescription>
-                {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
-                miles
-              </CardDescription>
-            </div>
-            <ChevronRight className="text-slate-800 group-hover:bg-opacity-30" />
-          </CardHeader>
+          {/* <div className="flex w-full items-center justify-between pr-5">
+     
+            {" "} */}
+          <RouteHeaderCard
+            data={data}
+            textColor={textColor}
+            isButton={true}
+            isOnline={isOnline}
+          />{" "}
+          {/* <DriverDispatchMessaging recipient={"driver"} route={data} />
+        </div> */}
         </Card>
       </Button>
-
       <Sheet onOpenChange={handleOnOpenChange} open={onOpen}>
         <SheetContent className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg">
-          <SheetHeader>
-            <SheetTitle>
-              Route for <span className={cn(colorText)}>{driverName}</span>
-            </SheetTitle>
-            <SheetDescription>
-              {startTime} to {endTime} • {numberOfStops} stops • {distance}{" "}
-              miles
-            </SheetDescription>
+          <SheetHeader className="text-left">
+            <RouteHeaderCard
+              data={data}
+              textColor={textColor}
+              className="shadow-none"
+            />
           </SheetHeader>{" "}
-          <ScrollArea className="flex-1 bg-slate-50 shadow-inner">
-            <div className="w-full px-4 ">
-              {routeSteps?.length > 0 &&
-                routeSteps?.map((step, idx) => {
-                  return (
-                    <div key={idx} className="w-full">
-                      {step.type === "job" && (
-                        <StepLineSegment
-                          step={step}
-                          idx={++jobIndex}
-                          color={color}
-                        />
-                      )}
-                      {(step.type === "start" ||
-                        step.type === "end" ||
-                        step.type === "break") && (
-                        <StepLineSegment
-                          step={step}
-                          addressRoundTrip={startingAddress}
-                          color={color}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          </ScrollArea>
+          <RouteBreakdown
+            steps={routeSteps}
+            color={color}
+            startingAddress={startingAddress}
+          />
           <SheetFooter>
             {!isTracking && <DynamicRouteQRModal data={data} />}
             {isTracking && (

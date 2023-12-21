@@ -12,6 +12,7 @@ import "leaflet/dist/leaflet.css";
 import useMap from "~/hooks/routing/use-map";
 
 import { Button } from "~/components/ui/button";
+import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
 import { cn } from "~/utils/styles";
 import type { RouteData, StepData } from "../types";
 import DriverPopup from "./driver-popup";
@@ -43,6 +44,8 @@ const TempMap = forwardRef<MapRef, IProps>(
 
     const { convertToGeoJSON, currentLocation, flyToCurrentLocation } =
       useMap(params);
+
+    const driverRoute = useDriverRoute((state) => state);
 
     return (
       <div className={cn(className, "z-0 flex w-full flex-col max-lg:grow")}>
@@ -108,6 +111,11 @@ const TempMap = forwardRef<MapRef, IProps>(
                   ]
                 }
                 color={vehicle.vehicle}
+                onClick={
+                  step.type === "job"
+                    ? () => driverRoute.setSelectedStop(step)
+                    : () => null
+                }
               >
                 {step.type === "job" ? (
                   <StopPopup step={step} />

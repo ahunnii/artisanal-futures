@@ -1,6 +1,4 @@
-import Link from "next/link";
 import * as React from "react";
-import { GithubLogo, HeartFilledIcon } from "~/components/forum/icons";
 
 export function Footer() {
   return (

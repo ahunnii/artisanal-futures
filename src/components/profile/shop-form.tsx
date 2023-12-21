@@ -26,7 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import LogoUpload from "../ui/logo-upload";
 import { Textarea } from "../ui/textarea";

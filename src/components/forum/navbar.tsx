@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
-import { MainNav } from "~/components/forum/main-nav";
+
 import { Button } from "~/components/ui/button";
 import UserNav from "~/components/ui/user-nav";
 import { SearchDialog } from "./search-dialog";

@@ -106,6 +106,8 @@
     "react-webcam": "^7.1.1",
     "recharts": "^2.7.3",
     "resend": "^1.0.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
     "superjson": "^1.13.1",
     "swr": "^2.2.1",
     "tailwind-merge": "^1.14.0",

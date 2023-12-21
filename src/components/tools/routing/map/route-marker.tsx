@@ -1,19 +1,10 @@
 import { divIcon } from "leaflet";
 import { Building, Truck } from "lucide-react";
-import { useParams } from "next/navigation";
+
 import { useMemo, type FC } from "react";
 import ReactDOMServer from "react-dom/server";
 import { Marker, Popup, type MarkerProps } from "react-leaflet";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-import { useDriverSheet } from "~/hooks/routing/use-driver-sheet";
-import { useDrivers } from "~/hooks/routing/use-drivers";
-import { useSheet } from "~/hooks/routing/use-sheet";
-import { useStops } from "~/hooks/routing/use-stops";
+
 import { getColor } from "~/utils/routing/color-handling";
 import type { Driver, RouteData, Stop } from "../types";
 
@@ -24,6 +15,7 @@ interface IProps extends MarkerProps {
   id: number;
   stopId?: number;
   data?: Stop | Driver | RouteData;
+  onClick?: () => void;
 }
 
 export const TruckIcon = (color: string) => {
@@ -104,9 +96,10 @@ const RouteMarker: FC<IProps> = ({
   position,
   color,
   variant,
-  id,
+
   stopId,
   children,
+  onClick,
 }) => {
   const calculatedColor = useMemo(() => {
     if (color == -1)
@@ -128,7 +121,15 @@ const RouteMarker: FC<IProps> = ({
       : TruckIcon(calculatedColor.text!);
 
   return (
-    <Marker position={position} icon={icon}>
+    <Marker
+      position={position}
+      icon={icon}
+      eventHandlers={{
+        click: () => {
+          if (onClick) onClick();
+        },
+      }}
+    >
       <Popup>{children}</Popup>
     </Marker>
   );

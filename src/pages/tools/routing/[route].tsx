@@ -4,25 +4,17 @@ import dynamic from "next/dynamic";
 
 import React, { useEffect, useState, type FC } from "react";
 
-import { supabase } from "~/server/supabase/client";
-
 import "leaflet-geosearch/dist/geosearch.css";
 import "leaflet/dist/leaflet.css";
-import type { GetServerSidePropsContext } from "next";
+
 import { Beforeunload } from "react-beforeunload";
 
 import type { RouteData, StepData } from "~/components/tools/routing/types";
 import { Button } from "~/components/ui/button";
-import {
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  type Card,
-} from "~/components/ui/card";
+
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -32,21 +24,19 @@ import { useParams } from "next/navigation";
 
 import StopDetails from "~/components/tools/routing/tracking/stop-details";
 
-import {
-  DriverRouteBreakdown,
-  DriverRouteHeaderCard,
-} from "~/components/tools/routing/solutions/driver-route-breakdown";
+import { DriverRouteBreakdown } from "~/components/tools/routing/solutions/driver-route-breakdown";
 
 import Head from "next/head";
 import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
-import OnlineIndicator from "~/components/tools/routing/solutions/online-indicator";
-import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
+
+import PageLoader from "~/components/ui/page-loader";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
 import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
-import { parseIncomingDBData } from "~/utils/routing/file-handling";
-import { cn } from "~/utils/styles";
+
+import RouteHeaderCard from "~/components/tools/routing/solutions/route-header-card";
+import { api } from "~/utils/api";
 
 interface IProps {
   data: RouteData;
@@ -61,21 +51,35 @@ const LazyDriverMap = dynamic(
   }
 );
 
-const RoutePage: FC<IProps> = ({ data, steps }) => {
-  const { route } = useParams();
+const RoutePage: FC<IProps> = () => {
+  const params = useParams();
+
+  const { data, isLoading } = api.finalizedRoutes.getFinalizedRoute.useQuery(
+    {
+      routeId: (params?.route as string) ?? "",
+    },
+    {
+      refetchIntervalInBackground: true,
+      // refetchInterval: 1000,
+    }
+  );
 
   const { stops, setStops, selectedStop } = useDriverRoute((state) => state);
   const { isTrackingCurrentUser, setIsTrackingCurrentUser } = useRealTime(
-    data,
-    route as string
+    data?.route,
+    (params?.route as string) ?? ""
   );
 
   const [open, setOpen] = useState(false);
   const [dataOpen, setDataOpen] = useState<boolean>(false);
 
+  // useEffect(() => {
+  //   if (steps) setStops(steps);
+  // }, [steps]);
+
   useEffect(() => {
-    if (steps) setStops(steps);
-  }, [steps]);
+    if (data) setStops(data?.steps);
+  }, [data]);
 
   // If user clicks on a stop, open the stop details modal
   useEffect(() => {
@@ -94,135 +98,163 @@ const RoutePage: FC<IProps> = ({ data, steps }) => {
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
       <RouteLayout>
-        <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
-          <div className="flex w-full flex-col gap-4 max-lg:hidden max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
-            <>
-              <Beforeunload
-                onBeforeunload={(event) => {
-                  event.preventDefault();
-                }}
-              />
-              {steps.length > 0 && (
-                <DriverRouteBreakdown
-                  data={data}
-                  steps={stops}
-                  textColor={data?.vehicle}
-                />
-              )}
-              <Button
-                onClick={() => setIsTrackingCurrentUser(true)}
-                disabled={isTrackingCurrentUser}
-                variant={isTrackingCurrentUser ? "secondary" : "default"}
-              >
-                {isTrackingCurrentUser && <LoadingIndicator />}
-                {isTrackingCurrentUser
-                  ? "Broadcasting location with dispatch..."
-                  : "Start Route"}
-              </Button>{" "}
-              {isTrackingCurrentUser && (
-                <Button
-                  onClick={() => setIsTrackingCurrentUser(false)}
-                  variant={"default"}
-                >
-                  Stop broadcasting location with dispatch
-                </Button>
-              )}
-              {selectedStop && (
-                <StopDetails open={open} setOpen={setOpen} routeData={data} />
-              )}
-            </>
-          </div>
-          <div className="flex lg:hidden">
-            <Sheet open={dataOpen} onOpenChange={setDataOpen}>
-              <SheetTrigger>
-                <DriverRouteHeaderCard
-                  data={data}
-                  steps={stops}
-                  textColor={data?.vehicle}
-                />
-              </SheetTrigger>
-
-              <SheetContent
-                side={"bottom"}
-                className=" flex h-[75vh]    flex-col rounded-t-3xl p-2"
-              >
-                <SheetHeader className=" pt-4 ">
-                  <SheetTitle></SheetTitle>
-                </SheetHeader>
-                <ScrollArea className="h-[calc(100%-64px)] w-full gap-5 p-4">
+        {isLoading ? (
+          <PageLoader />
+        ) : (
+          <>
+            {data && (
+              <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
+                <div className="flex w-full flex-col gap-4 max-lg:hidden max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
                   <>
                     <Beforeunload
                       onBeforeunload={(event) => {
                         event.preventDefault();
                       }}
                     />
-                    {steps.length > 0 && (
+                    {data?.steps && data?.steps?.length > 0 && (
                       <DriverRouteBreakdown
-                        data={data}
+                        data={data?.route}
                         steps={stops}
-                        textColor={data?.vehicle}
+                        textColor={data?.route?.vehicle}
+                      />
+                    )}
+                    <Button
+                      onClick={() => setIsTrackingCurrentUser(true)}
+                      disabled={isTrackingCurrentUser}
+                      variant={isTrackingCurrentUser ? "secondary" : "default"}
+                    >
+                      {isTrackingCurrentUser && <LoadingIndicator />}
+                      {isTrackingCurrentUser
+                        ? "Broadcasting location with dispatch..."
+                        : "Start Route"}
+                    </Button>{" "}
+                    {isTrackingCurrentUser && (
+                      <Button
+                        onClick={() => setIsTrackingCurrentUser(false)}
+                        variant={"default"}
+                      >
+                        Stop broadcasting location with dispatch
+                      </Button>
+                    )}
+                    {selectedStop && (
+                      <StopDetails
+                        open={open}
+                        setOpen={setOpen}
+                        routeData={data?.route}
                       />
                     )}
                   </>
-                </ScrollArea>{" "}
-                <Button
-                  onClick={() => setIsTrackingCurrentUser(true)}
-                  className="w-full"
-                  disabled={isTrackingCurrentUser}
-                  variant={isTrackingCurrentUser ? "secondary" : "default"}
-                >
-                  {isTrackingCurrentUser && <LoadingIndicator />}
-                  {isTrackingCurrentUser
-                    ? "Broadcasting location with dispatch..."
-                    : "Start Route"}
-                </Button>{" "}
-                {isTrackingCurrentUser && (
-                  <Button
-                    onClick={() => setIsTrackingCurrentUser(false)}
-                    variant={"default"}
-                    className="w-full"
-                  >
-                    Stop broadcasting location with dispatch
-                  </Button>
+                </div>
+                <div className="flex lg:hidden">
+                  <Sheet open={dataOpen} onOpenChange={setDataOpen}>
+                    <SheetTrigger>
+                      <RouteHeaderCard
+                        data={data?.route}
+                        textColor={data?.route?.vehicle}
+                      />
+                    </SheetTrigger>
+
+                    <SheetContent
+                      side={"bottom"}
+                      className=" flex h-[75vh]    flex-col rounded-t-3xl p-2"
+                    >
+                      <SheetHeader className=" pt-4 ">
+                        <SheetTitle></SheetTitle>
+                      </SheetHeader>
+                      <ScrollArea className="h-[calc(100%-64px)] w-full gap-5 p-4">
+                        <>
+                          <Beforeunload
+                            onBeforeunload={(event) => {
+                              event.preventDefault();
+                            }}
+                          />
+                          {data?.steps.length > 0 && (
+                            <DriverRouteBreakdown
+                              data={data?.route}
+                              steps={stops}
+                              textColor={data?.route?.vehicle}
+                            />
+                          )}
+                        </>
+                      </ScrollArea>{" "}
+                      <Button
+                        onClick={() => setIsTrackingCurrentUser(true)}
+                        className="w-full"
+                        disabled={isTrackingCurrentUser}
+                        variant={
+                          isTrackingCurrentUser ? "secondary" : "default"
+                        }
+                      >
+                        {isTrackingCurrentUser && <LoadingIndicator />}
+                        {isTrackingCurrentUser
+                          ? "Broadcasting location with dispatch..."
+                          : "Start Route"}
+                      </Button>{" "}
+                      {isTrackingCurrentUser && (
+                        <Button
+                          onClick={() => setIsTrackingCurrentUser(false)}
+                          variant={"default"}
+                          className="w-full"
+                        >
+                          Stop broadcasting location with dispatch
+                        </Button>
+                      )}
+                      {selectedStop && (
+                        <StopDetails
+                          open={open}
+                          setOpen={setOpen}
+                          routeData={data?.route}
+                        />
+                      )}
+                    </SheetContent>
+                  </Sheet>
+                </div>
+                {data?.route?.geometry && stops && (
+                  <LazyDriverMap
+                    steps={stops}
+                    focusedStop={selectedStop}
+                    vehicle={data?.route}
+                    className="max-md:aspect-square lg:w-7/12 xl:w-9/12"
+                  />
                 )}
-                {selectedStop && (
-                  <StopDetails open={open} setOpen={setOpen} routeData={data} />
-                )}
-              </SheetContent>
-            </Sheet>
-          </div>
-          {data?.geometry && stops && (
-            <LazyDriverMap
-              steps={stops}
-              focusedStop={selectedStop}
-              vehicle={data}
-              className="max-md:aspect-square lg:w-7/12 xl:w-9/12"
-            />
-          )}
-        </section>
+              </section>
+            )}
+          </>
+        )}
       </RouteLayout>
     </>
   );
 };
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const { data, error } = await supabase.storage
-    .from("routes")
-    .download(`${context.query.route as string}.json`);
+// export const getServerSideProps = async (
+//   context: GetServerSidePropsContext
+// ) => {
+//   // const { data, error } = await supabase.storage
+//   //   .from("routes")
+//   //   .download(`${context.query.route as string}.json`);
 
-  if (!data || error)
-    return {
-      redirect: {
-        destination: `/tools/routing`,
-        permanent: false,
-      },
-    };
+//   const data = await prisma.finalizedRoute.findUnique({
+//     where: {
+//       id: context.query.route as string,
+//     },
+//   });
 
-  const jsonObject = await parseIncomingDBData(data);
+//   if (!data)
+//     return {
+//       redirect: {
+//         destination: `/tools/routing`,
+//         permanent: false,
+//       },
+//     };
 
-  return { props: { data: jsonObject, steps: jsonObject.steps } };
-};
+//   // const jsonObject = await parseIncomingDBData(data);
+
+//   return {
+//     props: {
+//       data: data.route,
+//       steps: (data.route ).steps,
+//     },
+//   };
+// };
 
 export default RoutePage;

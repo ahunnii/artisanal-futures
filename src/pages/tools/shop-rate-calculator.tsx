@@ -24,10 +24,8 @@ export default function ShopRateCalculator() {
     profits: "#f472b6",
   };
 
-  const { monthly, materials, laborExpenses } = useShopCalculator(
-    (state) => state
-  );
-  const hoursWorked = laborExpenses?.hours ?? 0 * 4.33 * 12;
+  const { monthly, materials } = useShopCalculator((state) => state);
+  // const hoursWorked = laborExpenses?.hours ?? 0 * 4.33 * 12;
 
   const breakdown = useMemo(() => {
     return {

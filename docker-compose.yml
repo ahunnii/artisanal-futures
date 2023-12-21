@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+  soketi:
+    image: quay.io/soketi/soketi:1.4-16-debian
+    container_name: soketi
+    # environment:
+    #   DEBUG: 1
+    #   SOKETI_DEFAULT_APP_ID: ${PUSHER_APP_ID}
+    #   DEFAULT_APP_ID: ${PUSHER_APP_ID}
+    #   PUSHER_APP_ID: ${PUSHER_APP_ID}
+    #   SOKETI_DEFAULT_PUSHER_APP_ID: ${PUSHER_APP_ID}
+    #   DEFAULT_PUSHER_APP_ID: ${PUSHER_APP_ID}
+    #   APP_ID: ${PUSHER_APP_ID}
+    # SOKETI_DEFAULT_APP_KEY: f11641c90a9b3766d481
+    # SOKETI_DEFAULT_APP_SECRET: 6d4ece935cfbffc32e2b
+    #   PUSHER_HOST: 127.0.0.1
+    #   PUSHER_PORT: 6001
+
+    ports:
+      - "6001:6001"
+      - "9601:9601"
+volumes:
+  mysql-data:

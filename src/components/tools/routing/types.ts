@@ -171,12 +171,14 @@ export type PusherUserData = {
 };
 export type PusherMessage = {
   userId: string;
-  name: string;
-  deliveryNotes: string;
-  address: string;
+  name?: string;
+  deliveryNotes?: string;
+  address?: string;
   status?: "success" | "failed" | "pending";
   routeId: string;
-  stopId: number;
+  stopId?: number;
+  role?: "driver" | "dispatch";
+  message?: string;
 };
 
 export type FileData = {

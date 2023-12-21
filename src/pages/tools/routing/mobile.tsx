@@ -16,7 +16,6 @@ import Navbar from "~/components/navbar";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -24,7 +23,6 @@ import {
 import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useStops } from "~/hooks/routing/use-stops";
-import RouteLayout from "~/layouts/route-layout";
 
 const LazyRoutingMap = dynamic(
   () => import("~/components/tools/routing/map/routing-map"),

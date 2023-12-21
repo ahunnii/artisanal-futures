@@ -3,6 +3,7 @@ import L, { type LatLngExpression, type Map } from "leaflet";
 import { useCallback, useEffect, useState } from "react";
 import type {
   Coordinates,
+  ExpandedRouteData,
   GeoJsonData,
   Polyline,
   RouteData,
@@ -33,7 +34,7 @@ const useMap = ({
   const { selectedRoute, routes } = useDepot((state) => state);
   const { drivers, activeDriver } = useDrivers((state) => state);
   const { locations, activeLocation } = useStops((state) => state);
-  const { stops, setStops, selectedStop } = useDriverRoute((state) => state);
+  const { stops, selectedStop } = useDriverRoute((state) => state);
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -51,7 +52,7 @@ const useMap = ({
   );
 
   const convertToGeoJSON = (
-    route?: RouteData | null,
+    route?: RouteData | ExpandedRouteData | null,
     geometry?: string,
     color?: number
   ) => {

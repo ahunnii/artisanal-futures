@@ -1,13 +1,12 @@
 import { Plus } from "lucide-react";
 import { useRouter as useNavigationRouter } from "next/navigation";
-import { useRouter } from "next/router";
 
 import { Button } from "~/components/ui/button";
 import { DataTable } from "~/components/ui/data-table";
 import { Heading } from "~/components/ui/heading";
 import { Separator } from "~/components/ui/separator";
 
-import type { Shop, User } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";

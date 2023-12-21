@@ -2,17 +2,12 @@
 
 import React, { useEffect, useRef, useState, type FC } from "react";
 
-import { X } from "lucide-react";
-
-import { AnimatePresence, motion } from "framer-motion";
-
 import { Button } from "~/components/ui/button";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,

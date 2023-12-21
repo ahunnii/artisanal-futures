@@ -8,7 +8,6 @@ import Container from "~/components/ui/container";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,

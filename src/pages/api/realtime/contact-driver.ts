@@ -12,21 +12,20 @@ const messages: PusherMessage[] = [];
 const contactHandling = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const session = await getServerSession(req, res, authOptions);
-    const { deliveryNotes, status, route, address, routeId, stopId } = req.body;
-    const { name } = JSON.parse((route.description as string) ?? "{}");
+
+    if (!session?.user?.id) throw new Error("No user id");
+
+    const { role, routeId, message } = req.body;
 
     messages.push({
-      userId: session?.user?.id ?? "0",
-      name,
-      deliveryNotes,
-      status,
-      address,
+      userId: session.user.id,
+      role,
       routeId,
-      stopId,
+      message,
     });
 
     // Trigger a Pusher event with the updated locations
-    await pusherServer.trigger("map", "update-messages", messages);
+    await pusherServer.trigger("map", `evt::contact-dispatch`, messages);
     res.status(200).send("Location updated");
   } else {
     res.status(405).send("Method not allowed");

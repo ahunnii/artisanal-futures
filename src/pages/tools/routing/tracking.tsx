@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
-import { useEffect } from "react";
 import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
 import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
 
@@ -15,22 +14,18 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-import { useDepot } from "~/hooks/routing/use-depot";
+
 import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
-import { fetchAllRoutes } from "~/utils/routing/supabase-utils";
+import { api } from "~/utils/api";
+
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 
 const LazyTrackingMap = dynamic(
@@ -42,13 +37,37 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  const { routes, setRoutes } = useDepot((state) => state);
-
   const { activeUsers, messages } = useRealTime();
 
+  console.log(messages);
+  const apiContext = api.useContext();
+
+  const { data: routes } =
+    api.finalizedRoutes.getAllFormattedFinalizedRoutes.useQuery({
+      filterOut: "COMPLETED",
+    });
+
+  const testMessage = (message: string) => {
+    if (message === "invalidate") {
+      // toast.success("Invalidate");
+
+      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+
+      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
+      // void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
+
+      void apiContext.finalizedRoutes.invalidate();
+    }
+  };
+
   useEffect(() => {
-    fetchAllRoutes(setRoutes);
-  }, [setRoutes]);
+    const channel = pusherClient.subscribe("map");
+    channel.bind("evt::test-message", testMessage);
+
+    return () => {
+      channel.unbind();
+    };
+  }, []);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {

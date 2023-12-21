@@ -1,14 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Shop } from "@prisma/client";
+import type { Shop } from "@prisma/client";
 import { useJsApiLoader } from "@react-google-maps/api";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+
+import { useState, type FC } from "react";
 import GooglePlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-google-places-autocomplete";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";

@@ -13,10 +13,12 @@ const routeHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     const { email, body } = req.body;
+
+    const id = body.split("/").pop();
     const data = await resend.emails.send({
-      from: "DevTeam <dev@artisanalfutures.org>",
+      from: "Artisanal Futures Routing <routing@artisanalfutures.org>",
       to: [email],
-      subject: "New Route",
+      subject: `New Route Assigned - ${id}`,
       react: RouteTemplate({ message: body }),
     } as CreateEmailOptions);
 
