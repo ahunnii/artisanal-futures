@@ -25,6 +25,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Select,
@@ -35,9 +36,8 @@ import {
 } from "~/components/ui/select";
 import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
-import { useStops } from "~/hooks/routing/use-stops";
 import { parseDataFromStop } from "~/utils/routing/data-formatting";
-import type { Coordinates } from "../types";
+import type { Coordinates } from "../../../../components/tools/routing/types";
 
 type Library = "places";
 const libraries: Library[] = ["places"];

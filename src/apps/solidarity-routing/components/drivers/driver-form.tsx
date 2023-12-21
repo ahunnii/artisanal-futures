@@ -24,13 +24,13 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
-import { useDrivers } from "~/hooks/routing/use-drivers";
 import { parseDataFromDriver } from "~/utils/routing/data-formatting";
 import { cn } from "~/utils/styles";
-import type { Coordinates } from "../types";
+import type { Coordinates } from "../../../../components/tools/routing/types";
 
 type Library = "places";
 const libraries: Library[] = ["places"];

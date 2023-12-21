@@ -1,26 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 
 import { ArrowRight } from "lucide-react";
 
-import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
-import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
+import DriverSheet from "~/apps/solidarity-routing/components/drivers/driver-sheet";
+import DriversDynamicTab from "~/apps/solidarity-routing/components/drivers/drivers-tab";
+import FulfillmentSheet from "~/apps/solidarity-routing/components/stops/fulfillment-sheet";
+import StopsDynamicTab from "~/apps/solidarity-routing/components/stops/stops-tab";
 import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
-import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
-import StopsDynamicTab from "~/components/tools/routing/stops/stops-tab";
+import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
 import { Button } from "~/components/ui/button";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+
 import RouteLayout from "~/layouts/route-layout";
 
-import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-
-import { useDrivers } from "~/hooks/routing/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
-import { useStops } from "~/hooks/routing/use-stops";
-import { api } from "~/utils/api";
 
 const LazyRoutingMap = dynamic(
   () => import("~/components/tools/routing/map/routing-map"),
@@ -55,9 +52,6 @@ const RoutingPage = () => {
 
   const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
 
-  // const { data: routes } = api.finalizedRoutes.getAllFinalizedRoutes.useQuery();
-
-  // console.log(routes);
   return (
     <>
       <Head>

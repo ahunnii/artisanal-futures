@@ -1,4 +1,4 @@
-import { DriverForm } from "~/components/tools/routing/drivers/driver-form";
+import { DriverForm } from "~/apps/solidarity-routing/components/drivers/driver-form";
 import {
   Sheet,
   SheetContent,
@@ -7,20 +7,23 @@ import {
   SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { useDriverSheet } from "~/hooks/routing/use-driver-sheet";
-import { useDrivers } from "~/hooks/routing/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
 
 const DriverSheet = () => {
-  const { isOpen, setIsOpen } = useDriverSheet();
-  const { activeDriver, setActiveDriver } = useDrivers((state) => state);
+  const {
+    activeDriver,
+    setActiveDriver,
+    isDriverSheetOpen,
+    setIsDriverSheetOpen,
+  } = useDrivers((state) => state);
 
   const handleOnOpenChange = (state: boolean) => {
     setActiveDriver(null);
-    setIsOpen(state);
+    setIsDriverSheetOpen(state);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
+    <Sheet open={isDriverSheetOpen} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side={"left"}
         className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg "

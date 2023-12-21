@@ -146,10 +146,10 @@ body,
 body,
 .radix-dialog-content {
   min-height: 100vh;
-  min-height: fill-available;
+  min-height: stretch;
   min-height: -webkit-fill-available;
 }
 html {
-  height: fill-available;
+  height: stretch;
   height: -webkit-fill-available;
 }

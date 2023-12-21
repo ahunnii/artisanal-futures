@@ -19,11 +19,10 @@ import { getColor } from "~/utils/routing/color-handling";
 
 import axios from "axios";
 
+import { RouteQRDialog } from "~/apps/solidarity-routing/components/dialogs/qr/route-qr-dialog";
 import { cn } from "~/utils/styles";
-import type { ExpandedRouteData, PusherMessage, StepData } from "../types";
-import { DynamicRouteQRModal } from "../ui/RouteQRModal";
+import type { ExpandedRouteData, StepData } from "../types";
 
-import { DriverDispatchMessaging } from "../ui/driver-dispatch-messaging";
 import RouteBreakdown from "./route-breakdown";
 import RouteHeaderCard from "./route-header-card";
 
@@ -41,7 +40,6 @@ interface MinimalCardProps extends CardProps {
   isOnline?: boolean;
   isTracking?: boolean;
   steps?: ExtendedStepData[];
-  messages?: PusherMessage[];
 }
 
 export function MinimalRouteCard({
@@ -51,7 +49,6 @@ export function MinimalRouteCard({
   isOnline = false,
   isTracking = false,
 
-  messages = [],
   ...props
 }: MinimalCardProps) {
   const { address: startingAddress } = JSON.parse(data.description ?? "{}");
@@ -78,7 +75,6 @@ export function MinimalRouteCard({
         console.error(error);
       },
       onSettled: () => {
-        console.log("etereed");
         void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
 
         void axios.post("/api/realtime/test-message");
@@ -102,23 +98,9 @@ export function MinimalRouteCard({
 
   useEffect(() => {
     if (!data) return;
-
     setRouteSteps(data.steps);
-
     if (!isTracking) mutate(data);
   }, [data, isTracking]);
-
-  // useEffect(() => {
-  //   if (messages?.length > 0 && routeSteps) {
-  //     const temp = messages.map((message) => message.stopId);
-
-  //     const temp2 = routeSteps.map((step) => {
-  //       return temp.includes(step.job!) ? { ...step, status: "success" } : step;
-  //     });
-
-  //     setRouteSteps(temp2 as ExtendedStepData[]);
-  //   }
-  // }, [messages]);
 
   const routeStatus = useMemo(() => {
     const temp = routeSteps?.filter(
@@ -129,9 +111,10 @@ export function MinimalRouteCard({
   }, [routeSteps, numberOfStops]);
 
   const handleOnOpenChange = (toggle: boolean) => {
-    console.log(toggle);
-    if (!toggle) setSelectedRoute(null);
-    if (toggle) setSelectedRoute(data);
+    // if (!toggle) setSelectedRoute(null);
+    // if (toggle) setSelectedRoute(data);
+
+    setSelectedRoute(toggle ? data : null);
     setOnOpen(toggle);
   };
 
@@ -139,27 +122,21 @@ export function MinimalRouteCard({
     setSelectedRoute(data);
     setOnOpen(true);
   };
-  const { name: driverName } = JSON.parse(data.description ?? "{}");
+
   return (
     <>
-      {" "}
       <Button
         variant={"ghost"}
         className="my-2 ml-auto  flex h-auto  w-full p-0 text-left"
         onClick={handleOnOpen}
       >
-        <Card className={cn("w-full  hover:bg-slate-50", className)} {...props}>
-          {/* <div className="flex w-full items-center justify-between pr-5">
-     
-            {" "} */}
+        <Card className={cn("w-full hover:bg-slate-50", className)} {...props}>
           <RouteHeaderCard
             data={data}
             textColor={textColor}
             isButton={true}
             isOnline={isOnline}
-          />{" "}
-          {/* <DriverDispatchMessaging recipient={"driver"} route={data} />
-        </div> */}
+          />
         </Card>
       </Button>
       <Sheet onOpenChange={handleOnOpenChange} open={onOpen}>
@@ -170,15 +147,14 @@ export function MinimalRouteCard({
               textColor={textColor}
               className="shadow-none"
             />
-          </SheetHeader>{" "}
+          </SheetHeader>
           <RouteBreakdown
             steps={routeSteps}
             color={color}
             startingAddress={startingAddress}
           />
           <SheetFooter>
-            {!isTracking && <DynamicRouteQRModal data={data} />}
-            {isTracking && (
+            {isTracking ? (
               <Button
                 className={cn(
                   "flex w-full items-center gap-1",
@@ -189,6 +165,8 @@ export function MinimalRouteCard({
                 <Check className="h-5 w-5 " />
                 Mark Route as Complete
               </Button>
+            ) : (
+              <RouteQRDialog data={data} />
             )}{" "}
           </SheetFooter>
         </SheetContent>

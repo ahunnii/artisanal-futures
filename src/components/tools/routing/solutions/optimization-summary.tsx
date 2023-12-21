@@ -18,8 +18,7 @@ import {
 } from "~/components/ui/collapsible";
 import { Separator } from "~/components/ui/separator";
 
-import { useSheet } from "~/hooks/routing/use-sheet";
-import { useStops } from "~/hooks/routing/use-stops";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
 import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import { convertSecondsToMinutesAndHours } from "~/utils/routing/time-formatting";
@@ -30,8 +29,9 @@ interface CardProps extends ComponentProps<typeof Card> {
 }
 export function OptimizationSummary({ data, className, ...props }: CardProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { setActiveLocationById } = useStops((state) => state);
-  const { onOpen } = useSheet();
+  const { setActiveLocationById, setIsStopSheetOpen } = useStops(
+    (state) => state
+  );
 
   const duration = convertSecondsToMinutesAndHours(
     data?.summary?.duration
@@ -96,7 +96,7 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
                     className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
                     onClick={() => {
                       setActiveLocationById(stop.id);
-                      onOpen();
+                      setIsStopSheetOpen(true);
                     }}
                   >
                     <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />

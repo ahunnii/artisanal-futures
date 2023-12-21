@@ -1,19 +1,7 @@
-import { uniqueId } from "lodash";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { Stop } from "~/components/tools/routing/types";
-const stopData = (lat: number, lng: number) => {
-  return {
-    id: parseInt(uniqueId()),
-    customer_name: "New Stop",
-    address: "Address via LatLng",
-    drop_off_duration: 5,
-    prep_time_duration: 0,
-    time_windows: [{ startTime: "09:00", endTime: "17:00" }],
-    priority: 1,
-    coordinates: { latitude: lat, longitude: lng },
-  };
-};
+import { stopData } from "../data/stop-data";
 
 interface useStopsStore {
   locations: Stop[];
@@ -25,37 +13,16 @@ interface useStopsStore {
   removeLocation: (id: number) => void;
   appendLocation: (location: Stop) => void;
   addLocationByLatLng: (lat: number, lng: number) => void;
-}
 
-// export const useStops = create<useStopsStore>((set) => ({
-//   locations: [],
-//   activeLocation: null,
-//   setActiveLocation: (activeLocation) => set({ activeLocation }),
-//   setActiveLocationById: (id) =>
-//     set((state) => ({
-//       activeLocation:
-//         state.locations.find((location) => location.id === id) ?? null,
-//     })),
-//   setLocations: (locations) => set({ locations }),
-//   updateLocation: (id, data) =>
-//     set((state) => ({
-//       locations: state.locations.map((location) =>
-//         location.id === id ? { ...location, ...data } : location
-//       ),
-//     })),
-//   removeLocation: (id) =>
-//     set((state) => ({
-//       locations: state.locations.filter((location) => location.id !== id),
-//     })),
-//   appendLocation: (location) =>
-//     set((state) => ({ locations: [...state.locations, location] })),
-//   addLocationByLatLng: (lat, lng) =>
-//     set((state) => ({ locations: [...state.locations, stopData(lat, lng)] })),
-// }));
+  isStopSheetOpen: boolean;
+  setIsStopSheetOpen: (isOpen: boolean) => void;
+}
 
 export const useStops = create<useStopsStore>()(
   persist(
     (set) => ({
+      isStopSheetOpen: false,
+      setIsStopSheetOpen: (isStopSheetOpen) => set({ isStopSheetOpen }),
       locations: [],
       activeLocation: null,
       setActiveLocation: (activeLocation) => set({ activeLocation }),

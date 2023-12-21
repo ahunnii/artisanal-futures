@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
 import Navbar from "~/components/navbar";
 import { api } from "~/utils/api";

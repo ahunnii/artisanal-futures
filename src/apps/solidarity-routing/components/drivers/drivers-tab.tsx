@@ -1,9 +1,9 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import DriverCard from "~/components/tools/routing/drivers/driver-card";
+import DriverCard from "~/apps/solidarity-routing/components/drivers/driver-card";
 import TabOptions from "~/components/tools/routing/ui/tab-options";
 
-import { useDrivers } from "~/hooks/routing/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
 import OptionsBtn from "../ui/options-btn";
 
 const DriversDynamicTab = () => {

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Pusher from "pusher";
+
 import type { RouteData } from "~/components/tools/routing/types";
-import { env } from "~/env.mjs";
+
 import { pusherServer } from "~/server/soketi/server";
 
 // const pusher = new Pusher({

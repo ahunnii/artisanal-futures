@@ -1,4 +1,4 @@
-import { StopForm } from "~/components/tools/routing/stops/stop-form";
+import { StopForm } from "~/apps/solidarity-routing/components/stops/stop-form";
 import {
   Sheet,
   SheetContent,
@@ -7,20 +7,23 @@ import {
   SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { useSheet } from "~/hooks/routing/use-sheet";
-import { useStops } from "~/hooks/routing/use-stops";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
 const FulfillmentSheet = () => {
-  const { isOpen, setIsOpen } = useSheet();
-  const { activeLocation, setActiveLocation } = useStops((state) => state);
+  const {
+    activeLocation,
+    setActiveLocation,
+    isStopSheetOpen,
+    setIsStopSheetOpen,
+  } = useStops((state) => state);
 
   const handleOnOpenChange = (state: boolean) => {
     setActiveLocation(null);
-    setIsOpen(state);
+    setIsStopSheetOpen(state);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOnOpenChange}>
+    <Sheet open={isStopSheetOpen} onOpenChange={handleOnOpenChange}>
       <SheetContent
         side={"left"}
         className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg"

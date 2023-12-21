@@ -4,14 +4,16 @@ import { useState } from "react";
 
 import { ArrowRight } from "lucide-react";
 
-import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
-import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
+import DriverSheet from "~/apps/solidarity-routing/components/drivers/driver-sheet";
+import DriversDynamicTab from "~/apps/solidarity-routing/components/drivers/drivers-tab";
+import FulfillmentSheet from "~/apps/solidarity-routing/components/stops/fulfillment-sheet";
+import StopsDynamicTab from "~/apps/solidarity-routing/components/stops/stops-tab";
 import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
-import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
-import StopsDynamicTab from "~/components/tools/routing/stops/stops-tab";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import Navbar from "~/components/navbar";
 import {
   Sheet,
@@ -20,9 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
-import { useDrivers } from "~/hooks/routing/use-drivers";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
-import { useStops } from "~/hooks/routing/use-stops";
 
 const LazyRoutingMap = dynamic(
   () => import("~/components/tools/routing/map/routing-map"),

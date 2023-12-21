@@ -1,17 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import Pusher from "pusher-js";
-import { env } from "~/env.mjs";
-
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+
 import type {
   ExpandedRouteData,
   PusherMessage,
   PusherUserData,
 } from "~/components/tools/routing/types";
 import { pusherClient } from "~/server/soketi/client";
-import { api } from "~/utils/api";
+
 import {
   removeCurrentLocation,
   sendCurrentLocation,

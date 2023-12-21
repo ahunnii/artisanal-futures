@@ -1,9 +1,9 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
+import DriverSheet from "~/apps/solidarity-routing/components/drivers/driver-sheet";
+import FulfillmentSheet from "~/apps/solidarity-routing/components/stops/fulfillment-sheet";
 import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
 import { OptimizationSummary } from "~/components/tools/routing/solutions/optimization-summary";
-import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useRoutingSolutions } from "~/hooks/routing/use-routing-solutions";

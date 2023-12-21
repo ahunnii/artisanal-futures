@@ -14,9 +14,9 @@ import {
   convertStopToJob,
 } from "~/utils/routing/data-formatting";
 import { getUniqueKey } from "~/utils/routing/unique-key";
-import { useDrivers } from "./use-drivers";
+import { useDrivers } from "../../apps/solidarity-routing/hooks/use-drivers";
+import { useStops } from "../../apps/solidarity-routing/hooks/use-stops";
 import { useRoutingSolutions } from "./use-routing-solutions";
-import { useStops } from "./use-stops";
 type FilteredLocation = {
   job_id: number;
   vehicle_id: number;

@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Pusher from "pusher";
 
-import { env } from "~/env.mjs";
 import { pusherServer } from "~/server/soketi/server";
 
 // const pusher = new Pusher({

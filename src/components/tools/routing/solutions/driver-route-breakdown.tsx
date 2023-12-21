@@ -6,7 +6,6 @@ import RouteHeaderCard from "./route-header-card";
 import { getColor } from "~/utils/routing/color-handling";
 
 import type { ExpandedRouteData, ExtendedStepData, StepData } from "../types";
-import { DriverDispatchMessaging } from "../ui/driver-dispatch-messaging";
 
 interface CardProps extends React.ComponentProps<typeof Card> {
   data: ExpandedRouteData;

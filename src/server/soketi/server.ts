@@ -6,7 +6,7 @@ export const pusherServer = new PusherServer({
   key: env.NEXT_PUBLIC_PUSHER_APP_KEY,
   secret: env.PUSHER_APP_SECRET,
   cluster: "",
-  useTLS: true,
+  useTLS: env.NEXT_PUBLIC_PUSHER_PORT ? false : true,
   host: env.NEXT_PUBLIC_PUSHER_HOST,
   port: env.NEXT_PUBLIC_PUSHER_PORT ?? "",
 });

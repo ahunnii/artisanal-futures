@@ -1,22 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
 
-import type { RouteData } from "~/components/tools/routing/types";
-
-import { authOptions } from "~/server/auth";
+// import type { RouteData } from "~/components/tools/routing/types";
 
 // import { pusher } from "~/server/pusher/client";
 import { pusherServer } from "~/server/soketi/server";
 
-type UserLocation = {
-  userId: string;
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-  removeUser?: boolean;
-  fileId?: string;
-  route: RouteData;
-};
+// type UserLocation = {
+//   userId: string;
+//   latitude: number;
+//   longitude: number;
+//   accuracy: number;
+//   removeUser?: boolean;
+//   fileId?: string;
+//   route: RouteData;
+// };
 // let userLocations: UserLocation[] = [];
 const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {

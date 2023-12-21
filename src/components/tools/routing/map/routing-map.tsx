@@ -34,10 +34,10 @@ import StopPopup from "~/components/tools/routing/map/stop-popup";
 
 import type { GeoJsonData, Stop } from "~/components/tools/routing/types";
 
-import { useDrivers } from "~/hooks/routing/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import useRouteOptimization from "~/hooks/routing/use-route-optimization";
 import { useRoutingSolutions } from "~/hooks/routing/use-routing-solutions";
-import { useStops } from "~/hooks/routing/use-stops";
 
 import { Button } from "~/components/ui/button";
 import useMap from "~/hooks/routing/use-map";

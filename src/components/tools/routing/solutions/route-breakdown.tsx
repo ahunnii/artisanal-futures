@@ -1,8 +1,8 @@
-import { FC } from "react";
+import type { FC } from "react";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
-import { ExtendedStepData } from "../types";
+import type { ExtendedStepData } from "../types";
 import StepLineSegment from "./step-line-segment";
 
 type RouteBreakdownProps = {

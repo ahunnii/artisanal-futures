@@ -24,7 +24,6 @@ import RouteLayout from "~/layouts/route-layout";
 import { api } from "~/utils/api";
 
 import { useEffect } from "react";
-import toast from "react-hot-toast";
 import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 
@@ -67,6 +66,7 @@ const TrackingPage = () => {
     return () => {
       channel.unbind();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkIfOnline = (idx: number) => {
@@ -111,10 +111,6 @@ const TrackingPage = () => {
               {routes &&
                 routes.length > 0 &&
                 routes.map((route: ExpandedRouteData, idx: number) => {
-                  const steps = messages?.filter(
-                    (message) => message.routeId === route?.routeId
-                  );
-
                   return (
                     <MinimalRouteCard
                       key={idx}
@@ -123,7 +119,6 @@ const TrackingPage = () => {
                       isOnline={checkIfOnline(route.vehicle)}
                       isTracking={true}
                       textColor={route?.vehicle}
-                      messages={steps}
                     />
                   );
                 })}{" "}
@@ -192,10 +187,6 @@ const TrackingPage = () => {
                 {routes &&
                   routes.length > 0 &&
                   routes.map((route: ExpandedRouteData, idx: number) => {
-                    const steps = messages?.filter(
-                      (message) => message.routeId === route?.routeId
-                    );
-
                     return (
                       <MinimalRouteCard
                         key={idx}
@@ -204,7 +195,6 @@ const TrackingPage = () => {
                         isOnline={checkIfOnline(route.vehicle)}
                         isTracking={true}
                         textColor={route?.vehicle}
-                        messages={steps}
                       />
                     );
                   })}{" "}

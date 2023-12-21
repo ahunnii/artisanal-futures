@@ -10,12 +10,12 @@ import type {
   StepData,
   VroomResponse,
 } from "~/components/tools/routing/types";
+import { useDrivers } from "../../apps/solidarity-routing/hooks/use-drivers";
 import { useDepot } from "./use-depot";
-import { useDrivers } from "./use-drivers";
 
 import { getCurrentLocation } from "~/utils/routing/realtime-utils";
+import { useStops } from "../../apps/solidarity-routing/hooks/use-stops";
 import { useDriverRoute } from "./use-driver-routes";
-import { useStops } from "./use-stops";
 
 type TUseMapProps = {
   mapRef: Map;

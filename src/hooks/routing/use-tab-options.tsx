@@ -5,21 +5,23 @@ import toast from "react-hot-toast";
 import locationData from "~/data/addresses.json";
 
 import driverData from "~/data/drivers.json";
-import { useDriverSheet } from "~/hooks/routing/use-driver-sheet";
-import { useDrivers } from "~/hooks/routing/use-drivers";
 
-import { useSheet } from "~/hooks/routing/use-sheet";
-import { useStops } from "~/hooks/routing/use-stops";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+
 import { handleIncomingData } from "~/utils/routing/file-handling";
 
 import type { Driver, Stop } from "~/components/tools/routing/types";
 
 const useTabOptions = (type: "stop" | "driver") => {
-  const { setLocations, setActiveLocation } = useStops((state) => state);
-  const { setDrivers, setActiveDriver } = useDrivers((state) => state);
+  const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStops(
+    (state) => state
+  );
+  const { setDrivers, setActiveDriver, setIsDriverSheetOpen } = useDrivers(
+    (state) => state
+  );
   const { data: session } = useSession();
-  const { onOpen } = useSheet();
-  const { onOpen: onDriverOpen } = useDriverSheet();
 
   const typeData = {
     stop: {
@@ -81,8 +83,8 @@ const useTabOptions = (type: "stop" | "driver") => {
   const addNewItem = () => {
     typeData[type].setActive(null);
 
-    if (type === "driver") onDriverOpen();
-    else onOpen();
+    if (type === "driver") setIsDriverSheetOpen(true);
+    else setIsStopSheetOpen(true);
   };
 
   const isUserArtisan =
