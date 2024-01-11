@@ -2,8 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as Papa from "papaparse";
+import {
+  parseDriver,
+  parseStop,
+} from "~/apps/solidarity-routing/libs/file-handling";
 import { supabase } from "~/server/supabase/client";
-import { parseDriver, parseStop } from "~/utils/routing/file-handling";
 
 const dbFetchHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {

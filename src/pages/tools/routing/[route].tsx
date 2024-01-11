@@ -22,20 +22,19 @@ import {
 
 import { useParams } from "next/navigation";
 
-import StopDetails from "~/components/tools/routing/tracking/stop-details";
-
-import { DriverRouteBreakdown } from "~/components/tools/routing/solutions/driver-route-breakdown";
+import StopDetails from "~/apps/solidarity-routing/components/tracking/stop-details";
 
 import Head from "next/head";
-import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
+import LoadingIndicator from "~/apps/solidarity-routing/components/solutions/loading-indicator";
 
+import { useDriverRoute } from "~/apps/solidarity-routing/hooks/use-driver-routes";
+import useRealTime from "~/apps/solidarity-routing/hooks/use-realtime";
 import PageLoader from "~/components/ui/page-loader";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { useDriverRoute } from "~/hooks/routing/use-driver-routes";
-import useRealTime from "~/hooks/routing/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
 
-import RouteHeaderCard from "~/components/tools/routing/solutions/route-header-card";
+import DriverRouteBreakdown from "~/apps/solidarity-routing/components/solutions/driver-route-breakdown";
+import RouteHeaderCard from "~/apps/solidarity-routing/components/ui/cards/route-header-card";
 import { api } from "~/utils/api";
 
 interface IProps {
@@ -44,7 +43,7 @@ interface IProps {
 }
 
 const LazyDriverMap = dynamic(
-  () => import("~/components/tools/routing/map/driver-map"),
+  () => import("~/apps/solidarity-routing/components/map/driver-map"),
   {
     loading: () => <p>Loading...</p>,
     ssr: false,

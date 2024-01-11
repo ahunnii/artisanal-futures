@@ -1,4 +1,4 @@
-import { StopForm } from "~/apps/solidarity-routing/components/stops/stop-form";
+import StopForm from "~/apps/solidarity-routing/components/stops/stop-form";
 import {
   Sheet,
   SheetContent,
@@ -9,7 +9,7 @@ import {
 
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
-const FulfillmentSheet = () => {
+const StopSheet = () => {
   const {
     activeLocation,
     setActiveLocation,
@@ -43,4 +43,4 @@ const FulfillmentSheet = () => {
   );
 };
 
-export default FulfillmentSheet;
+export default StopSheet;

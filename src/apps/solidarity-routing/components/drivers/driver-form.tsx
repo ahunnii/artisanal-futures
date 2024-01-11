@@ -84,7 +84,7 @@ type TDriverForm = {
   handleOnOpenChange: (data: boolean) => void;
 };
 
-export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
+const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
   const { appendDriver, updateDriver, activeDriver, drivers, setDrivers } =
     useDrivers((state) => state);
 
@@ -520,3 +520,5 @@ export const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
     </Form>
   );
 };
+
+export default DriverForm;

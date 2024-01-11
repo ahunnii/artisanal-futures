@@ -34,7 +34,7 @@ export async function postToSlackIfEnabled({
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `*<${env.NEXT_APP_URL}/forum/post/${post.id}|${post.title}>*`,
+              text: `*<${env.NEXT_PUBLIC_APP_URL}/forum/post/${post.id}|${post.title}>*`,
             },
           },
           summaryBlocks[0],

@@ -1,12 +1,12 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import StopCard from "~/apps/solidarity-routing/components/stops/stop-card";
-import TabOptions from "~/components/tools/routing/ui/tab-options";
+import TabOptions from "~/apps/solidarity-routing/components/ui/tab-options";
 
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import OptionsBtn from "../ui/options-btn";
 
-const StopsDynamicTab = () => {
+const StopsTab = () => {
   const { locations } = useStops((state) => state);
 
   return (
@@ -43,4 +43,4 @@ const StopsDynamicTab = () => {
   );
 };
 
-export default StopsDynamicTab;
+export default StopsTab;

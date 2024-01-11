@@ -1,8 +1,7 @@
 import { useMemo, type FC } from "react";
 
-import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
-
 import DepotCard from "~/apps/solidarity-routing/components/ui/depot-card";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
 import { parseDataFromDriver } from "~/apps/solidarity-routing/libs/data-formatting";
 import type { Driver } from "~/apps/solidarity-routing/types";
 

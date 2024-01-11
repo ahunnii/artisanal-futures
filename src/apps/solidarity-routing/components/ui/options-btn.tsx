@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 
-import useTabOptions from "~/hooks/routing/use-tab-options";
+import useTabOptions from "~/apps/solidarity-routing/hooks/use-tab-options";
 
 const OptionsBtn = ({ type }: { type: "stop" | "driver" }) => {
   const { status } = useSession();

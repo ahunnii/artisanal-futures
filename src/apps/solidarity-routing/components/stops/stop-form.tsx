@@ -80,7 +80,7 @@ type TStopForm = {
   handleOnOpenChange: (data: boolean) => void;
 };
 
-export const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
+const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
   const {
     appendLocation,
     updateLocation,
@@ -437,3 +437,5 @@ export const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     </Form>
   );
 };
+
+export default StopForm;

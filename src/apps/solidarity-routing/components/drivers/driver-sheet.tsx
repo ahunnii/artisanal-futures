@@ -1,4 +1,4 @@
-import { DriverForm } from "~/apps/solidarity-routing/components/drivers/driver-form";
+import DriverForm from "~/apps/solidarity-routing/components/drivers/driver-form";
 import {
   Sheet,
   SheetContent,

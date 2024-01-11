@@ -12,34 +12,6 @@ interface LocationTableRow {
   priority: string;
 }
 
-// type Coordinates = [number, number];
-// type Geometry = {
-//   type: string;
-//   coordinates: Coordinates[];
-// };
-
-// type Data = {
-//   code: number;
-//   summary: {
-//     cost: number;
-//     unassigned: number;
-//     delivery: number[];
-//     amount: number[];
-//     pickup: number[];
-//     service: number;
-//     duration: number;
-//     waiting_time: number;
-//     distance: number;
-//     computing_times: {
-//       loading: number;
-//       solving: number;
-//       routing: number;
-//     };
-//   };
-//   unassigned: unknown[];
-//   routes: Route[];
-// };
-
 interface LocationTableState {
   rows: LocationTableRow[];
   setRows: (rows: LocationTableRow[]) => void;
