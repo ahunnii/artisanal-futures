@@ -51,10 +51,14 @@ const formSchema = z.object({
 type SettingsFormValues = z.infer<typeof formSchema>;
 
 interface SettingsFormProps {
-  initialData: Shop;
+  initialData: Shop | null;
+  onboardingView?: boolean;
 }
 
-export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
+export const ShopForm: React.FC<SettingsFormProps> = ({
+  initialData,
+  onboardingView = false,
+}) => {
   const params = useRouter();
   const router = useNavigationRouter();
   const { data: sessionData } = useSession();
@@ -169,29 +173,31 @@ export const ShopForm: React.FC<SettingsFormProps> = ({ initialData }) => {
         onConfirm={onDelete}
         loading={loading}
       />
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-medium">
-            {initialData?.shopName} Dashboard
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Configure how your store is shown to visitors
-          </p>
-        </div>
+      {!onboardingView && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium">
+              {initialData?.shopName} Dashboard
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Configure how your store is shown to visitors
+            </p>
+          </div>
 
-        {/* <Heading
+          {/* <Heading
           title="Shop settings"
           description="Manage store preferences"
         /> */}
-        <Button
-          disabled={loading}
-          variant="destructive"
-          size="sm"
-          onClick={() => setOpen(true)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
-      </div>
+          <Button
+            disabled={loading}
+            variant="destructive"
+            size="sm"
+            onClick={() => setOpen(true)}
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
       <Separator />
       <Form {...form}>
         <form

@@ -19,11 +19,18 @@ const ShopCard: FC<IProps> = ({
   className,
   ownerPhoto,
 }) => {
+  const availableImage =
+    ownerPhoto! && ownerPhoto != ""
+      ? ownerPhoto
+      : logoPhoto! && logoPhoto != ""
+      ? logoPhoto
+      : "/background-fallback.jpg";
+
   return (
     <div className={cn("", className)}>
       <div className="w-full rounded bg-slate-50 p-4 shadow">
         <div className="relative aspect-square w-full">
-          <BlurImage src={ownerPhoto! ?? logoPhoto! ?? ""} alt="" />
+          <BlurImage src={availableImage} alt="" />
         </div>
 
         <div className="flex w-full items-center justify-between">

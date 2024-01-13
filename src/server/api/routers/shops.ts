@@ -11,7 +11,7 @@ export const shopsRouter = createTRPCRouter({
     return ctx.prisma.shop.findMany({
       where: {
         shopName: { not: "" },
-        logoPhoto: { not: "" },
+        OR: [{ logoPhoto: { not: "" } }, { ownerPhoto: { not: "" } }],
         website: { not: "" },
       },
     });

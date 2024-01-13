@@ -34,7 +34,7 @@ const ShopsPage = () => {
                   <ShopCard
                     {...artisan}
                     className="flex basis-full p-4 md:basis-1/2 lg:basis-1/4 "
-                    key={index}
+                    key={artisan.id}
                   />
                 ))}
               </div>

@@ -48,6 +48,7 @@ export const productsRouter = createTRPCRouter({
     };
 
     const response = await axios.post(PRODUCT_ENDPOINT, payloadForProducts);
+    console.log("yeet");
 
     if (response.status != 200) {
       throw new TRPCError({

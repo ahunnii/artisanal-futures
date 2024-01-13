@@ -29,12 +29,36 @@ export const surveysRouter = createTRPCRouter({
     });
   }),
   createSurvey: protectedProcedure
-    .input(z.object({ shopId: z.string() }))
+    .input(
+      z.object({
+        shopId: z.string(),
+        processes: z.string().optional(),
+        materials: z.string().optional(),
+        principles: z.string().optional(),
+        description: z.string().optional(),
+        unmoderatedForm: z.boolean().default(false),
+        moderatedForm: z.boolean().default(false),
+        hiddenForm: z.boolean().default(false),
+        privateForm: z.boolean().default(false),
+        supplyChain: z.boolean().default(false),
+        messagingOptIn: z.boolean().default(false),
+      })
+    )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.survey.create({
         data: {
           shopId: input.shopId,
           ownerId: ctx.session.user.id,
+          processes: input.processes,
+          materials: input.materials,
+          principles: input.principles,
+          description: input.description,
+          unmoderatedForm: input.unmoderatedForm,
+          moderatedForm: input.moderatedForm,
+          hiddenForm: input.hiddenForm,
+          privateForm: input.privateForm,
+          supplyChain: input.supplyChain,
+          messagingOptIn: input.messagingOptIn,
         },
       });
     }),
