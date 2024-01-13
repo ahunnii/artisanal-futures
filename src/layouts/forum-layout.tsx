@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useState, type ReactNode } from "react";
 
-import { Footer } from "~/components/forum/footer";
+import { Footer } from "~/apps/forum/footer";
 
-import Navbar from "~/components/forum/navbar";
+import Navbar from "~/apps/forum/navbar";
 
-import { SearchDialog } from "~/components/forum/search-dialog";
+import { SearchDialog } from "~/apps/forum/search-dialog";
 import Container from "~/components/ui/container";
 
 type LayoutProps = {

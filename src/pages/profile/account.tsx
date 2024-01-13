@@ -1,4 +1,4 @@
-import { AccountForm } from "~/components/profile/account-form";
+import { AccountForm } from "~/apps/profile/account-form";
 import { Separator } from "~/components/ui/separator";
 import ProfileLayout from "~/layouts/profile-layout";
 

@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext } from "next";
 import type { FC } from "react";
 
-import { ShopForm } from "~/components/admin/shops/shop-form";
+import { ShopForm } from "~/apps/admin/shops/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import AdminLayout from "~/layouts/admin-layout";
 

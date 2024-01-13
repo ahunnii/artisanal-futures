@@ -1,12 +1,12 @@
 import Head from "next/head";
 import { useParams } from "next/navigation";
 
+import ProductCard from "~/apps/product/components/product-card";
+import useStoreProducts from "~/apps/product/hooks/use-store-products";
 import Body from "~/components/body";
 import ProfileCard from "~/components/shops/profile-card";
 import Container from "~/components/ui/container";
 import PageLoader from "~/components/ui/page-loader";
-import ProductCard from "~/features/product/components/product-card";
-import useStoreProducts from "~/hooks/products/use-store-products";
 
 import { api } from "~/utils/api";
 

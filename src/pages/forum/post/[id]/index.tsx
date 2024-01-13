@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { AuthorWithDate } from "~/components/forum/author-with-date";
-import { Avatar } from "~/components/forum/avatar";
-import { Banner } from "~/components/forum/banner";
+import { AuthorWithDate } from "~/apps/forum/author-with-date";
+import { Avatar } from "~/apps/forum/avatar";
+import { Banner } from "~/apps/forum/banner";
 
-import { ButtonLink } from "~/components/forum/button-link";
+import { ButtonLink } from "~/apps/forum/button-link";
 
-import { HtmlView } from "~/components/forum/html-view";
-import { IconButton } from "~/components/forum/icon-button";
+import { HtmlView } from "~/apps/forum/html-view";
+import { IconButton } from "~/apps/forum/icon-button";
 import {
   DotsIcon,
   EditIcon,
@@ -14,9 +14,9 @@ import {
   EyeIcon,
   MessageIcon,
   TrashIcon,
-} from "~/components/forum/icons";
+} from "~/apps/forum/icons";
 
-import { LikeButton } from "~/components/forum/like-button";
+import { LikeButton } from "~/apps/forum/like-button";
 
 import {
   Menu,
@@ -24,7 +24,7 @@ import {
   MenuItemButton,
   MenuItems,
   MenuItemsContent,
-} from "~/components/forum/menu";
+} from "~/apps/forum/menu";
 
 import { api, type RouterInputs } from "~/utils/api";
 
@@ -34,11 +34,11 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 
-import AddCommentForm from "~/components/forum/post/add-comment-form";
-import Comment from "~/components/forum/post/comment";
-import ConfirmDeleteDialog from "~/components/forum/post/confirm-delete-dialog";
-import ConfirmHideDialog from "~/components/forum/post/confirm-hide-dialog";
-import ConfirmUnhideDialog from "~/components/forum/post/confirm-unhide-dialog";
+import AddCommentForm from "~/apps/forum/post/add-comment-form";
+import Comment from "~/apps/forum/post/comment";
+import ConfirmDeleteDialog from "~/apps/forum/post/confirm-delete-dialog";
+import ConfirmHideDialog from "~/apps/forum/post/confirm-hide-dialog";
+import ConfirmUnhideDialog from "~/apps/forum/post/confirm-unhide-dialog";
 import ForumLayout from "~/layouts/forum-layout";
 
 import { authenticateUser } from "~/utils/auth";

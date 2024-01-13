@@ -6,19 +6,16 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import * as React from "react";
 
-import { Avatar } from "~/components/forum/avatar";
-import { IconButton } from "~/components/forum/icon-button";
-import { EditIcon } from "~/components/forum/icons";
+import { Avatar } from "~/apps/forum/avatar";
+import { IconButton } from "~/apps/forum/icon-button";
+import { EditIcon } from "~/apps/forum/icons";
 
-import {
-  Pagination,
-  getQueryPaginationInput,
-} from "~/components/forum/pagination";
-import type { PostSummaryProps } from "~/components/forum/post-summary";
-import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
-import DotPattern from "~/components/forum/profile/dot-pattern";
-import EditProfileDialog from "~/components/forum/profile/edit-profile-dialog";
-import UpdateAvatarDialog from "~/components/forum/profile/update-avatar-dialog";
+import { Pagination, getQueryPaginationInput } from "~/apps/forum/pagination";
+import type { PostSummaryProps } from "~/apps/forum/post-summary";
+import { PostSummarySkeleton } from "~/apps/forum/post-summary-skeleton";
+import DotPattern from "~/apps/forum/profile/dot-pattern";
+import EditProfileDialog from "~/apps/forum/profile/edit-profile-dialog";
+import UpdateAvatarDialog from "~/apps/forum/profile/update-avatar-dialog";
 
 import { env } from "~/env.mjs";
 import ForumLayout from "~/layouts/forum-layout";
@@ -26,8 +23,7 @@ import { api, type RouterInputs } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
 const PostSummary = dynamic<PostSummaryProps>(
-  () =>
-    import("~/components/forum/post-summary").then((mod) => mod.PostSummary),
+  () => import("~/apps/forum/post-summary").then((mod) => mod.PostSummary),
   { ssr: false }
 );
 

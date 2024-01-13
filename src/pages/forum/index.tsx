@@ -8,13 +8,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import type { FC } from "react";
 
-import {
-  Pagination,
-  getQueryPaginationInput,
-} from "~/components/forum/pagination";
-import type { PostSummaryProps } from "~/components/forum/post-summary";
-import { PostSummarySkeleton } from "~/components/forum/post-summary-skeleton";
-import { SortButton } from "~/components/forum/sort-button";
+import { Pagination, getQueryPaginationInput } from "~/apps/forum/pagination";
+import type { PostSummaryProps } from "~/apps/forum/post-summary";
+import { PostSummarySkeleton } from "~/apps/forum/post-summary-skeleton";
+import { SortButton } from "~/apps/forum/sort-button";
 import { Button } from "~/components/ui/button";
 import ForumLayout from "~/layouts/forum-layout";
 
@@ -22,8 +19,7 @@ import { api, type RouterInputs } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
 const PostSummary = dynamic<PostSummaryProps>(
-  () =>
-    import("~/components/forum/post-summary").then((mod) => mod.PostSummary),
+  () => import("~/apps/forum/post-summary").then((mod) => mod.PostSummary),
   { ssr: false }
 );
 

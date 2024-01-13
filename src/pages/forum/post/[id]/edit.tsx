@@ -1,4 +1,4 @@
-import { PostForm } from "~/components/forum/post-form";
+import { PostForm } from "~/apps/forum/post-form";
 
 import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";

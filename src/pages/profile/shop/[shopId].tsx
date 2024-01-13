@@ -8,7 +8,7 @@ import type { Shop } from "@prisma/client";
 
 import type { Session } from "next-auth";
 
-import { ShopForm } from "~/components/profile/shop-form";
+import { ShopForm } from "~/apps/profile/shop-form";
 import PageLoader from "~/components/ui/page-loader";
 import ProfileLayout from "~/layouts/profile-layout";
 import { prisma } from "~/server/db";

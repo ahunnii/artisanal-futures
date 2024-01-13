@@ -1,16 +1,13 @@
 import type { GetServerSidePropsContext } from "next";
 import type { FC } from "react";
 
-import AdminInfoCard from "~/components/admin/admin-info-card";
-import { Overview } from "~/components/admin/overview";
-import { RecentMembers } from "~/components/admin/recent-members";
+import AdminInfoCard from "~/apps/admin/admin-info-card";
+import { RecentMembers } from "~/apps/admin/recent-members";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+  Overview,
+  SiteVisitorOverview,
+} from "~/apps/admin/site-visitor-overview";
+import * as Card from "~/components/ui/card";
 import { Heading } from "~/components/ui/heading";
 import PageLoader from "~/components/ui/page-loader";
 import { Separator } from "~/components/ui/separator";
@@ -67,33 +64,23 @@ const AdminPage: FC<TAdminPageProps> = ({ status }) => {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
-                  <CardHeader>
-                    <CardTitle>Unique Site Visitors</CardTitle>
-                    <CardDescription>
-                      This is mock data. Actual visitors are not reflected here.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pl-2">
-                    <Overview />
-                  </CardContent>
-                </Card>
+                <SiteVisitorOverview />
 
-                <Card className="md:grid-cols-1 lg:col-span-3">
-                  <CardHeader>
-                    <CardTitle>Recent Members</CardTitle>
-                    <CardDescription>
+                <Card.Card className="md:grid-cols-1 lg:col-span-3">
+                  <Card.CardHeader>
+                    <Card.CardTitle>Recent Members</Card.CardTitle>
+                    <Card.CardDescription>
                       There were {users?.length ?? 0} users added this month.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex max-h-[350px]">
+                    </Card.CardDescription>
+                  </Card.CardHeader>
+                  <Card.CardContent className="flex max-h-[350px]">
                     {!users ? (
                       <PageLoader />
                     ) : (
                       <RecentMembers members={users} />
                     )}
-                  </CardContent>
-                </Card>
+                  </Card.CardContent>
+                </Card.Card>
               </div>
             </div>
           </div>

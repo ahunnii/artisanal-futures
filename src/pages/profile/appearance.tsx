@@ -1,4 +1,4 @@
-import { AppearanceForm } from "~/components/profile/appearance-form";
+import { AppearanceForm } from "~/apps/profile/appearance-form";
 import { Separator } from "~/components/ui/separator";
 import ProfileLayout from "~/layouts/profile-layout";
 

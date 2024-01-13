@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext } from "next";
 import type { FC } from "react";
 
-import { UserForm } from "~/components/admin/users/user-form";
+import { UserForm } from "~/apps/admin/users/user-form";
 import PageLoader from "~/components/ui/page-loader";
 import AdminLayout from "~/layouts/admin-layout";
 

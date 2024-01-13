@@ -4,7 +4,7 @@ import type { GetServerSidePropsContext } from "next";
 import type { Session } from "next-auth";
 import { type FC } from "react";
 
-import { SurveyForm } from "~/components/profile/survey-form";
+import { SurveyForm } from "~/apps/profile/survey-form";
 import PageLoader from "~/components/ui/page-loader";
 
 import ProfileLayout from "~/layouts/profile-layout";

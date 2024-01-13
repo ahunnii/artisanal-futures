@@ -11,6 +11,11 @@ import React, {
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
 
+import AiSort from "~/apps/product/components/ai-sort";
+import ArtisanField from "~/apps/product/components/artisan-field";
+import AttributeField from "~/apps/product/components/attribute-field";
+import ProductCard from "~/apps/product/components/product-card";
+import SearchBar from "~/apps/product/components/search-bar";
 import Body from "~/components/body";
 import PageLoader from "~/components/ui/page-loader";
 import {
@@ -20,14 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import AiSort from "~/features/product/components/ai-sort";
-import ArtisanField from "~/features/product/components/artisan-field";
-import AttributeField from "~/features/product/components/attribute-field";
-import ProductCard from "~/features/product/components/product-card";
-import SearchBar from "~/features/product/components/search-bar";
 
-import useProducts from "~/features/product/hooks/useProducts";
-import type { Product } from "~/features/product/types";
+import useProducts from "~/apps/product/hooks/useProducts";
+import type { Product } from "~/apps/product/types";
 
 const ProductsPage: React.FC = () => {
   const {

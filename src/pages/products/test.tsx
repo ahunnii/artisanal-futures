@@ -4,12 +4,12 @@ import type { FC } from "react";
 
 import { useParams, useSearchParams } from "next/navigation";
 
-import useProducts from "~/features/product/hooks/useProducts";
+import useProducts from "~/apps/product/hooks/useProducts";
 import SiteLayout from "~/layouts/site-layout";
 
+import ProductCard from "~/apps/product/components/product-card";
+import { Product } from "~/apps/product/types";
 import AttributeFilter from "~/features/filter/AttributeFilter";
-import ProductCard from "~/features/product/components/product-card";
-import { Product } from "~/features/product/types";
 import { api } from "~/utils/api";
 
 interface Params extends ParsedUrlQuery {

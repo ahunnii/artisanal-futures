@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Navbar from "~/components/admin/navbar";
+import Navbar from "~/apps/admin/navbar";
 
 interface SettingsLayoutProps {
   children: React.ReactNode;

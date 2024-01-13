@@ -3,7 +3,7 @@ import type { FC } from "react";
 
 import type { User } from "@prisma/client";
 
-import { UserClient } from "~/components/admin/users/client";
+import { UserClient } from "~/apps/admin/users/client";
 import PageLoader from "~/components/ui/page-loader";
 import AdminLayout from "~/layouts/admin-layout";
 

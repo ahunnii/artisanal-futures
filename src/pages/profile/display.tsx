@@ -1,4 +1,4 @@
-import { DisplayForm } from "~/components/profile/display-form";
+import { DisplayForm } from "~/apps/profile/display-form";
 import { Separator } from "~/components/ui/separator";
 import ProfileLayout from "~/layouts/profile-layout";
 

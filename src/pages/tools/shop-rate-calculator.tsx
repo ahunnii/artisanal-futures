@@ -4,15 +4,15 @@ import { useMemo, useState } from "react";
 
 // import FORM_DATA from "~/data/tools/shop-rate-calculator/panels.json";
 
-import Breakdown from "~/components/tools/shop-rate-calculator/breakdown";
+import Breakdown from "~/apps/shop-rate-calculator/breakdown";
 
+import HourlyPieChart from "~/apps/shop-rate-calculator/hourly-pie-chart";
+import { MaterialsCostForm } from "~/apps/shop-rate-calculator/panels/materials-form";
+import { MonthlyCostForm } from "~/apps/shop-rate-calculator/panels/monthly-form";
 import Body from "~/components/body";
-import HourlyPieChart from "~/components/tools/shop-rate-calculator/hourly-pie-chart";
-import { MaterialsCostForm } from "~/components/tools/shop-rate-calculator/panels/materials-form";
-import { MonthlyCostForm } from "~/components/tools/shop-rate-calculator/panels/monthly-form";
 // import ProfitsPanel from "~/components/tools/shop-rate-calculator/panels/profit-panel";
-import { LaborCostForm } from "~/components/tools/shop-rate-calculator/panels/labor-form";
-import { useShopCalculator } from "~/hooks/use-shop-calculator";
+import { LaborCostForm } from "~/apps/shop-rate-calculator/panels/labor-form";
+import { useShopCalculator } from "~/apps/shop-rate-calculator/use-shop-calculator";
 
 export default function ShopRateCalculator() {
   const [hourlyTotal] = useState(0);

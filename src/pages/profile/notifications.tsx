@@ -1,4 +1,4 @@
-import { NotificationsForm } from "~/components/profile/notifications-form";
+import { NotificationsForm } from "~/apps/profile/notifications-form";
 import { Separator } from "~/components/ui/separator";
 import ProfileLayout from "~/layouts/profile-layout";
 

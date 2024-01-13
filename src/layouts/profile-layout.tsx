@@ -3,9 +3,9 @@ import Head from "next/head";
 
 import { useMemo } from "react";
 
+import ShopSwitcher from "~/apps/profile/shop-switcher";
+import { SidebarNav } from "~/apps/profile/sidebar-nav";
 import Body from "~/components/body";
-import ShopSwitcher from "~/components/profile/shop-switcher";
-import { SidebarNav } from "~/components/profile/sidebar-nav";
 import { Label } from "~/components/ui/label";
 import PageLoader from "~/components/ui/page-loader";
 import { Separator } from "~/components/ui/separator";

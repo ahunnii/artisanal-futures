@@ -25,10 +25,10 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { ShopForm } from "~/apps/profile/shop-form";
+import { SurveyForm } from "~/apps/profile/survey-form";
 import Body from "~/components/body";
 import Logo from "~/components/logo";
-import { ShopForm } from "~/components/profile/shop-form";
-import { SurveyForm } from "~/components/profile/survey-form";
 import BlurImage from "~/components/ui/blur-image";
 import Container from "~/components/ui/container";
 import { OnboardingShopForm } from "~/features/onboarding/components/onboarding-shop-form";
