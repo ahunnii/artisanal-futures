@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { MainNav } from "~/apps/admin/main-nav";
+import { MainNav } from "~/apps/admin/components/main-nav";
 import UserNav from "~/components/ui/user-nav";
 
 const Navbar = () => {

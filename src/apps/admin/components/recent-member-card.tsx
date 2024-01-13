@@ -1,21 +1,13 @@
 import type { User } from "@prisma/client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { ScrollArea } from "~/components/ui/scroll-area";
 
-export function RecentMembers({ members }: { members: User[] }) {
-  return (
-    <ScrollArea className="w-full ">
-      <div className="space-y-8">
-        {members?.map((member, idx) => (
-          <RecentMembersCard {...member} key={idx} />
-        ))}
-      </div>{" "}
-    </ScrollArea>
-  );
-}
-
-const RecentMembersCard = ({ name, email, image, role }: Partial<User>) => (
+export const RecentMembersCard = ({
+  name,
+  email,
+  image,
+  role,
+}: Partial<User>) => (
   <div className="flex items-center">
     <Avatar className="h-9 w-9">
       <AvatarImage src={image ?? ""} alt="Avatar" />

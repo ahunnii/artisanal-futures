@@ -17,7 +17,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
 
-import { AlertModal } from "~/apps/admin/modals/alert-modal";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Button } from "~/components/ui/button";
 import {
   CommandDialog,

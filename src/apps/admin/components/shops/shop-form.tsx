@@ -25,7 +25,7 @@ import {
 import { api } from "~/utils/api";
 
 import { useSession } from "next-auth/react";
-import { AlertModal } from "~/apps/admin/modals/alert-modal";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -90,7 +90,6 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
     defaultValues: {
       shopName: initialData?.shopName ?? "",
       ownerId: initialData?.ownerId ?? sessionData?.user.id,
-
       ownerName: initialData?.ownerName ?? sessionData?.user.name ?? "",
       bio: initialData?.bio ?? "",
       description: initialData?.description ?? "",

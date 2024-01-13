@@ -5,7 +5,7 @@ import type { User } from "@prisma/client";
 import { Briefcase, Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-import { AlertModal } from "~/apps/admin/modals/alert-modal";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

@@ -25,15 +25,15 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { OnboardingShopForm } from "~/apps/onboarding/components/onboarding-shop-form";
+import { OnboardingSurveyForm } from "~/apps/onboarding/components/onboarding-survey-form";
+import StepBtn from "~/apps/onboarding/components/step-btn";
 import { ShopForm } from "~/apps/profile/shop-form";
 import { SurveyForm } from "~/apps/profile/survey-form";
 import Body from "~/components/body";
 import Logo from "~/components/logo";
 import BlurImage from "~/components/ui/blur-image";
 import Container from "~/components/ui/container";
-import { OnboardingShopForm } from "~/features/onboarding/components/onboarding-shop-form";
-import { OnboardingSurveyForm } from "~/features/onboarding/components/onboarding-survey-form";
-import StepBtn from "~/features/onboarding/components/step-btn";
 import OnboardingLayout from "~/layouts/onboarding-layout";
 import { api } from "~/utils/api";
 

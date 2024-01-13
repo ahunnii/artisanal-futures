@@ -10,7 +10,7 @@ import * as z from "zod";
 
 import { useRouter as useNavigationRouter } from "next/navigation";
 import { useRouter } from "next/router";
-import { AlertModal } from "~/apps/admin/modals/alert-modal";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 
 import { Button } from "~/components/ui/button";
 import {

@@ -3,7 +3,7 @@ import { useRouter as useNavigationRouter } from "next/navigation";
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { AlertModal } from "~/apps/admin/modals/alert-modal";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

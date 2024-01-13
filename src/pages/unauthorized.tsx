@@ -1,23 +1,15 @@
 import Head from "next/head";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 import { Button } from "~/components/ui/button";
 import SiteLayout from "~/layouts/site-layout";
 
 const UnauthorizedPage = () => {
-  const router = useRouter();
-
-  const navigateToShop = () => {
-    router.replace("/collections/all-products");
-  };
-  const askQuestion = () => {
-    router.replace("/contact-us");
-  };
-
   return (
     <>
       <Head>
-        <title>Homepage | Store Co.</title>
+        <title>Unauthorized</title>
         <meta name="description" content="Admin" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -36,7 +28,9 @@ const UnauthorizedPage = () => {
           </h2>
 
           <div className="mt-5 flex justify-around gap-4">
-            <Button onClick={navigateToShop}>Head back to the shop</Button>
+            <Link href="/">
+              <Button>Head back to home</Button>
+            </Link>
           </div>
         </div>
       </SiteLayout>

@@ -1,14 +1,9 @@
 import { Eye } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import type { AdminStat } from "../types";
 
-const AdminInfoCard = ({
-  title,
-  metric,
-}: {
-  title: string;
-  metric: number;
-}) => {
+const AdminInfoCard = ({ title, metric }: AdminStat) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
