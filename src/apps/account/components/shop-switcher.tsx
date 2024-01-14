@@ -1,43 +1,34 @@
+import { useRouter } from "next/router";
+import { useState } from "react";
+
 import type { Shop } from "@prisma/client";
 import { Check, ChevronsUpDown, PlusCircle, Store } from "lucide-react";
 
-import { useRouter } from "next/router";
-import * as React from "react";
 import { Button } from "~/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "~/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+import * as Command from "~/components/ui/command";
+import * as Popover from "~/components/ui/popover";
+
 import { useShopModal } from "~/hooks/use-shop-modal";
+
 import { api } from "~/utils/api";
 import { cn } from "~/utils/styles";
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<
-  typeof PopoverTrigger
->;
-
-interface ShopSwitcherProps extends PopoverTriggerProps {
+type TShopSwitcherProps = React.ComponentPropsWithoutRef<
+  typeof Popover.PopoverTrigger
+> & {
   items: Shop[];
-}
+};
 
 export default function ShopSwitcher({
   className,
   items = [],
-}: ShopSwitcherProps) {
+}: TShopSwitcherProps) {
+  const [open, setOpen] = useState(false);
+
   const shopModal = useShopModal();
+  const router = useRouter();
 
   const context = api.useContext();
-  const router = useRouter();
 
   const formattedItems = items.map((item) => ({
     label: item.shopName,
@@ -48,18 +39,19 @@ export default function ShopSwitcher({
     (item) => item.value === router.query?.shopId
   );
 
-  const [open, setOpen] = React.useState(false);
-
   const onStoreSelect = (store: { value: string; label: string }) => {
     setOpen(false);
-
     void context.shops.invalidate();
     void router.replace(`/profile/shop/${store.value.toString()}`);
   };
 
+  const createNewShop = () => {
+    setOpen(false);
+    shopModal.onOpen();
+  };
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Popover.Popover open={open} onOpenChange={setOpen}>
+      <Popover.PopoverTrigger asChild>
         <Button
           variant="outline"
           size="sm"
@@ -72,15 +64,15 @@ export default function ShopSwitcher({
           <span>{currentStore?.label}</span>
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandList>
-            <CommandInput placeholder="Search shop..." />
-            <CommandEmpty>No shop found.</CommandEmpty>
-            <CommandGroup heading="Stores">
+      </Popover.PopoverTrigger>
+      <Popover.PopoverContent className="w-[200px] p-0">
+        <Command.Command>
+          <Command.CommandList>
+            <Command.CommandInput placeholder="Search shop..." />
+            <Command.CommandEmpty>No shop found.</Command.CommandEmpty>
+            <Command.CommandGroup heading="Stores">
               {formattedItems.map((store) => (
-                <CommandItem
+                <Command.CommandItem
                   key={store.value}
                   onSelect={() => onStoreSelect(store)}
                   className="text-sm"
@@ -95,26 +87,21 @@ export default function ShopSwitcher({
                         : "opacity-0"
                     )}
                   />
-                </CommandItem>
+                </Command.CommandItem>
               ))}
-            </CommandGroup>
-          </CommandList>
-          <CommandSeparator />
-          <CommandList>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => {
-                  setOpen(false);
-                  shopModal.onOpen();
-                }}
-              >
+            </Command.CommandGroup>
+          </Command.CommandList>
+          <Command.CommandSeparator />
+          <Command.CommandList>
+            <Command.CommandGroup>
+              <Command.CommandItem onSelect={createNewShop}>
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Create Shop
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              </Command.CommandItem>
+            </Command.CommandGroup>
+          </Command.CommandList>
+        </Command.Command>
+      </Popover.PopoverContent>
+    </Popover.Popover>
   );
 }

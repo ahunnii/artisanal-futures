@@ -1,32 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import type { Survey } from "@prisma/client";
-
-import { Trash } from "lucide-react";
-
+import { useRouter as useNavigationRouter } from "next/navigation";
 import { useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { Shop, Survey } from "@prisma/client";
 import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
 import * as z from "zod";
 
-import { useRouter as useNavigationRouter } from "next/navigation";
-
-import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
-
+import { DeleteItem } from "~/components/delete-item";
 import { Button } from "~/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
+import { Checkbox } from "~/components/ui/checkbox";
+import * as Form from "~/components/ui/form";
+import { Separator } from "~/components/ui/separator";
+import { Textarea } from "~/components/ui/textarea";
 
+import { toast } from "~/apps/notifications/libs/toast";
+
+import { useModal } from "~/hooks/use-modal";
 import { api } from "~/utils/api";
-import { Checkbox } from "../../components/ui/checkbox";
-import { Separator } from "../../components/ui/separator";
-import { Textarea } from "../../components/ui/textarea";
 
 const formSchema = z.object({
   processes: z.string().optional(),
@@ -43,17 +33,20 @@ const formSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof formSchema>;
 
-interface SettingsFormProps {
-  initialData: Survey;
-}
+type TSurveyFormProps = {
+  initialData: Survey | null;
+  shop: Shop;
+};
 
-export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
-  const { data: shop } = api.shops.getShop.useQuery({
-    shopId: initialData.shopId,
-  });
+export const SurveyForm: React.FC<TSurveyFormProps> = ({
+  initialData,
+  shop,
+}) => {
+  const alertModal = useModal((state) => state);
+
+  const apiContext = api.useContext();
   const router = useNavigationRouter();
 
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SettingsFormValues>({
@@ -71,19 +64,23 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     },
   });
 
-  const { mutate: updateSurvey } = api.surveys.updateSurvey.useMutation({
-    onSuccess: () => {
-      toast.success("Shop updated.");
-    },
-    onError: (error) => {
-      toast.error("Something went wrong");
-      console.error(error);
-    },
-    onMutate: () => {
-      setLoading(true);
-    },
+  const { mutate: createSurvey } = api.surveys.createSurvey.useMutation({
+    onSuccess: () => toast.success("Survey created."),
+    onError: (error) => toast.error("Something went wrong", error),
+    onMutate: () => setLoading(true),
     onSettled: () => {
       setLoading(false);
+      void apiContext.surveys.getCurrentUserShopSurvey.invalidate();
+    },
+  });
+
+  const { mutate: updateSurvey } = api.surveys.updateSurvey.useMutation({
+    onSuccess: () => toast.success("Shop updated."),
+    onError: (error) => toast.error("Something went wrong", error),
+    onMutate: () => setLoading(true),
+    onSettled: () => {
+      setLoading(false);
+      void apiContext.surveys.getCurrentUserShopSurvey.invalidate();
     },
   });
 
@@ -92,46 +89,48 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
       router.push("/profile");
       toast.success("Shop deleted.");
     },
-    onError: (error) => {
-      toast.error("Make sure you removed all products using this color first.");
-      console.error(error);
-    },
-    onMutate: () => {
-      setLoading(true);
-    },
+    onError: (error) =>
+      toast.error(
+        "There was an error deleting the survey. Please try again later.",
+        error
+      ),
+    onMutate: () => setLoading(true),
     onSettled: () => {
       setLoading(false);
-      setOpen(false);
+      alertModal.onClose();
+      void apiContext.surveys.getCurrentUserShopSurvey.invalidate();
     },
   });
 
   const onSubmit = (data: SettingsFormValues) => {
-    updateSurvey({
-      ...data,
-      surveyId: initialData.id,
-    });
+    if (initialData)
+      updateSurvey({
+        ...data,
+        surveyId: initialData.id,
+      });
+    else
+      createSurvey({
+        ...data,
+        shopId: shop?.id,
+      });
   };
 
   const onDelete = () => {
-    deleteSurvey({
-      surveyId: initialData.id,
-    });
+    if (initialData)
+      deleteSurvey({
+        surveyId: initialData?.id,
+      });
   };
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onDelete}
-        loading={loading}
-      />
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">
             Survey Dashboard:{" "}
             <span>
-              {initialData?.id ?? "Null"} {shop ? `for ${shop.shopName}` : ""}{" "}
+              {initialData?.id ? "Update Survey" : "New Survey"}{" "}
+              {shop ? `for ${shop.shopName ?? "your shop"}` : ""}{" "}
             </span>
           </h3>
           <p className="text-sm text-muted-foreground">
@@ -139,204 +138,203 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           </p>
         </div>
 
-        <Button
-          disabled={loading}
-          variant="destructive"
-          size="sm"
-          onClick={() => setOpen(true)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        {initialData && (
+          <DeleteItem
+            isDisabled={loading}
+            confirmCallback={onDelete}
+            {...alertModal}
+          />
+        )}
       </div>
       <Separator />
-      <Form {...form}>
+      <Form.Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
           className="w-full space-y-8"
         >
           <div className="gap-8 md:grid md:grid-cols-3">
-            <FormField
+            <Form.FormField
               control={form.control}
               name="processes"
               render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>
+                <Form.FormItem className="sm:col-span-3">
+                  <Form.FormLabel>
                     What are some of your business processes?
-                  </FormLabel>
-                  <FormControl>
+                  </Form.FormLabel>
+                  <Form.FormControl>
                     <Textarea
                       disabled={loading}
                       placeholder="Shop name"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </Form.FormControl>
+                  <Form.FormMessage />
+                </Form.FormItem>
               )}
             />{" "}
-            <FormField
+            <Form.FormField
               control={form.control}
               name="materials"
               render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>
+                <Form.FormItem className="sm:col-span-3">
+                  <Form.FormLabel>
                     What are some materials that go into your business?
-                  </FormLabel>
-                  <FormControl>
+                  </Form.FormLabel>
+                  <Form.FormControl>
                     <Textarea
                       disabled={loading}
                       placeholder="Owner's name"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </Form.FormControl>
+                  <Form.FormMessage />
+                </Form.FormItem>
               )}
             />{" "}
-            <FormField
+            <Form.FormField
               control={form.control}
               name="principles"
               render={({ field }) => (
-                <FormItem className="col-span-full">
-                  <FormLabel>
+                <Form.FormItem className="col-span-full">
+                  <Form.FormLabel>
                     What are some principles when running your business?
-                  </FormLabel>
-                  <FormControl>
+                  </Form.FormLabel>
+                  <Form.FormControl>
                     <Textarea
                       disabled={loading}
                       placeholder="Owner's bio"
                       {...field}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </Form.FormControl>
+                  <Form.FormMessage />
+                </Form.FormItem>
               )}
             />{" "}
-            <FormField
+            <Form.FormField
               control={form.control}
               name="unmoderatedForm"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Unmoderated Form</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Unmoderated Form</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are interested in unmoderated forms w/
                       the community.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />
-            <FormField
+            <Form.FormField
               control={form.control}
               name="moderatedForm"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Moderated Form</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Moderated Form</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are interested in moderated forms w/
                       the community.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />
-            <FormField
+            <Form.FormField
               control={form.control}
               name="hiddenForm"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Hidden Form</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Hidden Form</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are interested in hidden forms w/ the
                       community.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />
-            <FormField
+            <Form.FormField
               control={form.control}
               name="privateForm"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Private Form</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Private Form</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are interested in private forms w/ the
                       community.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />
-            <FormField
+            <Form.FormField
               control={form.control}
               name="supplyChain"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Supply Chain</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Supply Chain</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are interested in becoming part of the
                       artisan supply chain.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />{" "}
-            <FormField
+            <Form.FormField
               control={form.control}
               name="messagingOptIn"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
+                <Form.FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <Form.FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
-                  </FormControl>
+                  </Form.FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Opt In to Text Messages</FormLabel>
-                    <FormDescription>
+                    <Form.FormLabel>Opt In to Text Messages</Form.FormLabel>
+                    <Form.FormDescription>
                       This marks that you are opting in to the messaging service
                       aspect of our routing app and will receive text messages
                       from us.
-                    </FormDescription>
+                    </Form.FormDescription>
                   </div>
-                </FormItem>
+                </Form.FormItem>
               )}
             />
           </div>
@@ -344,7 +342,7 @@ export const SurveyForm: React.FC<SettingsFormProps> = ({ initialData }) => {
             Save changes
           </Button>
         </form>
-      </Form>
+      </Form.Form>
     </>
   );
 };

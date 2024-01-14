@@ -43,3 +43,14 @@ export const redirectIfNoSession = (resolvedUrl: string) => {
     },
   };
 };
+
+export const redirectIfNotSignedIn = (resolvedUrl: string) => {
+  return {
+    redirect: {
+      destination: `/api/auth/signin?callbackUrl=${encodeURIComponent(
+        resolvedUrl
+      )}`,
+      permanent: false,
+    },
+  };
+};

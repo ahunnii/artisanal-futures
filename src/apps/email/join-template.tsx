@@ -4,7 +4,7 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { env } from "~/env.mjs";
 
-import Container from "../ui/container";
+import Container from "../../components/ui/container";
 
 export const JoinTemplate = () => (
   <Container>

@@ -3,8 +3,8 @@ import Head from "next/head";
 
 import { useMemo } from "react";
 
-import ShopSwitcher from "~/apps/profile/shop-switcher";
-import { SidebarNav } from "~/apps/profile/sidebar-nav";
+import ShopSwitcher from "~/apps/account/components/shop-switcher";
+import { SidebarNav } from "~/apps/account/components/sidebar-nav";
 import Body from "~/components/body";
 import { Label } from "~/components/ui/label";
 import PageLoader from "~/components/ui/page-loader";
@@ -66,14 +66,14 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
                   </p>
                 </div>
 
-                {sessionData?.user?.role === "ADMIN" && (
-                  <div className="flex flex-col space-y-1">
-                    <Label>Switch Current Shop:</Label>
-                    {shops && shops.length > 0 && (
+                {sessionData?.user?.role === "ADMIN" &&
+                  shops &&
+                  shops.length > 0 && (
+                    <div className="flex flex-col space-y-1">
+                      <Label>Switch Current Shop:</Label>
                       <ShopSwitcher items={shops} />
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
               </div>
               <Separator className="my-6" />
               <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">

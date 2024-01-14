@@ -5,6 +5,7 @@ import Body from "~/components/body";
 import EventBulletinBoard from "~/components/homepage/event-bulletin-board";
 import Hero from "~/components/homepage/hero";
 import HomePageCard from "~/components/homepage/homepage-card";
+import { Button } from "~/components/ui/button";
 
 import { CARD_DATA } from "~/data/homepage";
 

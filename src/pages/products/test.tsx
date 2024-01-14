@@ -7,9 +7,9 @@ import { useParams, useSearchParams } from "next/navigation";
 import useProducts from "~/apps/product/hooks/useProducts";
 import SiteLayout from "~/layouts/site-layout";
 
+import AttributeFilter from "~/apps/filter/AttributeFilter";
 import ProductCard from "~/apps/product/components/product-card";
 import { Product } from "~/apps/product/types";
-import AttributeFilter from "~/features/filter/AttributeFilter";
 import { api } from "~/utils/api";
 
 interface Params extends ParsedUrlQuery {

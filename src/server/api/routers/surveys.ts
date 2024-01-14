@@ -28,6 +28,17 @@ export const surveysRouter = createTRPCRouter({
       },
     });
   }),
+
+  getCurrentUserShopSurvey: protectedProcedure
+    .input(z.object({ shopId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.survey.findFirst({
+        where: {
+          ownerId: ctx.session.user.id,
+          shopId: input.shopId,
+        },
+      });
+    }),
   createSurvey: protectedProcedure
     .input(
       z.object({
