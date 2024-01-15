@@ -30,7 +30,7 @@ const ShopsPage = () => {
           <>
             {shops!.length > 0 ? (
               <div className="flex h-fit w-full flex-col md:flex-row md:flex-wrap">
-                {shops!.map((artisan: Shop, index: number) => (
+                {shops!.map((artisan: Shop) => (
                   <ShopCard
                     {...artisan}
                     className="flex basis-full p-4 md:basis-1/2 lg:basis-1/4 "

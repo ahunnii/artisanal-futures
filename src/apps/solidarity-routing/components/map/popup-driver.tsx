@@ -1,8 +1,5 @@
 import type { FC } from "react";
-import type {
-  Driver,
-  RouteData,
-} from "../../../../components/tools/routing/types";
+import type { Driver, RouteData } from "../../types";
 
 type IStopProps = {
   vehicle?: Driver;

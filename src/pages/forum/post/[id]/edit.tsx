@@ -1,11 +1,11 @@
-import { PostForm } from "~/apps/forum/post-form";
+import { PostForm } from "~/apps/forum/components/post-form";
 
 import type { GetServerSidePropsContext } from "next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
-import ForumLayout from "~/layouts/forum-layout";
+import ForumLayout from "~/apps/forum/forum-layout";
 import { api } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
@@ -98,6 +98,8 @@ const EditPostPage = () => {
 };
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-  return user;
+  return {
+    props: { user },
+  };
 }
 export default EditPostPage;

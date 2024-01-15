@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { EditStopFormValues } from "~/apps/solidarity-routing/components/tracking/current-stop-form";
 import type { useDriverRouteStore } from "~/apps/solidarity-routing/hooks/use-driver-routes";
-import type { RouteData } from "~/components/tools/routing/types";
+import type { RouteData } from "~/apps/solidarity-routing/types";
 
 const DISPATCH_CONTACT = "/api/realtime/contact-dispatch";
 const DISPATCH_LOCATION = "/api/realtime/update-location";
@@ -12,21 +12,22 @@ export const sendMessage = async (
   routeId: string,
   routeData?: RouteData
 ) => {
-  const { address } = JSON.parse(store.selectedStop!.description ?? "{}");
+  const { address } = JSON.parse(store?.selectedStop?.description ?? "{}");
 
   const payload = {
     ...data,
     address,
     route: routeData,
     routeId: routeId,
-    stopId: store.selectedStop!.job,
+    stopId: store?.selectedStop?.job,
   };
 
   store.updateStop({
     ...store.selectedStop!,
-    status: data.status ?? "pending",
-    deliveryNotes: data.deliveryNotes ?? "",
+    status: data?.status ?? "pending",
+    deliveryNotes: data?.deliveryNotes ?? "",
   });
+
   return axios.post(DISPATCH_CONTACT, payload).catch(console.error);
 };
 

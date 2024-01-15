@@ -9,7 +9,7 @@ import "leaflet/dist/leaflet.css";
 
 import { Beforeunload } from "react-beforeunload";
 
-import type { RouteData, StepData } from "~/components/tools/routing/types";
+import type { RouteData, StepData } from "~/apps/solidarity-routing/types";
 import { Button } from "~/components/ui/button";
 
 import {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Stop } from "~/components/tools/routing/types";
+import type { Stop } from "~/apps/solidarity-routing/types";
 import { stopData } from "../data/stop-data";
 
 interface useStopsStore {

@@ -30,7 +30,7 @@ import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
 import { parseDataFromDriver } from "~/utils/routing/data-formatting";
 import { cn } from "~/utils/styles";
-import type { Coordinates } from "../../../../components/tools/routing/types";
+import type { Coordinates } from "../../types";
 
 type Library = "places";
 const libraries: Library[] = ["places"];

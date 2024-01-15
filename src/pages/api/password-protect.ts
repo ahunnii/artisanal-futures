@@ -8,8 +8,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const password = req.body.password;
 
   if (process.env.NEXT_PUBLIC_PASSWORD_PROTECT === password) {
-    const fiveMinutes = 60 * 5000;
-    const fiveSeconds = 5 * 1000;
+    // const fiveMinutes = 60 * 5000;
+    // const fiveSeconds = 5 * 1000;
     const twoMinutes = 60 * 2000;
 
     const cookie = serialize("login", "true", {

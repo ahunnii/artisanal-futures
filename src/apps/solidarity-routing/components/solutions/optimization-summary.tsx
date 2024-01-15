@@ -2,7 +2,7 @@ import { useState, type ComponentProps } from "react";
 
 import { CaretSortIcon } from "@radix-ui/react-icons";
 
-import type { OptimizationData } from "~/components/tools/routing/types";
+import type { OptimizationData } from "~/apps/solidarity-routing/types";
 import { Button } from "~/components/ui/button";
 import {
   Card,

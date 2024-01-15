@@ -1,6 +1,6 @@
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import Link from "next/link";
-import { Avatar } from "~/apps/forum/avatar";
+import { Avatar } from "~/apps/forum/components/avatar";
 import type { Author } from "~/types";
 
 type AuthorWithDateProps = {

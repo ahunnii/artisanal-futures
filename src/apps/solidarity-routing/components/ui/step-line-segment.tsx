@@ -1,11 +1,11 @@
 import { Coffee, Home } from "lucide-react";
 
+import type { ExtendedStepData } from "~/apps/solidarity-routing/types";
 import {
   convertSecondsToComponents,
   convertSecondsToTime,
 } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
-import type { ExtendedStepData } from "../../../../components/tools/routing/types";
 
 const StepLineSegment = ({
   step,

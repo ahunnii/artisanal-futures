@@ -1,6 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-import type { ExpandedRouteData } from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 
 const FETCH_ROUTES = "/api/fetch-routes";
 const ARCHIVE_ROUTE = "/api/supabase/archive";

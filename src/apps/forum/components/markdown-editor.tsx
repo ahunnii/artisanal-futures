@@ -13,8 +13,13 @@ import TextareaMarkdown, {
   type TextareaMarkdownRef,
 } from "textarea-markdown-editor";
 import { useItemList, type ItemOptions } from "use-item-list";
-import { HtmlView } from "~/apps/forum/html-view";
-import { BoldIcon, ItalicIcon, LinkIcon, ListIcon } from "~/apps/forum/icons";
+import { HtmlView } from "~/apps/forum/components/html-view";
+import {
+  BoldIcon,
+  ItalicIcon,
+  LinkIcon,
+  ListIcon,
+} from "~/apps/forum/components/icons";
 import { env } from "~/env.mjs";
 import { api } from "~/utils/api";
 import {

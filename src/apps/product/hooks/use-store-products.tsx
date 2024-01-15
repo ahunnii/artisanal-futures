@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import type { Artisan, Attribute } from "~/types";
-import { Product } from "../types";
+import type { Product } from "../types";
 
 const PRODUCT_ENDPOINT = "/api/products/get-store-products";
 

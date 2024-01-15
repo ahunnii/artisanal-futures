@@ -1,6 +1,6 @@
 import type { GetServerSidePropsContext } from "next";
 import { getServerSession, type Session } from "next-auth";
-import { checkIfAdmin } from "~/apps/admin/libs/check-if-admin";
+
 import { authOptions } from "~/server/auth";
 
 export const authenticateSession = async (ctx: GetServerSidePropsContext) => {

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import * as React from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { Button } from "~/apps/forum/button";
-import { ButtonLink } from "~/apps/forum/button-link";
-import { MarkdownIcon } from "~/apps/forum/icons";
-import { MarkdownEditor } from "~/apps/forum/markdown-editor";
-import { TextField } from "~/apps/forum/text-field";
+import { Button } from "~/apps/forum/components/button";
+import { ButtonLink } from "~/apps/forum/components/button-link";
+import { MarkdownIcon } from "~/apps/forum/components/icons";
+import { MarkdownEditor } from "~/apps/forum/components/markdown-editor";
+import { TextField } from "~/apps/forum/components/text-field";
 import { useLeaveConfirm } from "~/utils/forum/form";
 
 type FormData = {

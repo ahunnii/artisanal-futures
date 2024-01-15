@@ -2,15 +2,15 @@ import { useRef, useState, type FC } from "react";
 
 import toast from "react-hot-toast";
 
-import { Avatar } from "~/apps/forum/avatar";
-import { Button } from "~/apps/forum/button";
+import { Avatar } from "~/apps/forum/components/avatar";
+import { Button } from "~/apps/forum/components/button";
 import {
   Dialog,
   DialogActions,
   DialogCloseButton,
   DialogContent,
   DialogTitle,
-} from "~/apps/forum/dialog";
+} from "~/apps/forum/components/dialog";
 
 import { api } from "~/utils/api";
 

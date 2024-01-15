@@ -9,7 +9,7 @@ import type {
   RouteData,
   StepData,
   VroomResponse,
-} from "~/components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
 
 import { useDrivers } from "./use-drivers";
 
@@ -117,13 +117,14 @@ const useMap = ({
   useEffect(() => {
     if (selectedRoute && mapRef && trackingEnabled) {
       const stepCoordinates = selectedRoute?.steps
-        ?.filter((step) => step.type !== "break")
+        ?.filter((step: StepData) => step.type !== "break")
         .map(
-          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
+          (step: StepData) =>
+            [step?.location[1], step?.location[0]] as LatLngExpression
         );
 
       if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates);
+      const bounds = L.latLngBounds(stepCoordinates as LatLngExpression[]);
 
       mapRef.fitBounds(bounds);
     }
@@ -151,7 +152,8 @@ const useMap = ({
   }, [activeDriver, mapRef, flyTo]);
 
   useEffect(() => {
-    if (activeLocation && mapRef) flyTo(activeLocation?.coordinates, 15);
+    if (activeLocation && mapRef)
+      flyTo(activeLocation?.coordinates as Coordinates, 15);
   }, [activeLocation, mapRef, flyTo]);
 
   useEffect(() => {

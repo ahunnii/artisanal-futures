@@ -12,7 +12,7 @@ import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
 import { handleIncomingData } from "~/apps/solidarity-routing/libs/file-handling";
 
-import type { Driver, Stop } from "~/components/tools/routing/types";
+import type { Driver, Stop } from "~/apps/solidarity-routing/types";
 
 const useTabOptions = (type: "stop" | "driver") => {
   const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStops(

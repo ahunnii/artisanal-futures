@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { Role } from "@prisma/client";
-import axios from "axios";
+
 import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
@@ -54,12 +54,7 @@ export const authOptions: NextAuthOptions = {
     }),
 
     async signIn(props) {
-      const { user, account, profile, email, credentials } = props;
-
-      const test = await axios.get(
-        "http://localhost:3000/api/auth/check-new-status"
-      );
-      console.log("test", props);
+      const { user } = props;
 
       // No account, tries to sign in
       const authUser = await prisma.user.findUnique({
@@ -149,7 +144,7 @@ export const authWithContext = (ctx: {
       }),
 
       async signIn(props) {
-        const { user, account, profile, email, credentials } = props;
+        const { user } = props;
 
         const authUser = await prisma.user.findUnique({
           where: { id: user.id },

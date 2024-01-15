@@ -1,16 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Shop } from "@prisma/client";
 
-import { Trash } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+
 import * as z from "zod";
 
-import { useRouter as useNavigationRouter } from "next/navigation";
 import { useRouter } from "next/router";
-import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -24,9 +20,9 @@ import {
 } from "~/components/ui/form";
 
 import { Input } from "~/components/ui/input";
-import { Separator } from "~/components/ui/separator";
 
 import { useSession } from "next-auth/react";
+import { toast } from "~/apps/notifications/libs/toast";
 import LogoUpload from "~/components/ui/logo-upload";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/utils/api";
@@ -59,13 +55,12 @@ interface SettingsFormProps {
 export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
   initialData,
   successCallback,
-  onboardingView = false,
 }) => {
   const params = useRouter();
-  const router = useNavigationRouter();
+  const apiContext = api.useContext();
+
   const { data: sessionData } = useSession();
 
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm<SettingsFormValues>({
@@ -107,29 +102,13 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
     });
   }, [initialData, form]);
 
-  const { mutate: updateRole } = api.auth.changeRole.useMutation({
-    onSuccess: () => {
-      toast.success("Role updated.");
-    },
-    onError: (error) => {
-      toast.error("Something went wrong with updating your role.");
-      console.error(error);
-    },
-  });
-
   const { mutate: updateShop } = api.shops.updateShop.useMutation({
-    onSuccess: () => {
-      toast.success("Shop updated.");
-    },
-    onError: (error) => {
-      toast.error("Something went wrong");
-      console.error(error);
-    },
-    onMutate: () => {
-      setLoading(true);
-    },
+    onSuccess: () => toast.success("Shop updated."),
+    onError: (error) => toast.error("Something went wrong", error),
+    onMutate: () => setLoading(true),
     onSettled: () => {
       setLoading(false);
+      void apiContext.shops.invalidate();
     },
   });
 
@@ -138,36 +117,11 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
       toast.success("Shop created.");
       successCallback!();
     },
-    onError: (error) => {
-      toast.error("Something went wrong");
-      console.error(error);
-    },
-    onMutate: () => {
-      setLoading(true);
-    },
+    onError: (error) => toast.error("Something went wrong", error),
+    onMutate: () => setLoading(true),
     onSettled: () => {
       setLoading(false);
-    },
-  });
-
-  const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
-    onSuccess: () => {
-      if (sessionData?.user?.role !== "ADMIN") {
-        updateRole({ role: "USER" });
-      }
-      router.push("/profile");
-      toast.success("Shop deleted.");
-    },
-    onError: (error) => {
-      toast.error("Make sure you removed all products using this color first.");
-      console.error(error);
-    },
-    onMutate: () => {
-      setLoading(true);
-    },
-    onSettled: () => {
-      setLoading(false);
-      setOpen(false);
+      void apiContext.shops.invalidate();
     },
   });
 
@@ -185,53 +139,11 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
     }
   };
 
-  const onDelete = () => {
-    deleteShop({
-      shopId: params.query.shopId as string,
-    });
-  };
-
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onDelete}
-        loading={loading}
-      />
-      {!onboardingView && (
-        <>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium">
-                {initialData?.shopName} Dashboard
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Configure how your store is shown to visitors
-              </p>
-            </div>
-
-            {/* <Heading
-          title="Shop settings"
-          description="Manage store preferences"
-        /> */}
-            <Button
-              disabled={loading}
-              variant="destructive"
-              size="sm"
-              onClick={() => setOpen(true)}
-            >
-              <Trash className="h-4 w-4" />
-            </Button>
-          </div>{" "}
-          <Separator />
-        </>
-      )}
-
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-          onChange={() => console.log(form.getValues())}
           className="w-full space-y-8"
         >
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -240,7 +152,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
               name="shopName"
               render={({ field }) => (
                 <FormItem className="sm:col-span-3">
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Shop Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
@@ -257,7 +169,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
               name="ownerName"
               render={({ field }) => (
                 <FormItem className="sm:col-span-3">
-                  <FormLabel>Owner</FormLabel>
+                  <FormLabel>Owner&apos;s Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
@@ -316,10 +228,15 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
                   <FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="Owner's bio"
+                      placeholder="e.g. Hey, my name is..."
                       {...field}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Tell us about yourself: what makes you passionate about your
+                    business? What inspires you and drives you each day? Share
+                    your story and vision with your customers.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -333,10 +250,19 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
                   <FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="e.g. Shop is the best!"
+                      placeholder="e.g. Shop Inc. is a small business that aims to empower and inspire."
                       {...field}
                     />
                   </FormControl>
+                  <FormDescription>
+                    Tell us about your business: the more you can say, the
+                    better! Pretend its an interview -- what can you say that
+                    gives folks a deeper understanding? Start with the basics
+                    about your products or services. What makes them special?
+                    Cultural roots, healthy growing, precision engineering,
+                    feminist practices? Your relations to the community or
+                    customers?
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -479,7 +405,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
             />
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
-            Save changes
+            Save and continue
           </Button>
         </form>
       </Form>

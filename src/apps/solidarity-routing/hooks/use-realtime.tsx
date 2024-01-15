@@ -6,7 +6,7 @@ import type {
   ExpandedRouteData,
   PusherMessage,
   PusherUserData,
-} from "~/components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
 import { pusherClient } from "~/server/soketi/client";
 
 import {

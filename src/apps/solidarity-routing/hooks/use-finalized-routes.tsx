@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { ExpandedRouteData } from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 
 export interface useDepotStore {
   routes: ExpandedRouteData[];

@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { AuthorWithDate } from "~/apps/forum/author-with-date";
-import { Avatar } from "~/apps/forum/avatar";
-import { Banner } from "~/apps/forum/banner";
+import { AuthorWithDate } from "~/apps/forum/components/author-with-date";
+import { Avatar } from "~/apps/forum/components/avatar";
+import { Banner } from "~/apps/forum/components/banner";
 
-import { ButtonLink } from "~/apps/forum/button-link";
+import { ButtonLink } from "~/apps/forum/components/button-link";
 
-import { HtmlView } from "~/apps/forum/html-view";
-import { IconButton } from "~/apps/forum/icon-button";
+import { HtmlView } from "~/apps/forum/components/html-view";
+import { IconButton } from "~/apps/forum/components/icon-button";
 import {
   DotsIcon,
   EditIcon,
@@ -14,9 +14,9 @@ import {
   EyeIcon,
   MessageIcon,
   TrashIcon,
-} from "~/apps/forum/icons";
+} from "~/apps/forum/components/icons";
 
-import { LikeButton } from "~/apps/forum/like-button";
+import { LikeButton } from "~/apps/forum/components/like-button";
 
 import {
   Menu,
@@ -24,7 +24,7 @@ import {
   MenuItemButton,
   MenuItems,
   MenuItemsContent,
-} from "~/apps/forum/menu";
+} from "~/apps/forum/components/menu";
 
 import { api, type RouterInputs } from "~/utils/api";
 
@@ -34,12 +34,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 
-import AddCommentForm from "~/apps/forum/post/add-comment-form";
-import Comment from "~/apps/forum/post/comment";
-import ConfirmDeleteDialog from "~/apps/forum/post/confirm-delete-dialog";
-import ConfirmHideDialog from "~/apps/forum/post/confirm-hide-dialog";
-import ConfirmUnhideDialog from "~/apps/forum/post/confirm-unhide-dialog";
-import ForumLayout from "~/layouts/forum-layout";
+import AddCommentForm from "~/apps/forum/components/post/add-comment-form";
+import Comment from "~/apps/forum/components/post/comment";
+import ConfirmDeleteDialog from "~/apps/forum/components/post/confirm-delete-dialog";
+import ConfirmHideDialog from "~/apps/forum/components/post/confirm-hide-dialog";
+import ConfirmUnhideDialog from "~/apps/forum/components/post/confirm-unhide-dialog";
+import ForumLayout from "~/apps/forum/forum-layout";
 
 import { authenticateUser } from "~/utils/auth";
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
@@ -367,6 +367,8 @@ const PostPage = () => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-  return user;
+  return {
+    props: { user },
+  };
 }
 export default PostPage;

@@ -3,16 +3,16 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import * as React from "react";
-import { AuthorWithDate } from "~/apps/forum/author-with-date";
-import { Banner } from "~/apps/forum/banner";
-import { HtmlView } from "~/apps/forum/html-view";
+import { AuthorWithDate } from "~/apps/forum/components/author-with-date";
+import { Banner } from "~/apps/forum/components/banner";
+import { HtmlView } from "~/apps/forum/components/html-view";
 import {
   ChevronRightIcon,
   HeartFilledIcon,
   HeartIcon,
   MessageIcon,
-} from "~/apps/forum/icons";
-import { MAX_LIKED_BY_SHOWN } from "~/apps/forum/like-button";
+} from "~/apps/forum/components/icons";
+import { MAX_LIKED_BY_SHOWN } from "~/apps/forum/components/like-button";
 import {
   Tooltip,
   // TooltipArrow,

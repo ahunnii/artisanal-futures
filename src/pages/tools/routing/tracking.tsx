@@ -4,7 +4,7 @@ import Head from "next/head";
 import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
 import LoadingIndicator from "~/apps/solidarity-routing/components/solutions/loading-indicator";
 
-import type { ExpandedRouteData } from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 import { Badge } from "~/components/ui/badge";
 
 import {

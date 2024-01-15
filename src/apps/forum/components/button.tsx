@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SpinnerIcon } from "~/apps/forum/icons";
+import { SpinnerIcon } from "~/apps/forum/components/icons";
 import { classNames } from "~/utils/styles";
 
 export type ButtonVariant = "primary" | "secondary";

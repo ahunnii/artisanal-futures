@@ -6,11 +6,7 @@ import ReactDOMServer from "react-dom/server";
 import { Marker, Popup, type MarkerProps } from "react-leaflet";
 
 import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
-import type {
-  Driver,
-  RouteData,
-  Stop,
-} from "../../../../components/tools/routing/types";
+import type { Driver, RouteData, Stop } from "~/apps/solidarity-routing/types";
 
 interface IProps extends MarkerProps {
   variant: "stop" | "car" | "depot" | "currentPosition";

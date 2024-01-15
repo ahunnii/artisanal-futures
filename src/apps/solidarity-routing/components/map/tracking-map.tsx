@@ -17,6 +17,7 @@ import { getStyle } from "~/apps/solidarity-routing/libs/color-handling";
 import type {
   ExpandedRouteData,
   PusherUserData,
+  StepData,
 } from "~/apps/solidarity-routing/types";
 
 import { api } from "~/utils/api";
@@ -94,15 +95,17 @@ const TrackingMap = forwardRef<MapRef, TrackingMapProps>(
             {routes &&
               routes.length > 0 &&
               routes.map((route, idx) => {
-                const { name } = JSON.parse(route?.description ?? "{}");
+                const { name } = JSON.parse(
+                  (route?.description as string) ?? "{}"
+                );
                 return (
                   <LayersControl.Overlay name={name} checked key={idx}>
                     <LayerGroup>
                       <>
                         {route?.steps?.length &&
                           route?.steps
-                            ?.filter((step) => step.type !== "break")
-                            .map((stop, index) => {
+                            ?.filter((step: StepData) => step.type !== "break")
+                            .map((stop: StepData, index: number) => {
                               const position = [
                                 stop?.location?.[1] ?? 0,
                                 stop?.location?.[0] ?? 0,

@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Image from "next/image";
+
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import {
@@ -10,13 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import {
   ArrowBigLeftDashIcon,
-  Group,
   LayoutGrid,
   StickyNote,
   Store,
@@ -25,17 +23,26 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { ShopForm } from "~/apps/account/components/shop-form";
-import { SurveyForm } from "~/apps/account/components/survey-form";
+
 import { OnboardingShopForm } from "~/apps/onboarding/components/onboarding-shop-form";
 import { OnboardingSurveyForm } from "~/apps/onboarding/components/onboarding-survey-form";
 import StepBtn from "~/apps/onboarding/components/step-btn";
-import Body from "~/components/body";
+import OnboardingLayout from "~/apps/onboarding/onboarding-layout";
+
 import Logo from "~/components/logo";
 import BlurImage from "~/components/ui/blur-image";
-import Container from "~/components/ui/container";
-import OnboardingLayout from "~/layouts/onboarding-layout";
+
 import { api } from "~/utils/api";
+
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/components/ui/sheet";
 
 type Steps = "get-started" | "shop" | "survey" | "next-steps";
 const OnboardingPage = () => {
@@ -64,52 +71,59 @@ const OnboardingPage = () => {
           onValueChange={(e) => setCurrentStep(e as Steps)}
         >
           {" "}
-          <div className="flex w-full  flex-row space-y-24 bg-slate-50   p-8 lg:w-4/12 lg:max-w-md lg:flex-col">
+          <div className="flex w-full  flex-row bg-slate-50 px-8 py-2  lg:w-4/12  lg:max-w-md lg:flex-col lg:space-y-24 lg:py-8">
             <Link href="/" className="  flex items-center gap-x-2 ">
               <Logo className="w-[230.844px]" />
             </Link>
-            <TabsList className="flex  w-3/4 space-y-8  bg-transparent lg:w-full lg:flex-col lg:items-start lg:justify-start lg:pt-24">
-              <TabsTrigger
-                value="get-started"
-                className="flex w-full text-left"
-              >
-                {" "}
-                <StepBtn
-                  Icon={<User2 size={24} />}
-                  title="Getting Started"
-                  subtitle="Learn what Artisanal Futures is all about"
-                />
-              </TabsTrigger>
-              <TabsTrigger value="shop" className="flex w-full text-left">
-                <StepBtn
-                  Icon={<Store size={24} />}
-                  title="Set up your shop"
-                  subtitle="Establish your presence"
-                />
-              </TabsTrigger>
-              <TabsTrigger
-                value="survey"
-                className="w-full items-start text-left"
-              >
-                <StepBtn
-                  Icon={<StickyNote size={24} />}
-                  title="Tell us about your business"
-                  subtitle="Help us understand what you do"
-                />
-              </TabsTrigger>
+            <TabsList className="flex  w-full justify-end space-y-8  bg-transparent  lg:w-full lg:flex-col lg:items-start lg:justify-start lg:pt-24">
+              <MobileOnboardingNavigation />
 
-              <TabsTrigger
-                value="next-steps"
-                className="w-full items-start text-left"
-              >
-                <StepBtn
-                  Icon={<Trophy size={24} />}
-                  title="Next steps"
-                  subtitle="Explore what we have to offer"
-                />
-              </TabsTrigger>
+              <>
+                <TabsTrigger
+                  value="get-started"
+                  className="flex w-full text-left max-lg:hidden"
+                >
+                  {" "}
+                  <StepBtn
+                    Icon={<User2 size={24} />}
+                    title="Getting Started"
+                    subtitle="Learn what Artisanal Futures is all about"
+                  />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="shop"
+                  className="flex w-full text-left max-lg:hidden"
+                >
+                  <StepBtn
+                    Icon={<Store size={24} />}
+                    title="Set up your shop"
+                    subtitle="Establish your presence"
+                  />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="survey"
+                  className="w-full items-start text-left max-lg:hidden"
+                >
+                  <StepBtn
+                    Icon={<StickyNote size={24} />}
+                    title="Tell us about your business"
+                    subtitle="Help us understand what you do"
+                  />
+                </TabsTrigger>
 
-              <Link href="/">
+                <TabsTrigger
+                  value="next-steps"
+                  className="w-full items-start text-left max-lg:hidden"
+                >
+                  <StepBtn
+                    Icon={<Trophy size={24} />}
+                    title="Next steps"
+                    subtitle="Explore what we have to offer"
+                  />
+                </TabsTrigger>
+              </>
+
+              <Link href="/" className="max-lg:hidden">
                 <Button className="fixed bottom-5 flex gap-3">
                   <ArrowBigLeftDashIcon />
                   Go back home
@@ -189,25 +203,21 @@ const OnboardingPage = () => {
                 <TabsContent value="shop">
                   <OnboardingShopForm
                     initialData={store ?? null}
-                    onboardingView={true}
                     successCallback={successCallback}
                   />
                 </TabsContent>{" "}
                 <TabsContent value="survey">
                   <OnboardingSurveyForm
                     initialData={survey ?? null}
-                    onboardingView={true}
-                    successCallback={() => {
-                      setCurrentStep("next-steps");
-                    }}
+                    successCallback={() => setCurrentStep("next-steps")}
                   />
                 </TabsContent>
                 <TabsContent
                   value="next-steps"
                   className="flex flex-col items-center justify-center space-y-8"
                 >
-                  <div className="flex h-full w-full flex-1 grow flex-row items-center justify-center gap-5  ">
-                    <div className=" w-1/3  ">
+                  <div className="flex h-full w-full flex-1 grow flex-col items-center justify-center gap-5  lg:flex-row">
+                    <div className=" w-full  lg:w-1/3">
                       <Link href="/forum">
                         <Card className=" w-full ">
                           <CardHeader>
@@ -223,7 +233,7 @@ const OnboardingPage = () => {
                         </Card>
                       </Link>
                     </div>
-                    <div className=" w-1/3  ">
+                    <div className=" w-full  lg:w-1/3 ">
                       <Link href="/shops">
                         <Card className="w-full">
                           <CardHeader>
@@ -239,7 +249,7 @@ const OnboardingPage = () => {
                         </Card>
                       </Link>
                     </div>
-                    <div className=" w-1/3  ">
+                    <div className=" w-full  lg:w-1/3 ">
                       <Link href="/tools">
                         <Card className="w-full">
                           <CardHeader>
@@ -264,6 +274,64 @@ const OnboardingPage = () => {
         </Tabs>
       </OnboardingLayout>
     </>
+  );
+};
+
+const MobileOnboardingNavigation = () => {
+  return (
+    <Sheet>
+      <SheetTrigger className="hidden max-lg:flex">
+        <HamburgerMenuIcon />
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Artisanal Futures Onboarding</SheetTitle>
+          <SheetDescription>
+            If you are unable to finish up now, no worries! You can always
+            complete the setup later in your account.
+          </SheetDescription>
+
+          <div className="w-full space-y-4">
+            <TabsTrigger value="get-started" className="flex w-full text-left ">
+              {" "}
+              <StepBtn
+                Icon={<User2 size={24} />}
+                title="Getting Started"
+                subtitle="Learn what Artisanal Futures is all about"
+              />
+            </TabsTrigger>
+            <TabsTrigger value="shop" className="flex w-full text-left ">
+              <StepBtn
+                Icon={<Store size={24} />}
+                title="Set up your shop"
+                subtitle="Establish your presence"
+              />
+            </TabsTrigger>
+            <TabsTrigger
+              value="survey"
+              className="w-full items-start text-left "
+            >
+              <StepBtn
+                Icon={<StickyNote size={24} />}
+                title="Tell us about your business"
+                subtitle="Help us understand what you do"
+              />
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="next-steps"
+              className="w-full items-start text-left "
+            >
+              <StepBtn
+                Icon={<Trophy size={24} />}
+                title="Next steps"
+                subtitle="Explore what we have to offer"
+              />
+            </TabsTrigger>
+          </div>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
   );
 };
 

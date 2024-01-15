@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import * as React from "react";
 import { useDebounce } from "use-debounce";
 import { useItemList, type ItemOptions } from "use-item-list";
-import { SearchIcon, SpinnerIcon } from "~/apps/forum/icons";
+import { SearchIcon, SpinnerIcon } from "~/apps/forum/components/icons";
 import { api, type RouterOutputs } from "~/utils/api";
 
 import { classNames } from "~/utils/styles";

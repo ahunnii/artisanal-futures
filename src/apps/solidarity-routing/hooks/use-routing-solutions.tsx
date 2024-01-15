@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { VroomResponse } from "~/components/tools/routing/types";
+import type { VroomResponse } from "~/apps/solidarity-routing/types";
 
 interface useSolutionsStore {
   currentRoutingSolution: VroomResponse | null;

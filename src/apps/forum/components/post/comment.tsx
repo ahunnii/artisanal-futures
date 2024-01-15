@@ -1,9 +1,9 @@
-import { AuthorWithDate } from "~/apps/forum/author-with-date";
-import { Avatar } from "~/apps/forum/avatar";
+import { AuthorWithDate } from "~/apps/forum/components/author-with-date";
+import { Avatar } from "~/apps/forum/components/avatar";
 
-import { HtmlView } from "~/apps/forum/html-view";
-import { IconButton } from "~/apps/forum/icon-button";
-import { DotsIcon } from "~/apps/forum/icons";
+import { HtmlView } from "~/apps/forum/components/html-view";
+import { IconButton } from "~/apps/forum/components/icon-button";
+import { DotsIcon } from "~/apps/forum/components/icons";
 
 import {
   Menu,
@@ -11,7 +11,7 @@ import {
   MenuItemButton,
   MenuItems,
   MenuItemsContent,
-} from "~/apps/forum/menu";
+} from "~/apps/forum/components/menu";
 
 import { type RouterOutputs } from "~/utils/api";
 

@@ -16,11 +16,11 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { useDriverRoute } from "~/apps/solidarity-routing/hooks/use-driver-routes";
 import { sendMessage } from "~/apps/solidarity-routing/libs/realtime-utils";
-import { api } from "~/utils/api";
 import type {
   ExpandedRouteData,
   RouteData,
-} from "../../../../components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
+import { api } from "~/utils/api";
 
 interface IProps {
   open: boolean;
@@ -35,7 +35,9 @@ const StopDetails: FC<IProps> = ({ open, setOpen, routeData }) => {
   const apiContext = api.useContext();
   // const pain = api.useUtils();
 
-  const { address } = JSON.parse(driverRoute.selectedStop!.description ?? "{}");
+  const { address } = JSON.parse(
+    driverRoute.selectedStop!.description! ?? "{}"
+  );
 
   const { mutate } = api.finalizedRoutes.updateFinalizedRoute.useMutation({
     onSettled: () => {

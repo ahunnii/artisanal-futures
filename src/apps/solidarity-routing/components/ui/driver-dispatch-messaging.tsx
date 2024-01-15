@@ -10,8 +10,8 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import type { ExpandedRouteData } from "../../../../components/tools/routing/types";
 
 type DriverDispatchMessagingProps = {
   recipient: string;

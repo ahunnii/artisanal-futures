@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ExtendedStepData } from "~/components/tools/routing/types";
+import type { ExtendedStepData } from "~/apps/solidarity-routing/types";
 
 export interface useDriverRouteStore {
   stops: ExtendedStepData[];

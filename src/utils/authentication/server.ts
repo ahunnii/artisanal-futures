@@ -1,5 +1,5 @@
-import { GetServerSidePropsContext } from "next";
-import { User, getServerSession, type Session } from "next-auth";
+import type { GetServerSidePropsContext } from "next";
+import { getServerSession, type Session, type User } from "next-auth";
 import { checkIfAdmin } from "~/apps/admin/libs/check-if-admin";
 import {
   redirectIfNoSession,

@@ -1,6 +1,9 @@
 import Link, { type LinkProps } from "next/link";
 import * as React from "react";
-import { buttonClasses, type ButtonVariant } from "~/apps/forum/button";
+import {
+  buttonClasses,
+  type ButtonVariant,
+} from "~/apps/forum/components/button";
 
 type ButtonLinkProps = {
   variant?: ButtonVariant;

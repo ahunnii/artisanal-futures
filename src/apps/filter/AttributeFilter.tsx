@@ -2,7 +2,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
 
 import { Button } from "~/components/ui/button";
-import type { Attribute } from "~/types";
+
 import { cn } from "~/utils/styles";
 
 // interface FilterProps {
@@ -41,7 +41,7 @@ const AttributeFilter: React.FC<FilterProps> = ({ data, valueKey, title }) => {
       { skipNull: true }
     );
 
-    router.push(url as string);
+    router.push(url);
   };
 
   return (

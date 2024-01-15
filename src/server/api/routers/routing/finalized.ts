@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import type { ExpandedRouteData } from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const stepDataSchema = z.object({

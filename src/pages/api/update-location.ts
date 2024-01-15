@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import type { RouteData } from "~/components/tools/routing/types";
+import type { RouteData } from "~/apps/solidarity-routing/types";
 
 import { pusherServer } from "~/server/soketi/server";
 

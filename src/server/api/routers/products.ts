@@ -1,12 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import axios from "axios";
 import { z } from "zod";
+import { type Product } from "~/apps/product/types";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import type { Artisan, Attribute, Product } from "~/types";
+import type { Artisan, Attribute } from "~/types";
 
 const PRODUCT_ENDPOINT =
   "https://data.artisanalfutures.org/api/v1/products/search/";

@@ -5,7 +5,7 @@ import type {
   Driver,
   FileData,
   Stop,
-} from "~/components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
 
 import type { DriverCSVData, StopCSVData } from "~/types";
 

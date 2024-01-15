@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Driver } from "~/components/tools/routing/types";
+import type { Driver } from "~/apps/solidarity-routing/types";
 import { driverData } from "../data/driver-data";
 
 interface useDriversStore {

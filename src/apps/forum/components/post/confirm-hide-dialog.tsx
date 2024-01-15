@@ -1,4 +1,4 @@
-import { Button } from "~/apps/forum/button";
+import { Button } from "~/apps/forum/components/button";
 
 import {
   Dialog,
@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "~/apps/forum/dialog";
+} from "~/apps/forum/components/dialog";
 
 import { api, type RouterInputs } from "~/utils/api";
 

@@ -9,7 +9,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { useRoutingSolutions } from "~/apps/solidarity-routing/hooks/use-routing-solutions";
 
 import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
-import type { RouteData } from "~/components/tools/routing/types";
+import type { RouteData } from "~/apps/solidarity-routing/types";
 
 const CalculationsTab = () => {
   const { currentRoutingSolution } = useRoutingSolutions();

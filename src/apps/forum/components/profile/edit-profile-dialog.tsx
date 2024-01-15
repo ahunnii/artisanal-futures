@@ -4,16 +4,16 @@ import type { FC } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import { Button } from "~/apps/forum/button";
+import { Button } from "~/apps/forum/components/button";
 import {
   Dialog,
   DialogActions,
   DialogCloseButton,
   DialogContent,
   DialogTitle,
-} from "~/apps/forum/dialog";
+} from "~/apps/forum/components/dialog";
 
-import { TextField } from "~/apps/forum/text-field";
+import { TextField } from "~/apps/forum/components/text-field";
 
 import { api, type RouterInputs } from "~/utils/api";
 

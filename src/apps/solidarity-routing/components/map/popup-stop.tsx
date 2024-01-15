@@ -1,8 +1,5 @@
 import type { FC } from "react";
-import type {
-  StepData,
-  Stop,
-} from "../../../../components/tools/routing/types";
+import type { StepData, Stop } from "../../types";
 
 type IStopProps = {
   stop?: Stop;

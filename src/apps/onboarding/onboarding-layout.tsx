@@ -1,8 +1,3 @@
-import Link from "next/link";
-import Footer from "~/components/footer";
-import Navbar from "~/components/navbar";
-import Container from "~/components/ui/container";
-
 import { cn } from "~/utils/styles";
 
 const OnboardingLayout = ({

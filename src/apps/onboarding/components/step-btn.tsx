@@ -16,7 +16,7 @@ const StepBtn = ({
       </figure>
       <div>
         <p>{title}</p>
-        <p className="text-muted-foreground">{subtitle}</p>
+        <p className="whitespace-pre-wrap text-muted-foreground">{subtitle}</p>
       </div>
     </div>
   );

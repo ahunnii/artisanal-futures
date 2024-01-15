@@ -1,8 +1,8 @@
 import { useSession } from "next-auth/react";
 import * as React from "react";
 import { useState } from "react";
-import { Button } from "~/apps/forum/button";
-import { HeartFilledIcon, HeartIcon } from "~/apps/forum/icons";
+import { Button } from "~/apps/forum/components/button";
+import { HeartFilledIcon, HeartIcon } from "~/apps/forum/components/icons";
 import {
   Tooltip,
   // TooltipArrow,

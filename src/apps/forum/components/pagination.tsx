@@ -1,6 +1,9 @@
 import { useRouter } from "next/router";
-import { ButtonLink } from "~/apps/forum/button-link";
-import { ChevronLeftIcon, ChevronRightIcon } from "~/apps/forum/icons";
+import { ButtonLink } from "~/apps/forum/components/button-link";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "~/apps/forum/components/icons";
 
 type PaginationProps = {
   itemCount: number;

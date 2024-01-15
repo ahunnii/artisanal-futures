@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 
-import type { RouteData } from "~/components/tools/routing/types";
+import type { RouteData } from "~/apps/solidarity-routing/types";
 
 import { authOptions } from "~/server/auth";
 

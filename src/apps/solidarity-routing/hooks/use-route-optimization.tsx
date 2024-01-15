@@ -6,7 +6,7 @@ import type {
   Polyline,
   RouteData,
   VroomResponse,
-} from "~/components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
 
 import toast from "react-hot-toast";
 import { getUniqueKey } from "~/apps/solidarity-routing/libs/unique-key";
@@ -119,7 +119,7 @@ const useRouteOptimization = () => {
     setFilteredLocations([]);
     if (currentRoutingSolution) {
       setFilteredLocations(
-        mapJobsToVehicles(currentRoutingSolution.data.routes)
+        mapJobsToVehicles(currentRoutingSolution.data.routes as RouteData[])
       );
     }
   }, [routingSolutions, drivers, locations, currentRoutingSolution]);

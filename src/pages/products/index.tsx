@@ -166,13 +166,13 @@ const ProductsPage: React.FC = () => {
     return <Body>Error occurred while fetching products.</Body>;
   }
 
-  const isArtisanCheckboxDisabled = (artisan: string) => {
-    return applicableArtisans ? !applicableArtisans.includes(artisan) : false;
-  };
+  // const isArtisanCheckboxDisabled = (artisan: string) => {
+  //   return applicableArtisans ? !applicableArtisans.includes(artisan) : false;
+  // };
 
-  const isAttributeCheckboxDisabled = (attribute: string) => {
-    return !filteredPrinciples.includes(attribute);
-  };
+  // const isAttributeCheckboxDisabled = (attribute: string) => {
+  //   return !filteredPrinciples.includes(attribute);
+  // };
 
   return (
     <>

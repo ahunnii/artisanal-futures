@@ -1,23 +1,28 @@
-import { Button } from "~/apps/forum/button";
+import { Button } from "~/apps/forum/components/button";
 
-import { MarkdownEditor } from "~/apps/forum/markdown-editor";
+import { MarkdownEditor } from "~/apps/forum/components/markdown-editor";
 
-import { api, type RouterInputs } from "~/utils/api";
+import { api, type RouterInputs, type RouterOutputs } from "~/utils/api";
 
-import { useState, type FC } from "react";
+import { type FC } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import toast from "react-hot-toast";
 
+interface IProps {
+  postId: number;
+  comment: RouterOutputs["post"]["detail"]["comments"][number];
+  onDone: () => void;
+}
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };
 }
+
 type CommentFormData = {
   content: string;
 };
-const AddCommentForm: FC<{ postId: number }> = ({ postId }) => {
-  const [markdownEditorKey, setMarkdownEditorKey] = useState(0);
+const EditCommentForm: FC<IProps> = ({ postId, comment, onDone }) => {
   const utils = api.useContext();
-  const addCommentMutation = api.comment.add.useMutation({
+  const editCommentMutation = api.comment.edit.useMutation({
     onSuccess: () => {
       return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
     },
@@ -25,19 +30,22 @@ const AddCommentForm: FC<{ postId: number }> = ({ postId }) => {
       toast.error(`Something went wrong: ${error.message}`);
     },
   });
-  const { control, handleSubmit, reset } = useForm<CommentFormData>();
+  const { control, handleSubmit } = useForm<CommentFormData>({
+    defaultValues: {
+      content: comment.content,
+    },
+  });
 
   const onSubmit: SubmitHandler<CommentFormData> = (data) => {
-    addCommentMutation.mutate(
+    editCommentMutation.mutate(
       {
-        postId,
-        content: data.content,
+        id: comment.id,
+        data: {
+          content: data.content,
+        },
       },
       {
-        onSuccess: () => {
-          reset({ content: "" });
-          setMarkdownEditorKey((markdownEditorKey) => markdownEditorKey + 1);
-        },
+        onSuccess: () => onDone(),
       }
     );
   };
@@ -50,27 +58,30 @@ const AddCommentForm: FC<{ postId: number }> = ({ postId }) => {
         rules={{ required: true }}
         render={({ field }) => (
           <MarkdownEditor
-            key={markdownEditorKey}
             value={field.value}
             onChange={field.onChange}
             onTriggerSubmit={() => void handleSubmit(onSubmit)()}
             required
             placeholder="Comment"
             minRows={4}
+            autoFocus
           />
         )}
       />
-      <div className="mt-4">
+      <div className="mt-4 flex gap-4">
         <Button
           type="submit"
-          isLoading={addCommentMutation.isLoading}
-          loadingChildren="Adding comment"
+          isLoading={editCommentMutation.isLoading}
+          loadingChildren="Updating comment"
         >
-          Add comment
+          Update comment
+        </Button>
+        <Button variant="secondary" onClick={onDone}>
+          Cancel
         </Button>
       </div>
     </form>
   );
 };
 
-export default AddCommentForm;
+export default EditCommentForm;

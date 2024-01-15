@@ -1,4 +1,4 @@
-import { Button } from "~/apps/forum/button";
+import { Button } from "~/apps/forum/components/button";
 
 import {
   Dialog,
@@ -7,11 +7,9 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "~/apps/forum/dialog";
+} from "~/apps/forum/components/dialog";
 
-import { api } from "~/utils/api";
-
-import { useRouter } from "next/router";
+import { api, type RouterInputs } from "~/utils/api";
 
 import { useRef, type FC } from "react";
 
@@ -22,10 +20,18 @@ interface IProps {
   isOpen: boolean;
   onClose: () => void;
 }
-const ConfirmDeleteDialog: FC<IProps> = ({ postId, isOpen, onClose }) => {
+
+function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
+  return { id };
+}
+
+const ConfirmUnhideDialog: FC<IProps> = ({ postId, isOpen, onClose }) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
-  const deletePostMutation = api.post.delete.useMutation({
+  const utils = api.useContext();
+  const unhidePostMutation = api.post.unhide.useMutation({
+    onSuccess: () => {
+      return utils.post.detail.invalidate(getPostQueryPathAndInput(postId));
+    },
     onError: (error) => {
       toast.error(`Something went wrong: ${error.message}`);
     },
@@ -34,25 +40,27 @@ const ConfirmDeleteDialog: FC<IProps> = ({ postId, isOpen, onClose }) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} initialFocus={cancelRef}>
       <DialogContent>
-        <DialogTitle>Delete post</DialogTitle>
+        <DialogTitle>Unhide post</DialogTitle>
         <DialogDescription className="mt-6">
-          Are you sure you want to delete this post?
+          Are you sure you want to unhide this post?
         </DialogDescription>
         <DialogCloseButton onClick={onClose} />
       </DialogContent>
       <DialogActions>
         <Button
           variant="secondary"
-          className="!text-forum-red"
-          isLoading={deletePostMutation.isLoading}
-          loadingChildren="Deleting post"
+          isLoading={unhidePostMutation.isLoading}
+          loadingChildren="Unhiding post"
           onClick={() => {
-            deletePostMutation.mutate(postId, {
-              onSuccess: () => void router.push("/forum"),
+            unhidePostMutation.mutate(postId, {
+              onSuccess: () => {
+                toast.success("Post unhidden");
+                onClose();
+              },
             });
           }}
         >
-          Delete post
+          Unhide post
         </Button>
         <Button variant="secondary" onClick={onClose} ref={cancelRef}>
           Cancel
@@ -62,4 +70,4 @@ const ConfirmDeleteDialog: FC<IProps> = ({ postId, isOpen, onClose }) => {
   );
 };
 
-export default ConfirmDeleteDialog;
+export default ConfirmUnhideDialog;

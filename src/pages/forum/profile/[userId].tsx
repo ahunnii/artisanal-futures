@@ -6,24 +6,30 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import * as React from "react";
 
-import { Avatar } from "~/apps/forum/avatar";
-import { IconButton } from "~/apps/forum/icon-button";
-import { EditIcon } from "~/apps/forum/icons";
+import { Avatar } from "~/apps/forum/components/avatar";
+import { IconButton } from "~/apps/forum/components/icon-button";
+import { EditIcon } from "~/apps/forum/components/icons";
 
-import { Pagination, getQueryPaginationInput } from "~/apps/forum/pagination";
-import type { PostSummaryProps } from "~/apps/forum/post-summary";
-import { PostSummarySkeleton } from "~/apps/forum/post-summary-skeleton";
-import DotPattern from "~/apps/forum/profile/dot-pattern";
-import EditProfileDialog from "~/apps/forum/profile/edit-profile-dialog";
-import UpdateAvatarDialog from "~/apps/forum/profile/update-avatar-dialog";
+import {
+  Pagination,
+  getQueryPaginationInput,
+} from "~/apps/forum/components/pagination";
+import type { PostSummaryProps } from "~/apps/forum/components/post-summary";
+import { PostSummarySkeleton } from "~/apps/forum/components/post-summary-skeleton";
+import DotPattern from "~/apps/forum/components/profile/dot-pattern";
+import EditProfileDialog from "~/apps/forum/components/profile/edit-profile-dialog";
+import UpdateAvatarDialog from "~/apps/forum/components/profile/update-avatar-dialog";
 
+import ForumLayout from "~/apps/forum/forum-layout";
 import { env } from "~/env.mjs";
-import ForumLayout from "~/layouts/forum-layout";
 import { api, type RouterInputs } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
 const PostSummary = dynamic<PostSummaryProps>(
-  () => import("~/apps/forum/post-summary").then((mod) => mod.PostSummary),
+  () =>
+    import("~/apps/forum/components/post-summary").then(
+      (mod) => mod.PostSummary
+    ),
   { ssr: false }
 );
 
@@ -315,7 +321,11 @@ function ProfileFeed() {
 }
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-  return user;
+  return {
+    props: {
+      user,
+    },
+  };
 }
 
 export default ProfilePage;

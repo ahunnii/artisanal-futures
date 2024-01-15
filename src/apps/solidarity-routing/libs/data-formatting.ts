@@ -5,7 +5,7 @@ import type {
   Polyline,
   Stop,
   TimeWindow,
-} from "~/components/tools/routing/types";
+} from "~/apps/solidarity-routing/types";
 import {
   convertTimeFromMilitaryToStandard,
   convertTimeWindowToSeconds,
