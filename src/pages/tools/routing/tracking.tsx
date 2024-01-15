@@ -48,13 +48,6 @@ const TrackingPage = () => {
 
   const testMessage = (message: string) => {
     if (message === "invalidate") {
-      // toast.success("Invalidate");
-
-      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
-
-      // void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
-      // void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
-
       void apiContext.finalizedRoutes.invalidate();
     }
   };

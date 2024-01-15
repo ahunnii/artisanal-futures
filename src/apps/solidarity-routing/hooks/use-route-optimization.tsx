@@ -119,7 +119,7 @@ const useRouteOptimization = () => {
     setFilteredLocations([]);
     if (currentRoutingSolution) {
       setFilteredLocations(
-        mapJobsToVehicles(currentRoutingSolution.data.routes as RouteData[])
+        mapJobsToVehicles(currentRoutingSolution.data.routes)
       );
     }
   }, [routingSolutions, drivers, locations, currentRoutingSolution]);

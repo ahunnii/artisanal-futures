@@ -124,7 +124,7 @@ const useMap = ({
         );
 
       if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates as LatLngExpression[]);
+      const bounds = L.latLngBounds(stepCoordinates);
 
       mapRef.fitBounds(bounds);
     }
@@ -152,8 +152,7 @@ const useMap = ({
   }, [activeDriver, mapRef, flyTo]);
 
   useEffect(() => {
-    if (activeLocation && mapRef)
-      flyTo(activeLocation?.coordinates as Coordinates, 15);
+    if (activeLocation && mapRef) flyTo(activeLocation?.coordinates, 15);
   }, [activeLocation, mapRef, flyTo]);
 
   useEffect(() => {

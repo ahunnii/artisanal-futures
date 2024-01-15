@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 

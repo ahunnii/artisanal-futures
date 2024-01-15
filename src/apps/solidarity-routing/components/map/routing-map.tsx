@@ -38,11 +38,7 @@ import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-opti
 import { useRoutingSolutions } from "~/apps/solidarity-routing/hooks/use-routing-solutions";
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import { getStyle } from "~/apps/solidarity-routing/libs/color-handling";
-import type {
-  GeoJsonData,
-  Stop,
-  VroomResponse,
-} from "~/apps/solidarity-routing/types";
+import type { GeoJsonData, Stop } from "~/apps/solidarity-routing/types";
 
 import { cn } from "~/utils/styles";
 import { MAP_DATA } from "../../data/map-data";
@@ -211,7 +207,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                       location.coordinates?.longitude,
                     ] as [number, number];
 
-                    const color = findVehicleId(location as Stop) ?? 3;
+                    const color = findVehicleId(location) ?? 3;
 
                     return (
                       <RouteMarker
@@ -233,9 +229,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
           {currentRoutingSolution && (
             <GeoJSON
               data={
-                convertSolutionToGeoJSON(
-                  currentRoutingSolution as VroomResponse
-                ) as GeoJsonData
+                convertSolutionToGeoJSON(currentRoutingSolution) as GeoJsonData
               }
               style={getStyle}
             />
