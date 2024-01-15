@@ -13,15 +13,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
+import * as Form from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
 import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
@@ -121,6 +113,28 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
     defaultValues,
   });
 
+  const handleAutoComplete = (
+    address: string,
+    onChange: (value: string) => void
+  ) => {
+    if (!address) return;
+
+    onChange(address);
+    geocodeByAddress(address)
+      .then((results) => getLatLng(results[0]!))
+      .then(({ lat, lng }) => {
+        console.log("Successfully got latitude and longitude", {
+          latitude: lat,
+          longitude: lng,
+        });
+        form.setValue("coordinates", {
+          latitude: lat,
+          longitude: lng,
+        });
+      })
+      .catch((err) => console.error("Error", err));
+  };
+
   function onSubmit(data: DriverFormValues) {
     if (activeDriver) updateDriver(data.id, data);
     else appendDriver(data);
@@ -155,30 +169,24 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
   };
 
   return (
-    <Form {...form}>
+    <Form.Form {...form}>
       <form
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
         className=" flex h-full w-full flex-col space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
       >
-        {/* <ScrollArea> */}
         <ScrollArea className=" h-full w-full flex-1  max-md:max-h-[60vh]">
-          <div className="p-4">
-            <FormField
+          <div className="space-y-4 p-4">
+            <Form.FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Your customer's name"
-                      {...field}
-                      className="w-full"
-                    />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
+                <Form.FormItem className="w-full">
+                  <Form.FormLabel>Driver&apos;s Name</Form.FormLabel>
+                  <Form.FormControl>
+                    <Input placeholder="Your driver's name" {...field} />
+                  </Form.FormControl>
+                  <Form.FormMessage />
+                </Form.FormItem>
               )}
             />
 
@@ -186,32 +194,14 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
               <Controller
                 name="address"
                 control={form.control}
-                defaultValue="11"
                 render={({ field: { onChange, value } }) => (
-                  <FormItem>
-                    <FormLabel>Starting Address</FormLabel>
+                  <Form.FormItem>
+                    <Form.FormLabel>Starting Address</Form.FormLabel>
 
                     <GooglePlacesAutocomplete
                       selectProps={{
                         defaultInputValue: value,
-                        onChange: (e) => {
-                          if (!e) return;
-
-                          onChange(e.label);
-                          geocodeByAddress(e.label)
-                            .then((results) => getLatLng(results[0]!))
-                            .then(({ lat, lng }) => {
-                              console.log(
-                                "Successfully got latitude and longitude",
-                                { latitude: lat, longitude: lng }
-                              );
-                              form.setValue("coordinates", {
-                                latitude: lat,
-                                longitude: lng,
-                              });
-                            })
-                            .catch((err) => console.error("Error", err));
-                        },
+                        onChange: (e) => handleAutoComplete(e!.label, onChange),
                         classNames: {
                           control: (state) =>
                             state.isFocused
@@ -228,76 +218,62 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                       }}
                     />
 
-                    <FormDescription>
+                    <Form.FormDescription>
                       This is the address where the driver will deliver the
                       package. Coordinates are <br /> Lat:{" "}
                       {form.watch("coordinates")?.latitude ?? 0} &nbsp; Lng:{" "}
                       {form.watch("coordinates")?.longitude ?? 0}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+                    </Form.FormDescription>
+                    <Form.FormMessage />
+                  </Form.FormItem>
                 )}
               />
             )}
             <div className="flex gap-4">
-              <FormField
+              <Form.FormField
                 control={form.control}
                 name="max_travel_time"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Travel Time</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 30"
-                        {...field}
-                        type="number"
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
+                  <Form.FormItem>
+                    <Form.FormLabel>Max Travel Time</Form.FormLabel>
+                    <Form.FormControl>
+                      <Input placeholder="e.g. 30" {...field} type="number" />
+                    </Form.FormControl>
+                    <Form.FormDescription>
                       How long should the fulfillment take? (in minutes)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+                    </Form.FormDescription>
+                    <Form.FormMessage />
+                  </Form.FormItem>
                 )}
               />{" "}
-              <FormField
+              <Form.FormField
                 control={form.control}
                 name="max_stops"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Stops</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 30"
-                        {...field}
-                        type="number"
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
+                  <Form.FormItem>
+                    <Form.FormLabel>Max Stops</Form.FormLabel>
+                    <Form.FormControl>
+                      <Input placeholder="e.g. 30" {...field} type="number" />
+                    </Form.FormControl>
+                    <Form.FormDescription>
                       On a scale of 0 - 100, with 100 being the highest
                       priority, how important is this stop?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+                    </Form.FormDescription>
+                    <Form.FormMessage />
+                  </Form.FormItem>
                 )}
               />
             </div>
-            <FormItem>
-              <FormLabel className="text-lg">Time Window</FormLabel>
-              <FormDescription>
+            <Form.FormItem className="py-4">
+              <Form.FormLabel className="text-lg">Driver Shift</Form.FormLabel>
+              {/* <Form.FormDescription>
                 When is the driver&apos;s shift?
-              </FormDescription>
+              </Form.FormDescription> */}
               <div className="mt-5 flex items-center space-x-4">
                 <Controller
                   render={({ field }) => (
                     <div className="flex grow flex-col">
-                      <FormLabel>Start Time</FormLabel>{" "}
+                      <Form.FormLabel>Start Time</Form.FormLabel>{" "}
                       <Input {...field} placeholder="e.g. 40" type="time" />
                     </div>
                   )}
@@ -307,7 +283,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                 <Controller
                   render={({ field }) => (
                     <div className="flex grow flex-col">
-                      <FormLabel>End Time</FormLabel>{" "}
+                      <Form.FormLabel>End Time</Form.FormLabel>{" "}
                       <Input {...field} placeholder="e.g. 40" type="time" />
                     </div>
                   )}
@@ -315,12 +291,12 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                   control={form.control}
                 />
               </div>{" "}
-              <FormMessage />
-            </FormItem>
+              <Form.FormMessage />
+            </Form.FormItem>
 
             <div className="my-4 flex flex-col border border-slate-200 bg-slate-50 p-4">
               <div className="flex justify-between">
-                <FormLabel className="text-lg">Break Slots</FormLabel>
+                <Form.FormLabel className="text-lg">Break Slots</Form.FormLabel>
 
                 <Button
                   onClick={() =>
@@ -365,15 +341,17 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                         <div className="space-y-4 pl-2">
                           <Controller
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Break Duration (min)</FormLabel>
+                              <Form.FormItem>
+                                <Form.FormLabel>
+                                  Break Duration (min)
+                                </Form.FormLabel>
                                 <Input
                                   {...field}
                                   type="number"
                                   placeholder="e.g. 40"
                                 />
-                                <FormMessage />
-                              </FormItem>
+                                <Form.FormMessage />
+                              </Form.FormItem>
                             )}
                             name={`break_slots.${index}.service`}
                             control={form.control}
@@ -391,14 +369,18 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                                     timeWindowIndex: number
                                   ) => (
                                     <>
-                                      <FormLabel>Time Windows</FormLabel>
-                                      <FormMessage />
+                                      <Form.FormLabel>
+                                        Time Windows
+                                      </Form.FormLabel>
+                                      <Form.FormMessage />
                                       <div
                                         key={timeWindowIndex}
                                         className=" flex flex-row items-end justify-between"
                                       >
                                         <div className="flex flex-col">
-                                          <FormLabel>Start Time</FormLabel>
+                                          <Form.FormLabel>
+                                            Start Time
+                                          </Form.FormLabel>
                                           <Input
                                             {...form.register(
                                               `break_slots.${index}.time_windows.${timeWindowIndex}.startTime`
@@ -416,7 +398,9 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                                         </div>
 
                                         <div className="flex flex-col">
-                                          <FormLabel>End Time</FormLabel>
+                                          <Form.FormLabel>
+                                            End Time
+                                          </Form.FormLabel>
                                           <Input
                                             {...form.register(
                                               `break_slots.${index}.time_windows.${timeWindowIndex}.endTime`
@@ -455,10 +439,10 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                                         </Button>
                                       </div>
 
-                                      <FormDescription>
+                                      <Form.FormDescription>
                                         Provide a list of times in which the
                                         driver can take their break.
-                                      </FormDescription>
+                                      </Form.FormDescription>
                                     </>
                                   )
                                 )}
@@ -494,11 +478,11 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
                   })}
                 </>
               </ScrollArea>
-              <FormDescription>
+              <Form.FormDescription>
                 Add a list of breaks that the driver can take. Indicating just
                 the duration will assume anytime during the shift.
-              </FormDescription>{" "}
-              <FormMessage />
+              </Form.FormDescription>{" "}
+              <Form.FormMessage />
             </div>
           </div>
         </ScrollArea>
@@ -517,7 +501,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange }) => {
           </Button>
         </div>
       </form>
-    </Form>
+    </Form.Form>
   );
 };
 

@@ -26,18 +26,18 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
         title: "Profile",
         href: "/profile",
       },
-      shop
-        ? {
-            title: "Shops",
-            href: `/profile/shop/${shop?.id}`,
-          }
-        : {
-            title: "Shops",
-            href: "/profile/shop",
-          },
+      {
+        title: "My Shop",
+        href: shop ? `/profile/shop/${shop?.id}` : "/profile/shop",
+      },
+
       {
         title: "Survey",
         href: "/profile/survey",
+      },
+      {
+        title: "Tool Data",
+        href: "/profile/tool-data",
       },
     ];
   }, [shop]);

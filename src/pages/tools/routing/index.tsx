@@ -106,10 +106,7 @@ const RoutingPage = () => {
                 <StopsTab />
                 <div className=" flex h-16 items-center justify-end bg-white p-4">
                   <Button
-                    onClick={() => {
-                      setTabValue("calculate");
-                      void getRoutes();
-                    }}
+                    onClick={calculateOptimalPaths}
                     className="gap-2"
                     disabled={isRouteDataMissing}
                   >

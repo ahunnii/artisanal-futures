@@ -21,15 +21,15 @@ const StopsTab = () => {
           </h2>
           {locations?.length !== 0 && <OptionsBtn type="stop" />}
         </div>
-        {locations?.length === 0 && (
-          <p>No stops have been added to this route yet.</p>
-        )}
 
         {locations?.length === 0 && (
-          <TabOptions
-            type="stop"
-            className="flex-col items-stretch  shadow-none"
-          />
+          <>
+            <p>No stops have been added to this route yet.</p>{" "}
+            <TabOptions
+              type="stop"
+              className="flex-col items-stretch  shadow-none"
+            />
+          </>
         )}
       </div>
 

@@ -1,14 +1,12 @@
 import { useCallback, useEffect } from "react";
 
-import Navbar from "~/components/navbar";
-
 import { api } from "~/utils/api";
+import Navbar from "./components/ui/navbar";
 
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   const apiContext = api.useContext();
 
   const updateStore = useCallback(() => {
-    console.log("yee");
     void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
     void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
   }, [apiContext]);

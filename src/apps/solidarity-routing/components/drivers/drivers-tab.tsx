@@ -21,15 +21,15 @@ const DriversTab = () => {
           </h2>
           {drivers?.length !== 0 && <OptionsBtn type="driver" />}
         </div>
-        {drivers?.length === 0 && (
-          <p>No drivers have been added to this route yet.</p>
-        )}
 
         {drivers?.length === 0 && (
-          <TabOptions
-            type="driver"
-            className="flex-col items-stretch  shadow-none"
-          />
+          <>
+            <p>No drivers have been added to this route yet.</p>
+            <TabOptions
+              type="driver"
+              className="flex-col items-stretch  shadow-none"
+            />
+          </>
         )}
       </div>
 
