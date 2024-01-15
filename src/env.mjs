@@ -33,7 +33,7 @@ export const env = createEnv({
       .transform((s) => s === "true")
       .optional(),
     SLACK_WEBHOOK_URL: z.string().url().optional(),
-    NEXT_APP_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD: z
       .string()
       .refine((s) => s === "true" || s === "false")
@@ -51,6 +51,8 @@ export const env = createEnv({
     PUSHER_APP_ID: z.string().min(1),
     NEXT_PUBLIC_PUSHER_APP_KEY: z.string().min(1),
     PUSHER_APP_SECRET: z.string().min(1),
+    NEXT_PUBLIC_PUSHER_HOST: z.string().min(1),
+    NEXT_PUBLIC_PUSHER_PORT: z.string().optional(),
     // GOOGLE_MAP_API_KEY: z.string().min(1),
   },
 
@@ -71,6 +73,8 @@ export const env = createEnv({
       .optional(),
     NEXT_PUBLIC_PASSWORD_PROTECT: z.string().min(1),
     NEXT_PUBLIC_PUSHER_APP_KEY: z.string().min(1),
+    NEXT_PUBLIC_PUSHER_HOST: z.string().min(1),
+    NEXT_PUBLIC_PUSHER_PORT: z.string().optional(),
   },
 
   /**
@@ -93,7 +97,7 @@ export const env = createEnv({
     NEXT_PUBLIC_RESEND_API_KEY: process.env.NEXT_PUBLIC_RESEND_API_KEY,
     ENABLE_SLACK_POSTING: process.env.ENABLE_SLACK_POSTING,
     SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL,
-    NEXT_APP_URL: process.env.NEXT_APP_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD:
       process.env.NEXT_PUBLIC_ENABLE_IMAGE_UPLOAD,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
@@ -106,6 +110,8 @@ export const env = createEnv({
     PUSHER_APP_ID: process.env.PUSHER_APP_ID,
     NEXT_PUBLIC_PUSHER_APP_KEY: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
     PUSHER_APP_SECRET: process.env.PUSHER_APP_SECRET,
+    NEXT_PUBLIC_PUSHER_HOST: process.env.NEXT_PUBLIC_PUSHER_HOST,
+    NEXT_PUBLIC_PUSHER_PORT: process.env.NEXT_PUBLIC_PUSHER_PORT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

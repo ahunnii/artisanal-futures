@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { PusherMessage } from "~/components/tools/routing/types";
+import type { PusherMessage } from "~/apps/solidarity-routing/types";
 
 import { authOptions } from "~/server/auth";
 
-import { pusher } from "~/server/pusher/client";
+// import { pusher } from "~/server/pusher/client";
+import { pusherServer } from "~/server/soketi/server";
 
 const messages: PusherMessage[] = [];
 
@@ -25,7 +26,7 @@ const contactHandling = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     // Trigger a Pusher event with the updated locations
-    await pusher.trigger("map", "update-messages", messages);
+    await pusherServer.trigger("map", "update-messages", messages);
     res.status(200).send("Location updated");
   } else {
     res.status(405).send("Method not allowed");

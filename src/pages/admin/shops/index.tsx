@@ -1,58 +1,36 @@
 import type { GetServerSidePropsContext } from "next";
-import type { FC } from "react";
 
-import { ShopClient } from "~/components/admin/shops/client";
+import { ShopClient } from "~/apps/admin/components/shops/client";
+import { authenticateAdminServerSide } from "~/apps/admin/libs/authenticate-admin";
 import PageLoader from "~/components/ui/page-loader";
-import AdminLayout from "~/layouts/admin-layout";
+
+import AdminLayout from "~/apps/admin/admin-layout";
 
 import { api } from "~/utils/api";
-import { authenticateUser } from "~/utils/auth";
 
-interface IProps {
-  status: "authorized" | "unauthorized";
-}
+const AdminShopsPage = () => {
+  const { data: shops, isLoading } = api.shops.getAllShops.useQuery();
 
-const AdminShopsPage: FC<IProps> = ({ status }) => {
-  const { data: shops } = api.shops.getAllShops.useQuery();
-  console.log(shops);
+  if (isLoading)
+    return (
+      <AdminLayout>
+        <PageLoader />
+      </AdminLayout>
+    );
   return (
     <AdminLayout>
-      {status === "unauthorized" ? (
-        <>
-          <p>
-            You don&apos;t have the credentials to access this view. Please
-            contact Artisanal Futures to elevate your role.
-          </p>
-        </>
-      ) : (
-        <>
-          <div className="flex h-full flex-col">
-            <div className="flex-1 space-y-4 p-8 pt-6">
-              {!shops ? <PageLoader /> : <ShopClient data={shops} />}
-            </div>
+      <>
+        <div className="flex h-full flex-col">
+          <div className="flex-1 space-y-4 p-8 pt-6">
+            <ShopClient data={shops ?? []} />
           </div>
-        </>
-      )}
+        </div>
+      </>
     </AdminLayout>
   );
 };
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  const user = await authenticateUser(ctx);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
+  authenticateAdminServerSide(ctx);
 
-  if (user.props!.user.role !== "ADMIN") {
-    return {
-      redirect: {
-        destination: "/admin",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      status: user.props!.user.role === "ADMIN" ? "authorized" : "unauthorized",
-    },
-  };
-};
 export default AdminShopsPage;

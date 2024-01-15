@@ -8,14 +8,23 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const password = req.body.password;
 
   if (process.env.NEXT_PUBLIC_PASSWORD_PROTECT === password) {
-    const fiveMinutes = 60 * 5000;
+    // const fiveMinutes = 60 * 5000;
+    // const fiveSeconds = 5 * 1000;
+    const twoMinutes = 60 * 2000;
 
     const cookie = serialize("login", "true", {
       path: "/",
       httpOnly: true,
-      expires: new Date(Date.now() + fiveMinutes),
+      expires: new Date(Date.now() + twoMinutes),
     });
-    res.setHeader("Set-Cookie", cookie);
+
+    const cookieAlt = serialize("code", `${password}`, {
+      path: "/",
+      httpOnly: true,
+      expires: new Date(Date.now() + twoMinutes),
+    });
+    // res.setHeader("Set-Cookie", cookie);
+    res.setHeader("Set-Cookie", [cookie, cookieAlt]);
     // res.redirect(302, "/sign-in");
 
     res.status(302).json({ success: true });

@@ -1,12 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import axios from "axios";
 import { z } from "zod";
+import { type Product } from "~/apps/product/types";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { Artisan, Attribute, Product } from "~/types";
+import type { Artisan, Attribute } from "~/types";
 
 const PRODUCT_ENDPOINT =
   "https://data.artisanalfutures.org/api/v1/products/search/";
@@ -48,6 +49,7 @@ export const productsRouter = createTRPCRouter({
     };
 
     const response = await axios.post(PRODUCT_ENDPOINT, payloadForProducts);
+    console.log("yeet");
 
     if (response.status != 200) {
       throw new TRPCError({

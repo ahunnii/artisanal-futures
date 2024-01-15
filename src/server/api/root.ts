@@ -7,6 +7,7 @@ import { postRouter } from "./routers/post";
 import { productsRouter } from "./routers/products";
 import { depotsRouter } from "./routers/routing/depots";
 import { driversRouter } from "./routers/routing/drivers";
+import { finalizedRouter } from "./routers/routing/finalized";
 import { shopsRouter } from "./routers/shops";
 import { surveysRouter } from "./routers/surveys";
 import { userRouter } from "./routers/user";
@@ -29,6 +30,7 @@ export const appRouter = createTRPCRouter({
   drivers: driversRouter,
 
   products: productsRouter,
+  finalizedRoutes: finalizedRouter,
 });
 
 // export type definition of API

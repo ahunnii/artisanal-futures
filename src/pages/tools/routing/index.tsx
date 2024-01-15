@@ -1,36 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { AnimatePresence, motion } from "framer-motion";
-import DriverSheet from "~/components/tools/routing/drivers/driver-sheet";
-import DriversDynamicTab from "~/components/tools/routing/drivers/drivers-tab";
-import CalculationsTab from "~/components/tools/routing/solutions/calculations-tab";
-import FulfillmentSheet from "~/components/tools/routing/stops/fulfillment-sheet";
-import StopsDynamicTab from "~/components/tools/routing/stops/stops-tab";
-import { Button } from "~/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import RouteLayout from "~/layouts/route-layout";
+  DriverSheet,
+  DriversTab,
+} from "~/apps/solidarity-routing/components/drivers";
+import {
+  StopSheet,
+  StopsTab,
+} from "~/apps/solidarity-routing/components/stops";
 
-import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { useDrivers } from "~/hooks/routing/use-drivers";
-import useRouteOptimization from "~/hooks/routing/use-route-optimization";
-import { useStops } from "~/hooks/routing/use-stops";
+import CalculationsTab from "~/apps/solidarity-routing/components/solutions/calculations-tab";
+import BottomSheet from "~/apps/solidarity-routing/components/ui/bottom-sheet";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-optimization";
+import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+import RouteLayout from "~/apps/solidarity-routing/route-layout";
+
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 const LazyRoutingMap = dynamic(
-  () => import("~/components/tools/routing/map/routing-map"),
+  () => import("~/apps/solidarity-routing/components/map/routing-map"),
   {
     ssr: false,
     loading: () => <div>loading...</div>,
@@ -40,7 +34,7 @@ const LazyRoutingMap = dynamic(
  * Page component that allows users to generate routes based on their input.
  */
 const RoutingPage = () => {
-  const [tabValue, setTabValue] = useState("plan");
+  const [tabValue, setTabValue] = useState<string>("plan");
 
   const { locations } = useStops((state) => state);
   const { drivers } = useDrivers((state) => state);
@@ -74,7 +68,7 @@ const RoutingPage = () => {
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
 
-      <FulfillmentSheet />
+      <StopSheet />
       <DriverSheet />
 
       <RouteLayout>
@@ -108,14 +102,11 @@ const RoutingPage = () => {
             </TabsList>
             <TabsContent value="plan" asChild>
               <>
-                <DriversDynamicTab />
-                <StopsDynamicTab />
+                <DriversTab />
+                <StopsTab />
                 <div className=" flex h-16 items-center justify-end bg-white p-4">
                   <Button
-                    onClick={() => {
-                      setTabValue("calculate");
-                      void getRoutes();
-                    }}
+                    onClick={calculateOptimalPaths}
                     className="gap-2"
                     disabled={isRouteDataMissing}
                   >
@@ -141,8 +132,8 @@ const RoutingPage = () => {
           </Tabs>
           <div className="flex lg:hidden">
             <BottomSheet title="Plan">
-              <DriversDynamicTab />
-              <StopsDynamicTab />
+              <DriversTab />
+              <StopsTab />
             </BottomSheet>
 
             <BottomSheet

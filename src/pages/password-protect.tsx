@@ -94,13 +94,20 @@ const AuthForm = ({ loading }: { loading: boolean }) => {
     }
 
     if (res.success) {
-      router.push("/sign-in");
+      router.push("/sign-up");
     }
   };
 
   return (
     <>
-      <h1 className="text-2xl">Enter code to continue</h1>
+      <h1 className="text-3xl font-semibold">
+        Enter code to sign up to Artisanal Futures
+      </h1>
+      <p className="pt-2 font-medium text-muted-foreground">
+        Welcome to Artisanal Futures! In order to maintain a truly free and
+        collaborative environment, we invite others to join via a pass code. You
+        can get a pass code from our admins or from one of our existing members!
+      </p>
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
@@ -128,7 +135,11 @@ const AuthForm = ({ loading }: { loading: boolean }) => {
               </FormItem>
             )}
           />{" "}
-          <Button disabled={loading} className="ml-auto mt-5" type="submit">
+          <Button
+            disabled={loading}
+            className="ml-auto mt-5 w-full"
+            type="submit"
+          >
             Authenticate
           </Button>
         </form>

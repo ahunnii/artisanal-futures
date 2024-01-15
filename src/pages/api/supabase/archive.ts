@@ -7,10 +7,9 @@ const archiveHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const { routeId } = req.body;
 
-      const { data: specificData, error: specificError } =
-        await supabase.storage
-          .from("routes")
-          .download(`${routeId as string}.json`);
+      const {} = await supabase.storage
+        .from("routes")
+        .download(`${routeId as string}.json`);
 
       const { data, error } = await supabase.storage
         .from("routes")

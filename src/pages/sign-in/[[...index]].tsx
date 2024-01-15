@@ -8,10 +8,12 @@ import { getServerSession } from "next-auth";
 import { getProviders, signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "~/components/ui/button";
 
 import AuthLayout from "~/layouts/auth-layout";
 import { authOptions } from "~/server/auth";
+
 const SignInPage = ({
   providers,
   error,
@@ -28,7 +30,11 @@ const SignInPage = ({
           {" "}
           <div className="w-96 rounded bg-white p-4 ">
             {error && (
-              <p className="text-center font-semibold text-red-700">{error}</p>
+              <>
+                <p className="py-4 text-center font-semibold text-red-700">
+                  {error}
+                </p>
+              </>
             )}
             <h1 className="mb-4 text-center text-2xl">
               Sign In to Artisanal Futures
@@ -39,7 +45,13 @@ const SignInPage = ({
                   return (
                     <div key={provider.name}>
                       <Button
-                        onClick={() => void signIn(provider.id)}
+                        onClick={() =>
+                          void signIn(
+                            provider.id,
+                            { callbackUrl: "/sign-in?message=hello" },
+                            { message: "hello" }
+                          )
+                        }
                         variant={"outline"}
                         className="flex w-full justify-center gap-x-5 rounded-full"
                       >
@@ -74,6 +86,15 @@ const SignInPage = ({
                 </Button>
               </div>
             </div>
+
+            <p className="w-full py-4 text-center font-medium text-muted-foreground">
+              Don&apos;t have an account?{" "}
+              <Link href="/sign-up">
+                <span className="font-bold hover:text-slate-800">
+                  Sign up here!
+                </span>
+              </Link>
+            </p>
           </div>
         </div>
         <div className=" flex w-8/12 justify-end  ">
@@ -98,11 +119,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     return { redirect: { destination: "/" } };
   }
 
-  const isLoggedIn = context.req.cookies.login;
+  // const isLoggedIn = context.req.cookies.login;
 
-  if (!isLoggedIn) {
-    return { redirect: { destination: "/password-protect" } };
-  }
+  // if (!isLoggedIn) {
+  //   return { redirect: { destination: "/password-protect" } };
+  // }
   // const isPathPasswordProtect =
   //   req.nextUrl.pathname.startsWith("/password-protect");
   // if (isPasswordEnabled && !isLoggedIn && !isPathPasswordProtect) {
@@ -113,15 +134,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const providers = await getProviders();
 
   const errorMessage: Record<string, string> = {
+    "account-not-found":
+      "Oops, that account doesn't exist. You can sign up for a new account below. ",
     OAuthCallback: "Oops, something went wrong there. Please try again later.",
     OAuthAccountNotLinked:
       "The email associated with your selected provider is already in use. Please try another provider or contact us.",
   };
 
+  console.log(context.query.error);
+
   const error = context.query.error
     ? errorMessage[(context.query.error as string) ?? "OAuthCallback"]
     : null;
-
+  console.log(error);
   return {
     props: {
       providers: providers ?? [],

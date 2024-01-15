@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { type GraphModel } from "@tensorflow/tfjs";
+
 import { create } from "zustand";
 
 import type { CustomerResponseData, VehicleResponseData } from "~/types";
@@ -11,34 +12,6 @@ interface LocationTableRow {
   timeWindow: unknown[];
   priority: string;
 }
-
-// type Coordinates = [number, number];
-// type Geometry = {
-//   type: string;
-//   coordinates: Coordinates[];
-// };
-
-// type Data = {
-//   code: number;
-//   summary: {
-//     cost: number;
-//     unassigned: number;
-//     delivery: number[];
-//     amount: number[];
-//     pickup: number[];
-//     service: number;
-//     duration: number;
-//     waiting_time: number;
-//     distance: number;
-//     computing_times: {
-//       loading: number;
-//       solving: number;
-//       routing: number;
-//     };
-//   };
-//   unassigned: unknown[];
-//   routes: Route[];
-// };
 
 interface LocationTableState {
   rows: LocationTableRow[];
@@ -279,60 +252,3 @@ export type FinalImage = {
   blob: unknown;
   isGenerating: boolean;
 };
-type StyleTransferState = {
-  contentImage: StyleTransferImage | null;
-  styleImage: StyleTransferImage | null;
-  styleStrength: number;
-  // styleModel: {
-  //   type: string;
-  //   isLoading: boolean;
-  //   data: GraphModel | null;
-  // };
-  // styleTransformer: {
-  //   type: string;
-  //   isLoading: boolean;
-  //   data: GraphModel | null;
-  // };
-  finalImage: FinalImage;
-
-  modelType: string;
-  isModelLoading: boolean;
-  modelData: GraphModel | null;
-
-  transformerType: string;
-  isTransformerLoading: boolean;
-  transformerData: GraphModel | null;
-
-  setContentImage: (image: StyleTransferImage) => void;
-  setStyleImage: (image: StyleTransferImage) => void;
-  setValue: (key: string, value: unknown) => void;
-};
-
-export const useStyleTransferStore = create<StyleTransferState>((set) => ({
-  contentImage: {
-    src: "/img/style_transfer/chicago.jpg",
-    height: 256,
-  },
-  styleImage: {
-    src: "/img/style_transfer/seaport.jpg",
-    height: 256,
-    isSquare: false,
-  },
-  styleStrength: 100,
-
-  // styleModel: { type: "mobilenet", isLoading: false, data: null },
-  // styleTransformer: { type: "separable", isLoading: false, data: null },
-  modelType: "mobilenet",
-  isModelLoading: false,
-  modelData: null,
-  transformerType: "separable",
-  isTransformerLoading: false,
-  transformerData: null,
-  finalImage: {
-    blob: null,
-    isGenerating: false,
-  },
-  setContentImage: (image) => set({ contentImage: image }),
-  setStyleImage: (image) => set({ styleImage: image }),
-  setValue: (key, value) => set({ [key]: value }),
-}));

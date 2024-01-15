@@ -1,11 +1,10 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
-import { useEffect } from "react";
-import LoadingIndicator from "~/components/tools/routing/solutions/loading-indicator";
-import { MinimalRouteCard } from "~/components/tools/routing/solutions/minimal-route-card";
+import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
+import LoadingIndicator from "~/apps/solidarity-routing/components/solutions/loading-indicator";
 
-import type { ExpandedRouteData } from "~/components/tools/routing/types";
+import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 import { Badge } from "~/components/ui/badge";
 
 import {
@@ -15,26 +14,21 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "~/components/ui/sheet";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import BottomSheet from "~/components/tools/routing/ui/bottom-sheet";
-import { useDepot } from "~/hooks/routing/use-depot";
-import useRealTime from "~/hooks/routing/use-realtime";
+import BottomSheet from "~/apps/solidarity-routing/components/ui/bottom-sheet";
+
+import useRealTime from "~/apps/solidarity-routing/hooks/use-realtime";
 import RouteLayout from "~/layouts/route-layout";
-import { fetchAllRoutes } from "~/utils/routing/supabase-utils";
+import { api } from "~/utils/api";
+
+import { useEffect } from "react";
+import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 
 const LazyTrackingMap = dynamic(
-  () => import("~/components/tools/routing/map/tracking-map"),
+  () => import("~/apps/solidarity-routing/components/map/tracking-map"),
   {
     ssr: false,
     loading: () => <div>loading...</div>,
@@ -42,13 +36,31 @@ const LazyTrackingMap = dynamic(
 );
 
 const TrackingPage = () => {
-  const { routes, setRoutes } = useDepot((state) => state);
-
   const { activeUsers, messages } = useRealTime();
 
+  console.log(messages);
+  const apiContext = api.useContext();
+
+  const { data: routes } =
+    api.finalizedRoutes.getAllFormattedFinalizedRoutes.useQuery({
+      filterOut: "COMPLETED",
+    });
+
+  const testMessage = (message: string) => {
+    if (message === "invalidate") {
+      void apiContext.finalizedRoutes.invalidate();
+    }
+  };
+
   useEffect(() => {
-    fetchAllRoutes(setRoutes);
-  }, [setRoutes]);
+    const channel = pusherClient.subscribe("map");
+    channel.bind("evt::test-message", testMessage);
+
+    return () => {
+      channel.unbind();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const checkIfOnline = (idx: number) => {
     if (activeUsers.length > 0) {
@@ -92,19 +104,14 @@ const TrackingPage = () => {
               {routes &&
                 routes.length > 0 &&
                 routes.map((route: ExpandedRouteData, idx: number) => {
-                  const steps = messages?.filter(
-                    (message) => message.routeId === route?.routeId
-                  );
-
                   return (
-                    <MinimalRouteCard
+                    <InteractiveRouteCard
                       key={idx}
                       data={route}
                       className="w-full"
                       isOnline={checkIfOnline(route.vehicle)}
                       isTracking={true}
                       textColor={route?.vehicle}
-                      messages={steps}
                     />
                   );
                 })}{" "}
@@ -173,19 +180,14 @@ const TrackingPage = () => {
                 {routes &&
                   routes.length > 0 &&
                   routes.map((route: ExpandedRouteData, idx: number) => {
-                    const steps = messages?.filter(
-                      (message) => message.routeId === route?.routeId
-                    );
-
                     return (
-                      <MinimalRouteCard
+                      <InteractiveRouteCard
                         key={idx}
                         data={route}
                         className="w-full"
                         isOnline={checkIfOnline(route.vehicle)}
                         isTracking={true}
                         textColor={route?.vehicle}
-                        messages={steps}
                       />
                     );
                   })}{" "}

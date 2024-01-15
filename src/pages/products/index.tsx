@@ -11,12 +11,12 @@ import React, {
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
 
+import AiSort from "~/apps/product/components/ai-sort";
+import ArtisanField from "~/apps/product/components/artisan-field";
+import AttributeField from "~/apps/product/components/attribute-field";
+import ProductCard from "~/apps/product/components/product-card";
+import SearchBar from "~/apps/product/components/search-bar";
 import Body from "~/components/body";
-import AiSort from "~/components/products/ai-sort";
-import ArtisanField from "~/components/products/artisan-field";
-import AttributeField from "~/components/products/attribute-field";
-import ProductCard from "~/components/products/product-card";
-import SearchBar from "~/components/products/search-bar";
 import PageLoader from "~/components/ui/page-loader";
 import {
   Select,
@@ -26,8 +26,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-import useProducts from "~/hooks/useProducts";
-import type { Product } from "~/types";
+import useProducts from "~/apps/product/hooks/useProducts";
+import type { Product } from "~/apps/product/types";
 
 const ProductsPage: React.FC = () => {
   const {
@@ -165,6 +165,14 @@ const ProductsPage: React.FC = () => {
   if (isError) {
     return <Body>Error occurred while fetching products.</Body>;
   }
+
+  // const isArtisanCheckboxDisabled = (artisan: string) => {
+  //   return applicableArtisans ? !applicableArtisans.includes(artisan) : false;
+  // };
+
+  // const isAttributeCheckboxDisabled = (attribute: string) => {
+  //   return !filteredPrinciples.includes(attribute);
+  // };
 
   return (
     <>
