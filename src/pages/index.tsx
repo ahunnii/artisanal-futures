@@ -2,11 +2,13 @@ import Head from "next/head";
 import Image from "next/image";
 
 import Body from "~/components/body";
-import EventBulletinBoard from "~/components/homepage/event-bulletin-board";
-import Hero from "~/components/homepage/hero";
-import HomePageCard from "~/components/homepage/homepage-card";
 
-import { CARD_DATA } from "~/data/homepage";
+import {
+  CARD_DATA,
+  EventBulletinBoard,
+  Hero,
+  HomePageCard,
+} from "~/apps/homepage";
 
 const HomePage = () => {
   return (
