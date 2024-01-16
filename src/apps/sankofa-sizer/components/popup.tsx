@@ -1,11 +1,11 @@
 import { Button } from "~/components/ui/button";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import ActualPattern from "./actual-pattern";
+
+import ActualPattern from "~/apps/sankofa-sizer/components/actual-pattern";
 
 const Popup = () => {
   return (

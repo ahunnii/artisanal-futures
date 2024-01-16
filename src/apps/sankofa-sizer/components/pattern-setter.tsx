@@ -1,7 +1,10 @@
 import { useState, type ChangeEvent } from "react";
-import { useSizerStore } from "~/apps/sankofa-sizer/store";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+
 const PatternSetter = () => {
   const { updateValue } = useSizerStore((state) => state);
 

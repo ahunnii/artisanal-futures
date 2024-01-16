@@ -1,6 +1,8 @@
 import type { FC } from "react";
+
 import { Slider } from "~/components/ui/slider";
-import InchMarker from "./inch-marker"; //Our virtual Marker
+
+import InchMarker from "~/apps/sankofa-sizer/components/inch-marker"; //Our virtual Marker
 
 interface IProps {
   ppiSliderValue: number;

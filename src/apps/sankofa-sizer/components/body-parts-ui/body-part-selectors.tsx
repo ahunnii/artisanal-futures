@@ -5,7 +5,9 @@ import React, {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { useSizerStore, type Part } from "~/apps/sankofa-sizer/store";
+
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { type Part } from "~/apps/sankofa-sizer/types";
 
 interface IProps {
   handleOnHover: (overlay?: string) => void;

@@ -1,4 +1,3 @@
-import { throttle } from "@daybrush/utils";
 import React, {
   useEffect,
   useRef,
@@ -6,13 +5,15 @@ import React, {
   type ChangeEvent,
   type FC,
 } from "react";
+
+import { throttle } from "@daybrush/utils";
 import Moveable from "react-moveable";
-import {
-  useSizerStore,
-  type BodyPart,
-  type Part,
-} from "~/apps/sankofa-sizer/store";
+
 import { Input } from "~/components/ui/input";
+
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { type BodyPart, type Part } from "~/apps/sankofa-sizer/types";
+
 interface IProps {
   bodyPartKey: Part;
   bodyPart: BodyPart;

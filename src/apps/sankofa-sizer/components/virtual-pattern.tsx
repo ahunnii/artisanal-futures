@@ -1,6 +1,6 @@
-import { useSizerStore } from "~/apps/sankofa-sizer/store";
-import PatternSetter from "./pattern-setter";
-import VirtualResize from "./virtual-resize";
+import PatternSetter from "~/apps/sankofa-sizer/components/pattern-setter";
+import VirtualResize from "~/apps/sankofa-sizer/components/virtual-resize";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
 
 const VirtualPattern = () => {
   const actual_pattern = useSizerStore((state) => state.actual_pattern);

@@ -1,12 +1,12 @@
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
 import Moveable from "react-moveable";
 
-import { useSizerStore, type Part } from "~/apps/sankofa-sizer/store";
-
-import MoveableInput from "./moveable-input";
-import VirtualizedInchMarker from "./virtualized-inch-marker";
-
-import Image from "next/image";
+import MoveableInput from "~/apps/sankofa-sizer/components/moveable-input";
+import VirtualizedInchMarker from "~/apps/sankofa-sizer/components/virtualized-inch-marker";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { type Part } from "~/apps/sankofa-sizer/types";
 
 const VirtualResize = () => {
   const [, setLargestWidth] = useState<number>(0);

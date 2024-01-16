@@ -1,5 +1,5 @@
-import { useSizerStore } from "../store";
-import MeasurementsForm from "./measurements-form";
+import MeasurementsForm from "~/apps/sankofa-sizer/components/measurements-ui/measurements-form";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
 
 const BodyMeasurements = () => {
   const { bodyParts, collectedMeasurements } = useSizerStore((store) => store);

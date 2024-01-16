@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useSizerStore } from "~/apps/sankofa-sizer/store";
+
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Form,
@@ -15,7 +15,9 @@ import {
 import { Input } from "~/components/ui/input";
 import { toast } from "~/components/ui/use-toast";
 
-import { bartol_et_al_measurements } from "~/utils/sizer";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { bartol_et_al_measurements } from "~/apps/sankofa-sizer/utils/sizer";
+
 import { cn } from "~/utils/styles";
 
 const weightInKg = 87;

@@ -1,10 +1,11 @@
 import Image from "next/image";
 import { useState } from "react";
 
-import { useSizerStore, type Part } from "~/apps/sankofa-sizer/store";
-import { classNames } from "~/utils/styles";
+import BodyPartSelectors from "~/apps/sankofa-sizer/components/body-parts-ui/body-part-selectors";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { type Part } from "~/apps/sankofa-sizer/types";
 
-import BodyPartSelectors from "~/apps/sankofa-sizer/body-parts-ui/body-part-selectors";
+import { classNames } from "~/utils/styles";
 
 const BodyPartsUI = () => {
   const { bodyParts, toggleBodyPart } = useSizerStore((store) => store);

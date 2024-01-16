@@ -1,14 +1,12 @@
-import {
-  useSizerStore,
-  type BodyPart,
-  type Part,
-} from "~/apps/sankofa-sizer/store";
-import ActualInch from "./actual-inch";
-
 import Image from "next/image";
-
 import { useState } from "react";
+
 import { Input } from "~/components/ui/input";
+
+import ActualInch from "~/apps/sankofa-sizer/components/actual-inch";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
+import { type BodyPart, type Part } from "~/apps/sankofa-sizer/types";
+
 import { classNames } from "~/utils/styles";
 
 const ActualPattern = () => {

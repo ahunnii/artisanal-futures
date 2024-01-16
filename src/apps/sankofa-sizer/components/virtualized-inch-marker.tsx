@@ -1,9 +1,12 @@
-import { throttle } from "@daybrush/utils";
 import { useState } from "react";
+
+import { throttle } from "@daybrush/utils";
 import Moveable from "react-moveable";
-import { useSizerStore } from "~/apps/sankofa-sizer/store";
+
 import { Slider } from "~/components/ui/slider";
-import InchMarker from "./inch-marker";
+
+import InchMarker from "~/apps/sankofa-sizer/components/inch-marker";
+import { useSizerStore } from "~/apps/sankofa-sizer/hooks/use-sizer";
 
 const VirtualizedInchMarker = () => {
   const pixels_per_inch = useSizerStore((state) => state.pixels_per_inch);
