@@ -33,7 +33,7 @@ const DashboardPage = () => {
 
       <ProfileLayout>
         <div className="space-y-6">
-          <ShopForm initialData={shop ?? null} />
+          {typeof shop !== "undefined" && <ShopForm initialData={shop} />}
         </div>
       </ProfileLayout>
     </>

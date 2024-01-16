@@ -224,7 +224,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
               name="bio"
               render={({ field }) => (
                 <FormItem className="col-span-full">
-                  <FormLabel>Bio</FormLabel>
+                  <FormLabel>Bio for the Shop Page</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={loading}
@@ -233,9 +233,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Tell us about yourself: what makes you passionate about your
-                    business? What inspires you and drives you each day? Share
-                    your story and vision with your customers.
+                    For the shop page: Tell the world who you are!
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -246,7 +244,7 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
               name="description"
               render={({ field }) => (
                 <FormItem className="col-span-full">
-                  <FormLabel>Shop Description</FormLabel>
+                  <FormLabel>Shop Description for the Shop Page</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={loading}
@@ -255,13 +253,9 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Tell us about your business: the more you can say, the
-                    better! Pretend its an interview -- what can you say that
-                    gives folks a deeper understanding? Start with the basics
-                    about your products or services. What makes them special?
-                    Cultural roots, healthy growing, precision engineering,
-                    feminist practices? Your relations to the community or
-                    customers?
+                    For the shop page: Tell the world what your business is
+                    about! What do you sell? What is your mission? What other
+                    details you want visitors to know?
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

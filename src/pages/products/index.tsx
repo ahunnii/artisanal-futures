@@ -156,9 +156,9 @@ const ProductsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <main className="flex min-h-screen flex-col">
+      <Body>
         <PageLoader />
-      </main>
+      </Body>
     );
   }
 

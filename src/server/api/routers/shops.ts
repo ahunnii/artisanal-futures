@@ -30,12 +30,14 @@ export const shopsRouter = createTRPCRouter({
 
   getShopById: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.shop.findUnique({
+    .query(async ({ ctx, input }) => {
+      const shop = await ctx.prisma.shop.findUnique({
         where: {
           id: input.id,
         },
       });
+
+      return shop;
     }),
   getShop: protectedProcedure
     .input(z.object({ shopId: z.string() }))

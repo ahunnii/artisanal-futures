@@ -2,6 +2,7 @@ import Link from "next/link";
 import Container from "./ui/container";
 
 const Footer = () => {
+  const year = new Date().getFullYear();
   return (
     <footer className="mt-16 border-t bg-slate-50 text-slate-700">
       <Container>
@@ -15,9 +16,9 @@ const Footer = () => {
             </div>
             <div className="flex-start flex flex-col gap-2">
               <h5 className="pb-2 text-lg font-semibold">The Collective</h5>
-              <a href="#!">About Us</a>
-              <a href="/registration">Become an Artisan</a>
-              <a href="/contact">Contact Us</a>
+              <Link href="/about-us">About Us</Link>
+              <Link href="/sign-up">Become an Artisan</Link>
+              <Link href="/contact">Contact Us</Link>
             </div>
             <div className="flex-start flex flex-col gap-2">
               <h5 className="pb-2 text-lg font-semibold">Legal</h5>
@@ -29,16 +30,16 @@ const Footer = () => {
             </div>
             <div className="flex-start flex flex-col gap-2">
               <h5 className="pb-2 text-lg font-semibold">Follow Us</h5>
-              <a href="#!">Facebook</a>
-              <a href="#!">Twitter</a>
-              <a href="#!">Instagram</a>
+              <Link href="#!">Facebook</Link>
+              <Link href="#!">Twitter</Link>
+              <Link href="#!">Instagram</Link>
             </div>
           </div>
         </section>
       </Container>
       <div className="mx-auto py-10">
         <p className="text-center text-sm text-black">
-          &copy; 2023 Artisanal Futures. All rights reserved.
+          &copy; {year} Artisanal Futures. All rights reserved.
         </p>
       </div>
     </footer>

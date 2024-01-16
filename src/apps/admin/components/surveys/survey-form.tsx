@@ -5,7 +5,7 @@ import { useRouter as useNavigationRouter } from "next/navigation";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-import type { Shop, User } from "@prisma/client";
+import type { Shop, Survey, User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
@@ -41,72 +41,71 @@ import { Input } from "~/components/ui/input";
 import LogoUpload from "~/components/ui/logo-upload";
 
 import { Separator } from "~/components/ui/separator";
+import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/utils/styles";
 
 const formSchema = z.object({
-  shopName: z.string().min(2),
+  shopId: z.string(),
   ownerId: z.string(),
-  ownerName: z.string(),
-  bio: z.string().optional(),
+  processes: z.string().optional(),
+  materials: z.string().optional(),
+  principles: z.string().optional(),
   description: z.string().optional(),
-  logoPhoto: z.string().optional(),
-  ownerPhoto: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zip: z.string().optional(),
-  country: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().optional(),
-  website: z.string().optional(),
+
+  unmoderatedForm: z.boolean().default(false),
+  moderatedForm: z.boolean().default(false),
+  hiddenForm: z.boolean().default(false),
+  privateForm: z.boolean().default(false),
+  supplyChain: z.boolean().default(false),
+  messagingOptIn: z.boolean().default(false),
 });
 
-type ShopFormValues = z.infer<typeof formSchema>;
+type SurveyFormValues = z.infer<typeof formSchema>;
 
 interface ColorFormProps {
-  initialData: Shop | null;
+  initialData: Survey | null;
 }
 
-export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
+export const SurveyForm: React.FC<ColorFormProps> = ({ initialData }) => {
   const params = useRouter();
   const router = useNavigationRouter();
   const utils = api.useContext();
 
   const { data: users } = api.user.getAllUsers.useQuery() ?? [];
+  const { data: shops } = api.shops.getAllShops.useQuery() ?? [];
   const { data: sessionData } = useSession();
 
   const [open, setOpen] = useState<boolean>(false);
   const [openAccounts, setOpenAccounts] = useState<boolean>(false);
+  const [openStores, setOpenStores] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const title = initialData ? "Edit shop" : "Create shop";
-  const description = initialData ? "Edit a shop." : "Add a new shop";
-  const toastMessage = initialData ? "Shop updated." : "Shop created.";
+  const title = initialData ? "Edit survey" : "Create survey";
+  const description = initialData ? "Edit a survey." : "Add a new survey";
+  const toastMessage = initialData ? "Survey updated." : "Survey created.";
   const action = initialData ? "Save changes" : "Create";
 
-  const form = useForm<ShopFormValues>({
+  const form = useForm<SurveyFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      shopName: initialData?.shopName ?? "",
+      shopId: initialData?.shopId ?? "",
       ownerId: initialData?.ownerId ?? sessionData?.user.id,
-      ownerName: initialData?.ownerName ?? sessionData?.user.name ?? "",
-      bio: initialData?.bio ?? "",
+      processes: initialData?.processes ?? sessionData?.user.name ?? "",
+      materials: initialData?.materials ?? "",
+      principles: initialData?.principles ?? "",
       description: initialData?.description ?? "",
-      logoPhoto: initialData?.logoPhoto ?? "",
-      ownerPhoto: initialData?.ownerPhoto ?? "",
-      address: initialData?.address ?? "",
-      city: initialData?.city ?? "",
-      state: initialData?.state ?? "",
-      zip: initialData?.zip ?? "",
-      country: initialData?.country ?? "",
-      phone: initialData?.phone ?? "",
-      email: initialData?.email ?? "",
-      website: initialData?.website ?? "",
+
+      unmoderatedForm: initialData?.unmoderatedForm ?? undefined,
+      moderatedForm: initialData?.moderatedForm ?? undefined,
+      hiddenForm: initialData?.hiddenForm ?? undefined,
+      privateForm: initialData?.privateForm ?? undefined,
+      supplyChain: initialData?.supplyChain ?? undefined,
+      messagingOptIn: initialData?.messagingOptIn ?? undefined,
     },
   });
 
-  const { mutate: updateShop } = api.shops.updateShop.useMutation({
+  const { mutate: updateSurvey } = api.surveys.updateSurvey.useMutation({
     onSuccess: () => {
       toast.success("Shop updated.");
     },
@@ -122,9 +121,9 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  const { mutate: createShop } = api.shops.createShop.useMutation({
+  const { mutate: createSurvey } = api.surveys.createSurvey.useMutation({
     onSuccess: () => {
-      router.push(`/admin/shops/`);
+      router.push(`/admin/surveys/`);
       toast.success(toastMessage);
     },
     onError: (error) => {
@@ -140,7 +139,7 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  const { mutate: deleteShop } = api.shops.deleteShop.useMutation({
+  const { mutate: deleteSurvey } = api.surveys.deleteSurvey.useMutation({
     onSuccess: () => {
       router.push(`/admin/shops`);
       toast.success("Shop deleted.");
@@ -159,18 +158,19 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
     },
   });
 
-  const onSubmit = (data: ShopFormValues) => {
+  const onSubmit = (data: SurveyFormValues) => {
     if (initialData) {
-      updateShop({ ...data, shopId: params.query.shopId as string });
+      updateSurvey({ ...data, surveyId: params?.query?.surveyId as string });
     } else {
-      createShop({
+      createSurvey({
         ...data,
       });
     }
   };
+
   const onDelete = () => {
-    deleteShop({
-      shopId: params?.query?.shopId as string,
+    deleteSurvey({
+      surveyId: params?.query?.surveyId as string,
     });
   };
 
@@ -202,23 +202,6 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
           className="w-full space-y-8"
         >
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <FormField
-              control={form.control}
-              name="shopName"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Shop name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />{" "}
             <div className="col-span-full flex w-full items-center gap-4">
               <FormField
                 control={form.control}
@@ -227,8 +210,7 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
                   <FormItem className="flex flex-col">
                     <FormLabel>Owner</FormLabel>
                     <FormDescription>
-                      Owner attached to the shop. User will have admin access to
-                      the shop.
+                      Owner attached to the survey
                     </FormDescription>
                     <FormControl>
                       {users && users?.length > 0 && (
@@ -296,19 +278,69 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
               />{" "}
               <FormField
                 control={form.control}
-                name="ownerName"
+                name="shopId"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Owner&apos;s Name</FormLabel>
+                    <FormLabel>Shop</FormLabel>
                     <FormDescription>
-                      What&apos;s visible to other users.
+                      Shop attached to the survey
                     </FormDescription>
                     <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Owner's name"
-                        {...field}
-                      />
+                      {shops && shops?.length > 0 && (
+                        <Popover open={openStores} onOpenChange={setOpenStores}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={open}
+                              className="w-[200px] justify-between"
+                            >
+                              {shops && field.value
+                                ? shops?.find(
+                                    (framework: Shop) =>
+                                      framework.id === form.getValues("shopId")
+                                  )!.shopName ?? "Shop"
+                                : "Select shop..."}
+                              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Search framework..."
+                                className="h-9"
+                              />
+                              <CommandEmpty>No framework found.</CommandEmpty>
+                              <CommandGroup>
+                                {shops?.map((framework) => (
+                                  <CommandItem
+                                    key={framework.id}
+                                    value={framework.id}
+                                    onSelect={(currentValue) => {
+                                      field.onChange(
+                                        currentValue === field.value
+                                          ? ""
+                                          : currentValue
+                                      );
+                                      setOpen(false);
+                                    }}
+                                  >
+                                    {framework.shopName}
+                                    <CheckIcon
+                                      className={cn(
+                                        "ml-auto h-4 w-4",
+                                        field.value === framework.id
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -317,207 +349,232 @@ export const ShopForm: React.FC<ColorFormProps> = ({ initialData }) => {
             </div>
             <FormField
               control={form.control}
-              name="logoPhoto"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Logo</FormLabel>
-                  <FormControl>
-                    <LogoUpload
-                      value={field.value ?? ""}
-                      disabled={loading}
-                      onChange={(url) => field.onChange(url)}
-                      onRemove={() => field.onChange("")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />{" "}
-            <FormField
-              control={form.control}
-              name="ownerPhoto"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Picture of the Owner</FormLabel>
-                  <FormControl>
-                    <LogoUpload
-                      value={field.value ?? ""}
-                      disabled={loading}
-                      onChange={(url) => field.onChange(url)}
-                      onRemove={() => field.onChange("")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />{" "}
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem className="col-span-full">
-                  <FormLabel>Bio for the Store Page</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      disabled={loading}
-                      placeholder="Owner's bio"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />{" "}
-            <FormField
-              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem className="col-span-full">
-                  <FormLabel>Shop Description for the Store Page</FormLabel>
+                  <FormLabel>Tell us about your business</FormLabel>
                   <FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="e.g. Shop is the best!"
+                      placeholder="e.g. This business is...."
                       {...field}
                     />
-                  </FormControl>
+                  </FormControl>{" "}
+                  <FormDescription>
+                    This is different from what you have put on the shop page:
+                    the more you can say, the better! Pretend its an interview
+                    -- what can you say that gives folks a deeper understanding?
+                    Start with the basics about your products or services. What
+                    makes them special? Cultural roots, healthy growing,
+                    precision engineering, feminist practices? Your relations to
+                    the community or customers?
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            />{" "}
             <FormField
               control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. 123-456-7890"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-4">
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. emaail@test.co"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-4">
-                  <FormLabel>Website</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. https://test.co"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-3">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. USA"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
+              name="processes"
               render={({ field }) => (
                 <FormItem className="col-span-full">
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>
+                    {" "}
+                    What are some of your business processes?
+                  </FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       disabled={loading}
-                      placeholder="e.g. 1235 State St."
+                      placeholder="e.g. textiles, bead making"
                       {...field}
                     />
-                  </FormControl>
+                  </FormControl>{" "}
+                  <FormDescription>
+                    Some examples of processes could be: textiles, woodworking,
+                    metalworking, digital fabrication, print media,
+                    heating/cooling, solar, farming/growing, and more!
+                  </FormDescription>
                   <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="materials"
+              render={({ field }) => (
+                <FormItem className="col-span-full">
+                  <FormLabel>
+                    {" "}
+                    What are some materials that go into your business?
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      disabled={loading}
+                      placeholder="e.g. satin, silk, cotton, wool"
+                      {...field}
+                    />
+                  </FormControl>{" "}
+                  <FormDescription>
+                    Some examples of processes could be: cotton, yarn, glass,
+                    dyes, inks, etc.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="principles"
+              render={({ field }) => (
+                <FormItem className="col-span-full">
+                  <FormLabel>
+                    {" "}
+                    What are some principles when running your business?
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      disabled={loading}
+                      placeholder="e.g. black owned, sustainability, LGBTQ+ / Gender neutral"
+                      {...field}
+                    />
+                  </FormControl>{" "}
+                  <FormDescription>
+                    Some examples of principles could be: black owned, female
+                    owned, community education, african american civil rights,
+                    LGBTQ/Gender neutral, Carbon neutral/sustainability and
+                    environmental friendliness, etc.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="unmoderatedForm"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Unmoderated Form
+                    </FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="city"
+              name="moderatedForm"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2 sm:col-start-1">
-                  <FormLabel>City</FormLabel>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Moderated Form</FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
                   <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. Los Angeles"
-                      {...field}
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
-            />
+            />{" "}
             <FormField
               control={form.control}
-              name="state"
+              name="hiddenForm"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>State</FormLabel>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Hidden Form</FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
                   <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. CA"
-                      {...field}
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
-            />
+            />{" "}
             <FormField
               control={form.control}
-              name="zip"
+              name="privateForm"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Zip</FormLabel>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">privateForm</FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
                   <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="e.g. 90001"
-                      {...field}
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="supplyChain"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Supply Chain</FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />{" "}
+            <FormField
+              control={form.control}
+              name="messagingOptIn"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Messaging Opt-In
+                    </FormLabel>
+                    <FormDescription>
+                      Mark a minimum amount for order to qualify for free
+                      shipping.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

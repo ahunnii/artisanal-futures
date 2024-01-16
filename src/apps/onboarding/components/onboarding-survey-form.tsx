@@ -68,7 +68,7 @@ export const OnboardingSurveyForm: React.FC<SettingsFormProps> = ({
   });
 
   const { mutate: updateSurvey } = api.surveys.updateSurvey.useMutation({
-    onSuccess: () => toast.success("Shop updated."),
+    onSuccess: () => toast.success("Survey updated."),
     onError: (error) => toast.error("Something went wrong", error),
     onMutate: () => setLoading(true),
     onSettled: () => {
@@ -79,7 +79,7 @@ export const OnboardingSurveyForm: React.FC<SettingsFormProps> = ({
 
   const { mutate: createSurvey } = api.surveys.createSurvey.useMutation({
     onSuccess: () => {
-      toast.success("Shop Created.");
+      toast.success("Survey Created.");
       successCallback!();
     },
     onError: (error) => toast.error("Something went wrong", error),
@@ -112,6 +112,33 @@ export const OnboardingSurveyForm: React.FC<SettingsFormProps> = ({
           className="w-full space-y-8"
         >
           <div className="gap-8 max-lg:space-y-8 md:grid md:grid-cols-3">
+            {" "}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-3">
+                  <FormLabel>Tell us about you and your business.</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      disabled={loading}
+                      placeholder="e.g. Hey, my name is..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    This is different from what you have put on the shop page:
+                    the more you can say, the better! Pretend its an interview
+                    -- what can you say that gives folks a deeper understanding?
+                    Start with the basics about your products or services. What
+                    makes them special? Cultural roots, healthy growing,
+                    precision engineering, feminist practices? Your relations to
+                    the community or customers?
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />{" "}
             <FormField
               control={form.control}
               name="processes"

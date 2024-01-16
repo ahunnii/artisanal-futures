@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import type { ChangeEvent, FC } from "react";
+import { Input } from "~/components/ui/input";
 
 interface IProps {
   query: string;
@@ -21,10 +22,12 @@ const SearchBar: FC<IProps> = ({ handleOnSearch, query }) => {
             <Search color="gray.300" />
           </span>
         </div>
-        <input
-          type="text"
+        <Input
+          type="search"
           name="search"
           id="search"
+          autoComplete="off"
+          aria-autocomplete="none"
           className="block w-full rounded-md border-0 py-1.5 pl-9 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           placeholder="e.g. Dresses"
           value={query}

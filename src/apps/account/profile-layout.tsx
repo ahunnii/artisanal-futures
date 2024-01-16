@@ -65,7 +65,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
                     preferences.
                   </p>
                 </div>
-
+                {/* 
                 {sessionData?.user?.role === "ADMIN" &&
                   shops &&
                   shops.length > 0 && (
@@ -73,7 +73,7 @@ export default function ProfileLayout({ children }: SettingsLayoutProps) {
                       <Label>Switch Current Shop:</Label>
                       <ShopSwitcher items={shops} />
                     </div>
-                  )}
+                  )} */}
               </div>
               <Separator className="my-6" />
               <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
