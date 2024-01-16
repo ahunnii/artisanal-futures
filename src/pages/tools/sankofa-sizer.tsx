@@ -4,6 +4,8 @@ import Link from "next/link";
 import BodyPartsUI from "~/apps/sankofa-sizer/components/body-parts-ui";
 import BodyMeasurements from "~/apps/sankofa-sizer/components/measurements-ui";
 import VirtualPattern from "~/apps/sankofa-sizer/components/virtual-pattern";
+import Pattern from "~/apps/sankofa-sizer/components/pattern-ui";
+
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ToolLayout from "~/layouts/tool-layout";
@@ -14,7 +16,7 @@ const SankofaSizer = () => {
       <div className="mx-auto flex h-full w-full max-w-7xl rounded-md border border-gray-300 bg-white">
         <Tabs defaultValue="parts" className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger value="parts">Select Body Parts</TabsTrigger>{" "}
+            <TabsTrigger value="parts">Points of Measure</TabsTrigger>{" "}
             <TabsTrigger value="stats">Body Measurements</TabsTrigger>
             <TabsTrigger value="pattern">Upload Pattern</TabsTrigger>
             <TabsTrigger value="generate">Actual Pattern</TabsTrigger>
@@ -24,7 +26,7 @@ const SankofaSizer = () => {
           </TabsList>
           <TabsContent value="parts">
             {" "}
-            <BodyPartsUI />
+            <Pattern />
           </TabsContent>{" "}
           <TabsContent value="stats">
             {" "}
