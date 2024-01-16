@@ -153,6 +153,35 @@ export const SurveyForm: React.FC<TSurveyFormProps> = ({
           className="w-full space-y-8"
         >
           <div className="gap-8 md:grid md:grid-cols-3">
+            {" "}
+            <Form.FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.FormItem className="sm:col-span-3">
+                  <Form.FormLabel>
+                    Tell us about you and your business
+                  </Form.FormLabel>
+                  <Form.FormControl>
+                    <Textarea
+                      disabled={loading}
+                      placeholder="e.g. Hey, my name is..."
+                      {...field}
+                    />
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    Tell us about your business: the more you can say, the
+                    better! Pretend its an interview -- what can you say that
+                    gives folks a deeper understanding? Start with the basics
+                    about your products or services. What makes them special?
+                    Cultural roots, healthy growing, precision engineering,
+                    feminist practices? Your relations to the community or
+                    customers?
+                  </Form.FormDescription>
+                  <Form.FormMessage />
+                </Form.FormItem>
+              )}
+            />{" "}
             <Form.FormField
               control={form.control}
               name="processes"
@@ -164,10 +193,15 @@ export const SurveyForm: React.FC<TSurveyFormProps> = ({
                   <Form.FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="Shop name"
+                      placeholder="e.g. textiles, bead making"
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    Some examples of processes could be: textiles, woodworking,
+                    metalworking, digital fabrication, print media,
+                    heating/cooling, solar, farming/growing, and more!
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}
@@ -183,10 +217,14 @@ export const SurveyForm: React.FC<TSurveyFormProps> = ({
                   <Form.FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="Owner's name"
+                      placeholder="e.g. satin, silk, cotton, wool"
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    Some examples of processes could be: cotton, yarn, glass,
+                    dyes, inks, etc.
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}
@@ -202,10 +240,16 @@ export const SurveyForm: React.FC<TSurveyFormProps> = ({
                   <Form.FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="Owner's bio"
+                      placeholder="e.g. black owned, sustainability, LGBTQ+ / Gender neutral"
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    Some examples of principles could be: black owned, female
+                    owned, community education, african american civil rights,
+                    LGBTQ/Gender neutral, Carbon neutral/sustainability and
+                    environmental friendliness, etc.
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}

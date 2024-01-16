@@ -33,7 +33,9 @@ const ProfileSurveyPage: FC<IProps> = () => {
   return (
     <ProfileLayout>
       <div className="space-y-6">
-        <SurveyForm initialData={survey ?? null} shop={shop!} />
+        {typeof survey !== "undefined" && typeof shop !== "undefined" && (
+          <SurveyForm initialData={survey ?? null} shop={shop!} />
+        )}
       </div>
     </ProfileLayout>
   );

@@ -153,14 +153,17 @@ export const ShopForm: React.FC<TShopFormProps> = ({
               name="shopName"
               render={({ field }) => (
                 <Form.FormItem className="sm:col-span-3">
-                  <Form.FormLabel>Name</Form.FormLabel>
+                  <Form.FormLabel>Shop Name</Form.FormLabel>
                   <Form.FormControl>
                     <Input
                       disabled={loading}
                       placeholder="Shop name"
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    This is the shop name which will appear on the shop page.
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}
@@ -170,7 +173,7 @@ export const ShopForm: React.FC<TShopFormProps> = ({
               name="ownerName"
               render={({ field }) => (
                 <Form.FormItem className="sm:col-span-3">
-                  <Form.FormLabel>Owner</Form.FormLabel>
+                  <Form.FormLabel>Owner&apos;s Name</Form.FormLabel>
                   <Form.FormControl>
                     <Input
                       disabled={loading}
@@ -178,6 +181,10 @@ export const ShopForm: React.FC<TShopFormProps> = ({
                       {...field}
                     />
                   </Form.FormControl>
+                  <Form.FormDescription>
+                    This is the shop owner whose name will be present on the
+                    shop page.
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}
@@ -229,14 +236,17 @@ export const ShopForm: React.FC<TShopFormProps> = ({
               name="bio"
               render={({ field }) => (
                 <Form.FormItem className="col-span-full">
-                  <Form.FormLabel>Bio</Form.FormLabel>
+                  <Form.FormLabel>Bio for the Shop Page</Form.FormLabel>
                   <Form.FormControl>
                     <Textarea
                       disabled={loading}
-                      placeholder="Owner's bio"
+                      placeholder="e.g. Hey, my name is..."
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    For the shop page: Tell the world who you are!
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}
@@ -253,7 +263,12 @@ export const ShopForm: React.FC<TShopFormProps> = ({
                       placeholder="e.g. Shop is the best!"
                       {...field}
                     />
-                  </Form.FormControl>
+                  </Form.FormControl>{" "}
+                  <Form.FormDescription>
+                    For the shop page: Tell the world what your business is
+                    about! What do you sell? What is your mission? What other
+                    details you want visitors to know?
+                  </Form.FormDescription>
                   <Form.FormMessage />
                 </Form.FormItem>
               )}

@@ -3,13 +3,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const surveysRouter = createTRPCRouter({
-  // getAllShops: protectedProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.shop.findMany({
-  //     where: {
-  //       ownerId: ctx.session.user.id,
-  //     },
-  //   });
-  // }),
+  getAllSurveys: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.survey.findMany();
+  }),
 
   getSurvey: protectedProcedure
     .input(z.object({ surveyId: z.string() }))
