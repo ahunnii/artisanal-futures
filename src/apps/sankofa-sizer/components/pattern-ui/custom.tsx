@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PatternCard from './pattern-card';
+import ImageDisplay from './ImageDisplay';
 import styles from './Custom.module.css';
 
 interface CarouselItem {
@@ -60,38 +61,46 @@ const Carousel: React.FC = () => {
   const displayedItems = getDisplayedItems();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <button className={styles.arrowButton} onClick={handlePrev}>
-        <div className={styles.arrowIcon}></div>
-      </button>
-      <div
-        ref={carouselRef}
+    <div className={styles.parentContainer}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
         className={styles.carouselContainer}
-        style={{
-          height: itemHeight + 45,
-          overflowY: 'hidden',
-        }}
       >
-        {displayedItems.map((item) => (
-          item && (
-            <div key={item.id} className={styles.card}>
-              <PatternCard
-                imageUrl={item.imageUrl}
-                onImageUpdate={(newUrl) => {
-                  const updatedItems = items.map(it => 
-                    it.id === item.id ? { ...it, imageUrl: newUrl } : it
-                  );
-                  setItems(updatedItems);
-                }}
-              />
-              Item {item.id}
-            </div>
-          )
-        ))}
+        <button className={styles.arrowButton} onClick={handlePrev}>
+          <div className={styles.arrowIcon}></div>
+        </button>
+        <div
+          ref={carouselRef}
+          className={styles.carouselContainer}
+          style={{
+            height: itemHeight + 45,
+            overflowY: 'hidden',
+          }}
+        >
+          {displayedItems.map((item) => (
+            item && (
+              <div key={item.id} className={styles.card}>
+                <PatternCard
+                  imageUrl={item.imageUrl}
+                  onImageUpdate={(newUrl) => {
+                    const updatedItems = items.map(it => 
+                      it.id === item.id ? { ...it, imageUrl: newUrl } : it
+                    );
+                    setItems(updatedItems);
+                  }}
+                />
+                Item {item.id}
+              </div>
+            )
+          ))}
+        </div>
+        <button className={styles.arrowButton} onClick={handleNext}>
+          <div className={`${styles.arrowIcon} ${styles.down}`}></div>
+        </button>
       </div>
-      <button className={styles.arrowButton} onClick={handleNext}>
-        <div className={`${styles.arrowIcon} ${styles.down}`}></div>
-      </button>
+
+      <ImageDisplay items={items} currentIndex={currentIndex} />
+
     </div>
   );
 };

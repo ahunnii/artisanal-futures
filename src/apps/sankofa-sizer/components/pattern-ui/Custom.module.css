@@ -19,7 +19,8 @@
   background: none;
   border: none;
   cursor: pointer;
-  /* Additional styling for the button */
+  align-self: start; /* Align the carousel to the left */
+  margin-left: 35px;
 }
 
 .arrowIcon {
@@ -28,6 +29,7 @@
   background-image: url('https://www.svgrepo.com/show/4166/up-arrow.svg');
   background-size: cover; /* Ensure the icon covers the entire element area */
   background-repeat: no-repeat; /* Prevent the icon from repeating */
+  align-self: flex-start; /* Align the carousel to the left */  
 }
 
 .arrowIcon.down {
@@ -36,4 +38,31 @@
 
 .cardImage {
   height: 45px;
+}
+
+.parentContainer {
+  position: relative;
+  height: 100%; /* Ensure the parent container takes the full width */
+  padding-top: 150px; /* Height of carousel + some extra space */
+}
+
+.carouselContainer {
+  position: relative;
+  z-index: 2; /* Ensures carousel is above the image */
+  align-self: flex-start; /* Align the carousel to the left */
+}
+
+.imageDisplay {
+  position: absolute;
+  top: 25px; /* Position the top of ImageDisplay below the Carousel */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1; /* Below the carousel */
+}
+
+.imageDisplay img {
+
+  object-fit: cover; /* Resize image to cover the area */
+  border-radius: 4px; /* Optional: if you want rounded corners */
 }
