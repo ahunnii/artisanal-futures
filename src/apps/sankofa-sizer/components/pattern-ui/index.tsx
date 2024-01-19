@@ -1,10 +1,16 @@
   import React from 'react';
-  import PatternScroll  from './pattern-scroll'
+  import PatternScroll  from './pattern-card'
+  import Custom from './custom'
 
   const Pattern = () => {
     return (
+      <Custom />
+    )
+    /*
+    return (
       <PatternScroll />
     )
+    */
   /*
     return (
         <div>

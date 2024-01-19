@@ -1,0 +1,39 @@
+.carouselContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align component to the left */
+  height: calc(100px + 40px); /* itemHeight + space to show parts of the top and bottom items */
+  overflow-y: hidden;
+}
+
+.carouselContent {
+  height: calc(100px + 30px); /* Adjust the height to show parts of other cards */
+  overflow-y: hidden;
+}
+
+.card {
+  height: 100px; /* Your card height */
+}
+
+.arrowButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* Additional styling for the button */
+}
+
+.arrowIcon {
+  width: 24px;  /* Set the width of the icon */
+  height: 24px; /* Set the height of the icon */
+  background-image: url('https://www.svgrepo.com/show/4166/up-arrow.svg');
+  background-size: cover; /* Ensure the icon covers the entire element area */
+  background-repeat: no-repeat; /* Prevent the icon from repeating */
+}
+
+.arrowIcon.down {
+  transform: rotate(180deg); /* Rotate the up-arrow to point right */
+}
+
+.cardImage {
+  height: 45px;
+}
