@@ -28,6 +28,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-  ],
+, "src/apps/sankofa-sizer/components/pattern-ui/pattern-carousel.tsx.bak"  ],
   "exclude": ["node_modules"]
 }

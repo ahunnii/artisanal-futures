@@ -1,68 +1,60 @@
-.carouselContainer {
+.wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-top: 10vh;
+  padding-bottom: 10vh;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align component to the left */
-  height: calc(100px + 40px); /* itemHeight + space to show parts of the top and bottom items */
-  overflow-y: hidden;
+  align-items: center;
 }
 
-.carouselContent {
-  height: calc(100px + 30px); /* Adjust the height to show parts of other cards */
-  overflow-y: hidden;
-}
-
-.card {
-  height: 100px; /* Your card height */
-}
-
-.arrowButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  align-self: start; /* Align the carousel to the left */
-  margin-left: 35px;
-}
-
-.arrowIcon {
-  width: 24px;  /* Set the width of the icon */
-  height: 24px; /* Set the height of the icon */
-  background-image: url('https://www.svgrepo.com/show/4166/up-arrow.svg');
-  background-size: cover; /* Ensure the icon covers the entire element area */
-  background-repeat: no-repeat; /* Prevent the icon from repeating */
-  align-self: flex-start; /* Align the carousel to the left */  
-}
-
-.arrowIcon.down {
-  transform: rotate(180deg); /* Rotate the up-arrow to point right */
-}
-
-.cardImage {
-  height: 45px;
-}
-
-.parentContainer {
-  position: relative;
-  height: 100%; /* Ensure the parent container takes the full width */
-  padding-top: 150px; /* Height of carousel + some extra space */
-}
-
-.carouselContainer {
-  position: relative;
-  z-index: 2; /* Ensures carousel is above the image */
-  align-self: flex-start; /* Align the carousel to the left */
-}
-
-.imageDisplay {
+.carouselItem {
+  display: flex;
+  align-items: center;
   position: absolute;
-  top: 25px; /* Position the top of ImageDisplay below the Carousel */
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1; /* Below the carousel */
+  width: 100%;
+  padding: 0 12px;
+  filter: drop-shadow(0 2px 2px #555);
+  will-change: transform, opacity, scale;
+  left: 50%;
+  top: 33%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.25s ease-in-out, opacity 0.5s ease-in-out;
 }
 
-.imageDisplay img {
+.carouselItemHead {
+  border-radius: 50%;
+  background-color: #d7f7fc;
+  width: 90px;
+  height: 90px;
+  padding: 14px;
+  position: relative;
+  margin-right: -45px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+}
 
-  object-fit: cover; /* Resize image to cover the area */
-  border-radius: 4px; /* Optional: if you want rounded corners */
+.carouselItemBody {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px 20px 16px 70px;
+}
+
+.title {
+  text-transform: uppercase;
+  font-size: 20px;
+  margin-top: 10px;
 }
