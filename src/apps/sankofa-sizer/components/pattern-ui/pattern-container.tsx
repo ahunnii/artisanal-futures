@@ -29,7 +29,10 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ imageUrl }) => {
   const [originalSize, setOriginalSize] = useState<{ width: string, height: string }>({ width: '100%', height: '100%' });
   const [isEditing, setIsEditing] = useState(false);
   const [points, setPoints] = useState([]);
+  const [pathData, setPathData] = useState('');
   const svgRef = useRef(null);
+  const pointsRef = useRef([]);
+
 
   useEffect(() => {
     if (svgRef.current) {
@@ -37,6 +40,21 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ imageUrl }) => {
       setOriginalSize({ width, height });
     }
   }, [svgRef]);
+
+  useEffect(() => {
+    console.log('Running useEffect');
+    const stroke = getStroke(pointsRef.current, {
+      size: 16,
+      thinning: 0.5,
+      smoothing: 0.5,
+      streamline: 0.5,
+    });
+    console.log('Stroke:', stroke);
+    const newPathData = getSvgPathFromStroke(stroke);
+    console.log('New Path Data:', newPathData);
+    setPathData(newPathData);
+  }, [points]); // Dependency on points will trigger the effect
+
 
   const handleDragStop: RndDragCallback = (e, d) => {
     setPosition({ x: d.x, y: d.y });
@@ -48,18 +66,27 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ imageUrl }) => {
   };
 
   const handlePointerDown = (e) => {
+    if (!isEditing) return;
     e.target.setPointerCapture(e.pointerId);
-    setPoints([[e.pageX, e.pageY, e.pressure]]);
-    console.log(points, 'down first')
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.pageX - rect.left;
+    const y = e.pageY - rect.top;
+    const newPoints = [[x, y, e.pressure]];
+    pointsRef.current = newPoints;
+    setPoints(newPoints);
   };
-
+  
   const handlePointerMove = (e) => {
-    if (e.buttons !== 1) return;
-    setPoints([...points, [e.pageX, e.pageY, e.pressure]]);
-    console.log(points, 'move')
+    if (!isEditing || e.buttons !== 1) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.pageX - rect.left;
+    const y = e.pageY - rect.top;
+    const newPoints = [...pointsRef.current, [x, y, e.pressure]];
+    pointsRef.current = newPoints;
+    setPoints(newPoints);
   };
 
-  const scale = {
+    const scale = {
     width: parseFloat(size.width) / parseFloat(originalSize.width),
     height: parseFloat(size.height) / parseFloat(originalSize.height),
   };
@@ -74,36 +101,39 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ imageUrl }) => {
         style={{ left: '100px',top: '100px', position: 'absolute', zIndex: '300' }}
       />
       {isEditing && <div>Editing...</div>}
-      <svg
-              ref={svgRef}
-              xmlns="http://www.w3.org/2000/svg"
-              width="100vw"
-              height="100vh"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              style={{ border: '3px solid black'}}
-        >
-              <path d={
-                getSvgPathFromStroke(
-                    getStroke(points, {
-                        size: 16,
-                        thinning: 0.5,
-                        smoothing: 0.5,
-                        streamline: 0.5,
-                }))} />
-        </svg>
-        {/*
+      {/**/}
       <Rnd
         size={size}
         position={position}
         onDragStop={handleDragStop}
         onResizeStop={handleResizeStop}
-        style={{ backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', cursor: 'move', border: '1' }}
+        disableDragging={isEditing}
+        enableResizing={!isEditing}
+        style={{ 
+            backgroundImage: `url(${imageUrl})`,
+            backgroundSize: 'contain', 
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            cursor: 'move',
+            border: '1'
+        }}
       >
+        <svg
+            ref={svgRef}
+            xmlns="http://www.w3.org/2000/svg"
+            width="100dvw"
+            height="100dvh"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            style={{ 
+                border: '3px solid black',
+                pointerEvents: 'auto'
+            }}
+        >
+              <path d={pathData} />
+        </svg>
       </Rnd>
-      */}
+
     </div>
   );
 };

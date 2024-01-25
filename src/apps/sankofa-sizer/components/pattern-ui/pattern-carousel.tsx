@@ -62,7 +62,7 @@ const PatternCarousel: React.FC = () => {
         <button onClick={goToPrev}>Previous</button>
         <button onClick={goToNext}>Next</button>
  */}
- {/*
+ {/**/}
       <div className={styles.carousel}>
         {emojis.map((emoji, index) => (
           <div
@@ -84,7 +84,7 @@ const PatternCarousel: React.FC = () => {
           </div>
         ))}
       </div>
-*/}
+
         <ImageContainer 
             imageUrl={emojis[activeIndex][0]}
         />
