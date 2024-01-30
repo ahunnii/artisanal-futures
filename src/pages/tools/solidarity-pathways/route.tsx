@@ -33,9 +33,12 @@ import PageLoader from "~/components/ui/page-loader";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import RouteLayout from "~/layouts/route-layout";
 
+import { GetServerSidePropsContext } from "next";
 import DriverRouteBreakdown from "~/apps/solidarity-routing/components/solutions/driver-route-breakdown";
 import RouteHeaderCard from "~/apps/solidarity-routing/components/ui/cards/route-header-card";
+import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
+import { authenticateUser } from "~/utils/auth";
 
 interface IProps {
   data: RouteData;
@@ -228,13 +231,16 @@ const RoutePage: FC<IProps> = () => {
 // export const getServerSideProps = async (
 //   context: GetServerSidePropsContext
 // ) => {
-//   // const { data, error } = await supabase.storage
-//   //   .from("routes")
-//   //   .download(`${context.query.route as string}.json`);
 
-//   const data = await prisma.finalizedRoute.findUnique({
+//   const user = await authenticateUser(context);
+
+//   if(!user) return {
+//     props: {},
+//   }
+
+//   const data = await prisma.depot.findUnique({
 //     where: {
-//       id: context.query.route as string,
+//       ownerId: context.query.route as string,
 //     },
 //   });
 

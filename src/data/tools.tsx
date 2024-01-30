@@ -7,11 +7,11 @@ export const TOOLS_DATA = [
   //   url: "/tools/shop-rate-calculator",
   // },
   {
-    title: "Optimize Routing",
+    title: "Solidarity Pathways",
     subtitle: "Optimize your delivery route",
     type: "Logistics",
     image: "img/route_optimization.png",
-    url: "/tools/routing",
+    url: "/tools/solidarity-pathways",
   },
 
   // {

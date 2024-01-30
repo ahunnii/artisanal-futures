@@ -20,8 +20,12 @@ import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-opti
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
+import type { GetServerSidePropsContext } from "next";
+
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { prisma } from "~/server/db";
+import { authenticateUser } from "~/utils/auth";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -160,4 +164,55 @@ const RoutingPage = () => {
   );
 };
 
+// export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+//   const user = await authenticateUser(ctx);
+
+//   if (!user)
+//     return {
+//       props: {},
+//     };
+
+//   const ownedDepot = await prisma.depot.findUnique({
+//     where: {
+//       ownerId: user.id,
+//     },
+//   });
+
+//   const allowedDepots = await prisma.depot.findMany({
+//     where: {
+//       users: {
+//         some: {
+//           id: user.id,
+//         },
+//       },
+//     },
+//   });
+
+//   if (!ownedDepot && allowedDepots.length === 0) {
+//     // Create a new depot and redirect to it
+//     const newDepot = await prisma.depot.create({
+//       data: {
+//         name: "New Depot",
+//         ownerId: user.id,
+//       },
+//     });
+
+//     return {
+//       redirect: {
+//         destination: `/tools/routing/${newDepot.id}?welcome=true`,
+//         permanent: false,
+//       },
+//     };
+//   } else {
+//     //Redirect to owned or allowed
+//     const depotId = ownedDepot?.id ?? allowedDepots[0]?.id ?? "";
+
+//     return {
+//       redirect: {
+//         destination: `/tools/routing/${depotId}`,
+//         permanent: false,
+//       },
+//     };
+//   }
+// };
 export default RoutingPage;

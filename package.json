@@ -93,6 +93,7 @@
     "react-day-picker": "^8.8.0",
     "react-detect-click-outside": "^1.1.7",
     "react-dom": "18.2.0",
+    "react-geocode": "^1.0.0-alpha.1",
     "react-google-autocomplete": "^2.7.3",
     "react-google-places-autocomplete": "^4.0.1",
     "react-hook-form": "^7.45.4",

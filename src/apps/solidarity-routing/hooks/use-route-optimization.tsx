@@ -14,6 +14,7 @@ import {
   convertDriverToVehicle,
   convertStopToJob,
 } from "~/utils/routing/data-formatting";
+import optimizationService from "../services/optimization";
 import { useDrivers } from "./use-drivers";
 import { useRoutingSolutions } from "./use-routing-solutions";
 import { useStops } from "./use-stops";
@@ -21,8 +22,6 @@ type FilteredLocation = {
   job_id: number;
   vehicle_id: number;
 };
-
-const address = "https://data.artisanalfutures.org/api/v1/optimization";
 
 const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
   const result = [];
@@ -36,23 +35,6 @@ const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
     }
   }
   return result;
-};
-
-const calculateGeometry = (data: OptimizationData) => {
-  const initGeometry = data.routes.map((route: RouteData) => {
-    return polyline.toGeoJSON(route?.geometry);
-  });
-
-  const colorizeGeometry = (initGeometry as Polyline[]).map(
-    (route: Polyline, idx: number) => {
-      return {
-        ...route,
-        properties: { color: data.routes[idx]!.vehicle },
-      };
-    }
-  );
-
-  return colorizeGeometry;
 };
 
 const useRouteOptimization = () => {
@@ -83,26 +65,11 @@ const useRouteOptimization = () => {
       },
     };
 
-    console.log(params);
+    const results = await optimizationService.calculateOptimalPaths(params);
 
-    const { data } = await axios.post(address, params);
+    setRoutingSolutions(uniqueKey, results);
 
-    if (!data)
-      throw new Error("Could not get routes. Please try again later..");
-
-    const coloredGeometry = calculateGeometry(data as OptimizationData);
-
-    toast.success("Successfully created a solution");
-
-    setRoutingSolutions(uniqueKey, {
-      geometry: coloredGeometry,
-      data,
-    });
-
-    return {
-      geometry: coloredGeometry,
-      data,
-    };
+    return results;
   };
 
   const fetchRoutes = async () => {
