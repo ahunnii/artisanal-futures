@@ -19,12 +19,13 @@ export type Address = {
   id: string;
   latitude: number;
   longitude: number;
-  street: string;
+  formatted: string;
+  street?: string;
   additional?: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
 };
 
 type WeekDay =

@@ -48,6 +48,7 @@
     "@trpc/next": "^10.34.0",
     "@trpc/react-query": "^10.34.0",
     "@trpc/server": "^10.34.0",
+    "@types/google.maps": "^3.55.1",
     "@types/jquery": "^3.5.29",
     "@vercel/node": "^3.0.3",
     "axios": "^1.4.0",

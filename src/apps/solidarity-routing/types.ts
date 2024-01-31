@@ -1,3 +1,5 @@
+import { DriverVehicleBundle } from "./types.wip";
+
 export type TimeWindow = {
   startTime: string;
   endTime: string;
@@ -28,6 +30,15 @@ export type Driver = {
   phone?: string;
   details?: string;
 };
+
+// export type StateDriver = {
+//   id:number;
+// }
+
+// export type DB
+// export type Driver = DriverVehicleBundle & {
+//   id: number | string;
+// };
 
 export type Stop = {
   id: number;
@@ -86,6 +97,7 @@ export type StepData = {
   id?: number;
   job?: number;
 };
+
 export type RouteData = {
   amount: number[];
   cost: number;

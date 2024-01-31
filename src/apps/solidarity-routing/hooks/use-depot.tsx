@@ -1,60 +1,44 @@
-import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+//With two ways to use the application, this manages the state of the depot either from zustand or from the database
+export const useDepot = () => {
+  return {};
+};
 
-import type { Stop } from "~/apps/solidarity-routing/types";
-import { stopData } from "../data/stop-data";
+type DriverVehicleDefaults = {
+  id: number;
+  name: string;
+  address: string;
+  maxTravelTime: number;
+  maxTasks: number;
+  maxDistance: number;
+  shift: {
+    start: string;
+    end: string;
+  };
+  breaks: Array<{ id: number; duration: number }>;
+};
 
-interface useStopsStore {
-  locations: Stop[];
-  activeLocation: Stop | null;
-  setActiveLocation: (activeLocation: Stop | null) => void;
-  setActiveLocationById: (activeLocation: number | null) => void;
-  setLocations: (locations: Stop[]) => void;
-  updateLocation: (id: number, data: Partial<Stop>) => void;
-  removeLocation: (id: number) => void;
-  appendLocation: (location: Stop) => void;
-  addLocationByLatLng: (lat: number, lng: number) => void;
+type Controller<Defaults, Data> = {
+  defaults: Defaults;
+  add: (data: Data) => void;
+  update: (id: number | string, data: Partial<Data>) => void;
+  remove: (id: number | string) => void;
+  get: (id: number | string) => Data | undefined;
+  getAll: () => Data[];
+  active: Data | undefined;
+  setActive: (id: number | string) => void;
+};
 
-  isStopSheetOpen: boolean;
-  setIsStopSheetOpen: (isOpen: boolean) => void;
-}
-
-export const useStops = create<useStopsStore>()(
-  persist(
-    (set) => ({
-      isStopSheetOpen: false,
-      setIsStopSheetOpen: (isStopSheetOpen) => set({ isStopSheetOpen }),
-      locations: [],
-      activeLocation: null,
-      setActiveLocation: (activeLocation) => set({ activeLocation }),
-      setActiveLocationById: (id) =>
-        set((state) => ({
-          activeLocation:
-            state.locations.find((location) => location.id === id) ?? null,
-        })),
-      setLocations: (locations) => set({ locations }),
-      updateLocation: (id, data) =>
-        set((state) => ({
-          locations: state.locations.map((location) =>
-            location.id === id ? { ...location, ...data } : location
-          ),
-        })),
-      removeLocation: (id) =>
-        set((state) => ({
-          locations: state.locations.filter((location) => location.id !== id),
-        })),
-      appendLocation: (location) =>
-        set((state) => ({ locations: [...state.locations, location] })),
-      addLocationByLatLng: (lat, lng) =>
-        set((state) => ({
-          locations: [...state.locations, stopData(lat, lng)],
-        })),
-    }),
-    {
-      name: "stop-storage", // name of item in the storage (must be unique)
-      storage: createJSONStorage(() => sessionStorage), // (optional) by default the 'localStorage' is used
-      partialize: (state) => ({ locations: state.locations }),
-      skipHydration: true,
-    }
-  )
-);
+const localStateDriverController = {
+  defaults: {
+    shiftStart: "09:00",
+    shiftEnd: "17:00",
+    maxTravelTime: 100, //minutes
+    maxTasks: 100,
+    maxDistance: 100, //miles
+    breaks: [
+      {
+        duration: 30, //minutes,
+      },
+    ],
+  },
+};

@@ -195,9 +195,9 @@ model Depot {
   ownerId   String @unique
   name      String
   slug      String?
-  addressId Int?
-  address   Address? @relation(fields: [addressId], references: [id])
+  depotAddressId Int?
 
+  addresses Address[]
   drivers   Driver[]
   vehicles  Vehicle[]
   clients   Client[]
@@ -209,25 +209,26 @@ model Depot {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([addressId])
+
 
 }
 
 model Address {
-  id              Int   @id @default(autoincrement())
-  street          String
+  id              String   @id @default(cuid())
+  formatted       String
+  street          String?
   additional      String?
-  city            String
-  state           String
-  postal_code     String
-  country         String
+  city            String?
+  state           String?
+  postal_code     String?
+  country         String?
   latitude        Float
   longitude       Float
   // startLocations  RouteDetails[] @relation("StartAddressToRouteDetails")
   // endLocations    RouteDetails[] @relation("EndAddressToRouteDetails")
 
-  depot           Depot[]
-  
+  depot           Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  depotId         Int
   drivers         Driver[] @relation("AddressToDriver")
   startVehicles   Vehicle[] @relation("StartAddressToVehicle")
   endVehicles     Vehicle[] @relation("EndAddressToVehicle")
@@ -235,6 +236,8 @@ model Address {
   jobs           Job[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([depotId])
 }
 
 model Schedule {
@@ -242,7 +245,7 @@ model Schedule {
   day   WeekDay
   start String
   end   String
-  driverId Int
+  driverId String
   driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
 
   @@index([driverId])
@@ -273,11 +276,11 @@ enum WeekDay{
 // }
 
 model Driver {
-  id                Int         @id @default(autoincrement())
+  id                String   @id @default(cuid())
   depotId           Int
   depot             Depot       @relation(fields: [depotId], references: [id], onDelete: Cascade)
   name              String
-  addressId         Int?
+  addressId         String?
   address           Address?    @relation("AddressToDriver", fields: [addressId], references: [id])
   phone             String
   email             String
@@ -286,7 +289,7 @@ model Driver {
 
   // assignments       VehicleDriverAssignment[]
 
-  defaultVehicleId  Int?
+  defaultVehicleId  String?
   vehicles          Vehicle[]
  
   createdAt         DateTime @default(now())
@@ -298,16 +301,16 @@ model Driver {
 
 
 model Vehicle {
-  id            Int @id @default(autoincrement())
+  id            String   @id @default(cuid())
   depotId       Int
   depot         Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
 
-  driverId      Int?
+  driverId      String?
   driver        Driver?   @relation(fields: [driverId], references: [id])
 
   type           String
-  startAddressId Int
-  endAddressId   Int?
+  startAddressId String
+  endAddressId   String?
   startAddress   Address   @relation("StartAddressToVehicle", fields: [startAddressId], references: [id])
   endAddress     Address?  @relation("EndAddressToVehicle", fields: [endAddressId], references: [id])
 
@@ -324,12 +327,12 @@ model Vehicle {
   notes      String?
   cargo      String?
 
-  routeId Int
-  route                 Route @relation(fields: [routeId], references: [id])
+  routeId     String?
+  route      Route? @relation(fields: [routeId], references: [id])
   
 
-  optimizedRouteId Int
-  optimizedRoute   OptimizedRoutePath @relation(fields: [optimizedRouteId], references: [id])
+  optimizedRouteId String?
+  optimizedRoute   OptimizedRoutePath? @relation(fields: [optimizedRouteId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -349,7 +352,7 @@ model Break {
   start          Int?
   end            Int?
   duration       Int
-  vehicleId      Int
+  vehicleId      String
   vehicle        Vehicle    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
  
 
@@ -360,19 +363,20 @@ model Break {
 
 
 model Client {
-  id            Int @id @default(autoincrement())
-   depotId       Int
+  id            String   @id @default(cuid())
+  depotId       Int
   depot         Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
 
 
   name          String
-  addressId     Int?
+  addressId     String?
   address       Address?   @relation(fields: [addressId], references: [id])
   phone         String?
   email         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  defaultJobId  String?
   jobs          Job[]
   // assignments   JobClientAssignment[]
 
@@ -381,16 +385,16 @@ model Client {
 }
 
 model Job {
-  id            Int @id @default(autoincrement())
+  id            String   @id @default(cuid())
 
- depotId       Int
+  depotId       Int
   depot         Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
 
 
   type          String
-  addressId     Int?
+  addressId     String?
   address       Address?   @relation(fields: [addressId], references: [id])
-  clientId      Int?
+  clientId      String?
   client        Client?   @relation(fields: [clientId], references: [id])
 
   prepTime      Int
@@ -400,8 +404,8 @@ model Job {
   timeWindowStart Int
   timeWindowEnd   Int
 
-  pendingRouteID Int
-  pendingRoute    Route @relation(fields: [pendingRouteID], references: [id])
+  pendingRouteID  String?
+  pendingRoute    Route? @relation(fields: [pendingRouteID], references: [id])
 
 
 
@@ -446,8 +450,8 @@ model Job {
 //   @@index([driverId])
 // }
 model Route {
-  id            Int @id @default(autoincrement())
-   depotId       Int
+  id            String   @id @default(cuid())
+   depotId      Int
   depot         Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
 
   name          String
@@ -464,10 +468,10 @@ model Route {
 }
 
 model OptimizedRoutePath {
-    id            Int @id @default(autoincrement())
-    routeId       Int
+    id            String   @id @default(cuid())
+    routeId       String
     route         Route   @relation(fields: [routeId], references: [id], onDelete: Cascade)
-    vehicle      Vehicle[]
+    vehicle       Vehicle[]
     // vehicleId       Int
     // vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
 
@@ -481,8 +485,8 @@ model OptimizedRoutePath {
 }
 
 model OptimizedStop {
-  id            Int @id @default(autoincrement())
-  routePathId  Int
+  id            String   @id @default(cuid())
+  routePathId  String
   routePath    OptimizedRoutePath   @relation(fields: [routePathId], references: [id], onDelete: Cascade)
   arrival Int
   departure Int
