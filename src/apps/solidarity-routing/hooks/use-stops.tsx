@@ -1,17 +1,21 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Stop } from "~/apps/solidarity-routing/types";
-import { stopData } from "../data/stop-data";
+
+import { stopData } from "../data/stops/stop-data";
+import type { ClientJobBundle } from "../types.wip";
 
 interface useStopsStore {
-  locations: Stop[];
-  activeLocation: Stop | null;
-  setActiveLocation: (activeLocation: Stop | null) => void;
-  setActiveLocationById: (activeLocation: number | null) => void;
-  setLocations: (locations: Stop[]) => void;
-  updateLocation: (id: number, data: Partial<Stop>) => void;
-  removeLocation: (id: number) => void;
-  appendLocation: (location: Stop) => void;
+  locations: ClientJobBundle[];
+  activeLocation: ClientJobBundle | null;
+
+  setActiveLocation: (activeLocation: ClientJobBundle | null) => void;
+  setActiveLocationById: (activeLocation: string | null) => void;
+
+  setLocations: (locations: ClientJobBundle[]) => void;
+  updateLocation: (id: string, data: Partial<ClientJobBundle>) => void;
+
+  removeLocation: (id: string) => void;
+  appendLocation: (location: ClientJobBundle) => void;
   addLocationByLatLng: (lat: number, lng: number) => void;
 
   isStopSheetOpen: boolean;
@@ -21,26 +25,27 @@ interface useStopsStore {
 export const useStops = create<useStopsStore>()(
   persist(
     (set) => ({
-      isStopSheetOpen: false,
-      setIsStopSheetOpen: (isStopSheetOpen) => set({ isStopSheetOpen }),
       locations: [],
       activeLocation: null,
+
       setActiveLocation: (activeLocation) => set({ activeLocation }),
       setActiveLocationById: (id) =>
         set((state) => ({
           activeLocation:
-            state.locations.find((location) => location.id === id) ?? null,
+            state.locations.find((location) => location.job.id === id) ?? null,
         })),
+
       setLocations: (locations) => set({ locations }),
       updateLocation: (id, data) =>
         set((state) => ({
           locations: state.locations.map((location) =>
-            location.id === id ? { ...location, ...data } : location
+            location.job.id === id ? { ...location, ...data } : location
           ),
         })),
+
       removeLocation: (id) =>
         set((state) => ({
-          locations: state.locations.filter((location) => location.id !== id),
+          locations: state.locations.filter((bundle) => bundle.job.id !== id),
         })),
       appendLocation: (location) =>
         set((state) => ({ locations: [...state.locations, location] })),
@@ -48,6 +53,9 @@ export const useStops = create<useStopsStore>()(
         set((state) => ({
           locations: [...state.locations, stopData(lat, lng)],
         })),
+
+      isStopSheetOpen: false,
+      setIsStopSheetOpen: (isStopSheetOpen) => set({ isStopSheetOpen }),
     }),
     {
       name: "stop-storage", // name of item in the storage (must be unique)

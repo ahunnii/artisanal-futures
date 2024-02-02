@@ -150,10 +150,6 @@ const Navbar = () => {
               </span>
             </Link>
 
-            {/* {categories && (
-            <MainNav data={categories} className="hidden lg:block" />
-          )} */}
-
             <div className="ml-auto flex items-center space-x-6">
               <NavbarActions />
               <Sheet>

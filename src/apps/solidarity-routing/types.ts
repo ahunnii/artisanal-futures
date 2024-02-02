@@ -1,4 +1,4 @@
-import { DriverVehicleBundle } from "./types.wip";
+import { DriverType, DriverVehicleBundle } from "./types.wip";
 
 export type TimeWindow = {
   startTime: string;
@@ -16,19 +16,34 @@ export type Break = {
   service: number;
 };
 export type Driver = {
-  id: number;
+  id: string;
+  type: DriverType;
   name: string;
-  address: string;
-  time_window: TimeWindow;
-  break_slots: Break[];
-  coordinates: Coordinates;
-  max_travel_time: number;
-  max_stops: number;
-  contact_info?: string;
-  description?: string;
-  email?: string;
-  phone?: string;
-  details?: string;
+  email: string;
+  phone: string;
+
+  address: {
+    formatted: string;
+    latitude: number;
+    longitude: number;
+  };
+  shiftStart: number;
+  shiftEnd: number;
+
+  breaks: {
+    id: number;
+    duration: number;
+    start?: number | null | undefined;
+    end?: number | null | undefined;
+  }[];
+
+  capacity?: number;
+  maxTravelTime?: number;
+  maxTasks?: number;
+  maxDistance?: number;
+
+  notes?: string;
+  cargo?: string;
 };
 
 // export type StateDriver = {

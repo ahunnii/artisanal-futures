@@ -34,36 +34,3 @@ const DriverPopup: FC<IStopProps> = ({ vehicle, route }) => {
 };
 
 export default DriverPopup;
-// const { name } = JSON.parse(
-//   vehicle?.route?.description ?? "{}"
-// );
-
-// const startTime = convertSecondsToTimeString(
-//   vehicle?.route?.steps?.[0]?.arrival ?? 0
-// );
-// const endTime = convertSecondsToTimeString(
-//   (vehicle?.route?.steps?.[0]?.arrival ?? 0) +
-//     vehicle?.route?.setup +
-//     vehicle?.route?.service +
-//     vehicle?.route?.waiting_time +
-//     vehicle?.route?.duration
-// );
-// const numberOfStops = vehicle?.route?.steps?.filter(
-//   (step) => step.type === "job"
-// ).length;
-
-{
-  /* <div className="flex flex-col space-y-2">
-<span className="block text-base font-bold capitalize">
-  {name ?? "Driver "}
-</span>
-<span className="block">
-  <span className="block font-semibold text-slate-600">
-    Route Details
-  </span>
-  Start {startTime} • End {endTime} • {numberOfStops}{" "}
-  stops •{" "}
-  {convertMetersToMiles(vehicle?.route?.distance)} miles
-</span>
-</div> */
-}

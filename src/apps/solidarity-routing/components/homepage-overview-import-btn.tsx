@@ -1,25 +1,17 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-import { CheckCircleIcon, type LucideIcon } from "lucide-react";
+import { CheckCircleIcon } from "lucide-react";
 
-import { forwardRef, type ChangeEvent } from "react";
+import { forwardRef } from "react";
 
 import { Input } from "~/components/ui/input";
 
 import { cn } from "~/utils/styles";
-
-interface IImportBtnProps {
-  Icon: LucideIcon;
-  caption: string;
-  handleFileUpload: (event: ChangeEvent<HTMLInputElement>) => void;
-  text: string;
-  isProcessed?: boolean;
-  isProcessing?: boolean;
-}
+import type { UploadButtonProps } from "./homepage-onboarding.wip";
 
 export const HomePageOverviewImportBtn = forwardRef<
   HTMLInputElement,
-  IImportBtnProps
+  UploadButtonProps
 >(({ Icon, caption, handleFileUpload, isProcessed, isProcessing }, ref) => {
   return (
     <>

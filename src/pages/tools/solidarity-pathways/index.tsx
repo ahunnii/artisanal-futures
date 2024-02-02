@@ -15,18 +15,23 @@ import {
 
 import CalculationsTab from "~/apps/solidarity-routing/components/solutions/calculations-tab";
 import BottomSheet from "~/apps/solidarity-routing/components/ui/bottom-sheet";
-import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/drivers/use-drivers";
 import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-optimization";
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
 import type { GetServerSidePropsContext } from "next";
 
-import { HomePageOverview } from "~/apps/solidarity-routing/components/homepage-overview.wip";
+import {
+  HomePageOnboarding,
+  HomePageOverview,
+} from "~/apps/solidarity-routing/components/homepage-onboarding.wip";
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
 import { authenticateUser } from "~/utils/auth";
 
 const LazyRoutingMap = dynamic(
@@ -41,9 +46,16 @@ const LazyRoutingMap = dynamic(
  */
 const RoutingHomePage = () => {
   const [tabValue, setTabValue] = useState<string>("plan");
+  const { status } = useDriverVehicleBundles();
 
   const { locations } = useStops((state) => state);
   const { drivers } = useDrivers((state) => state);
+
+  const { data: depotDrivers } =
+    api.drivers.getCurrentDepotDriverVehicleBundles.useQuery(
+      { depotId: 1 },
+      { enabled: false }
+    );
 
   useEffect(() => {
     void useStops.persist.rehydrate();
@@ -165,10 +177,12 @@ const RoutingHomePage = () => {
             </h1>
 
             <p className="text-lg text-muted-foreground">
-              Styles for headings, paragraphs, lists...etc
+              {status === "authenticated"
+                ? "You're all set up! Let's get started."
+                : "Sign in to get started."}
             </p>
 
-            <HomePageOverview depot={null} date={new Date()} />
+            <HomePageOnboarding date={new Date()} />
 
             <h2>Getting Started</h2>
 

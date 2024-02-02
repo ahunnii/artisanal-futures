@@ -1,14 +1,23 @@
-import type { OptimizedRoute } from "./types";
+import type { ClientJobBundle, DriverVehicleBundle } from "../../types.wip";
 
-export interface OptimizationProcessor<T, Data> {
+export interface OptimizationProcessor<T, Data, Drivers, Jobs> {
   calculateOptimalPaths(data: T): Promise<Data>;
-  // getRoutes(data?: number | string): Promise<OptimizedRoute[]>;
+  formatDriverData(data: DriverVehicleBundle[]): Drivers[];
+  formatClientData(data: ClientJobBundle[]): Jobs[];
 }
 
-export class OptimizationService<T, Data> {
-  constructor(private optimizationProcessor: OptimizationProcessor<T, Data>) {}
+export class OptimizationService<T, Data, Drivers, Jobs> {
+  constructor(
+    private optimizationProcessor: OptimizationProcessor<T, Data, Drivers, Jobs>
+  ) {}
 
   async calculateOptimalPaths(data: T): Promise<Data> {
     return this.optimizationProcessor.calculateOptimalPaths(data);
+  }
+  formatDriverData(data: DriverVehicleBundle[]): Drivers[] {
+    return this.optimizationProcessor.formatDriverData(data);
+  }
+  formatClientData(data: ClientJobBundle[]): Jobs[] {
+    return this.optimizationProcessor.formatClientData(data);
   }
 }

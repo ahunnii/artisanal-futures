@@ -10,12 +10,9 @@ import type {
 
 import toast from "react-hot-toast";
 import { getUniqueKey } from "~/apps/solidarity-routing/libs/unique-key";
-import {
-  convertDriverToVehicle,
-  convertStopToJob,
-} from "~/utils/routing/data-formatting";
+
 import optimizationService from "../services/optimization";
-import { useDrivers } from "./use-drivers";
+import { useDrivers } from "./drivers/use-drivers";
 import { useRoutingSolutions } from "./use-routing-solutions";
 import { useStops } from "./use-stops";
 type FilteredLocation = {
@@ -52,8 +49,8 @@ const useRouteOptimization = () => {
   } = useRoutingSolutions();
 
   const calculateRoutes = async () => {
-    const jobs = locations.map(convertStopToJob);
-    const vehicles = drivers.map(convertDriverToVehicle);
+    const jobs = optimizationService.formatClientData(locations);
+    const vehicles = optimizationService.formatDriverData(drivers);
 
     const uniqueKey = await getUniqueKey({ locations, drivers });
 
@@ -100,7 +97,7 @@ const useRouteOptimization = () => {
 
     getRoutes: async () => {
       const data = await fetchRoutes();
-      setCurrentRoutingSolution(data as VroomResponse);
+      setCurrentRoutingSolution(data!);
 
       return data;
     },

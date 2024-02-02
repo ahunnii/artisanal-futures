@@ -9,9 +9,10 @@ import { cn } from "~/utils/styles";
 
 import OnlineIndicator from "~/apps/solidarity-routing/components/ui/online-indicator";
 import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
-import { convertMetersToMiles } from "~/apps/solidarity-routing/libs/data-formatting";
+
 import { convertSecondsToTime } from "~/apps/solidarity-routing/libs/time-formatting";
 import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
+import { metersToMiles } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 type RouteHeaderCardProps = {
   data: ExpandedRouteData;
@@ -71,7 +72,7 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
           </CardTitle>
           <CardDescription>
             {startTime} to {endTime} • {numberOfStops} stops •{" "}
-            {convertMetersToMiles(data?.distance)} miles
+            {metersToMiles(data?.distance)} miles
           </CardDescription>{" "}
         </div>
         {isButton && (

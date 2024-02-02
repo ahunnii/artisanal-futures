@@ -37,44 +37,15 @@ import {
 } from "~/components/ui/select";
 import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
-import { parseDataFromStop } from "~/utils/routing/data-formatting";
+
+import { StopFormValues, stopFormSchema } from "../../types.wip";
+import {
+  secondsToMinutes,
+  unixSecondsToMilitaryTime,
+} from "../../utils/generic/format-utils.wip";
 
 type Library = "places";
 const libraries: Library[] = ["places"];
-
-const stopFormSchema = z.object({
-  id: z.number(),
-  customer_name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "Name must not be longer than 30 characters.",
-    }),
-
-  address: z.string(),
-  time_windows: z.array(
-    z.object({
-      startTime: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-        message: "Invalid time format. Time must be in HH:MM format.",
-      }),
-      endTime: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-        message: "Invalid time format. Time must be in HH:MM format.",
-      }),
-    })
-  ),
-  coordinates: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  drop_off_duration: z.number().min(0),
-  prep_time_duration: z.number().min(0),
-  priority: z.number().min(0),
-  email: z.string().optional(),
-  details: z.string().optional(),
-});
-type StopFormValues = z.infer<typeof stopFormSchema>;
 
 type TStopForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -89,33 +60,33 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     setLocations,
   } = useStops((state) => state);
 
-  const {
-    name,
-    address,
-    duration,
-    priorityValue,
-    prep,
-    fulfillmentTimeValues,
-    latitude,
-    longitude,
-    email,
-    details,
-  } = useMemo(() => parseDataFromStop(activeLocation), [activeLocation]);
-
   const defaultValues: Partial<StopFormValues> = {
-    id: activeLocation?.id ?? parseInt(uniqueId()),
-    customer_name: name,
-    address,
-    time_windows: fulfillmentTimeValues ?? [
-      { startTime: "09:00", endTime: "17:00" },
-    ],
-    coordinates: { latitude, longitude } as Coordinates,
-    drop_off_duration: duration ?? 5,
-    prep_time_duration: prep ?? 0,
-    priority: priorityValue ?? 50,
-    email,
+    id: activeLocation?.job.id ?? uniqueId("job_"),
+    type: activeLocation?.job.type ?? "DELIVERY",
+    name: activeLocation?.client.name ?? "",
+    address: {
+      formatted: activeLocation?.job.address.formatted ?? undefined,
+      latitude: activeLocation?.job.address.latitude ?? undefined,
+      longitude: activeLocation?.job.address.longitude ?? undefined,
+    } as Coordinates & { formatted: string },
+    timeWindowStart: activeLocation?.job.timeWindowStart
+      ? unixSecondsToMilitaryTime(activeLocation?.job.timeWindowStart)
+      : "09:00",
+    timeWindowEnd: activeLocation?.job.timeWindowEnd
+      ? unixSecondsToMilitaryTime(activeLocation?.job.timeWindowEnd)
+      : "17:00",
 
-    details,
+    serviceTime: activeLocation?.job.serviceTime
+      ? secondsToMinutes(activeLocation.job.serviceTime)
+      : 5,
+    prepTime: activeLocation?.job.prepTime
+      ? secondsToMinutes(activeLocation.job.prepTime)
+      : 5,
+
+    priority: activeLocation?.job.priority ?? 1,
+    email: activeLocation?.client.email ?? "",
+    order: activeLocation?.job.order ?? "",
+    notes: activeLocation?.job.notes ?? "",
   };
 
   const form = useForm<StopFormValues>({
@@ -124,8 +95,8 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
   });
 
   function onSubmit(data: StopFormValues) {
-    if (activeLocation) updateLocation(data.id, data);
-    else appendLocation(data);
+    // if (activeLocation) updateLocation(data.id, data);
+    // else appendLocation(data);
 
     toast({
       title: "You submitted the following values:",
@@ -145,15 +116,35 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     libraries,
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "time_windows",
-  });
-
   const onDelete = () => {
-    const temp = locations.filter((loc) => loc.id !== activeLocation?.id);
+    const temp = locations.filter(
+      (loc) => loc.job.id !== activeLocation?.job.id
+    );
     setLocations(temp);
     handleOnOpenChange(false);
+  };
+
+  const handleAutoComplete = (
+    address: string,
+    onChange: (value: string) => void
+  ) => {
+    if (!address) return;
+
+    onChange(address);
+    geocodeByAddress(address)
+      .then((results) => getLatLng(results[0]!))
+      .then(({ lat, lng }) => {
+        console.log("Successfully got latitude and longitude", {
+          latitude: lat,
+          longitude: lng,
+        });
+        form.setValue("address", {
+          formatted: address,
+          latitude: lat,
+          longitude: lng,
+        });
+      })
+      .catch((err) => console.error("Error", err));
   };
 
   return (
@@ -166,7 +157,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
           <div className=" w-full space-y-4">
             <FormField
               control={form.control}
-              name="customer_name"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
@@ -180,7 +171,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
             />
             {isLoaded && (
               <Controller
-                name="address"
+                name="address.formatted"
                 control={form.control}
                 render={({ field: { onChange, value } }) => (
                   <FormItem>
@@ -188,23 +179,9 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
 
                     <GooglePlacesAutocomplete
                       selectProps={{
-                        // inputValue: value,
-                        placeholder: "Start typing an address",
                         defaultInputValue: value,
-                        onChange: (e) => {
-                          if (!e) return;
-
-                          onChange(e.label);
-                          geocodeByAddress(e.label)
-                            .then((results) => getLatLng(results[0]!))
-                            .then(({ lat, lng }) => {
-                              form.setValue("coordinates", {
-                                latitude: lat,
-                                longitude: lng,
-                              });
-                            })
-                            .catch((err) => console.error("Error", err));
-                        },
+                        placeholder: "Start typing an address",
+                        onChange: (e) => handleAutoComplete(e!.label, onChange),
                         classNames: {
                           control: (state) =>
                             state.isFocused
@@ -222,8 +199,8 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
                     />
 
                     <FormDescription>
-                      Lat: {form.watch("coordinates")?.latitude ?? 0} &nbsp;
-                      Lng: {form.watch("coordinates")?.longitude ?? 0}
+                      {form.watch("address.latitude") ?? 0} &nbsp; Lng:{" "}
+                      {form.watch("address.longitude") ?? 0}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -234,7 +211,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
             <div className="flex  flex-1 gap-4">
               <FormField
                 control={form.control}
-                name="prep_time_duration"
+                name="prepTime"
                 render={({ field }) => (
                   <FormItem className="flex-1 ">
                     <FormLabel>Prep Time </FormLabel>
@@ -257,7 +234,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
               />{" "}
               <FormField
                 control={form.control}
-                name="drop_off_duration"
+                name="serviceTime"
                 render={({ field }) => (
                   <FormItem className="flex-1 ">
                     <FormLabel>Duration</FormLabel>
@@ -316,60 +293,34 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
               />
             </div>
             <div className="flex flex-1 flex-col gap-4">
-              <FormLabel>Fulfillment Windows</FormLabel>
-              <ScrollArea className="flex max-h-40 flex-col px-4  md:max-h-40 lg:max-h-60">
-                {fields.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="my-2 flex items-center space-x-4"
-                  >
-                    <Controller
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          placeholder="Attribute (e.g., Size, Color)"
-                          type="time"
-                        />
-                      )}
-                      name={`time_windows.${index}.startTime`}
-                      control={form.control}
-                      defaultValue={item.startTime.trim()}
-                    />
-
-                    <Controller
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          placeholder="Value (e.g., M, Red)"
-                          type="time"
-                        />
-                      )}
-                      name={`time_windows.${index}.endTime`}
-                      control={form.control}
-                      defaultValue={item.endTime.trim()}
-                    />
-
-                    <Button
-                      onClick={() => remove(index)}
-                      variant="destructive"
-                      type="button"
-                    >
-                      <Trash />
-                    </Button>
-                  </div>
-                ))}
-              </ScrollArea>
+              <FormLabel>Fulfillment Window</FormLabel>
+              <Controller
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Attribute (e.g., Size, Color)"
+                    type="time"
+                  />
+                )}
+                name={`timeWindowStart`}
+                control={form.control}
+              />
+              <Controller
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    placeholder="Value (e.g., M, Red)"
+                    type="time"
+                  />
+                )}
+                name={`timeWindowEnd`}
+                control={form.control}
+              />
               <FormDescription>
                 Add a list of possible time windows in which the driver can
                 fulfill the order.
               </FormDescription>{" "}
               <FormMessage />
-              <Button
-                onClick={() => append({ startTime: "00:00", endTime: "00:00" })}
-                type="button"
-              >
-                Add Time Slot
-              </Button>
             </div>
             <div className="flex flex-col space-y-4">
               <FormField
@@ -394,10 +345,54 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
               />{" "}
               <FormField
                 control={form.control}
-                name="details"
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. 999-999-9999"
+                        {...field}
+                        type={"email"}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Optional: Add an email address for the customer.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />{" "}
+              <FormField
+                control={form.control}
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stop Details</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="e.g. Two boxes of squash"
+                        className="resize-none"
+                        // {...field}
+                        onChange={field.onChange}
+                        value={field.value}
+                        aria-rowcount={3}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Optional: Add some notes or details of the fulfillment for
+                      later reference.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />{" "}
+              <FormField
+                control={form.control}
+                name="order"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stop Order</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="e.g. Two boxes of squash"

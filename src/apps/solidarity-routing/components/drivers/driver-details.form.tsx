@@ -91,7 +91,7 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
 
         <FormField
           control={form.control}
-          name="databaseDriverId"
+          name="id"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel> Driver</FormLabel>
@@ -184,6 +184,34 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
               )}
             />
           )}
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Driver&apos;s email</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. test@test.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Driver&apos;s phone</FormLabel>
+                <FormControl>
+                  <Input placeholder="ex. 333-334-2233" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </AccordionContent>
     </AccordionItem>

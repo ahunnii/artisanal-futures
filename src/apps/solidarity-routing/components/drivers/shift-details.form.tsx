@@ -56,7 +56,7 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                     />
                   </div>
                 )}
-                name={`shift.start`}
+                name={`shiftStart`}
                 control={form.control}
               />
               <Controller
@@ -71,7 +71,7 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                     />
                   </div>
                 )}
-                name={`shift.end`}
+                name={`shiftEnd`}
                 control={form.control}
               />
             </div>{" "}

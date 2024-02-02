@@ -32,7 +32,7 @@ import {
 import DriverPopup from "~/apps/solidarity-routing/components/map/popup-driver";
 import StopPopup from "~/apps/solidarity-routing/components/map/popup-stop";
 import RouteMarker from "~/apps/solidarity-routing/components/map/route-marker";
-import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+import { useDrivers } from "~/apps/solidarity-routing/hooks/drivers/use-drivers";
 import useMap from "~/apps/solidarity-routing/hooks/use-map";
 import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-optimization";
 import { useRoutingSolutions } from "~/apps/solidarity-routing/hooks/use-routing-solutions";

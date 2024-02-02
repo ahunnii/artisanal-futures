@@ -11,7 +11,7 @@ import type {
   VroomResponse,
 } from "~/apps/solidarity-routing/types";
 
-import { useDrivers } from "./use-drivers";
+import { useDrivers } from "./drivers/use-drivers";
 
 import { getCurrentLocation } from "~/apps/solidarity-routing/libs/realtime-utils";
 import { useDriverRoute } from "./use-driver-routes";
@@ -148,11 +148,11 @@ const useMap = ({
   }, [routes, mapRef, trackingEnabled]);
 
   useEffect(() => {
-    if (activeDriver && mapRef) flyTo(activeDriver?.coordinates, 15);
+    if (activeDriver && mapRef) flyTo(activeDriver?.driver.address, 15);
   }, [activeDriver, mapRef, flyTo]);
 
   useEffect(() => {
-    if (activeLocation && mapRef) flyTo(activeLocation?.coordinates, 15);
+    if (activeLocation && mapRef) flyTo(activeLocation?.job.address, 15);
   }, [activeLocation, mapRef, flyTo]);
 
   useEffect(() => {
@@ -165,8 +165,8 @@ const useMap = ({
         [...locations, ...drivers].map(
           (location) =>
             [
-              location?.coordinates?.latitude,
-              location?.coordinates?.longitude,
+              location?.job?.address?.latitude,
+              location?.job?.address?.longitude,
             ] as LatLngExpression
         )
       );

@@ -1,22 +1,25 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Driver } from "~/apps/solidarity-routing/types";
-import { driverData } from "../data/driver-data";
+
+import { driverData } from "../../data/drivers/driver-data";
+import type { DriverVehicleBundle } from "../../types.wip";
 
 interface useDriversStore {
-  drivers: Driver[];
-  selectedDrivers: Driver[];
-  activeDriver: Driver | null;
+  drivers: DriverVehicleBundle[];
+  selectedDrivers: DriverVehicleBundle[];
+  activeDriver: DriverVehicleBundle | null;
 
-  setActiveDriver: (activeDriver: Driver | null) => void;
-  setActiveDriverById: (activeDriver: number | null) => void;
+  setActiveDriver: (
+    activeDriverVehicleBundle: DriverVehicleBundle | null
+  ) => void;
+  setActiveDriverById: (activeDriverVehicleBundle: string | null) => void;
 
-  setDrivers: (drivers: Driver[]) => void;
-  setSelectedDrivers: (drivers: Driver[]) => void;
-  updateDriver: (id: number, data: Partial<Driver>) => void;
+  setDrivers: (driverVehicleBundles: DriverVehicleBundle[]) => void;
+  setSelectedDrivers: (driverVehicleBundles: DriverVehicleBundle[]) => void;
+  updateDriver: (id: string, data: Partial<DriverVehicleBundle>) => void;
 
-  removeDriver: (id: number) => void;
-  appendDriver: (driver: Driver) => void;
+  removeDriver: (id: string) => void;
+  appendDriver: (driverVehicleBundle: DriverVehicleBundle) => void;
   addDriverByLatLng: (lat: number, lng: number) => void;
 
   isDriverSheetOpen: boolean;
@@ -29,12 +32,11 @@ export const useDrivers = create<useDriversStore>()(
       drivers: [],
       selectedDrivers: [],
       activeDriver: null,
-
       setActiveDriver: (activeDriver) => set({ activeDriver }),
       setActiveDriverById: (id) =>
         set((state) => ({
           activeDriver:
-            state.drivers.find((driver) => driver.id === id) ?? null,
+            state.drivers.find((bundle) => bundle.driver.id === id) ?? null,
         })),
 
       setDrivers: (drivers) => set({ drivers }),
@@ -42,13 +44,13 @@ export const useDrivers = create<useDriversStore>()(
 
       updateDriver: (id, data) =>
         set((state) => ({
-          drivers: state.drivers.map((driver) =>
-            driver.id === id ? { ...driver, ...data } : driver
+          drivers: state.drivers.map((bundle) =>
+            bundle.driver.id === id ? { ...bundle, ...data } : bundle
           ),
         })),
       removeDriver: (id) =>
         set((state) => ({
-          drivers: state.drivers.filter((driver) => driver.id !== id),
+          drivers: state.drivers.filter((bundle) => bundle.driver.id !== id),
         })),
       appendDriver: (driver) =>
         set((state) => ({ drivers: [...state.drivers, driver] })),

@@ -13,15 +13,6 @@ export const convertSecondsToMinutesAndHours = (seconds: number) => {
     }`,
   };
 };
-export const convertSecondsToHours = (seconds: number) => {
-  return Math.floor(seconds / 3600);
-};
-
-export const convertTimeWindowToSeconds = (timeString: string) => {
-  const arr: string[] = timeString.split(":");
-  const seconds: number = parseInt(arr[0]!) * 3600 + parseInt(arr[1]!) * 60;
-  return seconds;
-};
 
 export const convertSecondsToTime = (seconds: number) => {
   // Ensure the seconds are between 0 and 86400 (0 <= seconds < 86400)
@@ -53,13 +44,6 @@ export const convertSecondsToTime = (seconds: number) => {
 
   return formattedTime;
 };
-
-// type TimeComponents = {
-//   hours: number;
-//   minutes: number;
-//   seconds: number;
-//   formatted: string;
-// };
 
 export const convertSecondsToComponents = (seconds: number) => {
   // Calculate the hours, minutes, and remaining seconds

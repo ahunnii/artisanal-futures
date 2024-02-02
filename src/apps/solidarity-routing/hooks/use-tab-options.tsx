@@ -1,103 +1,107 @@
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 
-import locationData from "~/data/addresses.json";
+// import locationData from "~/data/addresses.json";
 
-import driverData from "~/data/drivers.json";
+// import driverData from "~/data/drivers.json";
 
-import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
+// import { useDrivers } from "~/apps/solidarity-routing/hooks/drivers/use-drivers";
 
-import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+// import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
-import { handleIncomingData } from "~/apps/solidarity-routing/libs/file-handling";
+// import { handleIncomingData } from "~/apps/solidarity-routing/libs/file-handling";
 
-import type { Driver, Stop } from "~/apps/solidarity-routing/types";
+// import type { Driver, Stop } from "~/apps/solidarity-routing/types";
+// import { DriverDBSelect } from "../components/drivers/driver-db-select.wip";
+// import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 
-const useTabOptions = (type: "stop" | "driver") => {
-  const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStops(
-    (state) => state
-  );
-  const { setDrivers, setActiveDriver, setIsDriverSheetOpen } = useDrivers(
-    (state) => state
-  );
-  const { data: session } = useSession();
+// const useTabOptions = (type: "stop" | "driver") => {
+//   const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStops(
+//     (state) => state
+//   );
+//   const { setDrivers, setActiveDriver, setIsDriverSheetOpen } = useDrivers(
+//     (state) => state
+//   );
+//   const { data: session } = useSession();
 
-  const typeData = {
-    stop: {
-      setType: setLocations,
-      setActive: setActiveLocation,
-      db: "/api/db-fetch?dataType=customers",
-      autofill: locationData,
-    },
-    driver: {
-      setType: setDrivers,
-      setActive: setActiveDriver,
-      db: "/api/db-fetch?dataType=drivers",
-      autofill: driverData,
-    },
-  };
+//   const typeData = {
+//     stop: {
+//       setType: setLocations,
+//       setActive: setActiveLocation,
+//       db: "/api/db-fetch?dataType=customers",
+//       autofill: locationData,
+//     },
+//     driver: {
+//       setType: setDrivers,
+//       setActive: setActiveDriver,
+//       db: "/api/db-fetch?dataType=drivers",
+//       autofill: driverData,
+//     },
+//   };
 
-  // Based on type, auto populate some data for demo purposes
-  const populateFromDatabase = <T extends Driver | Stop>() => {
-    handleIncomingData(
-      typeData[type].autofill,
-      type,
-      typeData[type].setType as (data: T[]) => void
-    ).catch((err) => {
-      toast.error("Something went wrong with test data import.");
-      console.error(err);
-    });
-  };
+//   // Based on type, auto populate some data for demo purposes
+//   // const populateFromDatabase = <T extends Driver | Stop>() => {
+//   //   handleIncomingData(
+//   //     typeData[type].autofill,
+//   //     type,
+//   //     typeData[type].setType as (data: T[]) => void
+//   //   ).catch((err) => {
+//   //     toast.error("Something went wrong with test data import.");
+//   //     console.error(err);
+//   //   });
+//   // };
 
-  // Based on type, pulls data from Supabase data upload (to be replaced with dedicated api)
-  const populateCustomerCSV = <T extends Driver | Stop>() => {
-    handleIncomingData(
-      typeData[type].db,
-      type,
-      typeData[type].setType as (data: T[]) => void
-    )
-      .then(() => toast.success(`Successfully imported ${type}s from database`))
-      .catch((err) => {
-        toast.error(`Something went wrong with importing your ${type}s`);
-        console.error(err);
-      });
-  };
+//   // Based on type, pulls data from Supabase data upload (to be replaced with dedicated api)
+//   // const populateCustomerCSV = <T extends Driver | Stop>() => {
+//   //   handleIncomingData(
+//   //     typeData[type].db,
+//   //     type,
+//   //     typeData[type].setType as (data: T[]) => void
+//   //   )
+//   //     .then(() => toast.success(`Successfully imported ${type}s from database`))
+//   //     .catch((err) => {
+//   //       toast.error(`Something went wrong with importing your ${type}s`);
+//   //       console.error(err);
+//   //     });
+//   // };
 
-  // Based on type, parses incoming CSV file and updates state
-  const handleCSVUpload = <T extends Driver | Stop>(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    handleIncomingData(
-      event.target.files![0]!,
-      type,
-      typeData[type].setType as (data: T[]) => void
-    )
-      .then(() => toast.success(`Successfully uploaded ${type}s`))
-      .catch((err) => {
-        toast.error("Something went wrong uploading your file.");
-        console.error(err);
-      });
-  };
+//   // // Based on type, parses incoming CSV file and updates state
+//   // const handleCSVUpload = <T extends Driver | Stop>(
+//   //   event: React.ChangeEvent<HTMLInputElement>
+//   // ) => {
+//   //   handleIncomingData(
+//   //     event.target.files![0]!,
+//   //     type,
+//   //     typeData[type].setType as (data: T[]) => void
+//   //   )
+//   //     .then(() => toast.success(`Successfully uploaded ${type}s`))
+//   //     .catch((err) => {
+//   //       toast.error("Something went wrong uploading your file.");
+//   //       console.error(err);
+//   //     });
+//   // };
 
-  const addNewItem = () => {
-    typeData[type].setActive(null);
+//   const addNewItem = () => {
+//     typeData[type].setActive(null);
 
-    if (type === "driver") setIsDriverSheetOpen(true);
-    else setIsStopSheetOpen(true);
-  };
+//     if (type === "driver") setIsDriverSheetOpen(true);
+//     else setIsStopSheetOpen(true);
+//   };
 
-  const isUserArtisan =
-    session?.user &&
-    (session?.user.role === "ARTISAN" || session?.user.role === "ADMIN");
+//   const isUserArtisan =
+//     session?.user &&
+//     (session?.user.role === "ARTISAN" || session?.user.role === "ADMIN");
+//   const { drivers } = useDriverVehicleBundles();
+//   return {
+//     populateFromDatabase,
+//     populateCustomerCSV,
+//     handleCSVUpload,
+//     addNewItem,
+//     isUserArtisan,
+//     handleAddFromDatabase: drivers.setDrivers,
+//     DatabaseSelect: DriverDBSelect,
+//   };
+// };
 
-  return {
-    populateFromDatabase,
-    populateCustomerCSV,
-    handleCSVUpload,
-    addNewItem,
-    isUserArtisan,
-  };
-};
-
-export default useTabOptions;
+// export default useTabOptions;

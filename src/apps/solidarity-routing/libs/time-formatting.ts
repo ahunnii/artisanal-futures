@@ -13,9 +13,6 @@ export const convertSecondsToMinutesAndHours = (seconds: number) => {
     }`,
   };
 };
-export const convertSecondsToHours = (seconds: number) => {
-  return Math.floor(seconds / 3600);
-};
 
 export const convertTimeWindowToSeconds = (timeString: string) => {
   const arr: string[] = timeString.split(":");

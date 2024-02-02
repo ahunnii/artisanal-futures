@@ -20,9 +20,9 @@ import { Separator } from "~/components/ui/separator";
 
 import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
 
-import { convertMetersToMiles } from "~/utils/routing/data-formatting";
 import { convertSecondsToMinutesAndHours } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
+import { metersToMiles } from "../../utils/generic/format-utils.wip";
 
 interface CardProps extends ComponentProps<typeof Card> {
   data: OptimizationData;
@@ -41,7 +41,8 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
     data?.summary?.service
   ).formatted;
 
-  const millage = convertMetersToMiles(data?.summary?.distance);
+  const millage = metersToMiles(data?.summary?.distance);
+
   return (
     <Card className={cn("w-full", className)} {...props}>
       <CardHeader>

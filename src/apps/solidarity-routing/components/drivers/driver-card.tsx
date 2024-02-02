@@ -1,27 +1,17 @@
 import { useMemo, type FC } from "react";
 
 import DepotCard from "~/apps/solidarity-routing/components/ui/depot-card";
-import { useDrivers } from "~/apps/solidarity-routing/hooks/use-drivers";
-import { parseDataFromDriver } from "~/apps/solidarity-routing/libs/data-formatting";
-import type { Driver } from "~/apps/solidarity-routing/types";
 
-type TDriverCard = { driver: Driver };
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-const DriverCard: FC<TDriverCard> = ({ driver }) => {
-  const { setActiveDriver, activeDriver, setIsDriverSheetOpen } = useDrivers(
-    (state) => state
-  );
-  const { name } = useMemo(() => parseDataFromDriver(driver), [driver]);
+type TDriverCard = { id: string; name: string };
 
-  const onEdit = () => {
-    setActiveDriver(driver);
-    setIsDriverSheetOpen(true);
-  };
+const DriverCard: FC<TDriverCard> = ({ id, name }) => {
+  const { drivers } = useDriverVehicleBundles();
 
-  const isActive = useMemo(
-    () => activeDriver?.id === driver.id,
-    [activeDriver, driver]
-  );
+  const onEdit = () => drivers.edit(id);
+
+  const isActive = useMemo(() => drivers.isActive(id), [drivers, id]);
 
   return (
     <DepotCard

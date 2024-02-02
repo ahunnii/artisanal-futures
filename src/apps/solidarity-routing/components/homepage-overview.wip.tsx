@@ -1,12 +1,14 @@
 import { format } from "date-fns";
 import {
   CheckCircleIcon,
+  FilePlus,
   PersonStanding,
+  Plus,
   Truck,
   Upload,
   type LucideIcon,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useRef, useState, type ChangeEvent } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
@@ -20,6 +22,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { api } from "~/utils/api";
+
 import {
   formatClientSheetRow,
   formatDriverSheetRow,
@@ -36,16 +39,15 @@ import { ClientsPreviewModal } from "./clients-preview-modal.wip";
 import { DriversPreviewModal } from "./drivers-preview-modal.wip";
 import { HomePageOverviewImportBtn } from "./homepage-overview-import-btn";
 
-type FileUploadHandler = (event: React.ChangeEvent<HTMLInputElement>) => void;
+export type FileUploadHandler = (
+  event: React.ChangeEvent<HTMLInputElement>
+) => void;
 
-export const HomePageOverview = ({
-  depot,
-  date,
-}: {
-  depot: null;
-  date: Date;
-}) => {
+export const HomePageOverview = ({ date }: { date: Date }) => {
   const searchParams = useSearchParams();
+  const params = useParams();
+
+  const depotId = params?.depotId as string;
 
   const [driverModalOpen, setDriverModalOpen] = useState(false);
   const [clientModalOpen, setClientModalOpen] = useState(false);
@@ -109,11 +111,11 @@ export const HomePageOverview = ({
     });
 
   const { data: depotDrivers } = api.drivers.getCurrentDepotDrivers.useQuery({
-    depotId: 1,
+    depotId: depotId as unknown as number,
   });
 
   const { data: depotClients } = api.clients.getCurrentDepotClients.useQuery({
-    depotId: 1,
+    depotId: depotId as unknown as number,
   });
 
   const handleDriverSheetUpload: FileUploadHandler = (event) => {
@@ -222,7 +224,10 @@ export const HomePageOverview = ({
         driverVehicleBundles={drivers ?? []}
         loading={isDriverMutationLoading}
         handleAcceptDrivers={() => {
-          createDrivers({ data: drivers, depotId: 1 });
+          createDrivers({
+            data: drivers,
+            depotId: depotId as unknown as number,
+          });
         }}
         handleClear={clearDriverInput}
       />
@@ -233,30 +238,38 @@ export const HomePageOverview = ({
         clientJobBundles={clients ?? []}
         loading={isClientMutationLoading}
         handleAcceptClients={() => {
-          createClients({ data: clients, depotId: 1 });
+          createClients({
+            data: clients,
+            depotId: depotId as unknown as number,
+          });
         }}
         handleClear={clearClientInput}
       />
-      <Card className="w-3/4">
+      <Card className="w-2/4">
         <CardHeader>
-          <CardTitle>
-            {isFirstTime ? "First Time?" : "Today's Overview"}
-          </CardTitle>
+          <CardTitle>Today&apos;s Overview</CardTitle>
           <CardDescription>
-            {format(date, "MMMM dd yyyy")} * Depot 1 * No finalized routes yet
+            {format(date, "MMMM dd yyyy")} * Depot{" "}
+            {depotId as unknown as number} * No finalized routes yet
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid  w-full grid-cols-1 items-center gap-4 md:grid-cols-3">
-            {overviewUploadOptions.map((option, idx) => (
-              <HomePageOverviewImportBtn {...option} key={idx} />
-            ))}
+          <div className="flex w-full  flex-col  items-center gap-4 ">
+            <Button className="w-full gap-2">
+              <FilePlus /> Create a route using a spreadsheet
+            </Button>
+            <Button className="w-full  gap-2" variant={"outline"}>
+              <Plus /> Manually create a route
+            </Button>
+          </div>
+
+          <div className="mt-10 flex  w-full  flex-col items-center gap-4">
+            <p>
+              Need help with your spreadsheet formatting? Check out our guide on
+              it here, or click here for a sample file.
+            </p>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end gap-4">
-          <Button variant="outline">Nah, I&apos;ll just do it later </Button>
-          <Button>Start </Button>
-        </CardFooter>
       </Card>
     </>
   );
