@@ -2,16 +2,19 @@ import { uniqueId } from "lodash";
 import {
   driverTypeSchema,
   type DriverVehicleBundle,
+  type UploadOptions,
 } from "~/apps/solidarity-routing/types.wip";
 import {
   milesToMeters,
   militaryTimeToUnixSeconds,
   minutesToSeconds,
 } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+import { handleDriverSheetUpload } from "../../utils/driver-vehicle/parse-drivers.wip";
 
 export const driverData = (lat: number, lng: number): DriverVehicleBundle => {
   return {
     driver: {
+      type: "FULL_TIME",
       id: uniqueId("driver_"),
       name: "New Driver",
       email: "",
@@ -25,6 +28,11 @@ export const driverData = (lat: number, lng: number): DriverVehicleBundle => {
     },
     vehicle: {
       id: uniqueId("vehicle_"),
+      startAddress: {
+        formatted: "Address via LatLng",
+        latitude: lat,
+        longitude: lng,
+      },
       type: driverTypeSchema.parse("TEMP"),
       shiftStart: driverVehicleDefaults.shiftStart,
       shiftEnd: driverVehicleDefaults.shiftEnd,
@@ -40,7 +48,7 @@ export const driverData = (lat: number, lng: number): DriverVehicleBundle => {
   };
 };
 
-const driverVehicleDefaults = {
+export const driverVehicleDefaults = {
   shiftStart: militaryTimeToUnixSeconds("09:00"),
   shiftEnd: militaryTimeToUnixSeconds("17:00"),
   breaks: [
@@ -58,3 +66,29 @@ const driverVehicleDefaults = {
   notes: "",
   cargo: "",
 };
+
+export const driverVehicleUploadOptions = ({
+  drivers,
+  setDrivers,
+  status,
+}: {
+  drivers: DriverVehicleBundle[];
+  setDrivers: ({
+    drivers,
+    saveToDB,
+  }: {
+    drivers: DriverVehicleBundle[];
+    saveToDB: boolean;
+  }) => void;
+  status: "authenticated" | "unauthenticated" | "loading" | "error";
+}): UploadOptions<DriverVehicleBundle> => ({
+  type: "driver" as keyof DriverVehicleBundle,
+  parseHandler: handleDriverSheetUpload,
+  handleAccept: ({ data, saveToDB }) => {
+    setDrivers({
+      drivers: data,
+      saveToDB: status === "authenticated" && saveToDB,
+    });
+  },
+  currentData: drivers,
+});

@@ -13,11 +13,11 @@ export const depotsRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        address: z.string(),
-        coordinates: z.object({
-          lat: z.number(),
-          lng: z.number(),
-        }),
+        // address: z.string(),
+        // coordinates: z.object({
+        //   lat: z.number(),
+        //   lng: z.number(),
+        // }),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -25,9 +25,9 @@ export const depotsRouter = createTRPCRouter({
         data: {
           ownerId: ctx.session.user.id,
           name: input.name,
-          address: input.address,
-          latitude: input.coordinates.lat ?? 0,
-          longitude: input.coordinates.lng ?? 0,
+          // address: input.address,
+          // latitude: input.coordinates.lat ?? 0,
+          // longitude: input.coordinates.lng ?? 0,
         },
       });
     }),

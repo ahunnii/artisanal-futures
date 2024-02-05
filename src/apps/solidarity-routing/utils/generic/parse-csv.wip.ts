@@ -8,8 +8,6 @@ export const parseSpreadSheet = <T, R>({
 }: {
   file: File;
   parser: (data: T) => R;
-
-  // type: "driver" | "stop",
   onComplete: (data: R[]) => Promise<void>;
 }) => {
   try {

@@ -6,9 +6,7 @@
 
 // import driverData from "~/data/drivers.json";
 
-// import { useDrivers } from "~/apps/solidarity-routing/hooks/drivers/use-drivers";
-
-// import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+// import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops";
 
 // import { handleIncomingData } from "~/apps/solidarity-routing/libs/file-handling";
 
@@ -17,7 +15,7 @@
 // import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 
 // const useTabOptions = (type: "stop" | "driver") => {
-//   const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStops(
+//   const { setLocations, setActiveLocation, setIsStopSheetOpen } = useStopsStore(
 //     (state) => state
 //   );
 //   const { setDrivers, setActiveDriver, setIsDriverSheetOpen } = useDrivers(

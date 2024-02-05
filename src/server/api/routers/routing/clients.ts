@@ -2,7 +2,10 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { clientJobSchema } from "~/apps/solidarity-routing/types.wip";
+import {
+  ClientJobBundle,
+  clientJobSchema,
+} from "~/apps/solidarity-routing/types.wip";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const clientsRouter = createTRPCRouter({
@@ -11,14 +14,17 @@ export const clientsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const res = await Promise.all(
         input.data.map(async (clientJob) => {
-          const address = await ctx.prisma.address.create({
-            data: {
-              formatted: clientJob.client.address.formatted,
-              latitude: clientJob.client.address.latitude,
-              longitude: clientJob.client.address.longitude,
-              depotId: input.depotId,
-            },
-          });
+          let address = null;
+          if (clientJob.client.address) {
+            address = await ctx.prisma.address.create({
+              data: {
+                formatted: clientJob.client.address.formatted,
+                latitude: clientJob.client.address.latitude,
+                longitude: clientJob.client.address.longitude,
+                depotId: input.depotId,
+              },
+            });
+          }
 
           const client = await ctx.prisma.client.create({
             data: {
@@ -32,7 +38,7 @@ export const clientsRouter = createTRPCRouter({
           const job = await ctx.prisma.job.create({
             data: {
               depotId: input.depotId,
-              addressId: address.id,
+              addressId: address?.id,
               timeWindowStart: clientJob.job.timeWindowStart,
               timeWindowEnd: clientJob.job.timeWindowEnd,
               type: clientJob.job.type,
@@ -50,7 +56,7 @@ export const clientsRouter = createTRPCRouter({
             data: {
               address: {
                 connect: {
-                  id: address.id,
+                  id: address?.id,
                 },
               },
               defaultJobId: job.id,
@@ -87,6 +93,37 @@ export const clientsRouter = createTRPCRouter({
 
       return clients;
     }),
+
+  getCurrentDepotClientJobBundles: protectedProcedure
+    .input(z.object({ depotId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const clients = await ctx.prisma.client.findMany({
+        where: {
+          depotId: input.depotId,
+        },
+        include: {
+          address: true,
+          jobs: {
+            include: {
+              address: true,
+            },
+          },
+        },
+      });
+
+      const bundles = clients.map((client) => {
+        const defaultJob = client.jobs?.find(
+          (job) => job?.id === client?.defaultJobId
+        );
+        return {
+          client,
+          job: defaultJob,
+        };
+      });
+
+      return bundles as ClientJobBundle[];
+    }),
+
   deleteAllDepotClients: protectedProcedure
     .input(z.object({ depotId: z.number() }))
     .mutation(async ({ ctx, input }) => {

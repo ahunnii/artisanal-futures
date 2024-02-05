@@ -3,7 +3,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import DriverCard from "~/apps/solidarity-routing/components/drivers/driver-card";
 
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import { DriverOptionsBtn } from "../driver-options-btn.wip";
+import { DriverOptionsBtn } from "./driver-options-btn.wip";
 
 const DriversTab = () => {
   const { drivers } = useDriverVehicleBundles();

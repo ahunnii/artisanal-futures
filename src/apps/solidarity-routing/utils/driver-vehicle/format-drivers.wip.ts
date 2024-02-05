@@ -15,6 +15,7 @@ export const formatDriverFormDataToBundle = (
 ): DriverVehicleBundle => ({
   driver: {
     id: data.id,
+    type: "FULL_TIME",
     email: data.email,
     phone: data.phone,
     name: data.name,
@@ -26,6 +27,11 @@ export const formatDriverFormDataToBundle = (
   },
   vehicle: {
     id: uniqueId("vehicle_"),
+    startAddress: {
+      formatted: data.address.formatted,
+      latitude: data.address.latitude,
+      longitude: data.address.longitude,
+    },
     type: data.type,
     maxTravelTime: data?.maxTravelTime ?? 0,
     maxTasks: data?.maxTasks ?? 0,
@@ -42,6 +48,7 @@ export const formatDriverSheetRowToBundle = (
 ): DriverVehicleBundle => ({
   driver: {
     id: uniqueId("driver_"),
+    type: "FULL_TIME",
     name: data.name ?? "",
     address: {
       formatted: data.address ?? "",
@@ -54,6 +61,11 @@ export const formatDriverSheetRowToBundle = (
   vehicle: {
     id: uniqueId("vehicle_"),
     type: "DRIVER",
+    startAddress: {
+      formatted: data.address ?? "",
+      latitude: 0,
+      longitude: 0,
+    },
     capacity: data.default_capacity ?? 100,
     maxTasks: data.default_stops ?? 10,
     maxTravelTime: minutesToSeconds(data.default_travel_time ?? 60),

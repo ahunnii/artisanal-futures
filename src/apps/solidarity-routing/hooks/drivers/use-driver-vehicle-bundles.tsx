@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { useDrivers } from "./use-drivers";
+import { useDriversStore } from "./use-drivers-store";
 
 import {
   useParams,
@@ -26,31 +26,34 @@ export const useDriverVehicleBundles = () => {
 
   const depotId = params?.depotId as string;
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const user = session?.user ?? null;
 
-  const { data: depotDrivers, isLoading } =
+  const { mutate: createDBDrivers, isLoading: isDriverMutationLoading } =
+    api.drivers.createManyDriverAndVehicle.useMutation({
+      onSuccess: () => {
+        toast.success("Woohoo! Drivers created!");
+      },
+      onError: (e) => {
+        console.log(e);
+        toast.error("Oops! Something went wrong!");
+      },
+      onSettled: () => {
+        void apiContext.drivers.invalidate();
+      },
+    });
+
+  const { data: dbDrivers, isLoading } =
     api.drivers.getCurrentDepotDriverVehicleBundles.useQuery(
-      { depotId: 1 },
-      { enabled: user !== null }
+      {
+        depotId: Number(depotId),
+      },
+      {
+        enabled: status === "authenticated",
+      }
     );
 
-  // const { mutate: createDrivers, isLoading: isDriverMutationLoading } =
-  //   api.drivers.createManyDriverAndVehicle.useMutation({
-  //     onSuccess: () => {
-  //       toast.success("Woohoo! Drivers created!");
-  //     },
-  //     onError: (e) => {
-  //       console.log(e);
-  //       toast.error("Oops! Something went wrong!");
-  //     },
-  //     onSettled: () => {
-  //       clearDriverInput();
-  //       void apiContext.drivers.invalidate();
-  //     },
-  //   });
-
-  const sessionStorageDrivers = useDrivers((state) => state);
+  const sessionStorageDrivers = useDriversStore((state) => state);
 
   const checkIfSearchParamExistsInDrivers = (id: string | null) => {
     return sessionStorageDrivers.drivers?.some(
@@ -83,8 +86,8 @@ export const useDriverVehicleBundles = () => {
       console.log(id);
       updateDriverSearchParam(id);
 
-      if (user && depotDrivers) {
-        const depotDriver = depotDrivers?.find(
+      if (user && dbDrivers) {
+        const depotDriver = dbDrivers?.find(
           (bundle: DriverVehicleBundle) => bundle.driver.id === id
         );
 
@@ -132,6 +135,19 @@ export const useDriverVehicleBundles = () => {
     saveToDB?: boolean;
   }) => {
     sessionStorageDrivers.setDrivers(drivers);
+
+    if (saveToDB) createDBDrivers({ data: drivers, depotId: Number(depotId) });
+  };
+  const setRouteVehicles = ({
+    drivers,
+    saveToDB = false,
+  }: {
+    drivers: DriverVehicleBundle[];
+    saveToDB?: boolean;
+  }) => {
+    // sessionStorageDrivers.setDrivers(drivers);
+
+    if (saveToDB) createDBDrivers({ data: drivers, depotId: Number(depotId) });
   };
 
   //////
@@ -151,12 +167,28 @@ export const useDriverVehicleBundles = () => {
     sessionStorageDrivers.removeDriver(id);
   };
 
+  const getVehicleById = (id: string | null | undefined) => {
+    if (!id) return {};
+    return sessionStorageDrivers.drivers?.find(
+      (driver) => driver.vehicle.id === id
+    )?.vehicle;
+  };
+  const getDriverById = (id: string | null | undefined) => {
+    if (!id) return {};
+    return sessionStorageDrivers.drivers?.find(
+      (driver) => driver.driver.id === id
+    )?.driver;
+  };
+
   return {
-    status: user ? "authenticated" : "unauthenticated",
+    status: status,
 
     drivers: {
       all: sessionStorageDrivers.drivers,
+      stored: dbDrivers,
       isLoading: user ? isLoading : false,
+      active: sessionStorageDrivers.activeDriver,
+      addByLatLng: sessionStorageDrivers.addDriverByLatLng,
       setActive,
       setActiveById,
       isActive,
@@ -170,6 +202,10 @@ export const useDriverVehicleBundles = () => {
       removeDriver,
       isDriverSheetOpen: sessionStorageDrivers.isDriverSheetOpen,
       currentDriver: sessionStorageDrivers.activeDriver,
+      getVehicleById,
+      getDriverById,
+      isEditOpen: sessionStorageDrivers.isDriverEditPanelOpen,
+      setIsEditOpen: sessionStorageDrivers.setIsDriverEditPanelOpen,
     },
   };
 };

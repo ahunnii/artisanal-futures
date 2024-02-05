@@ -1,10 +1,10 @@
-import { parseSpreadSheet } from "../../libs/parse-csv.wip";
 import geocodingService from "../../services/autocomplete";
 import {
   ClientJobBundle,
   FileUploadHandler,
   VersionOneClientCSV,
 } from "../../types.wip";
+import { parseSpreadSheet } from "../generic/parse-csv.wip";
 import { formatClientSheetRowToBundle } from "./format-clients.wip";
 
 export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
@@ -45,8 +45,14 @@ export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
         console.log(err);
       });
       setIsLoading(false);
-
-      callback(revisedClients ?? []);
+      const tableData =
+        revisedClients?.map((driver) => {
+          return {
+            name: driver.client.name,
+            address: driver.client.address.formatted,
+          };
+        }) ?? [];
+      callback({ data: revisedClients ?? [], tableData });
     },
   });
 };

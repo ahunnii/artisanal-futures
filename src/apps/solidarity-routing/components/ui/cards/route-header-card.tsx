@@ -10,6 +10,7 @@ import { cn } from "~/utils/styles";
 import OnlineIndicator from "~/apps/solidarity-routing/components/ui/online-indicator";
 import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
 
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { convertSecondsToTime } from "~/apps/solidarity-routing/libs/time-formatting";
 import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
 import { metersToMiles } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
@@ -30,7 +31,17 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
   isOnline = false,
   isButton = false,
 }) => {
-  const { name: driverName } = JSON.parse(data.description ?? "{}");
+  const {
+    vehicleId,
+    driverId,
+  }: {
+    vehicleId: string | undefined | null;
+    driverId: string | undefined | null;
+  } = JSON.parse(data.description ?? "{}");
+
+  const { drivers } = useDriverVehicleBundles();
+
+  const driverName = drivers.getDriverById(driverId)?.name;
 
   const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
   const endTime = convertSecondsToTime(

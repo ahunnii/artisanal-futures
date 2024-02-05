@@ -52,7 +52,7 @@ const InteractiveRouteCard: FC<TInteractiveProps> = ({
     (step) => step.type === "job"
   ).length;
 
-  const { address: startingAddress } = JSON.parse(data.description ?? "{}");
+  const { vehicleId, driverId } = JSON.parse(data.description ?? "{}");
 
   const color = useMemo(() => getColor(textColor!).background, [textColor]);
 
@@ -139,7 +139,7 @@ const InteractiveRouteCard: FC<TInteractiveProps> = ({
           <RouteBreakdown
             steps={routeSteps}
             color={color}
-            startingAddress={startingAddress}
+            startingAddress={data.description}
           />
           <SheetFooter>
             {isTracking ? (

@@ -31,10 +31,23 @@ export type VersionOneClientCSV = {
   notes?: string;
 };
 
+export type UploadOptions<T> = {
+  type: keyof T;
+  parseHandler: FileUploadHandler<T>;
+  handleAccept: ({ data, saveToDB }: { data: T[]; saveToDB: boolean }) => void;
+  currentData?: T[] | null;
+};
+
 type UploadProps<T> = {
   event: React.ChangeEvent<HTMLInputElement>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  callback: (data: T[]) => void;
+  callback: ({
+    data,
+    tableData,
+  }: {
+    data: T[];
+    tableData: { name: string; address: string }[];
+  }) => void;
 };
 
 export type FileUploadHandler<T> = (props: UploadProps<T>) => void;
@@ -129,7 +142,7 @@ export const clientJobSchema = z.object({
 
 export const driverFormSchema = z.object({
   id: z.string(),
-  type: driverTypeSchema,
+  type: z.nativeEnum(DBDriverType),
   name: z
     .string()
     .min(2, {

@@ -11,6 +11,7 @@ import { depotsRouter } from "./routers/routing/depots";
 import { driversRouter } from "./routers/routing/drivers";
 import { finalizedRouter } from "./routers/routing/finalized";
 import { jobRouter } from "./routers/routing/jobs";
+import { routePlanRouter } from "./routers/routing/route-plan";
 import { vehicleRouter } from "./routers/routing/vehicles";
 import { shopsRouter } from "./routers/shops";
 import { surveysRouter } from "./routers/surveys";
@@ -25,6 +26,7 @@ export const appRouter = createTRPCRouter({
   example: exampleRouter,
   shops: shopsRouter,
   surveys: surveysRouter,
+  routePlan: routePlanRouter,
 
   auth: authRouter,
   user: userRouter,

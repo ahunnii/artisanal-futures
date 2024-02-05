@@ -1,48 +1,33 @@
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { CheckCircleIcon, type LucideIcon } from "lucide-react";
 
-import { CheckCircleIcon } from "lucide-react";
+import { type FC } from "react";
 
-import { forwardRef } from "react";
-
-import { Input } from "~/components/ui/input";
-
+import { Button } from "~/components/ui/button";
 import { cn } from "~/utils/styles";
-import type { UploadButtonProps } from "./homepage-onboarding.wip";
 
-export const HomePageOverviewImportBtn = forwardRef<
-  HTMLInputElement,
-  UploadButtonProps
->(({ Icon, caption, handleFileUpload, isProcessed, isProcessing }, ref) => {
-  return (
-    <>
-      <label
-        className={cn(
-          "relative flex w-full cursor-default flex-col items-center rounded-xl border  bg-muted text-card-foreground shadow transition-colors first-line:p-6 sm:p-10",
-          !isProcessed && "cursor-pointer bg-card hover:bg-muted/50"
-        )}
-      >
-        {isProcessing && <ReloadIcon className="h-10 w-10 animate-spin" />}
+export type HomePageImportBtnProps = {
+  Icon: LucideIcon;
+  caption: string;
+  isProcessed?: boolean;
+};
 
-        {!isProcessed && (
-          <Input
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleFileUpload}
-            ref={ref}
-          />
-        )}
+export const HomePageOverviewImportBtn: FC<HomePageImportBtnProps> = ({
+  isProcessed,
+  Icon,
+  caption,
+}) => (
+  <Button
+    className={cn(
+      "relative flex h-auto w-full cursor-default flex-col items-center rounded-xl border  bg-muted text-card-foreground shadow transition-colors first-line:p-6 hover:bg-muted/25 sm:p-10",
+      !isProcessed && "cursor-pointer bg-card hover:bg-muted/50"
+    )}
+  >
+    <Icon className="h-10 w-10" />
 
-        {!isProcessing && <Icon className="h-10 w-10" />}
+    {isProcessed && (
+      <CheckCircleIcon className="h-15 w-15 absolute right-3 top-3 fill-green-500 text-white" />
+    )}
 
-        {isProcessed && (
-          <CheckCircleIcon className="h-15 w-15 absolute right-3 top-3 fill-green-500 text-white" />
-        )}
-
-        <p className="mt-2 text-center font-medium">{caption}</p>
-      </label>
-    </>
-  );
-});
-
-HomePageOverviewImportBtn.displayName = "HomePageOverviewImportBtn";
+    <p className="mt-2 text-center font-medium">{caption}</p>
+  </Button>
+);

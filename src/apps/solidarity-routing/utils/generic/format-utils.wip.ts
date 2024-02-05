@@ -73,3 +73,34 @@ export const metersToMiles = (meters: number): number => {
 export const milesToMeters = (miles: number): number => {
   return miles * 1609.344;
 };
+
+export function cuidToNumber(cuid: string): number {
+  // Assuming cuid is a string that contains a numeric value
+  // You might want to parse the actual numeric part from the cuid
+  const numericPart = cuid.replace(/[^0-9]/g, "");
+
+  // Convert the numeric part to a number
+  const numericValue = parseInt(numericPart, 10);
+
+  // Return the resulting number
+  return numericValue;
+}
+
+function hashCode(s: string): number {
+  let hash = 0;
+  if (s.length === 0) return hash;
+  for (let i = 0; i < s.length; i++) {
+    const char = s.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+export function cuidToUniqueNumber(cuid: string): number {
+  // Use the hashCode function to convert the cuid to a unique number
+  const uniqueNumber = hashCode(cuid);
+
+  // Ensure the result is a positive number
+  return Math.abs(uniqueNumber);
+}

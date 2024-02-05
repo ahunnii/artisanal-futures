@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { stopData } from "../data/stops/stop-data";
 import type { ClientJobBundle } from "../types.wip";
 
-interface useStopsStore {
+interface IUseStopsStore {
   locations: ClientJobBundle[];
   activeLocation: ClientJobBundle | null;
 
@@ -22,7 +22,7 @@ interface useStopsStore {
   setIsStopSheetOpen: (isOpen: boolean) => void;
 }
 
-export const useStops = create<useStopsStore>()(
+export const useStopsStore = create<IUseStopsStore>()(
   persist(
     (set) => ({
       locations: [],

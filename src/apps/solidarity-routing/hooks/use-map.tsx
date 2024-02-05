@@ -11,12 +11,11 @@ import type {
   VroomResponse,
 } from "~/apps/solidarity-routing/types";
 
-import { useDrivers } from "./drivers/use-drivers";
-
 import { getCurrentLocation } from "~/apps/solidarity-routing/libs/realtime-utils";
+import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
+import { useClientJobBundles } from "./jobs/use-client-job-bundles";
 import { useDriverRoute } from "./use-driver-routes";
 import { useFinalizedRoutes } from "./use-finalized-routes";
-import { useStops } from "./use-stops";
 
 type TUseMapProps = {
   mapRef: Map;
@@ -33,9 +32,15 @@ const useMap = ({
   constantUserTracking = false,
 }: TUseMapProps) => {
   const { selectedRoute, routes } = useFinalizedRoutes((state) => state);
-  const { drivers, activeDriver } = useDrivers((state) => state);
-  const { locations, activeLocation } = useStops((state) => state);
+
+  const { drivers: bundles } = useDriverVehicleBundles();
+  const drivers = bundles?.all;
+  const activeDriver = bundles?.active;
+
+  // const { locations, activeLocation } = useStopsStore((state) => state);
   const { stops, selectedStop } = useDriverRoute((state) => state);
+  const { activeStop: activeLocation, stops: locations } =
+    useClientJobBundles();
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -155,25 +160,27 @@ const useMap = ({
     if (activeLocation && mapRef) flyTo(activeLocation?.job.address, 15);
   }, [activeLocation, mapRef, flyTo]);
 
-  useEffect(() => {
-    if (
-      ((locations && locations.length > 0) ||
-        (drivers && drivers.length > 0)) &&
-      mapRef
-    ) {
-      const bounds = L.latLngBounds(
-        [...locations, ...drivers].map(
-          (location) =>
-            [
-              location?.job?.address?.latitude,
-              location?.job?.address?.longitude,
-            ] as LatLngExpression
-        )
-      );
+  // useEffect(() => {
+  //   if (
+  //     ((locations && locations.length > 0) ||
+  //       (drivers && drivers.length > 0)) &&
+  //     mapRef
+  //   ) {
+  //     const bounds = L.latLngBounds(
+  //       [...locations, ...drivers].map(
+  //         (location) =>
+  //           [
+  //             location?.job?.address?.latitude ??
+  //               location?.vehicle?.start_location?.latitude,
+  //             location?.job?.address?.longitude ??
+  //               location?.vehicle?.start_location?.latitude,
+  //           ] as LatLngExpression
+  //       )
+  //     );
 
-      mapRef.fitBounds(bounds);
-    }
-  }, [locations, drivers, mapRef]);
+  //     mapRef.fitBounds(bounds);
+  //   }
+  // }, [locations, drivers, mapRef]);
 
   useEffect(() => {
     if (mapRef && stops && driverEnabled) {

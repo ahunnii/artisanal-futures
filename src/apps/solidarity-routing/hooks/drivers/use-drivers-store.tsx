@@ -24,9 +24,12 @@ interface useDriversStore {
 
   isDriverSheetOpen: boolean;
   setIsDriverSheetOpen: (isOpen: boolean) => void;
+
+  isDriverEditPanelOpen: boolean;
+  setIsDriverEditPanelOpen: (isOpen: boolean) => void;
 }
 
-export const useDrivers = create<useDriversStore>()(
+export const useDriversStore = create<useDriversStore>()(
   persist(
     (set) => ({
       drivers: [],
@@ -60,6 +63,10 @@ export const useDrivers = create<useDriversStore>()(
 
       isDriverSheetOpen: false,
       setIsDriverSheetOpen: (isDriverSheetOpen) => set({ isDriverSheetOpen }),
+
+      isDriverEditPanelOpen: false,
+      setIsDriverEditPanelOpen: (isDriverSheetOpen) =>
+        set({ isDriverSheetOpen }),
     }),
     {
       name: "driver-storage", // name of item in the storage (must be unique)

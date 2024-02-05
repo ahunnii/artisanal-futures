@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  driverSchema,
+  vehicleSchema,
+} from "~/apps/solidarity-routing/types.wip";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 

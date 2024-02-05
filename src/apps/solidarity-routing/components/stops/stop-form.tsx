@@ -25,7 +25,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
-import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
 import type { Coordinates } from "~/apps/solidarity-routing/types";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
@@ -58,7 +58,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     activeLocation,
     locations,
     setLocations,
-  } = useStops((state) => state);
+  } = useStopsStore((state) => state);
 
   const defaultValues: Partial<StopFormValues> = {
     id: activeLocation?.job.id ?? uniqueId("job_"),

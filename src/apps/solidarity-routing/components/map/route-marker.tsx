@@ -12,7 +12,7 @@ interface IProps extends MarkerProps {
   variant: "stop" | "car" | "depot" | "currentPosition";
   color: number;
   children: React.ReactNode;
-  id: number;
+  id: string;
   stopId?: number;
   data?: Stop | Driver | RouteData;
   onClick?: () => void;
@@ -96,7 +96,6 @@ const RouteMarker: FC<IProps> = ({
   position,
   color,
   variant,
-
   stopId,
   children,
   onClick,

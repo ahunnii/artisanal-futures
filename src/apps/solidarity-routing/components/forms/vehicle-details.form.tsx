@@ -26,21 +26,20 @@ type DriverDetailsSectionProps = {
 const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
   return (
     <AccordionItem value="item-2">
-      <AccordionTrigger>Vehicle Information</AccordionTrigger>
+      <AccordionTrigger className="px-2 text-lg">
+        Vehicle Details
+      </AccordionTrigger>
 
       <AccordionContent className="px-2">
-        {" "}
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
-          Add vehicle information to your driver. Leave values blank if it
-          does&apos;t matter to you.
-        </p>
         <div className="flex flex-col gap-4">
           <FormField
             control={form.control}
             name="maxTasks"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max Stops</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Max Stops
+                </FormLabel>
                 <FormControl>
                   <div className="relative ">
                     <Input
@@ -50,11 +49,11 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                       type="number"
                     />
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <span className="text-gray-500 sm:text-sm">min</span>
+                      <span className="text-gray-500 sm:text-sm">stops</span>
                     </div>
                   </div>
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs text-muted-foreground/75">
                   How many stops can this driver make in one day max?
                 </FormDescription>
                 <FormMessage />
@@ -66,7 +65,9 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
             name="maxTravelTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max Travel Time</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Max Travel Time
+                </FormLabel>
                 <FormControl>
                   <div className="relative ">
                     <Input
@@ -80,7 +81,7 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                     </div>
                   </div>
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs text-muted-foreground/75">
                   How long should they be on the road for max?
                 </FormDescription>
                 <FormMessage />
@@ -92,7 +93,9 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
             name="maxDistance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max Distance</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Max Distance
+                </FormLabel>
                 <FormControl>
                   <div className="relative ">
                     <Input
@@ -106,7 +109,7 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                     </div>
                   </div>
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs text-muted-foreground/75">
                   What is the furthest max distance you want your driver to
                   travel?
                 </FormDescription>

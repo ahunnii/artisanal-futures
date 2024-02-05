@@ -213,7 +213,7 @@ model Address {
   depot           Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
 
   drivers         Driver[]  @relation("AddressToDriver")
-  startVehicles   Vehicle[] @relation("StartAddressToVehicle")
+  vehicles        Vehicle[] @relation("StartAddressToVehicle")
   endVehicles     Vehicle[] @relation("EndAddressToVehicle")
   clients         Client[] 
   jobs            Job[]
@@ -376,7 +376,7 @@ model Route {
   id              String   @id @default(cuid())
   depotId         Int
   depot           Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
-  name            String
+  // name            String
   jobs            Job[]
   vehicles        Vehicle[]
   optimizedRoute  OptimizedRoutePath[]

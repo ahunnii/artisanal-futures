@@ -90,12 +90,18 @@ export const awsVroomProcessor: OptimizationProcessor<
       return {
         id: parseInt(uniqueId()),
         profile: "car",
-        description: `Driver ${bundle.driver.id} Vehicle ${bundle.vehicle.id}`,
+        description: JSON.stringify({
+          vehicleId: bundle.vehicle.id ?? null,
+          driverId: bundle.driver.id ?? null,
+        }),
         start: [
-          bundle.driver.address.longitude,
-          bundle.driver.address.latitude,
+          bundle.vehicle.startAddress.longitude,
+          bundle.vehicle.startAddress.latitude,
         ],
-        end: [bundle.driver.address.longitude, bundle.driver.address.latitude],
+        end: [
+          bundle.vehicle.startAddress.longitude,
+          bundle.vehicle.startAddress.latitude,
+        ],
         max_travel_time: bundle.vehicle.maxTravelTime ?? 10800,
 
         max_tasks: bundle.vehicle.maxTasks ?? 100,
@@ -124,12 +130,12 @@ export const awsVroomProcessor: OptimizationProcessor<
     const convertClientToJob = (bundle: ClientJobBundle) => {
       return {
         id: parseInt(uniqueId()),
-        description: `Client ${bundle.client.id} Job ${bundle.job.id}`,
+        description: JSON.stringify({
+          clientId: bundle.client.id ?? null,
+          jobId: bundle.job.id ?? null,
+        }),
         service: bundle.job.serviceTime ?? 1800,
-        location: [
-          bundle.client.address.longitude,
-          bundle.client.address.latitude,
-        ],
+        location: [bundle.job.address.longitude, bundle.job.address.latitude],
         skills: [1],
         priority: bundle.job.priority ?? 1,
         setup: bundle.job.prepTime ?? 0,

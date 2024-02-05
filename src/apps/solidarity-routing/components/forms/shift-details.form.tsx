@@ -34,15 +34,16 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
   });
   return (
     <AccordionItem value="item-3">
-      <AccordionTrigger>Shift Information</AccordionTrigger>
-      <AccordionContent className="px-2">
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
-          Add specific information about this shift.
-        </p>
+      <AccordionTrigger className="px-2 text-lg">
+        Shift Details
+      </AccordionTrigger>
 
-        <div className="space-y-4 p-4">
-          <FormItem className="py-4">
-            <FormLabel>Driver Shift</FormLabel>
+      <AccordionContent className="px-2">
+        <div className="flex flex-col space-y-4">
+          <FormItem className="w-full">
+            <FormLabel className="text-sm font-normal text-muted-foreground">
+              Driver Shift
+            </FormLabel>
             <div className="center mt-5 flex flex-col ">
               <Controller
                 render={({ field }) => (
@@ -78,9 +79,11 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
             <FormMessage />
           </FormItem>
 
-          <div className="my-4 flex flex-col border border-slate-200 bg-slate-50 p-4">
-            <div className="flex justify-between">
-              <FormLabel className="text-lg">Breaks</FormLabel>
+          <div className="w-full">
+            <div className="flex items-center justify-between">
+              <FormLabel className="text-sm font-normal text-muted-foreground">
+                Breaks
+              </FormLabel>
 
               <Button
                 onClick={() =>
@@ -90,15 +93,16 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                   })
                 }
                 type="button"
-                size={"sm"}
-                className="flex space-x-1"
+                size={"icon"}
+                // className="flex space-x-1"
                 disabled={fields.length >= 3}
               >
-                <Plus className="h-4 w-4" /> <span>Add Break</span>
+                <Plus className="h-4 w-4" />{" "}
+                <span className="sr-only">Add Break</span>
               </Button>
             </div>
             {/* <div className="mt-5 flex max-h-96 flex-col space-y-4 overflow-y-auto border border-slate-200"> */}
-            <ScrollArea className="relative my-2 h-72 flex-col shadow-inner">
+            <ScrollArea className="relative my-2 h-52 flex-col shadow-inner">
               <>
                 {fields.map((item, index) => {
                   return (
@@ -112,33 +116,34 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                       <div className="space-y-4 pl-2">
                         <Controller
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Break {index + 1}</FormLabel>
-                              <div className="flex w-full gap-4">
-                                <div className="relative w-full ">
-                                  <Input
-                                    placeholder="e.g. 30"
-                                    className="block w-full rounded-md py-1.5 pr-12  text-gray-900     sm:text-sm sm:leading-6"
-                                    {...field}
-                                    type="number"
-                                  />
-                                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                                    <span className="text-gray-500 sm:text-sm">
-                                      min
-                                    </span>
-                                  </div>
-                                </div>
+                            <FormItem className="flex w-full items-center gap-2">
+                              <FormLabel className="mt-2">
+                                #{index + 1}
+                              </FormLabel>
 
-                                <Button
-                                  onClick={() => remove(index)}
-                                  variant="destructive"
-                                  className="space-x-1 text-xs"
-                                  type="button"
-                                  size={"sm"}
-                                >
-                                  <Trash className="h-4 w-4" />{" "}
-                                </Button>
+                              <div className="relative flex w-1/2">
+                                <Input
+                                  placeholder="e.g. 30"
+                                  className="block w-full rounded-md pr-12  text-gray-900     sm:text-sm sm:leading-6"
+                                  {...field}
+                                  type="number"
+                                />
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                  <span className="text-gray-500 sm:text-sm">
+                                    min
+                                  </span>
+                                </div>
                               </div>
+
+                              <Button
+                                onClick={() => remove(index)}
+                                variant="destructive"
+                                className=" text-xs"
+                                type="button"
+                                size={"sm"}
+                              >
+                                <Trash className="h-4 w-4" />{" "}
+                              </Button>
 
                               <FormMessage />
                             </FormItem>
@@ -154,8 +159,8 @@ const ShiftDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
               </>
             </ScrollArea>
             <FormDescription>
-              Add a list of breaks that the driver can take. Indicating just the
-              duration will assume anytime during the shift.
+              Add a list of breaks that the driver can take. These will be taken
+              at any time during the shift.
             </FormDescription>{" "}
             <FormMessage />
           </div>

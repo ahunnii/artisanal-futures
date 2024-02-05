@@ -25,10 +25,10 @@ import {
 } from "~/components/ui/dialog";
 import { api } from "~/utils/api";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import { parseSpreadSheet } from "../../libs/parse-csv.wip";
 import { DriverVehicleBundle, VersionOneDriverCSV } from "../../types.wip";
+import { parseSpreadSheet } from "../../utils/generic/parse-csv.wip";
 import { DriverDBSelect } from "../drivers/driver-db-select.wip";
-import { FileUploadHandler } from "../homepage-onboarding.wip";
+import { FileUploadHandler } from "../homepage-onboarding-card.wip";
 
 const TabOptions: FC<TTabOptions> = ({ type, className }) => {
   const { status } = useSession();
@@ -41,26 +41,6 @@ const TabOptions: FC<TTabOptions> = ({ type, className }) => {
       { depotId: 1 },
       { enabled: status === "authenticated" }
     );
-  //   <Button variant="outline" className="basis-1/4 capitalize">
-  //   Add {type} from Database
-  // </Button>
-  // const {
-  //   populateFromDatabase,
-  //   populateCustomerCSV,
-  //   handleCSVUpload,
-  //   addNewItem,
-  //   isUserArtisan,
-  //   DatabaseSelect,
-  //   handleAddFromDatabase,
-  // } = useTabOptions(type);
-
-  //   const handleDriverFileUpload:FileUploadHandler = (event) => {
-  //     parseSpreadSheet<VersionOneDriverCSV, DriverVehicleBundle>(
-  // {
-
-  //     }
-
-  //   })
 
   return (
     <></>

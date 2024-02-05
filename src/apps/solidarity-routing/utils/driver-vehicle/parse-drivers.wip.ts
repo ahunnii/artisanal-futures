@@ -1,10 +1,10 @@
-import { parseSpreadSheet } from "../../libs/parse-csv.wip";
 import geocodingService from "../../services/autocomplete";
 import type {
   DriverVehicleBundle,
   FileUploadHandler,
   VersionOneDriverCSV,
 } from "../../types.wip";
+import { parseSpreadSheet } from "../generic/parse-csv.wip";
 import { formatDriverSheetRowToBundle } from "./format-drivers.wip";
 
 export const handleDriverSheetUpload: FileUploadHandler<
@@ -39,8 +39,14 @@ export const handleDriverSheetUpload: FileUploadHandler<
       });
 
       setIsLoading(false);
-
-      callback(revisedDrivers ?? []);
+      const tableData =
+        revisedDrivers?.map((driver) => {
+          return {
+            name: driver.driver.name,
+            address: driver.driver.address.formatted,
+          };
+        }) ?? [];
+      callback({ data: revisedDrivers ?? [], tableData });
     },
   });
 };

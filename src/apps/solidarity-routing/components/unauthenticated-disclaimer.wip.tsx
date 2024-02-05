@@ -27,7 +27,6 @@ import {
   formatClientSheetRow,
   formatDriverSheetRow,
 } from "../libs/format-csv.wip";
-import { parseSpreadSheet } from "../libs/parse-csv.wip";
 import geocodingService from "../services/autocomplete";
 import type {
   ClientJobBundle,
@@ -35,6 +34,8 @@ import type {
   VersionOneClientCSV,
   VersionOneDriverCSV,
 } from "../types.wip";
+import { formatClientSheetRowToBundle } from "../utils/client-job/format-clients.wip";
+import { parseSpreadSheet } from "../utils/generic/parse-csv.wip";
 import { ClientsPreviewModal } from "./clients-preview-modal.wip";
 import { DriversPreviewModal } from "./drivers-preview-modal.wip";
 import { HomePageOverviewImportBtn } from "./homepage-overview-import-btn";
@@ -157,7 +158,7 @@ export const UnauthenticatedDisclaimer = ({ date }: { date: Date }) => {
     setIsFileClientUploading(true);
     parseSpreadSheet<VersionOneClientCSV, ClientJobBundle>({
       file: event.target.files![0]!,
-      parser: formatClientSheetRow,
+      parser: formatClientSheetRowToBundle,
       onComplete: async (data: ClientJobBundle[]) => {
         const revisedClients = await Promise.all(
           data.map(async (clientJobBundle) => {

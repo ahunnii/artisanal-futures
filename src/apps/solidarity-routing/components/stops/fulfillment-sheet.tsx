@@ -7,19 +7,15 @@ import {
   SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 const StopSheet = () => {
-  const {
-    activeLocation,
-    setActiveLocation,
-    isStopSheetOpen,
-    setIsStopSheetOpen,
-  } = useStops((state) => state);
+  const { activeStop, setActiveStopById, isStopSheetOpen, setStopSheetState } =
+    useClientJobBundles();
 
   const handleOnOpenChange = (state: boolean) => {
-    setActiveLocation(null);
-    setIsStopSheetOpen(state);
+    if (!state) setActiveStopById(null);
+    setStopSheetState(state);
   };
 
   return (
@@ -30,7 +26,7 @@ const StopSheet = () => {
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">
-            {activeLocation ? "Edit Stop" : "Add Stop"}
+            {activeStop ? "Edit Stop" : "Add Stop"}
           </SheetTitle>
           <SheetDescription className="text-center md:text-left">
             Fill out the table below to start adding destinations to the map.

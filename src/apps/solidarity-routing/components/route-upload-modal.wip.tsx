@@ -1,4 +1,6 @@
 import { DialogTrigger } from "@radix-ui/react-dialog";
+import { FilePlus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -10,17 +12,22 @@ import {
 } from "~/components/ui/dialog";
 
 export const RouteUploadModal = ({
-  open,
-  setOpen,
+  // open,
+  // setOpen,
+  variant = "default",
 }: {
-  open: boolean;
+  // open: boolean;
+  variant?: "outline" | "default" | "secondary" | "ghost";
 
-  setOpen: (open: boolean) => void;
+  // setOpen: (open: boolean) => void;
 }) => {
+  const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Create a route using a spreadsheet</Button>
+        <Button variant={variant} className="flex w-full items-center gap-2">
+          <FilePlus className="h-5 w-5" /> Create a route using a spreadsheet
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>

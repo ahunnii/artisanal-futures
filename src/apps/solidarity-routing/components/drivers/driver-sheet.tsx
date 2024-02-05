@@ -25,10 +25,14 @@ const DriverSheet = () => {
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">
-            {drivers.currentDriver ? "Edit Driver" : "Add Driver"}
+            {drivers.currentDriver
+              ? `${drivers?.currentDriver?.driver?.name}`
+              : "Add Driver"}
           </SheetTitle>
           <SheetDescription className="text-center md:text-left">
-            Fill out the table below to start adding destinations to the map.
+            {drivers.currentDriver
+              ? `Changes made will only apply to this route.`
+              : "Fill out the table below to start adding destinations to the map."}
           </SheetDescription>
         </SheetHeader>
 

@@ -18,20 +18,21 @@ import {
 } from "~/components/ui/collapsible";
 import { Separator } from "~/components/ui/separator";
 
-import { useStops } from "~/apps/solidarity-routing/hooks/use-stops";
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
 
 import { convertSecondsToMinutesAndHours } from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import { metersToMiles } from "../../utils/generic/format-utils.wip";
 
 interface CardProps extends ComponentProps<typeof Card> {
   data: OptimizationData;
 }
 export function OptimizationSummary({ data, className, ...props }: CardProps) {
+  console.log(data);
   const [isOpen, setIsOpen] = useState(false);
-  const { setActiveLocationById, setIsStopSheetOpen } = useStops(
-    (state) => state
-  );
+
+  const { setActiveStopById, setStopSheetState } = useClientJobBundles();
 
   const duration = convertSecondsToMinutesAndHours(
     data?.summary?.duration
@@ -90,23 +91,23 @@ export function OptimizationSummary({ data, className, ...props }: CardProps) {
           <CollapsibleContent>
             <div className="py-4">
               {data?.unassigned.map((stop, index) => {
-                const { name, address } = JSON.parse(stop.description ?? "{}");
+                // const { name, address } = JSON.parse(stop.description ?? "{}");
                 return (
                   <div
                     key={index}
                     className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
                     onClick={() => {
-                      setActiveLocationById(stop.id);
-                      setIsStopSheetOpen(true);
+                      setActiveStopById(`${stop.id}`);
+                      setStopSheetState(true);
                     }}
                   >
                     <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                     <div className="space-y-0.5 text-left">
                       <p className="text-sm font-medium capitalize leading-none">
-                        {name}
+                        {stop?.description}
                       </p>
                       <p className="text-xs font-medium leading-none">
-                        {address}
+                        {stop?.description}
                       </p>
                     </div>
                   </div>

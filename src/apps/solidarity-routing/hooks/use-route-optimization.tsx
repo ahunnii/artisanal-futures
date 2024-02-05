@@ -1,23 +1,19 @@
-import polyline from "@mapbox/polyline";
-import axios from "axios";
 import { useEffect, useState } from "react";
-import type {
-  OptimizationData,
-  Polyline,
-  RouteData,
-  VroomResponse,
-} from "~/apps/solidarity-routing/types";
+import type { RouteData } from "~/apps/solidarity-routing/types";
 
 import toast from "react-hot-toast";
 import { getUniqueKey } from "~/apps/solidarity-routing/libs/unique-key";
 
 import optimizationService from "../services/optimization";
-import { useDrivers } from "./drivers/use-drivers";
+import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
+
+import { useClientJobBundles } from "./jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
-import { useStops } from "./use-stops";
+import { useStopsStore } from "./use-stops-store";
+
 type FilteredLocation = {
-  job_id: number;
-  vehicle_id: number;
+  job_id: string;
+  vehicle_id: string;
 };
 
 const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
@@ -27,7 +23,7 @@ const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
     for (const step of route.steps) {
       if (step.type === "job" && step.id !== undefined) {
         const jobId = step.id;
-        result.push({ job_id: jobId, vehicle_id: vehicleId });
+        result.push({ job_id: `${jobId}`, vehicle_id: `${vehicleId}` });
       }
     }
   }
@@ -35,8 +31,10 @@ const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
 };
 
 const useRouteOptimization = () => {
-  const drivers = useDrivers((state) => state.drivers);
-  const locations = useStops((state) => state.locations);
+  const { drivers: bundles } = useDriverVehicleBundles();
+  const drivers = bundles?.all;
+
+  const { stops: locations } = useClientJobBundles();
   const [filteredLocations, setFilteredLocations] = useState<
     FilteredLocation[]
   >([]);

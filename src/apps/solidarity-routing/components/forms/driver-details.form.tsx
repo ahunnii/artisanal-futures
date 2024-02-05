@@ -35,6 +35,7 @@ import { Separator } from "~/components/ui/separator";
 
 import type { Driver, DriverFormValues } from "../../types.wip";
 
+import { DriverType } from "@prisma/client";
 import { env } from "~/env.mjs";
 
 type DriverDetailsSectionProps = {
@@ -80,14 +81,16 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
 
   return (
     <AccordionItem value="item-1">
-      <AccordionTrigger>Driver Details</AccordionTrigger>
+      <AccordionTrigger className="px-2 text-lg">
+        Driver Details
+      </AccordionTrigger>
 
       <AccordionContent className="px-2">
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
+        {/* <p className="leading-7 [&:not(:first-child)]:mt-6">
           You can either select a driver from the list of drivers available in
           your database, or create a temporary one.
-        </p>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">Select driver</p>
+        </p> */}
+        {/* <p className="leading-7 [&:not(:first-child)]:mt-6">Select driver</p>
 
         <FormField
           control={form.control}
@@ -128,7 +131,7 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
 
         <p className="leading-7 [&:not(:first-child)]:mt-6">
           Or create a temporary one:
-        </p>
+        </p> */}
 
         <div className="flex flex-col space-y-4">
           <FormField
@@ -136,7 +139,9 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
             name="name"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Driver&apos;s Name</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Full Name
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Your driver's name" {...field} />
                 </FormControl>
@@ -151,7 +156,9 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
               control={form.control}
               render={({ field: { onChange, value } }) => (
                 <FormItem>
-                  <FormLabel>Starting Address</FormLabel>
+                  <FormLabel className="text-sm font-normal text-muted-foreground">
+                    Roundtrip Address
+                  </FormLabel>
 
                   <GooglePlacesAutocomplete
                     selectProps={{
@@ -173,11 +180,9 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
                     }}
                   />
 
-                  <FormDescription>
-                    This is the address where the driver will deliver the
-                    package. Coordinates are <br /> Lat:{" "}
-                    {form.watch("address.latitude") ?? 0} &nbsp; Lng:{" "}
-                    {form.watch("address.longitude") ?? 0}
+                  <FormDescription className="text-xs text-muted-foreground/75">
+                    This is where the driver typically starts and stops their
+                    route.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -190,7 +195,9 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
             name="email"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Driver&apos;s email</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Email
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. test@test.com" {...field} />
                 </FormControl>
@@ -204,9 +211,44 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({
             name="phone"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Driver&apos;s phone</FormLabel>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Phone
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="ex. 333-334-2233" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  {" "}
+                  Driver Type
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a driver" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Select a type</SelectLabel>
+                        {Object.keys(DriverType).map((driver) => (
+                          <SelectItem value={driver} key={driver}>
+                            {driver}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

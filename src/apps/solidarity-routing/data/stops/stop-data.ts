@@ -1,5 +1,10 @@
 import { uniqueId } from "lodash";
-import { jobTypeSchema, type ClientJobBundle } from "../../types.wip";
+import {
+  UploadOptions,
+  jobTypeSchema,
+  type ClientJobBundle,
+} from "../../types.wip";
+import { handleClientSheetUpload } from "../../utils/client-job/parse-clients.wip";
 import {
   militaryTimeToUnixSeconds,
   minutesToSeconds,
@@ -43,3 +48,29 @@ const clientJobDefaults = {
   timeWindowEnd: militaryTimeToUnixSeconds("09:00"),
   notes: "",
 };
+
+export const clientJobUploadOptions = ({
+  jobs,
+  setJobs,
+  status,
+}: {
+  jobs: ClientJobBundle[];
+  setJobs: ({
+    stops,
+    saveToDB,
+  }: {
+    stops: ClientJobBundle[];
+    saveToDB: boolean;
+  }) => void;
+  status: "authenticated" | "unauthenticated" | "loading" | "error";
+}): UploadOptions<ClientJobBundle> => ({
+  type: "client" as keyof ClientJobBundle,
+  parseHandler: handleClientSheetUpload,
+  handleAccept: ({ data, saveToDB }) => {
+    setJobs({
+      stops: data,
+      saveToDB: status === "authenticated" && saveToDB,
+    });
+  },
+  currentData: jobs,
+});
