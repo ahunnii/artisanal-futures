@@ -39,14 +39,11 @@ const LazyRoutingMap = dynamic(
 /**
  * Page component that allows users to generate routes based on their input.
  */
-const RoutingPage = () => {
+const SandboxRoutingPage = () => {
   const [tabValue, setTabValue] = useState<string>("plan");
 
-  const { drivers: bundles } = useDriverVehicleBundles();
-
-  const stopBundles = useClientJobBundles();
-
-  const drivers = bundles?.all;
+  const drivers = useDriverVehicleBundles();
+  const stops = useClientJobBundles();
 
   useEffect(() => {
     void useStopsStore.persist.rehydrate();
@@ -64,7 +61,7 @@ const RoutingPage = () => {
     window.open("/tools/routing/tracking", "_blank");
 
   const isRouteDataMissing =
-    stopBundles?.stored?.length === 0 || drivers.length === 0;
+    stops.fromStoreState?.length === 0 || drivers.fromStoreState.length === 0;
 
   return (
     <>
@@ -133,7 +130,8 @@ const RoutingPage = () => {
                     onClick={calculateOptimalPaths}
                     className="gap-2"
                     disabled={
-                      stopBundles?.stored?.length === 0 || drivers.length === 0
+                      stops.fromStoreState?.length === 0 ||
+                      drivers.fromStoreState.length === 0
                     }
                   >
                     Calculate Routes <ArrowRight />
@@ -151,7 +149,8 @@ const RoutingPage = () => {
             <BottomSheet
               title="Calculate"
               isDisabled={
-                stopBundles?.stored?.length === 0 || drivers.length === 0
+                stops.fromStoreState?.length === 0 ||
+                drivers.fromStoreState.length === 0
               }
               handleOnClick={calculateOptimalPaths}
             >
@@ -167,62 +166,11 @@ const RoutingPage = () => {
               Track
             </Button>
           </div>
-          {/* <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" /> */}
+          <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
         </section>
       </RouteLayout>
     </>
   );
 };
 
-// export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-//   const user = await authenticateUser(ctx);
-
-//   if (!user)
-//     return {
-//       props: {},
-//     };
-
-//   const ownedDepot = await prisma.depot.findUnique({
-//     where: {
-//       ownerId: user.id,
-//     },
-//   });
-
-//   const allowedDepots = await prisma.depot.findMany({
-//     where: {
-//       users: {
-//         some: {
-//           id: user.id,
-//         },
-//       },
-//     },
-//   });
-
-//   if (!ownedDepot && allowedDepots.length === 0) {
-//     // Create a new depot and redirect to it
-//     const newDepot = await prisma.depot.create({
-//       data: {
-//         name: "New Depot",
-//         ownerId: user.id,
-//       },
-//     });
-
-//     return {
-//       redirect: {
-//         destination: `/tools/routing/${newDepot.id}?welcome=true`,
-//         permanent: false,
-//       },
-//     };
-//   } else {
-//     //Redirect to owned or allowed
-//     const depotId = ownedDepot?.id ?? allowedDepots[0]?.id ?? "";
-
-//     return {
-//       redirect: {
-//         destination: `/tools/routing/${depotId}`,
-//         permanent: false,
-//       },
-//     };
-//   }
-// };
-export default RoutingPage;
+export default SandboxRoutingPage;

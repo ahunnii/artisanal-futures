@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { uniqueId } from "lodash";
 import { Trash } from "lucide-react";
-import { useMemo, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 
 import GooglePlacesAutocomplete, {
   geocodeByAddress,
@@ -38,11 +38,16 @@ import {
 import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
 
+import { useSession } from "next-auth/react";
+import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
+import { Accordion } from "~/components/ui/accordion";
 import { StopFormValues, stopFormSchema } from "../../types.wip";
 import {
   secondsToMinutes,
   unixSecondsToMilitaryTime,
 } from "../../utils/generic/format-utils.wip";
+import ClientDetailsSection from "../forms/client-detail-form";
+import StopDetailsSection from "../forms/stop-details-form";
 
 type Library = "places";
 const libraries: Library[] = ["places"];
@@ -59,6 +64,10 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
     locations,
     setLocations,
   } = useStopsStore((state) => state);
+
+  const [open, setOpen] = useState(false);
+  const { status } = useSession();
+  const [loading, setLoading] = useState(false);
 
   const defaultValues: Partial<StopFormValues> = {
     id: activeLocation?.job.id ?? uniqueId("job_"),
@@ -148,13 +157,72 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-        className=" flex h-full flex-col justify-between space-y-8  md:h-[calc(100vh-15vh)] lg:flex-grow"
-      >
-        <ScrollArea className="relative flex h-full  w-full flex-1  max-md:max-h-[60vh]">
-          <div className=" w-full space-y-4">
+    <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onDelete}
+        loading={loading}
+      />
+      <Form {...form}>
+        <form
+          onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+          className=" flex h-full flex-col justify-between space-y-8  md:h-[calc(100vh-15vh)] lg:flex-grow"
+        >
+          {activeLocation && (
+            <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={"destructive"}
+                  onClick={() => setOpen(true)}
+                >
+                  <Trash className="h-4 w-4" />
+                  <span className="sr-only">Delete</span>
+                </Button>
+
+                {status === "authenticated" && (
+                  <Button type="submit" className="flex-1" variant={"outline"}>
+                    {activeLocation ? "Set as client default" : "Save and add"}
+                  </Button>
+                )}
+
+                <Button type="submit" className="flex-1">
+                  {activeLocation ? "Update" : "Add"} stop
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!activeLocation && (
+            <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
+              <div className="flex items-center justify-between gap-3">
+                {status === "authenticated" && (
+                  <Button type="submit" className="flex-1" variant={"outline"}>
+                    Save driver to depot
+                  </Button>
+                )}
+
+                <Button type="submit" className="flex-1">
+                  Add driver
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <ScrollArea className="relative flex h-full  w-full flex-1  max-md:max-h-[60vh]">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full px-4"
+              defaultValue="item-1"
+            >
+              <StopDetailsSection form={form} />
+              <ClientDetailsSection form={form} />
+            </Accordion>
+
+            {/* <div className=" w-full space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -412,24 +480,25 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
                 )}
               />
             </div>
+          </div> */}
+          </ScrollArea>
+          <div className="mt-auto flex gap-4 ">
+            {/* <Button
+              type="button"
+              className="flex gap-4"
+              variant={"destructive"}
+              onClick={onDelete}
+            >
+              <Trash />
+              Delete
+            </Button>
+            <Button type="submit" className="flex-1">
+              {activeLocation ? "Update" : "Add"} stop
+            </Button> */}
           </div>
-        </ScrollArea>
-        <div className="mt-auto flex gap-4 ">
-          <Button
-            type="button"
-            className="flex gap-4"
-            variant={"destructive"}
-            onClick={onDelete}
-          >
-            <Trash />
-            Delete
-          </Button>
-          <Button type="submit" className="flex-1">
-            {activeLocation ? "Update" : "Add"} stop
-          </Button>
-        </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </>
   );
 };
 

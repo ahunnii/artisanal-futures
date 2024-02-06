@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Truck } from "lucide-react";
+import { MapPin, Truck, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 
 import { Button } from "~/components/ui/button";
@@ -18,6 +18,9 @@ import { useDriverVehicleBundles } from "../hooks/drivers/use-driver-vehicle-bun
 import { handleDriverSheetUpload } from "../utils/driver-vehicle/parse-drivers.wip";
 import { FileUploadModal } from "./file-upload-modal.wip";
 
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
+import { api } from "~/utils/api";
 import {
   HomePageOverviewImportBtn,
   type HomePageImportBtnProps,
@@ -35,29 +38,54 @@ interface IProps {
 export const HomePageOnboardingCard = ({ date, status }: IProps) => {
   const params = useParams();
   const depotId = params?.depotId as string;
+  const router = useRouter();
+  const drivers = useDriverVehicleBundles();
 
-  const { drivers } = useDriverVehicleBundles();
+  const { mutate: createRoute } = api.routePlan.createRoutePlan.useMutation({
+    onSuccess: (data) => {
+      toast.success("Route created!");
+      void router.push(
+        `/tools/solidarity-pathways/${depotId}/route/${data.id}`
+      );
+    },
+    onError: (error) => {
+      toast.error("There was an error creating the route. Please try again.");
+      console.error(error);
+    },
+    onSettled: () => {
+      console.log("settled");
+    },
+  });
 
   const driverImportButtonProps = {
     button: {
       Icon: Truck,
       caption: "Add your drivers from spreadsheet",
-      isProcessed: drivers?.all?.length > 0,
+      isProcessed: drivers.fromDepot.length > 0,
     },
     fileUpload: {
       type: "driver" as keyof DriverVehicleBundle,
       parseHandler: handleDriverSheetUpload,
-      handleAccept: ({ data, saveToDB }) => {
-        console.log("data", data);
-        console.log("saveToDB", saveToDB);
-        drivers.setDrivers({
+      handleAccept: ({ data }) => {
+        drivers.assignToDepot({
           drivers: data,
-          saveToDB: status === "authenticated" && saveToDB,
         });
       },
-      currentData: drivers.all,
+      currentData: drivers.fromDepot,
     },
   } as UploadButtonOptions<DriverVehicleBundle>;
+
+  const clientImportButtonProps = {
+    Icon: Users,
+    caption: "Add your drivers from spreadsheet",
+    isProcessed: false,
+  };
+
+  const routeImportButtonProps = {
+    Icon: MapPin,
+    caption: "Add your clients from spreadsheet",
+    isProcessed: false,
+  };
 
   return (
     <>
@@ -104,13 +132,30 @@ export const HomePageOnboardingCard = ({ date, status }: IProps) => {
                 />
               </span>
             </FileUploadModal>
+
+            <span>
+              <HomePageOverviewImportBtn
+                {...clientImportButtonProps}
+                isDisabled={true}
+              />
+            </span>
+            <span>
+              <HomePageOverviewImportBtn
+                {...routeImportButtonProps}
+                isDisabled={true}
+              />
+            </span>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-4">
-          <Button variant="outline">Nah, I&apos;ll just do it later </Button>
-          <Button>Upload data and continue </Button>
-
-          <Button></Button>
+          <Button
+            variant="outline"
+            onClick={() =>
+              createRoute({ depotId: Number(params.depotId), date })
+            }
+          >
+            Nah, I&apos;ll just do it later{" "}
+          </Button>
         </CardFooter>
       </Card>
     </>

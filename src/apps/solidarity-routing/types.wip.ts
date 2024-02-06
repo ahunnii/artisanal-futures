@@ -1,4 +1,8 @@
-import { DriverType as DBDriverType, type Prisma } from "@prisma/client";
+import {
+  DriverType as DBDriverType,
+  JobType as DBJobType,
+  type Prisma,
+} from "@prisma/client";
 
 import * as z from "zod";
 
@@ -34,7 +38,7 @@ export type VersionOneClientCSV = {
 export type UploadOptions<T> = {
   type: keyof T;
   parseHandler: FileUploadHandler<T>;
-  handleAccept: ({ data, saveToDB }: { data: T[]; saveToDB: boolean }) => void;
+  handleAccept: ({ data, saveToDB }: { data: T[]; saveToDB?: boolean }) => void;
   currentData?: T[] | null;
 };
 
@@ -76,7 +80,7 @@ const jobSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
   }),
-  type: jobTypeSchema,
+  type: z.nativeEnum(DBJobType),
   serviceTime: z.number(),
   prepTime: z.number(),
   priority: z.number(),
@@ -99,11 +103,15 @@ export const driverSchema = z.object({
   }),
   email: z.string().email(),
   phone: z.coerce.string(),
+  defaultVehicleId: z.string().optional(),
+  addressId: z.string().optional(),
 });
 
 export const vehicleSchema = z.object({
   id: z.string(),
-  type: driverTypeSchema,
+  type: z.string().optional(),
+  startAddressId: z.string().optional(),
+
   startAddress: z.object({
     formatted: z.string(),
     latitude: z.number(),
@@ -142,6 +150,7 @@ export const clientJobSchema = z.object({
 
 export const driverFormSchema = z.object({
   id: z.string(),
+  vehicleId: z.string().optional(),
   type: z.nativeEnum(DBDriverType),
   name: z
     .string()
@@ -152,8 +161,11 @@ export const driverFormSchema = z.object({
       message: "Name must not be longer than 30 characters.",
     }),
   email: z.string().email(),
-  phone: z.string().regex(/^\d{3}-\d{3}-\d{4}$/, {
-    message: "Phone number must be in the format XXX-XXX-XXXX.",
+  // phone: z.string().regex(/^\d{3}-\d{3}-\d{4}$/, {
+  //   message: "Phone number must be in the format XXX-XXX-XXXX.",
+  // }),
+  phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, {
+    message: "Phone number must be in the format (XXX) XXX-XXXX.",
   }),
   address: z.object({
     formatted: z.string(),
@@ -185,7 +197,7 @@ export const driverFormSchema = z.object({
 
 export const stopFormSchema = z.object({
   id: z.string(),
-  type: jobTypeSchema,
+  type: z.nativeEnum(DBJobType),
   name: z
     .string()
     .min(2, {
@@ -227,6 +239,8 @@ export const stopFormSchema = z.object({
 export type StopFormValues = z.infer<typeof stopFormSchema>;
 
 export type DriverType = DBDriverType;
+export type JobType = DBJobType;
+
 export type DriverFormValues = z.infer<typeof driverFormSchema>;
 
 export type DriverVehicleBundle = z.infer<typeof driverVehicleSchema>;

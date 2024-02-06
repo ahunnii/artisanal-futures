@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { Settings, UserPlus } from "lucide-react";
+import { FilePlus, Settings, UserPlus } from "lucide-react";
 
 import { DriverSheet } from "~/apps/solidarity-routing/components/drivers";
 import { StopSheet } from "~/apps/solidarity-routing/components/stops";
@@ -26,6 +26,10 @@ import { Button } from "~/components/ui/button";
 
 import { useSession } from "next-auth/react";
 
+import { DriverAddSheet } from "~/apps/solidarity-routing/components/drivers/driver-add-sheet";
+import { FileUploadModal } from "~/apps/solidarity-routing/components/file-upload-modal.wip";
+import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/drivers/driver-data";
+import { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 
@@ -33,7 +37,7 @@ const PathwaysDepotOverviewPage = () => {
   const { status } = useSession();
   const [tabValue, setTabValue] = useState<string>("plan");
 
-  const { drivers: depotDrivers } = useDriverVehicleBundles();
+  const drivers = useDriverVehicleBundles();
 
   const searchParams = useSearchParams();
 
@@ -43,6 +47,16 @@ const PathwaysDepotOverviewPage = () => {
     void useStopsStore.persist.rehydrate();
     void useDriversStore.persist.rehydrate();
   }, []);
+
+  const fileUploadOptions = useMemo(
+    () =>
+      driverVehicleUploadOptions({
+        drivers: drivers.fromDepot,
+        setDrivers: drivers.addDriversToDepot,
+        status,
+      }),
+    [status, drivers]
+  );
 
   const isFirstTime = searchParams.get("welcome");
 
@@ -62,9 +76,10 @@ const PathwaysDepotOverviewPage = () => {
 
   return (
     <>
-      <StopSheet />
-      <DriverSheet />
+      {/* <StopSheet />
+      <DriverSheet /> */}
 
+      <DriverAddSheet standalone={true} />
       <RouteLayout>
         <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
           <Tabs
@@ -83,11 +98,22 @@ const PathwaysDepotOverviewPage = () => {
                   <Button
                     className="mx-0 flex gap-2 px-0 "
                     variant={"link"}
-                    onClick={depotDrivers.openDriverSheet}
+                    onClick={() => drivers.setIsQuickAddOpen(true)}
                   >
                     <UserPlus />
                     Add Drivers
                   </Button>
+                  <FileUploadModal<DriverVehicleBundle> {...fileUploadOptions}>
+                    <Button
+                      className="mx-0 flex gap-2 px-0 "
+                      variant={"link"}
+                      // onClick={depotDrivers.openDriverSheet}
+                    >
+                      <FilePlus />
+                      Import Drivers
+                    </Button>{" "}
+                  </FileUploadModal>
+
                   <Button className="mx-0 flex gap-2 px-0 " variant={"link"}>
                     <Settings />
                     Settings

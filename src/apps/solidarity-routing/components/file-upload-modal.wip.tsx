@@ -18,7 +18,13 @@ import {
 
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useSession } from "next-auth/react";
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -26,12 +32,16 @@ import { Switch } from "~/components/ui/switch";
 import type { UploadOptions } from "../types.wip";
 
 export const FileUploadModal = <T,>({
+  handleOnClick,
   handleAccept,
   parseHandler,
   type,
   currentData,
   children,
-}: UploadOptions<T> & { children: ReactNode }) => {
+}: UploadOptions<T> & {
+  children: ReactNode;
+  handleOnClick?: () => void;
+}) => {
   const { status } = useSession();
 
   const [open, setOpen] = useState(false);
@@ -67,106 +77,115 @@ export const FileUploadModal = <T,>({
     });
   };
 
-  console.log(data);
+  const openDialog = () => {
+    if (handleOnClick) handleOnClick();
+    setOpen(true);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl capitalize">
-            {type as string} Import
-          </DialogTitle>
-          <DialogDescription>
-            Add your {type as string}s from a CSV spreadsheet. You can click
-            here to see a sample or here to take a look at our format guide.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <div onClick={() => openDialog()}>{children}</div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl capitalize">
+              {type as string} Import
+            </DialogTitle>
+            <DialogDescription>
+              Add your {type as string}s from a CSV spreadsheet. You can click
+              here to see a sample or here to take a look at our format guide.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="grid w-full max-w-sm items-center gap-1.5 py-5">
-          <Label htmlFor="csvFile">CSV File</Label>
-          <Input
-            id="csvFile"
-            type="file"
-            accept=".csv"
-            ref={inputRef}
-            onChange={handleFileUpload}
-          />
-        </div>
-
-        {currentData && currentData?.length > 0 && data?.length === 0 && (
-          <p className="py-2 font-bold ">
-            You currently have {currentData.length} {type as string}s available.
-            You can always add more.
-          </p>
-        )}
-
-        {isLoading && (
-          <div className="flex-center flex h-96 items-center justify-center">
-            <ReloadIcon className="h-10 w-10 animate-spin" />
+          <div className="grid w-full max-w-sm items-center gap-1.5 py-5">
+            <Label htmlFor="csvFile">CSV File</Label>
+            <Input
+              id="csvFile"
+              type="file"
+              accept=".csv"
+              ref={inputRef}
+              onChange={handleFileUpload}
+            />
           </div>
-        )}
-        {data?.length > 0 && tableData?.length > 0 && (
-          <>
-            <div className="flex  gap-4  ">
-              <div className="flex w-1/3 flex-col ">
-                <p className="text-lg font-semibold">Names</p>
-              </div>
-              <div className="flex w-2/3 flex-col ">
-                <p className="text-lg font-semibold">Address</p>
-              </div>
+
+          {currentData && currentData?.length > 0 && data?.length === 0 && (
+            <p className="py-2 font-bold ">
+              You currently have {currentData.length} {type as string}s
+              available. You can always add more.
+            </p>
+          )}
+
+          {isLoading && (
+            <div className="flex-center flex h-96 items-center justify-center">
+              <ReloadIcon className="h-10 w-10 animate-spin" />
             </div>
-            <ScrollArea className="grid h-96 w-full gap-4">
-              {tableData.map((bundle, idx) => {
-                return (
-                  <div className="flex  gap-4 p-4 odd:bg-muted" key={idx}>
-                    <div className="flex w-1/3 flex-col">
-                      <p className="capitalize">{bundle.name}</p>
-                    </div>
-                    <div className="flex w-2/3 flex-col">
-                      <p>{bundle.address}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </ScrollArea>
-          </>
-        )}
-
-        <DialogFooter>
-          <TooltipProvider>
-            <Tooltip delayDuration={50}>
-              <TooltipTrigger asChild>
-                <div className="mr-auto flex items-center space-x-2">
-                  <Switch
-                    id="save-to-depot-mode"
-                    defaultChecked={status === "authenticated"}
-                    disabled={status === "unauthenticated"}
-                    onCheckedChange={setSaveToDB}
-                  />
-                  <Label htmlFor="save-to-depot-mode">Save data to depot</Label>
+          )}
+          {data?.length > 0 && tableData?.length > 0 && (
+            <>
+              <div className="flex  gap-4  ">
+                <div className="flex w-1/3 flex-col ">
+                  <p className="text-lg font-semibold">Names</p>
                 </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Login to save your progress</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                <div className="flex w-2/3 flex-col ">
+                  <p className="text-lg font-semibold">Address</p>
+                </div>
+              </div>
+              <ScrollArea className="grid h-96 w-full gap-4">
+                {tableData.map((bundle, idx) => {
+                  return (
+                    <div className="flex  gap-4 p-4 odd:bg-muted" key={idx}>
+                      <div className="flex w-1/3 flex-col">
+                        <p className="capitalize">{bundle.name}</p>
+                      </div>
+                      <div className="flex w-2/3 flex-col">
+                        <p>{bundle.address}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </ScrollArea>
+            </>
+          )}
 
-          <Button
-            type="button"
-            onClick={handleOnClear}
-            disabled={isLoading}
-            variant="outline"
-          >
-            Clear
-          </Button>
-          <Button type="button" onClick={handleOnAccept} disabled={isLoading}>
-            {isLoading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-            Look&apos;s good, save them
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <TooltipProvider>
+              <Tooltip delayDuration={50}>
+                <TooltipTrigger asChild>
+                  <div className="mr-auto flex items-center space-x-2">
+                    <Switch
+                      id="save-to-depot-mode"
+                      defaultChecked={status === "authenticated"}
+                      disabled={status === "unauthenticated"}
+                      onCheckedChange={setSaveToDB}
+                    />
+                    <Label htmlFor="save-to-depot-mode">
+                      Save data to depot
+                    </Label>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Login to save your progress</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <Button
+              type="button"
+              onClick={handleOnClear}
+              disabled={isLoading}
+              variant="outline"
+            >
+              Clear
+            </Button>
+            <Button type="button" onClick={handleOnAccept} disabled={isLoading}>
+              {isLoading && (
+                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Look&apos;s good, save them
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

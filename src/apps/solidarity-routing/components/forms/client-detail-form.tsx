@@ -33,36 +33,21 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 
-import type { Driver, DriverFormValues } from "../../types.wip";
+import type { Driver, StopFormValues } from "../../types.wip";
 
 import { DriverType } from "@prisma/client";
+import { Textarea } from "~/components/ui/textarea";
 import { env } from "~/env.mjs";
 
-type DriverDetailsSectionProps = {
-  form: UseFormReturn<DriverFormValues>;
+type ClientDetailsSectionProps = {
+  form: UseFormReturn<StopFormValues>;
   // databaseDrivers?: Array<Driver>;
 };
-
-function phoneFormat(input: string) {
-  //returns (###) ###-####
-  input = input.replace(/\D/g, "");
-  const size = input.length;
-  if (size > 0) {
-    input = "(" + input;
-  }
-  if (size > 3) {
-    input = input.slice(0, 4) + ") " + input.slice(4, 11);
-  }
-  if (size > 6) {
-    input = input.slice(0, 9) + "-" + input.slice(9);
-  }
-  return input;
-}
 
 type Library = "places";
 const libraries: Library[] = ["places"];
 
-const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
+const ClientDetailsSection: FC<ClientDetailsSectionProps> = ({ form }) => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-autocomplete-strict",
     googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
@@ -93,9 +78,9 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
   };
 
   return (
-    <AccordionItem value="item-1">
+    <AccordionItem value="item-2">
       <AccordionTrigger className="px-2 text-lg">
-        Driver Details
+        Client Details
       </AccordionTrigger>
 
       <AccordionContent className="px-2">
@@ -170,7 +155,7 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
               render={({ field: { onChange, value } }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-normal text-muted-foreground">
-                    Roundtrip Address
+                    Home Address
                   </FormLabel>
 
                   <GooglePlacesAutocomplete
@@ -193,10 +178,6 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                     }}
                   />
 
-                  <FormDescription className="text-xs text-muted-foreground/75">
-                    This is where the driver typically starts and stops their
-                    route.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -221,21 +202,20 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
 
           <FormField
             control={form.control}
-            name="phone"
+            name="order"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel className="text-sm font-normal text-muted-foreground">
-                  Phone
+                  Order Details (Optional)
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="ex. 333-334-2233"
-                    {...field}
-                    onChange={(e) => {
-                      const value = phoneFormat(e.target.value);
-
-                      field.onChange(value);
-                    }}
+                  <Textarea
+                    placeholder="e.g. Two boxes of squash"
+                    className="resize-none"
+                    // {...field}
+                    onChange={field.onChange}
+                    value={field.value}
+                    aria-rowcount={3}
                   />
                 </FormControl>
                 <FormMessage />
@@ -244,32 +224,21 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
           />
           <FormField
             control={form.control}
-            name="type"
+            name="notes"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel className="text-sm font-normal text-muted-foreground">
-                  {" "}
-                  Driver Type
+                  Notes (Optional)
                 </FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a driver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Select a type</SelectLabel>
-                        {Object.keys(DriverType).map((driver) => (
-                          <SelectItem value={driver} key={driver}>
-                            {driver}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <Textarea
+                    placeholder="e.g. Two boxes of squash"
+                    className="resize-none"
+                    // {...field}
+                    onChange={field.onChange}
+                    value={field.value}
+                    aria-rowcount={3}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -281,4 +250,4 @@ const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
   );
 };
 
-export default DriverDetailsSection;
+export default ClientDetailsSection;

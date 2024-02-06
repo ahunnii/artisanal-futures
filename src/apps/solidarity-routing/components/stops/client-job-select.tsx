@@ -13,7 +13,6 @@ import {
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
-import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -34,35 +33,48 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
+
 import type { DriverVehicleBundle } from "../../types.wip";
 
-const DeleteComponent = ({ row }: { row: DriverVehicleBundle }) => {
-  const drivers = useDriverVehicleBundles();
+// const data: Payment[] = [
+//   {
+//     id: "m5gr84i9",
+//     amount: 316,
+//     status: "success",
+//     email: "ken99@yahoo.com",
+//   },
+//   {
+//     id: "3u1reuv4",
+//     amount: 242,
+//     status: "success",
+//     email: "Abe45@gmail.com",
+//   },
+//   {
+//     id: "derv1ws0",
+//     amount: 837,
+//     status: "processing",
+//     email: "Monserrat44@gmail.com",
+//   },
+//   {
+//     id: "5kma53ae",
+//     amount: 874,
+//     status: "success",
+//     email: "Silas22@gmail.com",
+//   },
+//   {
+//     id: "bhqecj4p",
+//     amount: 721,
+//     status: "failed",
+//     email: "carmella@hotmail.com",
+//   },
+// ];
 
-  const editPost = (id: string) => {
-    drivers.deletePermanently(id);
-  };
-
-  return (
-    <p
-      onClick={() => editPost(row.driver.id)}
-      className="text-red-500 hover:text-red-400"
-    >
-      Delete from Depot
-    </p>
-  );
-};
-
-const EditComponent = ({ row }: { row: DriverVehicleBundle }) => {
-  const drivers = useDriverVehicleBundles();
-
-  const editPost = (id: string) => {
-    drivers.edit(id);
-  };
-
-  return <p onClick={() => editPost(row.vehicle.id)}>Edit</p>;
-};
+// export type Payment = {
+//   id: string;
+//   amount: number;
+//   status: "pending" | "processing" | "success" | "failed";
+//   email: string;
+// };
 
 export const columns: ColumnDef<DriverVehicleBundle>[] = [
   {
@@ -130,14 +142,8 @@ export const columns: ColumnDef<DriverVehicleBundle>[] = [
               Copy ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <EditComponent row={driver} />
-            </DropdownMenuItem>
-
-            <DropdownMenuItem>
-              {" "}
-              <DeleteComponent row={driver} />
-            </DropdownMenuItem>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

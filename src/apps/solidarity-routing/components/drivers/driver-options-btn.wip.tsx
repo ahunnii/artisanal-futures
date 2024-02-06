@@ -28,8 +28,6 @@ import { DriverAddSheet } from "./driver-add-sheet";
 import { DriverDBSelect } from "./driver-db-select.wip";
 
 export const DriverOptionsBtn = () => {
-  const { drivers } = useDriverVehicleBundles();
-
   return (
     <div className="z-30 flex items-center space-x-1 rounded-md bg-secondary text-secondary-foreground">
       <DriverAddSheet />

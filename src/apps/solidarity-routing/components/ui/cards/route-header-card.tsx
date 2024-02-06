@@ -39,7 +39,7 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
     driverId: string | undefined | null;
   } = JSON.parse(data.description ?? "{}");
 
-  const { drivers } = useDriverVehicleBundles();
+  const drivers = useDriverVehicleBundles();
 
   const driverName = drivers.getDriverById(driverId)?.name;
 

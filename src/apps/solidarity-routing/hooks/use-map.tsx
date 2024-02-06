@@ -33,9 +33,11 @@ const useMap = ({
 }: TUseMapProps) => {
   const { selectedRoute, routes } = useFinalizedRoutes((state) => state);
 
-  const { drivers: bundles } = useDriverVehicleBundles();
-  const drivers = bundles?.all;
-  const activeDriver = bundles?.active;
+  const drivers = useDriverVehicleBundles();
+
+  const bundles = drivers.data;
+
+  const activeDriver = drivers?.active;
 
   // const { locations, activeLocation } = useStopsStore((state) => state);
   const { stops, selectedStop } = useDriverRoute((state) => state);
@@ -106,9 +108,9 @@ const useMap = ({
     }, 5000);
   };
 
-  useEffect(() => {
-    console.log(currentLocation);
-  }, [currentLocation]);
+  // useEffect(() => {
+  //   console.log(currentLocation);
+  // }, [currentLocation]);
 
   useEffect(() => {
     if (constantUserTracking) enableConstantTracking();
@@ -153,7 +155,7 @@ const useMap = ({
   }, [routes, mapRef, trackingEnabled]);
 
   useEffect(() => {
-    if (activeDriver && mapRef) flyTo(activeDriver?.driver.address, 15);
+    if (activeDriver && mapRef) flyTo(activeDriver?.vehicle.startAddress, 15);
   }, [activeDriver, mapRef, flyTo]);
 
   useEffect(() => {

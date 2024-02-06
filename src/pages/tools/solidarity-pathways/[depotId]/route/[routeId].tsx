@@ -49,12 +49,12 @@ const SingleRoutePage = () => {
       id: params?.routeId as string,
     });
 
-  const { status, drivers: bundles } = useDriverVehicleBundles();
+  const bundles = useDriverVehicleBundles();
 
   const { stops: locations } = useClientJobBundles();
 
   // const { locations } = useStopsStore((state) => state);
-  const drivers = bundles?.all;
+  const drivers = bundles?.data;
 
   useEffect(() => {
     void useStopsStore.persist.rehydrate();
@@ -89,7 +89,7 @@ const SingleRoutePage = () => {
               onValueChange={setTabValue}
               className="flex w-full flex-col gap-4 max-lg:hidden max-lg:h-4/6 lg:w-5/12 xl:w-3/12"
             >
-              <div className="flex gap-1 px-4 pt-4 text-sm">
+              <div className="flex items-center gap-1 px-4 pt-4 text-sm">
                 <Link
                   href={`/tools/solidarity-pathways/${routePlan.depotId}/overview`}
                   className="flex gap-1"
@@ -108,6 +108,16 @@ const SingleRoutePage = () => {
                   <Calendar className="h-4 w-4" />
                   {routePlan?.deliveryAt.toDateString()}{" "}
                 </Link>
+
+                <Button
+                  className="ml-auto"
+                  size={"sm"}
+                  onClick={() => {
+                    console.log(routePlan);
+                  }}
+                >
+                  Log DB Route Status
+                </Button>
               </div>
 
               {/* Route {routePlan?.id ?? 0} *{" "} */}

@@ -9,6 +9,22 @@ import {
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const clientsRouter = createTRPCRouter({
+  getDepotClients: protectedProcedure
+    .input(z.object({ depotId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const clients = await ctx.prisma.client.findMany({
+        where: {
+          depotId: input.depotId,
+        },
+        include: {
+          address: true,
+          jobs: true,
+        },
+      });
+
+      return clients;
+    }),
+
   createManyClientAndJob: protectedProcedure
     .input(z.object({ data: z.array(clientJobSchema), depotId: z.number() }))
     .mutation(async ({ ctx, input }) => {

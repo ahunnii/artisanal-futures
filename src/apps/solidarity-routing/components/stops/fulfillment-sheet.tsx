@@ -26,10 +26,17 @@ const StopSheet = () => {
       >
         <SheetHeader>
           <SheetTitle className="text-center md:text-left">
-            {activeStop ? "Edit Stop" : "Add Stop"}
+            {activeStop
+              ? `${
+                  activeStop?.client?.name ??
+                  activeStop?.job?.address?.formatted
+                }`
+              : "Add Stop"}
           </SheetTitle>
           <SheetDescription className="text-center md:text-left">
-            Fill out the table below to start adding destinations to the map.
+            {activeStop
+              ? `Changes made will only apply to this route.`
+              : "Fill out the table below to start adding destinations to the map."}
           </SheetDescription>
         </SheetHeader>
 

@@ -27,7 +27,12 @@ export const useClientJobBundles = () => {
   const { data: session, status } = useSession();
   const user = session?.user ?? null;
 
-  const { data: depotStops, isLoading } =
+  const { data: clients } = api.clients.getDepotClients.useQuery(
+    { depotId: Number(depotId) },
+    { enabled: status === "authenticated" }
+  );
+
+  const { data: depotStops, isLoading: depotStopsLoading } =
     api.clients.getCurrentDepotClientJobBundles.useQuery(
       { depotId: Number(depotId) },
       { enabled: status === "authenticated" }
@@ -147,9 +152,13 @@ export const useClientJobBundles = () => {
   };
 
   return {
+    data: user ? depotStops : sessionStorageStops.locations,
+    isDataLoading: user ? depotStopsLoading : false,
+    fromStoreState: sessionStorageStops.locations ?? [],
     stops: sessionStorageStops.locations,
+    clients: clients ?? [],
     depotStops: depotStops,
-    isLoading: user ? isLoading : false,
+    isLoading: user ? depotStopsLoading : false,
     activeStop: sessionStorageStops.activeLocation,
     addStopByLatLng: sessionStorageStops.addLocationByLatLng,
     setActiveStop: setActive,

@@ -89,12 +89,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
-  const { drivers: bundles } = useDriverVehicleBundles();
+  const drivers = useDriverVehicleBundles();
 
   const { stops, addStopByLatLng } = useClientJobBundles();
 
-  const drivers = bundles?.all;
-  const addDriverByLatLng = bundles?.addByLatLng;
+  // const drivers = bundles?.all;
+  const addDriverByLatLng = drivers.addByLatLng;
 
   // const { locations, addLocationByLatLng } = useStopsStore((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
@@ -134,13 +134,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     name: stop.client.name ?? "New Stop",
   }));
 
-  const driverMapPoints: MapPoint[] = drivers?.map((driver) => ({
+  const driverMapPoints: MapPoint[] = drivers?.data?.map((driver) => ({
     id: driver.vehicle.id,
     type: "vehicle",
     lat: driver.vehicle.startAddress?.latitude,
     lng: driver.vehicle.startAddress?.longitude,
     address: driver.vehicle.startAddress?.formatted ?? "",
-    name: driver.driver.name,
+    name: driver?.driver?.name ?? "Driver",
   }));
 
   const mapPoints: MapPoint[] = [...stopMapPoints, ...driverMapPoints];

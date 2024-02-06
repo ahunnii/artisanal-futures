@@ -65,8 +65,8 @@ export const useDriversStore = create<useDriversStore>()(
       setIsDriverSheetOpen: (isDriverSheetOpen) => set({ isDriverSheetOpen }),
 
       isDriverEditPanelOpen: false,
-      setIsDriverEditPanelOpen: (isDriverSheetOpen) =>
-        set({ isDriverSheetOpen }),
+      setIsDriverEditPanelOpen: (isDriverEditPanelOpen) =>
+        set({ isDriverEditPanelOpen }),
     }),
     {
       name: "driver-storage", // name of item in the storage (must be unique)

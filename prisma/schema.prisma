@@ -287,7 +287,7 @@ model Vehicle {
   depot             Depot               @relation(fields: [depotId], references: [id], onDelete: Cascade)
   driverId          String?
   driver            Driver?             @relation(fields: [driverId], references: [id])
-  type              String
+
   startAddressId    String              //Starting address of the vehicle. Can default to depot address or driver's address.
   startAddress      Address             @relation("StartAddressToVehicle", fields: [startAddressId], references: [id])
   endAddressId      String?             //Optional, leave blank if roundtrip

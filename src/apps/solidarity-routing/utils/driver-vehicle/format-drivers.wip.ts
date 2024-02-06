@@ -6,6 +6,8 @@ import type {
 
 import { uniqueId } from "lodash";
 import {
+  metersToMiles,
+  milesToMeters,
   militaryTimeToUnixSeconds,
   minutesToSeconds,
 } from "../generic/format-utils.wip";
@@ -26,19 +28,23 @@ export const formatDriverFormDataToBundle = (
     },
   },
   vehicle: {
-    id: uniqueId("vehicle_"),
+    id: data?.vehicleId ?? uniqueId("vehicle_"),
     startAddress: {
       formatted: data.address.formatted,
       latitude: data.address.latitude,
       longitude: data.address.longitude,
     },
     type: data.type,
-    maxTravelTime: data?.maxTravelTime ?? 0,
+    maxTravelTime: minutesToSeconds(data?.maxTravelTime ?? 0),
     maxTasks: data?.maxTasks ?? 0,
-    maxDistance: data?.maxDistance ?? 0,
+    maxDistance: milesToMeters(data?.maxDistance ?? 0),
     shiftStart: militaryTimeToUnixSeconds(data.shiftStart),
     shiftEnd: militaryTimeToUnixSeconds(data.shiftEnd),
-    breaks: data?.breaks ?? [],
+    breaks:
+      data?.breaks.map((b) => ({
+        ...b,
+        duration: minutesToSeconds(b.duration),
+      })) ?? [],
     capacity: data?.capacity ?? 0,
   },
 });
@@ -69,7 +75,7 @@ export const formatDriverSheetRowToBundle = (
     capacity: data.default_capacity ?? 100,
     maxTasks: data.default_stops ?? 10,
     maxTravelTime: minutesToSeconds(data.default_travel_time ?? 60),
-    maxDistance: data.default_distance ?? 100,
+    maxDistance: milesToMeters(data.default_distance ?? 100),
     shiftStart: militaryTimeToUnixSeconds(data.default_shift_start ?? "09:00"),
     shiftEnd: militaryTimeToUnixSeconds(data.default_shift_end ?? "17:00"),
     breaks: parseDefaultBreaks(data),

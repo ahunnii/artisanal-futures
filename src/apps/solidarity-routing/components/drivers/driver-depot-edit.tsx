@@ -4,12 +4,6 @@ import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-
 import DriverForm from "./driver-form";
 
 export const DriverDepotEdit = () => {
-  const { drivers } = useDriverVehicleBundles();
-  const handleOnOpenChange = (state: boolean) => {
-    if (!state) drivers.setActiveById(null);
-    drivers.setIsEditOpen(state);
-  };
-
   return (
     <AnimatePresence>
       <motion.div
@@ -25,13 +19,7 @@ export const DriverDepotEdit = () => {
         //   repeat: 0,
         // }}
       >
-        <div className="bg-orange-500">
-          <h3 className="text-lg font-semibold">Edit Driver</h3>
-          <DriverForm
-            handleOnOpenChange={handleOnOpenChange}
-            activeDriver={drivers.currentDriver}
-          />
-        </div>
+        <div className="bg-orange-500"></div>
       </motion.div>
     </AnimatePresence>
   );

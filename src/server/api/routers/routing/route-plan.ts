@@ -1,6 +1,10 @@
+import { Driver } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { driverVehicleSchema } from "~/apps/solidarity-routing/types.wip";
+import {
+  DriverVehicleBundle,
+  driverVehicleSchema,
+} from "~/apps/solidarity-routing/types.wip";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const routePlanRouter = createTRPCRouter({
@@ -31,7 +35,11 @@ export const routePlanRouter = createTRPCRouter({
         include: {
           vehicles: {
             include: {
-              driver: true,
+              driver: {
+                include: {
+                  address: true,
+                },
+              },
               startAddress: true,
             },
           },
@@ -59,7 +67,11 @@ export const routePlanRouter = createTRPCRouter({
         include: {
           vehicles: {
             include: {
-              driver: true,
+              driver: {
+                include: {
+                  address: true,
+                },
+              },
               startAddress: true,
             },
           },
@@ -94,10 +106,7 @@ export const routePlanRouter = createTRPCRouter({
 
   createRouteVehicles: protectedProcedure
     .input(
-      z.object({
-        routeId: z.string(),
-        vehicles: z.array(driverVehicleSchema),
-      })
+      z.object({ data: z.array(driverVehicleSchema), routeId: z.string() })
     )
     .mutation(async ({ ctx, input }) => {
       const route = await ctx.prisma.route.findUnique({
@@ -123,7 +132,7 @@ export const routePlanRouter = createTRPCRouter({
       }
 
       const res = await Promise.all(
-        input.vehicles.map(async (driverVehicle) => {
+        input.data.map(async (driverVehicle) => {
           const address = await ctx.prisma.address.create({
             data: {
               formatted: driverVehicle.driver.address.formatted,
@@ -133,20 +142,44 @@ export const routePlanRouter = createTRPCRouter({
             },
           });
 
+          const defaultVehicle = await ctx.prisma.vehicle.findFirst({
+            where: {
+              id: driverVehicle.driver.defaultVehicleId,
+            },
+            include: {
+              breaks: true,
+              endAddress: true,
+            },
+          });
+
           const vehicle = await ctx.prisma.vehicle.create({
             data: {
               driverId: driverVehicle.driver.id,
               depotId: route!.depotId,
+
               startAddressId: address.id,
-              shiftStart: driverVehicle.vehicle.shiftStart,
-              shiftEnd: driverVehicle.vehicle.shiftEnd,
-              type: driverVehicle.vehicle.type,
-              capacity: driverVehicle.vehicle.capacity,
-              maxTasks: driverVehicle.vehicle.maxTasks,
-              maxTravelTime: driverVehicle.vehicle.maxTravelTime,
-              maxDistance: driverVehicle.vehicle.maxDistance,
+              shiftStart:
+                defaultVehicle?.shiftStart ?? driverVehicle.vehicle.shiftStart,
+              shiftEnd:
+                defaultVehicle?.shiftEnd ?? driverVehicle.vehicle.shiftEnd,
+              // type: driverVehicle.driver.type,
+              capacity:
+                defaultVehicle?.capacity ?? driverVehicle.vehicle.capacity,
+              maxTasks:
+                defaultVehicle?.maxTasks ?? driverVehicle.vehicle.maxTasks,
+              maxTravelTime:
+                defaultVehicle?.maxTravelTime ??
+                driverVehicle.vehicle.maxTravelTime,
+              maxDistance:
+                defaultVehicle?.maxDistance ??
+                driverVehicle.vehicle.maxDistance,
+              notes: defaultVehicle?.notes ?? driverVehicle.vehicle.notes ?? "",
+              cargo: defaultVehicle?.cargo ?? driverVehicle.vehicle.cargo ?? "",
               breaks: {
-                create: driverVehicle?.vehicle?.breaks?.map((b) => ({
+                create: (defaultVehicle
+                  ? defaultVehicle.breaks
+                  : driverVehicle?.vehicle?.breaks
+                )?.map((b) => ({
                   duration: b?.duration ?? 1800, //30 minutes in seconds
                   start: b?.start ?? driverVehicle.vehicle.shiftStart,
                   end: b?.end ?? driverVehicle.vehicle.shiftEnd,
@@ -177,5 +210,198 @@ export const routePlanRouter = createTRPCRouter({
           },
         },
       });
+    }),
+
+  setRouteVehicles: protectedProcedure
+    .input(
+      z.object({ data: z.array(driverVehicleSchema), routeId: z.string() })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const route = await ctx.prisma.route.findUnique({
+        where: {
+          id: input.routeId,
+        },
+        include: {
+          vehicles: true,
+        },
+      });
+
+      if (route?.vehicles.length) {
+        await ctx.prisma.route.update({
+          where: {
+            id: input.routeId,
+          },
+          data: {
+            vehicles: {
+              deleteMany: {},
+            },
+          },
+        });
+      }
+
+      const res = await Promise.all(
+        input.data.map(async (driverVehicle) => {
+          const address = await ctx.prisma.address.create({
+            data: {
+              formatted: driverVehicle.driver.address.formatted,
+              latitude: driverVehicle.driver.address.latitude,
+              longitude: driverVehicle.driver.address.longitude,
+              depotId: route!.depotId,
+            },
+          });
+
+          const defaultVehicle = await ctx.prisma.vehicle.findFirst({
+            where: {
+              id: driverVehicle.driver.defaultVehicleId,
+            },
+            include: {
+              breaks: true,
+              endAddress: true,
+            },
+          });
+
+          const vehicle = await ctx.prisma.vehicle.create({
+            data: {
+              driverId: driverVehicle.driver.id,
+              depotId: route!.depotId,
+
+              startAddressId: address.id,
+              shiftStart:
+                defaultVehicle?.shiftStart ?? driverVehicle.vehicle.shiftStart,
+              shiftEnd:
+                defaultVehicle?.shiftEnd ?? driverVehicle.vehicle.shiftEnd,
+              // type: driverVehicle.driver.type,
+              capacity:
+                defaultVehicle?.capacity ?? driverVehicle.vehicle.capacity,
+              maxTasks:
+                defaultVehicle?.maxTasks ?? driverVehicle.vehicle.maxTasks,
+              maxTravelTime:
+                defaultVehicle?.maxTravelTime ??
+                driverVehicle.vehicle.maxTravelTime,
+              maxDistance:
+                defaultVehicle?.maxDistance ??
+                driverVehicle.vehicle.maxDistance,
+              notes: defaultVehicle?.notes ?? driverVehicle.vehicle.notes ?? "",
+              cargo: defaultVehicle?.cargo ?? driverVehicle.vehicle.cargo ?? "",
+              breaks: {
+                create: (defaultVehicle
+                  ? defaultVehicle.breaks
+                  : driverVehicle?.vehicle?.breaks
+                )?.map((b) => ({
+                  duration: b?.duration ?? 1800, //30 minutes in seconds
+                  start: b?.start ?? driverVehicle.vehicle.shiftStart,
+                  end: b?.end ?? driverVehicle.vehicle.shiftEnd,
+                })),
+              },
+            },
+          });
+
+          return vehicle;
+        })
+      )
+        .then((data) => data)
+        .catch((e) => {
+          console.error(e);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something happened while creating drivers and vehicles",
+          });
+        });
+
+      return ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          vehicles: {
+            connect: res.map((v) => ({ id: v.id })),
+          },
+        },
+      });
+    }),
+  addRouteVehicle: protectedProcedure
+    .input(
+      z.object({
+        routeId: z.string(),
+        vehicle: driverVehicleSchema,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const route = await ctx.prisma.route.findUnique({
+        where: {
+          id: input.routeId,
+        },
+        include: {
+          vehicles: true,
+        },
+      });
+
+      const address = await ctx.prisma.address.create({
+        data: {
+          formatted: input.vehicle.driver.address.formatted,
+          latitude: input.vehicle.driver.address.latitude,
+          longitude: input.vehicle.driver.address.longitude,
+          depotId: route!.depotId,
+        },
+      });
+
+      const vehicle = await ctx.prisma.vehicle.create({
+        data: {
+          driverId: input.vehicle.driver.id,
+          depotId: route!.depotId,
+          startAddressId: address.id,
+          shiftStart: input.vehicle.vehicle.shiftStart,
+          shiftEnd: input.vehicle.vehicle.shiftEnd,
+
+          capacity: input.vehicle.vehicle.capacity,
+          maxTasks: input.vehicle.vehicle.maxTasks,
+          maxTravelTime: input.vehicle.vehicle.maxTravelTime,
+          maxDistance: input.vehicle.vehicle.maxDistance,
+          breaks: {
+            create: input.vehicle?.vehicle?.breaks?.map((b) => ({
+              duration: b?.duration ?? 1800, //30 minutes in seconds
+              start: b?.start ?? input.vehicle.vehicle.shiftStart,
+              end: b?.end ?? input.vehicle.vehicle.shiftEnd,
+            })),
+          },
+        },
+      });
+
+      return ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          vehicles: {
+            connect: { id: vehicle.id },
+          },
+        },
+      });
+    }),
+
+  getVehicleBundles: protectedProcedure
+    .input(z.object({ routeId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.prisma.vehicle.findMany({
+        where: {
+          routeId: input.routeId,
+        },
+        include: {
+          driver: {
+            include: {
+              address: true,
+            },
+          },
+          startAddress: true,
+          breaks: true,
+        },
+      });
+
+      const bundles = data.map((vehicle) => ({
+        driver: vehicle.driver,
+        vehicle: vehicle,
+      }));
+
+      return bundles;
     }),
 });

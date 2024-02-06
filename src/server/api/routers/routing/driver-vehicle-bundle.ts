@@ -40,7 +40,7 @@ export const driverVehicleBundleRouter = createTRPCRouter({
               startAddressId: address.id,
               shiftStart: driverVehicle.vehicle.shiftStart,
               shiftEnd: driverVehicle.vehicle.shiftEnd,
-              type: driverVehicle.vehicle.type,
+
               capacity: driverVehicle.vehicle.capacity,
               maxTasks: driverVehicle.vehicle.maxTasks,
               maxTravelTime: driverVehicle.vehicle.maxTravelTime,
@@ -125,7 +125,7 @@ export const driverVehicleBundleRouter = createTRPCRouter({
             startAddressId: address.id,
             shiftStart: input.data.vehicle.shiftStart,
             shiftEnd: input.data.vehicle.shiftEnd,
-            type: input.data.vehicle.type,
+
             capacity: input.data.vehicle.capacity,
             maxTasks: input.data.vehicle.maxTasks,
             maxTravelTime: input.data.vehicle.maxTravelTime,
@@ -206,7 +206,7 @@ export const driverVehicleBundleRouter = createTRPCRouter({
             startAddressId: address.id,
             shiftStart: input.data.vehicle.shiftStart,
             shiftEnd: input.data.vehicle.shiftEnd,
-            type: input.data.vehicle.type,
+
             capacity: input.data.vehicle.capacity,
             maxTasks: input.data.vehicle.maxTasks,
             maxTravelTime: input.data.vehicle.maxTravelTime,

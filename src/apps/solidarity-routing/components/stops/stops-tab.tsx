@@ -13,6 +13,8 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../file-upload-modal.wip";
 import OptionsBtn from "../ui/options-btn";
+import { StopFilterBtn } from "./stop-filter-btn";
+import StopOptionBtn from "./stop-option-btn.wip";
 
 const StopsTab = () => {
   const { stops, setStops } = useClientJobBundles();
@@ -38,9 +40,10 @@ const StopsTab = () => {
               {stops?.length ?? 0}
             </span>
           </h2>
-          {stops?.length !== 0 && <OptionsBtn type="stop" />}
-        </div>
 
+          {stops?.length !== 0 && <StopOptionBtn />}
+        </div>
+        <StopFilterBtn />
         {stops?.length === 0 && (
           <>
             <p className="text-sm text-muted-foreground">
@@ -48,7 +51,7 @@ const StopsTab = () => {
             </p>{" "}
             <div className="flex flex-col space-y-3 py-4">
               <FileUploadModal<ClientJobBundle> {...fileUploadOptions}>
-                <Button className="" size={"lg"}>
+                <Button className="w-full" size={"lg"}>
                   Import stops from spreadsheet{" "}
                 </Button>
               </FileUploadModal>

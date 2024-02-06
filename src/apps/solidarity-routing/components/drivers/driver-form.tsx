@@ -25,8 +25,7 @@ import type { Coordinates } from "../../types";
 
 import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
-import { IconButton } from "~/apps/forum/components/icon-button";
-import { AlertDescription } from "~/components/ui/alert";
+
 import { api } from "~/utils/api";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 import {
@@ -34,6 +33,7 @@ import {
   unixSecondsToMilitaryTime,
 } from "../../libs/format-csv.wip";
 import { formatDriverFormDataToBundle } from "../../utils/driver-vehicle/format-drivers.wip";
+import { metersToMiles } from "../../utils/generic/format-utils.wip";
 
 type TDriverForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -41,30 +41,27 @@ type TDriverForm = {
 };
 
 const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
-  const { drivers: depotDrivers } = useDriverVehicleBundles();
+  const drivers = useDriverVehicleBundles();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { status } = useSession();
 
-  const drivers = depotDrivers.all;
+  // const drivers = drivers.data;
 
-  const { data: databaseDrivers } = api.drivers.getCurrentDepotDrivers.useQuery(
-    {
-      depotId: 1,
-    }
-  );
+  // const databaseDrivers = depotDrivers.onlyDrivers;
 
   const defaultValues: DriverFormValues = {
     id: activeDriver?.driver.id ?? uniqueId("driver_"),
+    vehicleId: activeDriver?.vehicle.id ?? uniqueId("vehicle_"),
     type: activeDriver?.driver.type ?? "TEMP",
     name: activeDriver?.driver.name ?? "",
     email: activeDriver?.driver.email ?? "",
     phone: activeDriver?.driver.phone ?? "",
     address: {
-      formatted: activeDriver?.driver.address.formatted ?? undefined,
-      latitude: activeDriver?.driver.address.latitude ?? undefined,
-      longitude: activeDriver?.driver.address.longitude ?? undefined,
+      formatted: activeDriver?.vehicle.startAddress.formatted ?? undefined,
+      latitude: activeDriver?.vehicle.startAddress.latitude ?? undefined,
+      longitude: activeDriver?.vehicle.startAddress.longitude ?? undefined,
     } as Coordinates & { formatted: string },
 
     shiftStart: activeDriver?.vehicle.shiftStart
@@ -81,11 +78,13 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
             duration: secondsToMinutes(b.duration),
           }))
         : [],
-    maxTravelTime: activeDriver?.vehicle.maxTravelTime
-      ? secondsToMinutes(activeDriver.vehicle.maxTravelTime)
-      : 100,
+    maxTravelTime: secondsToMinutes(
+      activeDriver?.vehicle?.maxTravelTime ?? 300
+    ),
     maxTasks: activeDriver?.vehicle.maxTasks ?? 100,
-    maxDistance: activeDriver?.vehicle.maxDistance ?? 100,
+    maxDistance: Math.round(
+      metersToMiles(activeDriver?.vehicle.maxDistance ?? 100)
+    ),
     capacity: 100,
   };
 
@@ -96,12 +95,11 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
 
   function onSubmit(data: DriverFormValues) {
     if (activeDriver)
-      depotDrivers.updateDriver(
-        data.id,
-        formatDriverFormDataToBundle(data),
-        false
-      );
-    else depotDrivers.addDriver(formatDriverFormDataToBundle(data), false);
+      drivers.updateDriver({
+        vehicleId: activeDriver?.vehicle?.id,
+        data: formatDriverFormDataToBundle(data),
+      });
+    else drivers.addNew({ driver: formatDriverFormDataToBundle(data) });
 
     toast({
       title: "You submitted the following values:",
@@ -116,11 +114,17 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   }
 
   const onDelete = () => {
-    const temp = drivers.filter(
+    const temp = drivers.data.filter(
       (loc) => loc.driver.id !== activeDriver?.driver.id
     );
-    depotDrivers.setDrivers({ drivers: temp, saveToDB: false });
+
+    drivers.setRouteDrivers({ drivers: temp });
     handleOnOpenChange(false);
+  };
+
+  const updateDefault = (data: DriverFormValues) => {
+    const temp = formatDriverFormDataToBundle(data);
+    drivers.updateDefault(activeDriver?.driver?.id, temp);
   };
 
   return (
@@ -152,7 +156,14 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
                 </Button>
 
                 {status === "authenticated" && (
-                  <Button type="submit" className="flex-1" variant={"outline"}>
+                  <Button
+                    type="button"
+                    className="flex-1"
+                    variant={"outline"}
+                    onClick={() => {
+                      updateDefault(form.getValues());
+                    }}
+                  >
                     {activeDriver ? "Set as driver default" : "Save and add"}
                   </Button>
                 )}
@@ -186,29 +197,13 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
               className="w-full px-4"
               defaultValue="item-1"
             >
-              <DriverDetailsSection
-                form={form}
-                databaseDrivers={databaseDrivers ?? []}
-              />
+              <DriverDetailsSection form={form} />
 
               <VehicleDetailsSection form={form} />
               <ShiftDetailsSection form={form} />
             </Accordion>
           </ScrollArea>
-          <div className="mt-auto flex gap-4 ">
-            {/* <Button
-              type="button"
-              className="flex gap-4"
-              variant={"destructive"}
-              onClick={onDelete}
-            >
-              <Trash />
-              Delete
-            </Button>
-            <Button type="submit" className="flex-1">
-              {activeDriver ? "Update" : "Add"} driver
-            </Button> */}
-          </div>
+          <div className="mt-auto flex gap-4 "></div>
         </form>
       </Form>
     </>
