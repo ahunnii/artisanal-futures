@@ -28,6 +28,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { api } from "~/utils/api";
+import { DepotSettingsModal } from "../depot/depot-settings-modal.wip";
 
 const Navbar = () => {
   const categories = [
@@ -228,6 +229,18 @@ const Navbar = () => {
                 </Button>
               </div>
 
+              <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
+                <div>
+                  <h4 className="font-semibold">Depot</h4>
+                  <p className="text-muted-foreground">
+                    Set your depot defaults for drivers and stops, as well as
+                    allow access to other AF users.
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                  <DepotSettingsModal />
+                </div>
+              </div>
               <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
                 <div>
                   <h4 className="font-semibold">Drivers and Clients</h4>

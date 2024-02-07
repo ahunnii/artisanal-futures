@@ -21,7 +21,7 @@ export const formatDriverFormDataToBundle = (
     email: data.email,
     phone: data.phone,
     name: data.name,
-
+    addressId: data.addressId,
     address: {
       formatted: data.address.formatted,
       latitude: data.address.latitude,
@@ -31,14 +31,30 @@ export const formatDriverFormDataToBundle = (
   vehicle: {
     id: data?.vehicleId ?? uniqueId("vehicle_"),
     startAddressId: data?.startAddressId ?? uniqueId("address_"),
+    endAddressId: data?.endAddressId ?? uniqueId("address_"),
     startAddress: {
-      formatted: data.address.formatted,
-      latitude: data.address.latitude,
-      longitude: data.address.longitude,
+      formatted: data?.startAddress?.formatted ?? data.address.formatted,
+      latitude: data?.startAddress?.latitude ?? data.address.latitude,
+      longitude: data?.startAddress?.longitude ?? data.address.longitude,
+    },
+
+    endAddress: {
+      formatted:
+        data?.endAddress?.formatted ??
+        data?.startAddress?.formatted ??
+        data.address.formatted,
+      latitude:
+        data?.endAddress?.latitude ??
+        data?.startAddress?.latitude ??
+        data.address.latitude,
+      longitude:
+        data?.endAddress?.longitude ??
+        data?.startAddress?.longitude ??
+        data.address.longitude,
     },
     type: data.type,
     maxTravelTime: minutesToSeconds(data?.maxTravelTime ?? 0),
-    maxTasks: data?.maxTasks ?? 0,
+    maxTasks: Number(data?.maxTasks) ?? 0,
     maxDistance: milesToMeters(data?.maxDistance ?? 0),
     shiftStart: militaryTimeToUnixSeconds(data.shiftStart),
     shiftEnd: militaryTimeToUnixSeconds(data.shiftEnd),
@@ -58,6 +74,7 @@ export const formatDriverSheetRowToBundle = (
     id: uniqueId("driver_"),
     type: "FULL_TIME",
     name: data.name ?? "",
+
     address: {
       formatted: data.address ?? "",
       latitude: 0,
@@ -70,6 +87,11 @@ export const formatDriverSheetRowToBundle = (
     id: uniqueId("vehicle_"),
     type: "DRIVER",
     startAddress: {
+      formatted: data.address ?? "",
+      latitude: 0,
+      longitude: 0,
+    },
+    endAddress: {
       formatted: data.address ?? "",
       latitude: 0,
       longitude: 0,

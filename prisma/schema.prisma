@@ -184,6 +184,7 @@ model Depot {
   ownerId         String @unique //One owner can have one depot
   name            String? //Name of the depot
   depotAddressId  String? //Main Address of the depot
+  
 
   addresses       Address[] //All addresses associated with the depot
   drivers         Driver[] //All drivers associated with the depot

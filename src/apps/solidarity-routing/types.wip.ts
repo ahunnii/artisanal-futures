@@ -112,13 +112,18 @@ export const vehicleSchema = z.object({
   type: z.string().optional(),
 
   startAddressId: z.string().optional(),
+  endAddressId: z.string().optional(),
 
   startAddress: z.object({
     formatted: z.string(),
     latitude: z.number(),
     longitude: z.number(),
   }),
-
+  endAddress: z.object({
+    formatted: z.string(),
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
   capacity: z.number().optional(),
   maxTasks: z.number().optional(),
   maxTravelTime: z.number().optional(),
@@ -152,7 +157,11 @@ export const clientJobSchema = z.object({
 export const driverFormSchema = z.object({
   id: z.string(),
   vehicleId: z.string().optional(),
+
+  addressId: z.string().optional(),
   startAddressId: z.string().optional(),
+  endAddressId: z.string().optional().nullish(),
+
   type: z.nativeEnum(DBDriverType),
   name: z
     .string()
@@ -166,8 +175,12 @@ export const driverFormSchema = z.object({
   // phone: z.string().regex(/^\d{3}-\d{3}-\d{4}$/, {
   //   message: "Phone number must be in the format XXX-XXX-XXXX.",
   // }),
-  phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, {
-    message: "Phone number must be in the format (XXX) XXX-XXXX.",
+  // phone: z.string().regex(/^\d{4}\d{3}\d{4}$/, {
+  //   message: "Phone number must be in the format XXXXXXXXXX.",
+  // }),
+
+  phone: z.string().regex(/^\d{10}$/, {
+    message: "Phone number must be in the format +1 (XXX) XXX-XXXX.",
   }),
 
   address: z.object({
@@ -175,6 +188,22 @@ export const driverFormSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
   }),
+  startAddress: z
+    .object({
+      formatted: z.string().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+    })
+    .optional()
+    .nullish(),
+  endAddress: z
+    .object({
+      formatted: z.string().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+    })
+    .optional()
+    .nullish(),
 
   maxTravelTime: z.coerce.number().min(0),
   maxTasks: z.coerce.number().min(0),
@@ -218,8 +247,8 @@ export const stopFormSchema = z.object({
   email: z.string().email().optional(),
   phone: z
     .string()
-    .regex(/^\d{3}-\d{3}-\d{4}$/, {
-      message: "Phone number must be in the format XXX-XXX-XXXX.",
+    .regex(/^\d{3}\d{3}\d{4}$/, {
+      message: "Phone number must be in the format XXXXXXXXXX.",
     })
     .optional(),
 
@@ -261,3 +290,14 @@ export type Driver = Prisma.DriverGetPayload<{
     };
   };
 }>;
+
+export type DepotValues = {
+  id: number;
+  name: string | undefined;
+  depotAddressId: string | undefined;
+  address?: {
+    formatted: string;
+    latitude: number;
+    longitude: number;
+  };
+};

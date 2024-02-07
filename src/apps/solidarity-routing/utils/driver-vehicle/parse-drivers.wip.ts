@@ -24,11 +24,19 @@ export const handleDriverSheetUpload: FileUploadHandler<
           );
 
           return {
-            ...driverVehicleBundle,
             driver: {
               ...driverVehicleBundle.driver,
               address: {
                 // ...driverVehicleBundle.driver.address,
+                ...address,
+              },
+            },
+            vehicle: {
+              ...driverVehicleBundle.vehicle,
+              startAddress: {
+                ...address,
+              },
+              endAddress: {
                 ...address,
               },
             },

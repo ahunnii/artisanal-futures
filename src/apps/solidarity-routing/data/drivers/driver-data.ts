@@ -33,6 +33,11 @@ export const driverData = (lat: number, lng: number): DriverVehicleBundle => {
         latitude: lat,
         longitude: lng,
       },
+      endAddress: {
+        formatted: "Address via LatLng",
+        latitude: lat,
+        longitude: lng,
+      },
       type: driverTypeSchema.parse("TEMP"),
       shiftStart: driverVehicleDefaults.shiftStart,
       shiftEnd: driverVehicleDefaults.shiftEnd,

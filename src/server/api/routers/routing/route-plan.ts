@@ -114,7 +114,18 @@ export const routePlanRouter = createTRPCRouter({
           id: input.routeId,
         },
         include: {
-          vehicles: true,
+          vehicles: {
+            include: {
+              endAddress: true,
+              driver: {
+                include: {
+                  address: true,
+                },
+              },
+              startAddress: true,
+              breaks: true,
+            },
+          },
         },
       });
 
@@ -133,14 +144,15 @@ export const routePlanRouter = createTRPCRouter({
 
       const res = await Promise.all(
         input.data.map(async (driverVehicle) => {
-          const address = await ctx.prisma.address.create({
-            data: {
-              formatted: driverVehicle.driver.address.formatted,
-              latitude: driverVehicle.driver.address.latitude,
-              longitude: driverVehicle.driver.address.longitude,
-              depotId: route!.depotId,
-            },
-          });
+          // const address = await ctx.prisma.address.create({
+
+          //   data: {
+          //     formatted: driverVehicle.vehicle.address.formatted,
+          //     latitude: driverVehicle.driver.address.latitude,
+          //     longitude: driverVehicle.driver.address.longitude,
+          //     depotId: route!.depotId,
+          //   },
+          // });
 
           const defaultVehicle = await ctx.prisma.vehicle.findFirst({
             where: {
@@ -148,16 +160,46 @@ export const routePlanRouter = createTRPCRouter({
             },
             include: {
               breaks: true,
+              startAddress: true,
               endAddress: true,
             },
           });
+
+          if (!defaultVehicle)
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Default vehicle not found",
+            });
+
+          const startAddress = await ctx.prisma.address.create({
+            data: {
+              formatted: defaultVehicle.startAddress.formatted,
+              latitude: defaultVehicle.startAddress.latitude,
+              longitude: defaultVehicle.startAddress.longitude,
+              depotId: route!.depotId,
+            },
+          });
+
+          const endAddress = defaultVehicle?.endAddress?.formatted
+            ? await ctx.prisma.address.create({
+                data: {
+                  formatted: defaultVehicle.endAddress.formatted,
+                  latitude: defaultVehicle.endAddress.latitude,
+                  longitude: defaultVehicle.endAddress.longitude,
+                  depotId: route!.depotId,
+                },
+              })
+            : {
+                id: undefined,
+              };
 
           const vehicle = await ctx.prisma.vehicle.create({
             data: {
               driverId: driverVehicle.driver.id,
               depotId: route!.depotId,
 
-              startAddressId: address.id,
+              startAddressId: startAddress.id,
+              endAddressId: endAddress.id,
               shiftStart:
                 defaultVehicle?.shiftStart ?? driverVehicle.vehicle.shiftStart,
               shiftEnd:
@@ -211,6 +253,7 @@ export const routePlanRouter = createTRPCRouter({
         },
       });
     }),
+
   addRouteVehicle: protectedProcedure
     .input(
       z.object({
@@ -285,6 +328,7 @@ export const routePlanRouter = createTRPCRouter({
             },
           },
           startAddress: true,
+          endAddress: true,
           breaks: true,
         },
       });

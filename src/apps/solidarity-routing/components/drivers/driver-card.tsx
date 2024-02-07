@@ -16,7 +16,7 @@ const DriverCard: FC<TDriverCard> = ({ id, name }) => {
   return (
     <DepotCard
       isActive={isActive}
-      title={name ?? "New Driver"}
+      title={name ?? "Route Driver"}
       onEdit={onEdit}
     />
   );

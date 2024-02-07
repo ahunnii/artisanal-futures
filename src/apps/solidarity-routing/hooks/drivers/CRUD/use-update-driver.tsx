@@ -19,6 +19,7 @@ export const useUpdateDriver = () => {
   const apiContext = api.useContext();
 
   const routeId = params?.routeId as string;
+  const depotId = params?.depotId as string;
 
   const isSandbox = pathname?.includes("sandbox");
 
@@ -69,10 +70,14 @@ export const useUpdateDriver = () => {
     }
   };
 
-  const updateDepotDriverDetails = (bundle: DriverVehicleBundle) => {
+  const updateDepotDriverDetails = ({
+    bundle,
+  }: {
+    bundle: DriverVehicleBundle;
+  }) => {
     if (isUserAllowedToSaveToDepot) {
       updateDriverDetails.mutate({
-        id: bundle.driver.id,
+        driverId: bundle.driver.id,
         driver: bundle.driver,
       });
     } else {
@@ -90,6 +95,7 @@ export const useUpdateDriver = () => {
       updateDriverDefaults.mutate({
         bundle,
         defaultId: id,
+        depotId: Number(depotId),
       });
     } else {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);

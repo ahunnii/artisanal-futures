@@ -2,7 +2,7 @@ import { useMemo, useState, type FC } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uniqueId } from "lodash";
-import { Trash } from "lucide-react";
+import { FileCog, Pencil, Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Accordion } from "~/components/ui/accordion";
@@ -27,13 +27,18 @@ import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 
 import { api } from "~/utils/api";
+import { cn } from "~/utils/styles";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 import {
   secondsToMinutes,
   unixSecondsToMilitaryTime,
 } from "../../libs/format-csv.wip";
 import { formatDriverFormDataToBundle } from "../../utils/driver-vehicle/format-drivers.wip";
-import { metersToMiles } from "../../utils/generic/format-utils.wip";
+import {
+  metersToMiles,
+  numberStringToPhoneFormat,
+  phoneFormatStringToNumber,
+} from "../../utils/generic/format-utils.wip";
 
 type TDriverForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -44,25 +49,43 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   const drivers = useDriverVehicleBundles();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [editDriver, setEditDriver] = useState(false);
   const { status } = useSession();
+
+  const [accordionValue, setAccordionValue] = useState(
+    activeDriver ? "item-2" : "item-1"
+  );
 
   // const drivers = drivers.data;
 
   // const databaseDrivers = depotDrivers.onlyDrivers;
 
   const defaultValues: DriverFormValues = {
-    id: activeDriver?.driver.id ?? uniqueId("driver_"),
+    id: activeDriver?.driver?.id ?? uniqueId("driver_"),
     vehicleId: activeDriver?.vehicle.id ?? uniqueId("vehicle_"),
     startAddressId: activeDriver?.vehicle.startAddressId ?? uniqueId("addr_"),
-    type: activeDriver?.driver.type ?? "TEMP",
-    name: activeDriver?.driver.name ?? "",
-    email: activeDriver?.driver.email ?? "",
-    phone: activeDriver?.driver.phone ?? "",
+    addressId: activeDriver?.driver.addressId ?? uniqueId("addr_"),
+    type: activeDriver?.driver?.type ?? "TEMP",
+    name: activeDriver?.driver?.name ?? "",
+    email: activeDriver?.driver?.email ?? "",
+    phone: phoneFormatStringToNumber(activeDriver?.driver?.phone ?? ""),
+
     address: {
+      formatted: activeDriver?.driver.address.formatted ?? undefined,
+      latitude: activeDriver?.driver.address.latitude ?? undefined,
+      longitude: activeDriver?.driver.address.longitude ?? undefined,
+    } as Coordinates & { formatted: string },
+
+    startAddress: {
       formatted: activeDriver?.vehicle.startAddress.formatted ?? undefined,
       latitude: activeDriver?.vehicle.startAddress.latitude ?? undefined,
       longitude: activeDriver?.vehicle.startAddress.longitude ?? undefined,
+    } as Coordinates & { formatted: string },
+
+    endAddress: {
+      formatted: activeDriver?.vehicle?.endAddress?.formatted ?? undefined,
+      latitude: activeDriver?.vehicle?.endAddress?.latitude ?? undefined,
+      longitude: activeDriver?.vehicle?.endAddress?.longitude ?? undefined,
     } as Coordinates & { formatted: string },
 
     shiftStart: activeDriver?.vehicle.shiftStart
@@ -95,11 +118,15 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   });
 
   function onSubmit(data: DriverFormValues) {
-    if (activeDriver)
+    if (activeDriver) {
       drivers.updateDriver({
         bundle: formatDriverFormDataToBundle(data),
       });
-    else drivers.create({ driver: formatDriverFormDataToBundle(data) });
+      if (editDriver)
+        drivers.updateDepotDriver({
+          bundle: formatDriverFormDataToBundle(data),
+        });
+    } else drivers.create({ driver: formatDriverFormDataToBundle(data) });
 
     toast({
       title: "You submitted the following values:",
@@ -120,6 +147,8 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
 
   const updateDefault = (data: DriverFormValues) => {
     const temp = formatDriverFormDataToBundle(data);
+
+    console.log(temp);
     drivers.updateDefaults(activeDriver?.driver?.defaultVehicleId, temp);
   };
 
@@ -134,13 +163,22 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
 
       <Form {...form}>
         <form
-          onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-          onChange={() => console.log(form.formState.errors)}
-          className="  flex  h-full w-full flex-col space-y-8  md:h-[calc(100vh-15vh)] lg:flex-grow"
+          onSubmit={(e) => {
+            console.log(form.formState.errors);
+            void form.handleSubmit(onSubmit)(e);
+          }}
+          onChange={() => console.log(form.watch("phone"))}
+          className="  flex  h-full max-h-[calc(100vh-50vh)] w-full flex-col  space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
         >
+          {/* <p className="text-muted-foreground">
+              Changes made will only apply to this route.{" "}
+            </p> */}
           {activeDriver && (
             <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
               <div className="flex items-center justify-between gap-3">
+                <Button type="submit" className="flex-1">
+                  {activeDriver ? "Update" : "Add"} route vehicle
+                </Button>
                 <Button
                   type="button"
                   size="icon"
@@ -151,7 +189,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
                   <span className="sr-only">Delete</span>
                 </Button>
 
-                {status === "authenticated" && (
+                {/* {status === "authenticated" && (
                   <Button
                     type="button"
                     className="flex-1"
@@ -162,11 +200,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
                   >
                     {activeDriver ? "Set as driver default" : "Save and add"}
                   </Button>
-                )}
-
-                <Button type="submit" className="flex-1">
-                  {activeDriver ? "Update" : "Add"} driver
-                </Button>
+                )} */}
               </div>
             </div>
           )}
@@ -186,22 +220,64 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
               </div>
             </div>
           )}
-          <ScrollArea className=" h-full w-full flex-1  max-md:max-h-[60vh]">
+
+          <div className=" flex-1 ">
             <Accordion
               type="single"
               collapsible
-              className="w-full px-4"
-              defaultValue="item-1"
+              className="flex h-full  w-full flex-col  px-4"
+              value={accordionValue}
+              onValueChange={setAccordionValue}
             >
-              <DriverDetailsSection form={form} />
+              {/* <ScrollArea className=" h-full w-full flex-1 max-md:max-h-[60vh]"> */}
 
+              {(!activeDriver || editDriver) && (
+                <DriverDetailsSection form={form} />
+              )}
               <VehicleDetailsSection form={form} />
+
               <ShiftDetailsSection form={form} />
+
+              {/* </ScrollArea> */}
             </Accordion>
-          </ScrollArea>
-          <div className="mt-auto flex gap-4 "></div>
+          </div>
         </form>
       </Form>
+
+      {activeDriver && (
+        <div className=" mt-auto  w-full flex-col  gap-2 space-y-0.5 border-t  pt-4">
+          <div className="flex w-full">
+            <Button
+              variant={"link"}
+              type="button"
+              className=" m-0 items-center  gap-1 p-0"
+              onClick={() => {
+                console.log(formatDriverFormDataToBundle(form.getValues()));
+                updateDefault(form.getValues());
+              }}
+            >
+              <FileCog className="h-4 w-4" />
+              Set as default for {activeDriver?.driver.name}
+            </Button>
+          </div>
+          <div className="flex w-full">
+            <Button
+              variant={"link"}
+              className={cn(
+                " m-0 items-center  gap-1 p-0",
+                editDriver && "hidden"
+              )}
+              onClick={() => {
+                setEditDriver((prev) => !prev);
+                setAccordionValue("item-1");
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+              Edit details for {activeDriver?.driver.name}
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
