@@ -41,7 +41,7 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
 
   const drivers = useDriverVehicleBundles();
 
-  const driverName = drivers.getDriverById(driverId)?.name;
+  const driverName = drivers.getDriverById(vehicleId)?.driver?.name;
 
   const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
   const endTime = convertSecondsToTime(

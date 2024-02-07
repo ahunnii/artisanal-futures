@@ -1,8 +1,6 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-import DriverSheet from "~/apps/solidarity-routing/components/drivers/driver-sheet";
 import { OptimizationSummary } from "~/apps/solidarity-routing/components/solutions/optimization-summary";
-import StopSheet from "~/apps/solidarity-routing/components/stops/fulfillment-sheet";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 
@@ -26,8 +24,7 @@ const CalculationsTab = () => {
           </h2>
         </div>
       </div>
-      <DriverSheet />
-      <StopSheet />
+
       <ScrollArea className=" flex-1  px-4">
         {currentRoutingSolution && (
           <OptimizationSummary

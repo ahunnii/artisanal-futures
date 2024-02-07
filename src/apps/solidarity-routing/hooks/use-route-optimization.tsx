@@ -32,6 +32,7 @@ const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
 
 const useRouteOptimization = () => {
   const bundles = useDriverVehicleBundles();
+
   const drivers = bundles?.data;
 
   const { stops: locations } = useClientJobBundles();

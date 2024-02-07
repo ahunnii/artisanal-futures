@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ArrowRight } from "lucide-react";
 
-import {
-  DriverSheet,
-  DriversTab,
-} from "~/apps/solidarity-routing/components/drivers";
+import { DriversTab } from "~/apps/solidarity-routing/components/drivers";
 import {
   StopSheet,
   StopsTab,
@@ -61,7 +58,7 @@ const SandboxRoutingPage = () => {
     window.open("/tools/routing/tracking", "_blank");
 
   const isRouteDataMissing =
-    stops.fromStoreState?.length === 0 || drivers.fromStoreState.length === 0;
+    stops.fromStoreState?.length === 0 || drivers.route.length === 0;
 
   return (
     <>
@@ -74,9 +71,6 @@ const SandboxRoutingPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />{" "}
       </Head>
-
-      <StopSheet />
-      <DriverSheet />
 
       <RouteLayout>
         <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
@@ -131,7 +125,7 @@ const SandboxRoutingPage = () => {
                     className="gap-2"
                     disabled={
                       stops.fromStoreState?.length === 0 ||
-                      drivers.fromStoreState.length === 0
+                      drivers.route.length === 0
                     }
                   >
                     Calculate Routes <ArrowRight />
@@ -149,8 +143,7 @@ const SandboxRoutingPage = () => {
             <BottomSheet
               title="Calculate"
               isDisabled={
-                stops.fromStoreState?.length === 0 ||
-                drivers.fromStoreState.length === 0
+                stops.fromStoreState?.length === 0 || drivers.route.length === 0
               }
               handleOnClick={calculateOptimalPaths}
             >

@@ -1,5 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion";
-import DriverForm from "~/apps/solidarity-routing/components/drivers/driver-form";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+
+import { Users } from "lucide-react";
+
+import { Button } from "~/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -10,15 +14,10 @@ import {
 } from "~/components/ui/map-sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import { UserPlus, Users } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { Button } from "~/components/ui/button";
-import { api } from "~/utils/api";
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import { DriverVehicleBundle } from "../../types.wip";
-import { DriverDepotSelect } from "./driver-depot-select";
+import { DriverDepotSelect } from "~/apps/solidarity-routing/components/drivers/driver-depot-select";
+import DriverForm from "~/apps/solidarity-routing/components/drivers/driver-form";
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 
 export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
   const drivers = useDriverVehicleBundles();
@@ -29,10 +28,7 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
   const { status } = useSession();
 
   return (
-    <Sheet
-      open={drivers.isQuickAddOpen}
-      onOpenChange={drivers.onQuickAddChange}
-    >
+    <Sheet open={drivers.isSheetOpen} onOpenChange={drivers.onSheetOpenChange}>
       {!standalone && (
         <SheetTrigger asChild>
           <Button variant="outline" className="px-3 shadow-none">
@@ -60,56 +56,60 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
 
         {status === "loading" && <p>Loading...</p>}
 
-        {status === "authenticated" && !standalone && (
-          <>
-            <Tabs
-              defaultValue="account"
-              className="w-full"
-              value={tabValue}
-              onValueChange={setTabValue}
-            >
-              <div className="flex w-full items-center justify-between">
-                <TabsList>
-                  <TabsTrigger value="account">Add Existing</TabsTrigger>
-                  <TabsTrigger value="password">Create New</TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="account">
-                <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <Button
-                      className="flex-1"
-                      onClick={() => {
-                        drivers.assign({
-                          drivers: selectedData,
-                        });
-                      }}
-                    >
-                      Update route drivers
-                    </Button>
-                  </div>
+        {drivers?.active === null &&
+          status === "authenticated" &&
+          !standalone && (
+            <>
+              <Tabs
+                defaultValue="account"
+                className="w-full"
+                value={tabValue}
+                onValueChange={setTabValue}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <TabsList>
+                    <TabsTrigger value="account">Add Existing</TabsTrigger>
+                    <TabsTrigger value="password">Create New</TabsTrigger>
+                  </TabsList>
                 </div>
+                <TabsContent value="account">
+                  <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <Button
+                        className="flex-1"
+                        onClick={() => {
+                          drivers.assign({
+                            drivers: selectedData,
+                          });
+                        }}
+                      >
+                        Update route drivers
+                      </Button>
+                    </div>
+                  </div>
 
-                <DriverDepotSelect
-                  storeData={drivers.data}
-                  data={drivers.fromDepot}
-                  setSelectedData={setSelectedData}
-                />
-              </TabsContent>
-              <TabsContent value="password">
-                <DriverForm
-                  handleOnOpenChange={drivers.onSheetOpenChange}
-                  activeDriver={drivers.active}
-                />
-              </TabsContent>
-            </Tabs>
-          </>
-        )}
+                  <DriverDepotSelect
+                    storeData={drivers.data}
+                    data={drivers.depot}
+                    setSelectedData={setSelectedData}
+                  />
+                </TabsContent>
+                <TabsContent value="password">
+                  <DriverForm
+                    handleOnOpenChange={drivers.onSheetOpenChange}
+                    activeDriver={drivers.active}
+                  />
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
 
         {/* Option 2: use is logged in and allows for user to select existing drivers
           as well as add new drivers to the database
         */}
-        {(status === "unauthenticated" || standalone) && (
+        {(drivers?.active !== null ||
+          status === "unauthenticated" ||
+          standalone) && (
           <DriverForm
             handleOnOpenChange={drivers.onSheetOpenChange}
             activeDriver={drivers.active}

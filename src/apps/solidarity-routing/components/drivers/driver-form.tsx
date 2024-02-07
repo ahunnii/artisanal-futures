@@ -54,6 +54,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   const defaultValues: DriverFormValues = {
     id: activeDriver?.driver.id ?? uniqueId("driver_"),
     vehicleId: activeDriver?.vehicle.id ?? uniqueId("vehicle_"),
+    startAddressId: activeDriver?.vehicle.startAddressId ?? uniqueId("addr_"),
     type: activeDriver?.driver.type ?? "TEMP",
     name: activeDriver?.driver.name ?? "",
     email: activeDriver?.driver.email ?? "",
@@ -96,10 +97,9 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   function onSubmit(data: DriverFormValues) {
     if (activeDriver)
       drivers.updateDriver({
-        vehicleId: activeDriver?.vehicle?.id,
-        data: formatDriverFormDataToBundle(data),
+        bundle: formatDriverFormDataToBundle(data),
       });
-    else drivers.addNew({ driver: formatDriverFormDataToBundle(data) });
+    else drivers.create({ driver: formatDriverFormDataToBundle(data) });
 
     toast({
       title: "You submitted the following values:",
@@ -114,17 +114,13 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   }
 
   const onDelete = () => {
-    const temp = drivers.data.filter(
-      (loc) => loc.driver.id !== activeDriver?.driver.id
-    );
-
-    drivers.setRouteDrivers({ drivers: temp });
+    drivers.deleteFromRoute({ vehicleId: activeDriver?.vehicle.id });
     handleOnOpenChange(false);
   };
 
   const updateDefault = (data: DriverFormValues) => {
     const temp = formatDriverFormDataToBundle(data);
-    drivers.updateDefault(activeDriver?.driver?.id, temp);
+    drivers.updateDefaults(activeDriver?.driver?.defaultVehicleId, temp);
   };
 
   return (

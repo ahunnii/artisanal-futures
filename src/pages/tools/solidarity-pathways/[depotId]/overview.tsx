@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { FilePlus, Settings, UserPlus } from "lucide-react";
 
-import { DriverSheet } from "~/apps/solidarity-routing/components/drivers";
 import { StopSheet } from "~/apps/solidarity-routing/components/stops";
 
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
@@ -51,8 +50,8 @@ const PathwaysDepotOverviewPage = () => {
   const fileUploadOptions = useMemo(
     () =>
       driverVehicleUploadOptions({
-        drivers: drivers.fromDepot,
-        setDrivers: drivers.addDriversToDepot,
+        drivers: drivers.depot,
+        setDrivers: drivers.createMany,
         status,
       }),
     [status, drivers]
@@ -76,9 +75,6 @@ const PathwaysDepotOverviewPage = () => {
 
   return (
     <>
-      {/* <StopSheet />
-      <DriverSheet /> */}
-
       <DriverAddSheet standalone={true} />
       <RouteLayout>
         <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">

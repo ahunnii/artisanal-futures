@@ -75,19 +75,19 @@ export const driverVehicleUploadOptions = ({
   drivers: DriverVehicleBundle[];
   setDrivers: ({
     drivers,
-    saveToDB,
+    addToRoute,
   }: {
     drivers: DriverVehicleBundle[];
-    saveToDB: boolean;
+    addToRoute?: boolean;
   }) => void;
   status: "authenticated" | "unauthenticated" | "loading" | "error";
 }): UploadOptions<DriverVehicleBundle> => ({
   type: "driver" as keyof DriverVehicleBundle,
   parseHandler: handleDriverSheetUpload,
-  handleAccept: ({ data, saveToDB }) => {
+  handleAccept: ({ data }) => {
     setDrivers({
       drivers: data,
-      saveToDB: status === "authenticated" && saveToDB,
+      addToRoute: false,
     });
   },
   currentData: drivers,

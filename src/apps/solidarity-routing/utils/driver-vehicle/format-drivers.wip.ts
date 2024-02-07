@@ -21,6 +21,7 @@ export const formatDriverFormDataToBundle = (
     email: data.email,
     phone: data.phone,
     name: data.name,
+
     address: {
       formatted: data.address.formatted,
       latitude: data.address.latitude,
@@ -29,6 +30,7 @@ export const formatDriverFormDataToBundle = (
   },
   vehicle: {
     id: data?.vehicleId ?? uniqueId("vehicle_"),
+    startAddressId: data?.startAddressId ?? uniqueId("address_"),
     startAddress: {
       formatted: data.address.formatted,
       latitude: data.address.latitude,

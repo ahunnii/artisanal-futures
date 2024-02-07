@@ -110,6 +110,7 @@ export const driverSchema = z.object({
 export const vehicleSchema = z.object({
   id: z.string(),
   type: z.string().optional(),
+
   startAddressId: z.string().optional(),
 
   startAddress: z.object({
@@ -151,6 +152,7 @@ export const clientJobSchema = z.object({
 export const driverFormSchema = z.object({
   id: z.string(),
   vehicleId: z.string().optional(),
+  startAddressId: z.string().optional(),
   type: z.nativeEnum(DBDriverType),
   name: z
     .string()
@@ -167,6 +169,7 @@ export const driverFormSchema = z.object({
   phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, {
     message: "Phone number must be in the format (XXX) XXX-XXXX.",
   }),
+
   address: z.object({
     formatted: z.string(),
     latitude: z.number(),

@@ -94,7 +94,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const { stops, addStopByLatLng } = useClientJobBundles();
 
   // const drivers = bundles?.all;
-  const addDriverByLatLng = drivers.addByLatLng;
+  const addDriverByLatLng = drivers.createByLatLng;
 
   // const { locations, addLocationByLatLng } = useStopsStore((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
@@ -310,7 +310,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             Add as Stop
           </ContextMenuItem>
           <ContextMenuItem
-            onClick={() => addDriverByLatLng(latLng?.lat, latLng?.lng)}
+            onClick={() =>
+              addDriverByLatLng({ lat: latLng?.lat, lng: latLng?.lng })
+            }
           >
             Add as Driver
           </ContextMenuItem>

@@ -40,15 +40,15 @@ import type { DriverVehicleBundle } from "../../types.wip";
 const DeleteComponent = ({ row }: { row: DriverVehicleBundle }) => {
   const drivers = useDriverVehicleBundles();
 
-  const editPost = (id: string) => {
-    drivers.deletePermanently(id);
+  const editPost = () => {
+    drivers.deleteFromDepot({
+      driverId: row.driver.id,
+      vehicleId: row.vehicle.id,
+    });
   };
 
   return (
-    <p
-      onClick={() => editPost(row.driver.id)}
-      className="text-red-500 hover:text-red-400"
-    >
+    <p onClick={editPost} className="text-red-500 hover:text-red-400">
       Delete from Depot
     </p>
   );

@@ -155,34 +155,39 @@ const useMap = ({
   }, [routes, mapRef, trackingEnabled]);
 
   useEffect(() => {
-    if (activeDriver && mapRef) flyTo(activeDriver?.vehicle.startAddress, 15);
-  }, [activeDriver, mapRef, flyTo]);
+    if (drivers.active && mapRef)
+      flyTo(drivers.active.vehicle.startAddress, 15);
+  }, [drivers.active, mapRef, flyTo]);
 
   useEffect(() => {
     if (activeLocation && mapRef) flyTo(activeLocation?.job.address, 15);
   }, [activeLocation, mapRef, flyTo]);
 
-  // useEffect(() => {
-  //   if (
-  //     ((locations && locations.length > 0) ||
-  //       (drivers && drivers.length > 0)) &&
-  //     mapRef
-  //   ) {
-  //     const bounds = L.latLngBounds(
-  //       [...locations, ...drivers].map(
-  //         (location) =>
-  //           [
-  //             location?.job?.address?.latitude ??
-  //               location?.vehicle?.start_location?.latitude,
-  //             location?.job?.address?.longitude ??
-  //               location?.vehicle?.start_location?.latitude,
-  //           ] as LatLngExpression
-  //       )
-  //     );
+  useEffect(() => {
+    if (
+      ((locations && locations.length > 0) ||
+        (drivers && drivers.data.length > 0)) &&
+      mapRef
+    ) {
+      const driverBounds = drivers.data.map(
+        (driver) =>
+          [
+            driver.vehicle.startAddress.latitude,
+            driver.vehicle.startAddress.longitude,
+          ] as LatLngExpression
+      );
+      const locationBounds = locations.map(
+        (location) =>
+          [
+            location.job.address.latitude,
+            location.job.address.longitude,
+          ] as LatLngExpression
+      );
+      const bounds = L.latLngBounds([...driverBounds, ...locationBounds]);
 
-  //     mapRef.fitBounds(bounds);
-  //   }
-  // }, [locations, drivers, mapRef]);
+      mapRef.fitBounds(bounds);
+    }
+  }, [locations, drivers, mapRef]);
 
   useEffect(() => {
     if (mapRef && stops && driverEnabled) {

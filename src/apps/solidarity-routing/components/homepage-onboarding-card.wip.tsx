@@ -61,17 +61,17 @@ export const HomePageOnboardingCard = ({ date, status }: IProps) => {
     button: {
       Icon: Truck,
       caption: "Add your drivers from spreadsheet",
-      isProcessed: drivers.fromDepot.length > 0,
+      isProcessed: drivers.depot.length > 0,
     },
     fileUpload: {
       type: "driver" as keyof DriverVehicleBundle,
       parseHandler: handleDriverSheetUpload,
       handleAccept: ({ data }) => {
-        drivers.assignToDepot({
+        drivers.createMany({
           drivers: data,
         });
       },
-      currentData: drivers.fromDepot,
+      currentData: drivers.depot,
     },
   } as UploadButtonOptions<DriverVehicleBundle>;
 

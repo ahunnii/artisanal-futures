@@ -5,10 +5,7 @@ import { useEffect, useState } from "react";
 
 import { ArrowRight, Building, Calendar } from "lucide-react";
 
-import {
-  DriverSheet,
-  DriversTab,
-} from "~/apps/solidarity-routing/components/drivers";
+import { DriversTab } from "~/apps/solidarity-routing/components/drivers";
 import {
   StopSheet,
   StopsTab,
@@ -45,9 +42,14 @@ const SingleRoutePage = () => {
   const [tabValue, setTabValue] = useState<string>("plan");
 
   const { data: routePlan, isLoading } =
-    api.routePlan.getRoutePlanById.useQuery({
-      id: params?.routeId as string,
-    });
+    api.routePlan.getRoutePlanById.useQuery(
+      {
+        id: params?.routeId as string,
+      },
+      {
+        enabled: !!params?.routeId,
+      }
+    );
 
   const bundles = useDriverVehicleBundles();
 
@@ -75,9 +77,6 @@ const SingleRoutePage = () => {
 
   return (
     <>
-      <StopSheet />
-      <DriverSheet />
-
       <RouteLayout>
         {isLoading && <AbsolutePageLoader />}
 
