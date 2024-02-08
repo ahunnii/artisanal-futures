@@ -39,9 +39,11 @@ export const getCurrentLocation = (
     return;
   }
 
-  navigator.geolocation.getCurrentPosition((position) =>
-    success(position.coords)
-  );
+  navigator.geolocation.watchPosition((position) => success(position.coords));
+
+  // navigator.geolocation.getCurrentPosition((position) =>
+  //   success(position.coords)
+  // );
 };
 
 export const sendCurrentLocation = (routeId: string, routeData: RouteData) => {

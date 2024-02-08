@@ -12,24 +12,45 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import type { ClientJobBundle } from "../../types.wip";
 import { useStopsStore } from "../use-stops-store";
+import { useCreateJob } from "./CRUD/use-create-job";
+import { useDeleteJob } from "./CRUD/use-delete-job";
+import { useReadJob } from "./CRUD/use-read-job";
+import { useUpdateJob } from "./CRUD/use-update-job";
 
 //With two ways to use the application, this manages the state of the depot either from zustand or from the database
 export const useClientJobBundles = () => {
+  const { data: session, status } = useSession();
+
   const pathname = usePathname();
   const router = useRouter();
   const params = useParams();
 
+  const readJob = useReadJob();
+  const createJob = useCreateJob();
+  const updateJob = useUpdateJob();
+  const deleteJob = useDeleteJob();
+
+  const sessionStorageStops = useStopsStore((state) => state);
+
+  const routeId = params?.routeId as string;
+  const depotId = params?.depotId as string;
+
+  const isSandbox = pathname?.includes("sandbox");
+  const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
+
   const apiContext = api.useContext();
   const searchParams = useSearchParams();
 
-  const depotId = params?.depotId as string;
-
-  const { data: session, status } = useSession();
   const user = session?.user ?? null;
 
   const { data: clients } = api.clients.getDepotClients.useQuery(
     { depotId: Number(depotId) },
     { enabled: status === "authenticated" }
+  );
+
+  const getRouteJobs = api.routePlan.getJobBundles.useQuery(
+    { routeId },
+    { enabled: isUserAllowedToSaveToDepot && routeId !== undefined }
   );
 
   const { data: depotStops, isLoading: depotStopsLoading } =
@@ -52,20 +73,9 @@ export const useClientJobBundles = () => {
       },
     });
 
-  const sessionStorageStops = useStopsStore((state) => state);
-
   const checkIfSearchParamExistsInStops = (id: string | null) => {
     return sessionStorageStops.locations?.some((stop) => stop.job.id === id);
   };
-
-  useEffect(() => {
-    if (
-      sessionStorageStops.locations &&
-      checkIfSearchParamExistsInStops(searchParams.get("stopId"))
-    ) {
-      setActiveById(searchParams.get("stopId"));
-    }
-  }, []);
 
   const updateStopSearchParam = (id: number | string | null) => {
     const params = new URLSearchParams(searchParams);
@@ -78,24 +88,24 @@ export const useClientJobBundles = () => {
     void router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const setActive = (id: string | null) => {
-    if (user) {
-      console.log(id);
-      updateStopSearchParam(id);
-
+  const setActiveStop = (id: string | null) => {
+    updateStopSearchParam(id);
+    if (user && !isSandbox) {
       if (user && depotStops) {
-        const depotStop = depotStops?.find(
-          (bundle: ClientJobBundle) => bundle.job.id === id
-        );
+        //Check if route has data
+        if (getRouteJobs.data) {
+          const depotStop = (
+            getRouteJobs.data as unknown as ClientJobBundle[]
+          )?.find((bundle: ClientJobBundle) => bundle.job.id === id);
 
-        if (depotStop) {
-          sessionStorageStops.setActiveLocation(depotStop);
-        } else {
-          sessionStorageStops.setActiveLocation(null);
+          if (depotStop) sessionStorageStops.setActiveLocation(depotStop);
+          else sessionStorageStops.setActiveLocation(null);
         }
       }
     } else {
-      sessionStorageStops.setActiveLocationById(id);
+      if (sessionStorageStops.locations)
+        sessionStorageStops.setActiveLocationById(id);
+      else sessionStorageStops.setActiveLocation(null);
     }
   };
 
@@ -151,18 +161,31 @@ export const useClientJobBundles = () => {
     sessionStorageStops.removeLocation(id);
   };
 
+  useEffect(() => {
+    if (
+      sessionStorageStops.locations &&
+      checkIfSearchParamExistsInStops(searchParams.get("stopId"))
+    ) {
+      setActiveById(searchParams.get("stopId"));
+    }
+  }, []);
+
   return {
-    data: user ? depotStops : sessionStorageStops.locations,
-    isDataLoading: user ? depotStopsLoading : false,
+    data:
+      user && !isSandbox
+        ? (getRouteJobs.data as unknown as ClientJobBundle[]) ??
+          sessionStorageStops.locations ??
+          ([] as ClientJobBundle[])
+        : sessionStorageStops.locations ?? ([] as ClientJobBundle[]),
+    isDataLoading: user && !isSandbox ? getRouteJobs.isLoading : false,
+
     fromStoreState: sessionStorageStops.locations ?? [],
     stops: sessionStorageStops.locations,
-    clients: clients ?? [],
+
     depotStops: depotStops,
     isLoading: user ? depotStopsLoading : false,
-    activeStop: sessionStorageStops.activeLocation,
-    addStopByLatLng: sessionStorageStops.addLocationByLatLng,
-    setActiveStop: setActive,
-    setActiveStopById: setActiveById,
+    active: sessionStorageStops.activeLocation,
+
     isStopActive: isActive,
     openStopSheet,
     closeStopSheet,
@@ -173,5 +196,25 @@ export const useClientJobBundles = () => {
     setStops,
     removeStop,
     isStopSheetOpen: sessionStorageStops.isStopSheetOpen,
+
+    clients: clients ?? [],
+
+    createMany: createJob.createNewJobs,
+    createByLatLng: sessionStorageStops.addLocationByLatLng,
+
+    isActive: (id: string) => {
+      return sessionStorageStops.activeLocation?.job.id === id;
+    },
+
+    edit: (id: string) => {
+      setActiveStop(id);
+      sessionStorageStops.setIsStopSheetOpen(true);
+    },
+
+    isSheetOpen: sessionStorageStops.isStopSheetOpen,
+    onSheetOpenChange: (state: boolean) => {
+      if (!state) setActiveStop(null);
+      sessionStorageStops.setIsStopSheetOpen(state);
+    },
   };
 };

@@ -51,12 +51,9 @@ const SingleRoutePage = () => {
       }
     );
 
-  const bundles = useDriverVehicleBundles();
+  const drivers = useDriverVehicleBundles();
 
-  const { stops: locations } = useClientJobBundles();
-
-  // const { locations } = useStopsStore((state) => state);
-  const drivers = bundles?.data;
+  const jobs = useClientJobBundles();
 
   useEffect(() => {
     void useStopsStore.persist.rehydrate();
@@ -73,7 +70,8 @@ const SingleRoutePage = () => {
   const openTrackingPage = () =>
     window.open("/tools/routing/tracking", "_blank");
 
-  const isRouteDataMissing = locations.length === 0 || drivers.length === 0;
+  const isRouteDataMissing =
+    jobs.data.length === 0 || drivers.data.length === 0;
 
   return (
     <>
@@ -163,7 +161,9 @@ const SingleRoutePage = () => {
                     <Button
                       onClick={calculateOptimalPaths}
                       className="gap-2"
-                      disabled={locations.length === 0 || drivers.length === 0}
+                      disabled={
+                        jobs.data.length === 0 || drivers.data.length === 0
+                      }
                     >
                       Calculate Routes <ArrowRight />
                     </Button>
@@ -179,7 +179,7 @@ const SingleRoutePage = () => {
 
               <BottomSheet
                 title="Calculate"
-                isDisabled={locations.length === 0 || drivers.length === 0}
+                isDisabled={jobs.data.length === 0 || drivers.data.length === 0}
                 handleOnClick={calculateOptimalPaths}
               >
                 <CalculationsTab />

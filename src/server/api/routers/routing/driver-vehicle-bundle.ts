@@ -278,7 +278,7 @@ export const driverVehicleBundleRouter = createTRPCRouter({
         };
       });
 
-      return bundles as DriverVehicleBundle[];
+      return bundles as unknown as DriverVehicleBundle[];
     }),
 
   deleteAllByDepotId: protectedProcedure

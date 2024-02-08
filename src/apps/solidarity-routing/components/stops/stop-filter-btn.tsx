@@ -27,8 +27,7 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 export function StopFilterBtn() {
   const [open, setOpen] = React.useState(false);
-  const { stops, clients, setActiveStopById, setStopSheetState } =
-    useClientJobBundles();
+  const jobs = useClientJobBundles();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -66,19 +65,19 @@ export function StopFilterBtn() {
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Stops">
-              {stops?.map((stop) => (
+              {jobs.data?.map((stop) => (
                 <CommandItem key={stop.job.id}>
                   <div
                     className="flex cursor-pointer items-center "
                     onClick={() => {
-                      setActiveStopById(stop.job.id);
-                      setStopSheetState(true);
+                      jobs.edit(stop.job.id);
                       setOpen(false);
                     }}
                   >
                     <MapPin className="mr-2 h-4 w-4" />
                     <div className="flex flex-col">
-                      <span>{stop.client?.name ?? "New Stop"}</span>
+                      {stop.client?.name && <span>{stop.client?.name}</span>}
+
                       <span>{stop.job.address.formatted}</span>
                     </div>
                   </div>
@@ -86,11 +85,11 @@ export function StopFilterBtn() {
               ))}
             </CommandGroup>
 
-            {clients && clients.length > 0 && (
+            {jobs.clients && jobs.clients.length > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup heading="Clients">
-                  {clients?.map((client) => (
+                  {jobs.clients?.map((client) => (
                     <CommandItem key={client.id}>
                       <User className="mr-2 h-4 w-4" />
                       <div className="flex flex-col">

@@ -26,23 +26,23 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../file-upload-modal.wip";
 import { StopAddSheet } from "./stop-add-sheet";
+import StopSheet from "./stop-sheet";
 
 // import useTabOptions from "~/apps/solidarity-routing/hooks/use-tab-options";
 
 const StopOptionBtn = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { stops, setStops, setStopSheetState, setActiveStopById } =
-    useClientJobBundles();
+  const jobs = useClientJobBundles();
   const { status } = useSession();
 
   const fileUploadOptions = useMemo(
     () =>
       clientJobUploadOptions({
-        jobs: stops,
-        setJobs: setStops,
+        jobs: jobs.data,
+        setJobs: jobs.createMany,
         status,
       }),
-    [stops, status, setStops]
+    [jobs, status]
   );
 
   // const {
@@ -58,7 +58,7 @@ const StopOptionBtn = () => {
 
   return (
     <div className="z-30 flex items-center rounded-md border bg-white text-secondary-foreground">
-      <StopAddSheet />
+      <StopSheet />
 
       <Separator orientation="vertical" className="h-[20px]" />
       <FileUploadModal<ClientJobBundle>

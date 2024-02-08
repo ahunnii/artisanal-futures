@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { useMemo, type FC } from "react";
 
 import { useJsApiLoader } from "@react-google-maps/api";
 import {
@@ -36,8 +36,11 @@ import { Separator } from "~/components/ui/separator";
 import type { Driver, StopFormValues } from "../../types.wip";
 
 import { DriverType } from "@prisma/client";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Textarea } from "~/components/ui/textarea";
 import { env } from "~/env.mjs";
+import { cn } from "~/utils/styles";
+import { AutoCompleteJobBtn } from "./autocomplete-job-btn";
 
 type ClientDetailsSectionProps = {
   form: UseFormReturn<StopFormValues>;
@@ -76,19 +79,36 @@ const ClientDetailsSection: FC<ClientDetailsSectionProps> = ({ form }) => {
       })
       .catch((err) => console.error("Error", err));
   };
+  const formErrors = form.formState.errors;
+  const checkIfFormHasErrors = useMemo(() => {
+    const keys = ["clientAddress.formatted", "name", "email", "phone", "notes"];
+
+    const hasErrors = keys.some(
+      (key) => formErrors[key as keyof typeof formErrors]
+    );
+    return hasErrors;
+  }, [formErrors]);
 
   return (
     <AccordionItem value="item-2">
-      <AccordionTrigger className="px-2 text-lg">
+      <AccordionTrigger
+        className={cn("px-2 text-lg", checkIfFormHasErrors && "text-red-500")}
+      >
         Client Details
       </AccordionTrigger>
 
-      <AccordionContent className="px-2">
-        {/* <p className="leading-7 [&:not(:first-child)]:mt-6">
+      <ScrollArea
+        className={cn(
+          "w-full transition-all duration-200 ease-in-out group-data-[state=closed]:h-[0vh] group-data-[state=closed]:opacity-0",
+          "group-data-[state=open]:h-[35vh] group-data-[state=open]:opacity-100"
+        )}
+      >
+        <AccordionContent className="px-2">
+          {/* <p className="leading-7 [&:not(:first-child)]:mt-6">
           You can either select a driver from the list of drivers available in
           your database, or create a temporary one.
         </p> */}
-        {/* <p className="leading-7 [&:not(:first-child)]:mt-6">Select driver</p>
+          {/* <p className="leading-7 [&:not(:first-child)]:mt-6">Select driver</p>
 
         <FormField
           control={form.control}
@@ -131,121 +151,88 @@ const ClientDetailsSection: FC<ClientDetailsSectionProps> = ({ form }) => {
           Or create a temporary one:
         </p> */}
 
-        <div className="flex flex-col space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel className="text-sm font-normal text-muted-foreground">
-                  Full Name
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Your driver's name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {isLoaded && (
-            <Controller
-              name="address.formatted"
+          <div className="flex flex-col space-y-4">
+            <FormField
               control={form.control}
-              render={({ field: { onChange, value } }) => (
-                <FormItem>
+              name="name"
+              render={({ field }) => (
+                <FormItem className="w-full">
                   <FormLabel className="text-sm font-normal text-muted-foreground">
-                    Home Address
+                    Full Name
                   </FormLabel>
-
-                  <GooglePlacesAutocomplete
-                    selectProps={{
-                      defaultInputValue: value,
-                      onChange: (e) => handleAutoComplete(e!.label, onChange),
-                      classNames: {
-                        control: (state) =>
-                          state.isFocused
-                            ? "border-red-600"
-                            : "border-grey-300",
-                        input: () => "text-bold",
-                      },
-                      styles: {
-                        input: (provided) => ({
-                          ...provided,
-                          outline: "0px solid",
-                        }),
-                      },
-                    }}
-                  />
-
+                  <FormControl>
+                    <Input placeholder="Your driver's name" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel className="text-sm font-normal text-muted-foreground">
-                  Email
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. test@test.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {isLoaded && (
+              <Controller
+                name="clientAddress.formatted"
+                control={form.control}
+                render={({ field: { onChange, value } }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-normal text-muted-foreground">
+                      Home Address
+                    </FormLabel>
 
-          <FormField
-            control={form.control}
-            name="order"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel className="text-sm font-normal text-muted-foreground">
-                  Order Details (Optional)
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="e.g. Two boxes of squash"
-                    className="resize-none"
-                    // {...field}
-                    onChange={field.onChange}
-                    value={field.value}
-                    aria-rowcount={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                    <AutoCompleteJobBtn
+                      value={value}
+                      onChange={onChange}
+                      form={form}
+                      // useDefault={useDefault}
+                      key="clientAddress"
+                    />
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel className="text-sm font-normal text-muted-foreground">
-                  Notes (Optional)
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="e.g. Two boxes of squash"
-                    className="resize-none"
-                    // {...field}
-                    onChange={field.onChange}
-                    value={field.value}
-                    aria-rowcount={3}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      </AccordionContent>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="text-sm font-normal text-muted-foreground">
+                    Email
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. test@test.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="text-sm font-normal text-muted-foreground">
+                    Notes (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g. Two boxes of squash"
+                      className="resize-none"
+                      // {...field}
+                      onChange={field.onChange}
+                      value={field.value}
+                      aria-rowcount={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </AccordionContent>
+      </ScrollArea>
     </AccordionItem>
   );
 };

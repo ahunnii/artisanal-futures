@@ -1,7 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
-import { Home, Mail, Pencil, Phone, User, Users } from "lucide-react";
+import { Home, Mail, Phone, Users } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -18,24 +18,7 @@ import { DriverDepotSelect } from "~/apps/solidarity-routing/components/drivers/
 import DriverForm from "~/apps/solidarity-routing/components/drivers/driver-form";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-function phoneFormat(input: string) {
-  if (input.length === 11 && input.startsWith("1")) {
-    input = input.slice(1);
-  }
-  //returns (###) ###-####
-  input = input.replace(/\D/g, "");
-  const size = input.length;
-  if (size > 0) {
-    input = "(" + input;
-  }
-  if (size > 3) {
-    input = input.slice(0, 4) + ") " + input.slice(4, 11);
-  }
-  if (size > 6) {
-    input = input.slice(0, 9) + "-" + input.slice(9);
-  }
-  return input;
-}
+import { numberStringToPhoneFormat } from "../../utils/generic/format-utils.wip";
 
 export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
   const drivers = useDriverVehicleBundles();
@@ -78,7 +61,7 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
                   </p>
                   <p className="flex items-center gap-2 font-light text-muted-foreground ">
                     <Phone size={15} />{" "}
-                    {phoneFormat(drivers.active.driver.phone)}
+                    {numberStringToPhoneFormat(drivers.active.driver.phone)}
                   </p>
                   <p className="flex items-center gap-2 font-light text-muted-foreground ">
                     <Mail size={15} /> {drivers.active.driver.email}

@@ -90,18 +90,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
   const drivers = useDriverVehicleBundles();
-
-  const { stops, addStopByLatLng } = useClientJobBundles();
+  const jobs = useClientJobBundles();
 
   // const drivers = bundles?.all;
   const addDriverByLatLng = drivers.createByLatLng;
+  const addJobByLatLng = jobs.createByLatLng;
 
   // const { locations, addLocationByLatLng } = useStopsStore((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
   const { filteredLocations } = useRouteOptimization();
 
   // Filter through current stops and mark if the optimized route has assigned it to a vehicle or not
-  const assignedLocations = stops.map((stop) => {
+  const assignedLocations = jobs.data.map((stop) => {
     return {
       ...stop,
       isUnassigned:
@@ -125,13 +125,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     filteredLocations.find((item: IdCluster) => stop.job.id === item.job_id)
       ?.vehicle_id;
 
-  const stopMapPoints: MapPoint[] = stops.map((stop) => ({
+  const stopMapPoints: MapPoint[] = jobs.data.map((stop) => ({
     id: stop.job.id,
     type: "job",
     lat: stop.job.address.latitude,
     lng: stop.job.address.longitude,
     address: stop.job.address.formatted,
-    name: stop.client.name ?? "New Stop",
+    name: stop?.client?.name ?? "New Stop",
   }));
 
   const driverMapPoints: MapPoint[] = drivers?.data?.map((driver) => ({
@@ -305,7 +305,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
           </ContextMenuLabel>
           <ContextMenuItem
-            onClick={() => addStopByLatLng(latLng?.lat, latLng?.lng)}
+            onClick={() => addJobByLatLng(latLng?.lat, latLng?.lng)}
           >
             Add as Stop
           </ContextMenuItem>

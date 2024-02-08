@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { uniqueId } from "lodash";
-import { Trash } from "lucide-react";
+import { FileCog, Home, Package, Pencil, Trash, Undo } from "lucide-react";
 import { useMemo, useState, type FC } from "react";
 
 import GooglePlacesAutocomplete, {
@@ -38,14 +38,30 @@ import {
 import { toast } from "~/components/ui/use-toast";
 import { env } from "~/env.mjs";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Accordion } from "~/components/ui/accordion";
-import { StopFormValues, stopFormSchema } from "../../types.wip";
+import { Switch } from "~/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import { cn } from "~/utils/styles";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
+import {
+  ClientJobBundle,
+  StopFormValues,
+  stopFormSchema,
+} from "../../types.wip";
 import {
   secondsToMinutes,
   unixSecondsToMilitaryTime,
 } from "../../utils/generic/format-utils.wip";
+import { AutoCompleteBtn } from "../forms/autocomplete-btn";
+import { AutoCompleteJobBtn } from "../forms/autocomplete-job-btn";
 import ClientDetailsSection from "../forms/client-detail-form";
 import StopDetailsSection from "../forms/stop-details-form";
 
@@ -54,30 +70,51 @@ const libraries: Library[] = ["places"];
 
 type TStopForm = {
   handleOnOpenChange: (data: boolean) => void;
+  activeLocation?: ClientJobBundle | null;
 };
 
-const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
-  const {
-    appendLocation,
-    updateLocation,
-    activeLocation,
-    locations,
-    setLocations,
-  } = useStopsStore((state) => state);
-
+const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
+  const jobs = useClientJobBundles();
   const [open, setOpen] = useState(false);
-  const { status } = useSession();
   const [loading, setLoading] = useState(false);
+  const [editClient, setEditClient] = useState(false);
+  const { status } = useSession();
+
+  const [accordionValue, setAccordionValue] = useState(
+    activeLocation ? "item-2" : "item-1"
+  );
+
+  const [useDefault, setUseDefault] = useState(true);
 
   const defaultValues: Partial<StopFormValues> = {
     id: activeLocation?.job.id ?? uniqueId("job_"),
+    clientId: activeLocation?.client?.id ?? undefined,
+
+    addressId: activeLocation?.job.addressId ?? uniqueId("address_"),
+    clientAddressId: activeLocation?.client?.addressId ?? undefined,
+
     type: activeLocation?.job.type ?? "DELIVERY",
-    name: activeLocation?.client.name ?? "",
+
+    name: activeLocation?.client?.name ?? `Job #${activeLocation?.job.id}`,
+
     address: {
       formatted: activeLocation?.job.address.formatted ?? undefined,
       latitude: activeLocation?.job.address.latitude ?? undefined,
       longitude: activeLocation?.job.address.longitude ?? undefined,
     } as Coordinates & { formatted: string },
+
+    clientAddress: {
+      formatted:
+        activeLocation?.client?.address?.formatted ??
+        activeLocation?.job.address.formatted,
+      latitude:
+        activeLocation?.client?.address?.latitude ??
+        activeLocation?.job.address.latitude,
+      longitude:
+        activeLocation?.client?.address?.longitude ??
+        activeLocation?.job.address.longitude,
+    } as Coordinates & { formatted: string },
+
     timeWindowStart: activeLocation?.job.timeWindowStart
       ? unixSecondsToMilitaryTime(activeLocation?.job.timeWindowStart)
       : "09:00",
@@ -93,7 +130,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
       : 5,
 
     priority: activeLocation?.job.priority ?? 1,
-    email: activeLocation?.client.email ?? "",
+    email: activeLocation?.client?.email ?? "",
     order: activeLocation?.job.order ?? "",
     notes: activeLocation?.job.notes ?? "",
   };
@@ -118,42 +155,14 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
 
     handleOnOpenChange(false);
   }
-
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-autocomplete-strict",
-    googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-    libraries,
-  });
+  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
 
   const onDelete = () => {
-    const temp = locations.filter(
-      (loc) => loc.job.id !== activeLocation?.job.id
-    );
-    setLocations(temp);
-    handleOnOpenChange(false);
-  };
-
-  const handleAutoComplete = (
-    address: string,
-    onChange: (value: string) => void
-  ) => {
-    if (!address) return;
-
-    onChange(address);
-    geocodeByAddress(address)
-      .then((results) => getLatLng(results[0]!))
-      .then(({ lat, lng }) => {
-        console.log("Successfully got latitude and longitude", {
-          latitude: lat,
-          longitude: lng,
-        });
-        form.setValue("address", {
-          formatted: address,
-          latitude: lat,
-          longitude: lng,
-        });
-      })
-      .catch((err) => console.error("Error", err));
+    // const temp = locations.filter(
+    //   (loc) => loc.job.id !== activeLocation?.job.id
+    // );
+    // setLocations(temp);
+    // handleOnOpenChange(false);
   };
 
   return (
@@ -167,11 +176,14 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-          className=" flex h-full flex-col justify-between space-y-8  md:h-[calc(100vh-15vh)] lg:flex-grow"
+          className="  flex  h-full max-h-[calc(100vh-50vh)] w-full flex-col  space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
         >
           {activeLocation && (
             <div className="flex w-full flex-col  gap-3  border-b bg-white p-4">
               <div className="flex items-center justify-between gap-3">
+                <Button type="submit" className="flex-1">
+                  {activeLocation ? "Update" : "Add"} stop
+                </Button>
                 <Button
                   type="button"
                   size="icon"
@@ -182,15 +194,11 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
                   <span className="sr-only">Delete</span>
                 </Button>
 
-                {status === "authenticated" && (
+                {/* {status === "authenticated" && (
                   <Button type="submit" className="flex-1" variant={"outline"}>
                     {activeLocation ? "Set as client default" : "Save and add"}
                   </Button>
-                )}
-
-                <Button type="submit" className="flex-1">
-                  {activeLocation ? "Update" : "Add"} stop
-                </Button>
+                )} */}
               </div>
             </div>
           )}
@@ -211,7 +219,154 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
             </div>
           )}
 
-          <ScrollArea className="relative flex h-full  w-full flex-1  max-md:max-h-[60vh]">
+          <div className=" flex-1 ">
+            <FormItem className="my-2 flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Address</FormLabel>
+
+                <FormDescription>
+                  {/* {useDefault && ( */}
+                  <>
+                    <span className="flex items-center gap-1">
+                      <Package className="h-4 w-4" />
+                      {form.watch("address.formatted")}
+                    </span>
+                  </>
+                  {/* )}
+                    {!useDefault && (
+                      <div className="flex flex-col space-y-0.5">
+                        <span className="flex items-center gap-1">
+                          {" "}
+                          <Home className="h-4 w-4" />{" "}
+                          {form.watch("startAddress.formatted")}
+                        </span>
+
+                        <span className="flex items-center gap-1">
+                          {form.watch("endAddress.formatted") !== "" && (
+                            <>
+                              <Home className="h-4 w-4" />
+                              {form.watch("endAddress.formatted")}
+                            </>
+                          )} */}
+                  {/* </span> */}
+                  {/* </div> */}
+                  {/* )} */}
+                </FormDescription>
+                <FormDescription className="text-xs text-muted-foreground/75">
+                  Switch to change the address for this stop.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={useDefault}
+                  onCheckedChange={(e: boolean) => {
+                    // enableAnimations(e);
+                    setUseDefault(e);
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+            <div ref={parent} className="flex flex-col gap-4">
+              {!useDefault && (
+                <Controller
+                  name="address.formatted"
+                  control={form.control}
+                  render={({ field: { onChange, value } }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-normal text-muted-foreground">
+                        Job Address
+                      </FormLabel>
+
+                      <div className="flex gap-1">
+                        <AutoCompleteJobBtn
+                          value={value}
+                          onChange={onChange}
+                          form={form}
+                          useDefault={useDefault}
+                          key="address"
+                        />
+                        {/* {!form.watch("address.formatted") &&
+                          jobs?.active?.client?.address && ( */}
+                        <>
+                          {jobs?.active?.job?.address && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    onClick={() => {
+                                      onChange(
+                                        activeLocation?.job?.address?.formatted
+                                      );
+                                      form.setValue(
+                                        "address.latitude",
+                                        activeLocation?.job?.address
+                                          ?.latitude ?? 0
+                                      );
+                                      form.setValue(
+                                        "address.longitude",
+                                        activeLocation?.job?.address
+                                          ?.longitude ?? 0
+                                      );
+                                    }}
+                                  >
+                                    <Undo className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Undo address change</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {jobs?.active?.client?.address?.formatted && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    variant={"outline"}
+                                    onClick={() => {
+                                      onChange(
+                                        activeLocation?.client?.address
+                                          ?.formatted
+                                      );
+                                      form.setValue(
+                                        "address.latitude",
+                                        activeLocation?.client?.address
+                                          ?.latitude ?? 0
+                                      );
+                                      form.setValue(
+                                        "address.longitude",
+                                        activeLocation?.client?.address
+                                          ?.longitude ?? 0
+                                      );
+                                    }}
+                                  >
+                                    <Home className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Set to home address</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </>
+                        {/* )} */}
+                      </div>
+                      <FormDescription className="text-xs text-muted-foreground/75">
+                        This is where the job gets fulfilled. It defaults to the
+                        client&apos;s address.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
             <Accordion
               type="single"
               collapsible
@@ -219,285 +374,49 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange }) => {
               defaultValue="item-1"
             >
               <StopDetailsSection form={form} />
-              <ClientDetailsSection form={form} />
-            </Accordion>
 
-            {/* <div className=" w-full space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your customer's name" {...field} />
-                  </FormControl>
-
-                  <FormMessage />
-                </FormItem>
+              {(!activeLocation || editClient) && (
+                <ClientDetailsSection form={form} />
               )}
-            />
-            {isLoaded && (
-              <Controller
-                name="address.formatted"
-                control={form.control}
-                render={({ field: { onChange, value } }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-
-                    <GooglePlacesAutocomplete
-                      selectProps={{
-                        defaultInputValue: value,
-                        placeholder: "Start typing an address",
-                        onChange: (e) => handleAutoComplete(e!.label, onChange),
-                        classNames: {
-                          control: (state) =>
-                            state.isFocused
-                              ? "border-red-600"
-                              : "border-grey-300",
-                          input: () => "text-bold",
-                        },
-                        styles: {
-                          input: (provided) => ({
-                            ...provided,
-                            outline: "0px solid",
-                          }),
-                        },
-                      }}
-                    />
-
-                    <FormDescription>
-                      {form.watch("address.latitude") ?? 0} &nbsp; Lng:{" "}
-                      {form.watch("address.longitude") ?? 0}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            <div className="flex  flex-1 gap-4">
-              <FormField
-                control={form.control}
-                name="prepTime"
-                render={({ field }) => (
-                  <FormItem className="flex-1 ">
-                    <FormLabel>Prep Time </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="minutes"
-                        {...field}
-                        type="number"
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Max minutes to prep the order
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />{" "}
-              <FormField
-                control={form.control}
-                name="serviceTime"
-                render={({ field }) => (
-                  <FormItem className="flex-1 ">
-                    <FormLabel>Duration</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 30"
-                        {...field}
-                        type="number"
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription>Max minutes at stop</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />{" "}
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem className="flex-1 ">
-                    <FormLabel>Priority</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(e) => {
-                          field.onChange(
-                            e === "low" ? 0 : e === "mid" ? 50 : 100
-                          );
-                        }}
-                        defaultValue={
-                          field.value <= 33
-                            ? "low"
-                            : field.value <= 66
-                            ? "mid"
-                            : "high"
-                        }
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="mid">Mid</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormDescription>
-                      This will prioritize the stop accordingly.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex flex-1 flex-col gap-4">
-              <FormLabel>Fulfillment Window</FormLabel>
-              <Controller
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Attribute (e.g., Size, Color)"
-                    type="time"
-                  />
-                )}
-                name={`timeWindowStart`}
-                control={form.control}
-              />
-              <Controller
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Value (e.g., M, Red)"
-                    type="time"
-                  />
-                )}
-                name={`timeWindowEnd`}
-                control={form.control}
-              />
-              <FormDescription>
-                Add a list of possible time windows in which the driver can
-                fulfill the order.
-              </FormDescription>{" "}
-              <FormMessage />
-            </div>
-            <div className="flex flex-col space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. customer@gmail.com"
-                        {...field}
-                        type={"email"}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Optional: Add an email address for the customer.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />{" "}
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g. 999-999-9999"
-                        {...field}
-                        type={"email"}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Optional: Add an email address for the customer.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />{" "}
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stop Details</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g. Two boxes of squash"
-                        className="resize-none"
-                        // {...field}
-                        onChange={field.onChange}
-                        value={field.value}
-                        aria-rowcount={3}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Optional: Add some notes or details of the fulfillment for
-                      later reference.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />{" "}
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stop Order</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g. Two boxes of squash"
-                        className="resize-none"
-                        // {...field}
-                        onChange={field.onChange}
-                        value={field.value}
-                        aria-rowcount={3}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Optional: Add some notes or details of the fulfillment for
-                      later reference.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div> */}
-          </ScrollArea>
-          <div className="mt-auto flex gap-4 ">
-            {/* <Button
-              type="button"
-              className="flex gap-4"
-              variant={"destructive"}
-              onClick={onDelete}
-            >
-              <Trash />
-              Delete
-            </Button>
-            <Button type="submit" className="flex-1">
-              {activeLocation ? "Update" : "Add"} stop
-            </Button> */}
+            </Accordion>
           </div>
         </form>
       </Form>
+
+      {activeLocation?.client && (
+        <div className=" mt-auto  w-full flex-col  gap-2 space-y-0.5 border-t  pt-4">
+          {/* <div className="flex w-full">
+            <Button
+              variant={"link"}
+              type="button"
+              className=" m-0 items-center  gap-1 p-0"
+              onClick={() => {
+                console.log(form.getValues());
+                // updateDefault(form.getValues());
+              }}
+            >
+              <FileCog className="h-4 w-4" />
+              Set as default for {activeLocation?.driver.name}
+            </Button>
+          </div> */}
+          <div className="flex w-full">
+            <Button
+              variant={"link"}
+              className={cn(
+                " m-0 items-center  gap-1 p-0",
+                editClient && "hidden"
+              )}
+              onClick={() => {
+                setEditClient((prev) => !prev);
+                setAccordionValue("item-1");
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+              Edit details for {activeLocation?.client.name}
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -21,21 +21,19 @@ export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
       const revisedClients = await Promise.all(
         data.map(async (clientJobBundle) => {
           const address = await geocodingService.geocodeByAddress(
-            clientJobBundle.client.address!.formatted
+            clientJobBundle.job.address.formatted
           );
           return {
             ...clientJobBundle,
             client: {
               ...clientJobBundle.client,
               address: {
-                // ...driverVehicleBundle.driver.address,
                 ...address,
               },
             },
             job: {
               ...clientJobBundle.job,
               address: {
-                // ...driverVehicleBundle.driver.address,
                 ...address,
               },
             },
@@ -48,8 +46,9 @@ export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
       const tableData =
         revisedClients?.map((driver) => {
           return {
-            name: driver.client.name,
-            address: driver.client.address.formatted,
+            name: driver?.client?.name ?? `Job #${driver.job.id}`,
+            address: driver.job.address.formatted,
+            email: driver.client.email ?? "",
           };
         }) ?? [];
       callback({ data: revisedClients ?? [], tableData });

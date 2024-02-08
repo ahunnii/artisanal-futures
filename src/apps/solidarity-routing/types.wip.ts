@@ -25,14 +25,17 @@ export type VersionOneClientCSV = {
   address: string;
   email?: string;
   phone?: string;
-  default_prep_time?: number;
-  default_service_time?: number;
-  default_priority?: number;
+  prep_time?: number;
+  service_time?: number;
+  priority?: number;
 
-  default_time_start?: string;
-  default_time_end?: string;
+  time_start?: string;
+  time_end?: string;
 
   notes?: string;
+  order?: string;
+
+  default_order?: boolean;
 };
 
 export type UploadOptions<T> = {
@@ -50,7 +53,7 @@ type UploadProps<T> = {
     tableData,
   }: {
     data: T[];
-    tableData: { name: string; address: string }[];
+    tableData: { name: string; address: string; email?: string }[];
   }) => void;
 };
 
@@ -59,9 +62,10 @@ export const driverTypeSchema = z.enum(["DRIVER", "TEMP"]);
 
 export const jobTypeSchema = z.enum(["DELIVERY", "PICKUP"]);
 
-const clientSchema = z.object({
+export const clientSchema = z.object({
   id: z.string(),
   name: z.string(),
+  addressId: z.string().optional(),
   address: z
     .object({
       formatted: z.string(),
@@ -69,18 +73,22 @@ const clientSchema = z.object({
       longitude: z.number(),
     })
     .optional(),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   phone: z.coerce.string().optional(),
+  defaultJobId: z.string().optional(),
 });
 
-const jobSchema = z.object({
+export const jobSchema = z.object({
   id: z.string(),
+  type: z.nativeEnum(DBJobType),
+  addressId: z.string().optional(),
   address: z.object({
     formatted: z.string(),
     latitude: z.number(),
     longitude: z.number(),
   }),
-  type: z.nativeEnum(DBJobType),
+  clientId: z.string().optional(),
+
   serviceTime: z.number(),
   prepTime: z.number(),
   priority: z.number(),
@@ -96,6 +104,7 @@ export const driverSchema = z.object({
   id: z.string(),
   type: z.nativeEnum(DBDriverType),
   name: z.string(),
+  addressId: z.string().optional(),
   address: z.object({
     formatted: z.string(),
     latitude: z.number(),
@@ -104,7 +113,6 @@ export const driverSchema = z.object({
   email: z.string().email(),
   phone: z.coerce.string(),
   defaultVehicleId: z.string().optional(),
-  addressId: z.string().optional(),
 });
 
 export const vehicleSchema = z.object({
@@ -150,7 +158,7 @@ export const driverVehicleSchema = z.object({
 });
 
 export const clientJobSchema = z.object({
-  client: clientSchema,
+  client: clientSchema.optional(),
   job: jobSchema,
 });
 
@@ -229,6 +237,11 @@ export const driverFormSchema = z.object({
 
 export const stopFormSchema = z.object({
   id: z.string(),
+  clientId: z.string().optional(),
+
+  clientAddressId: z.string().optional(),
+  addressId: z.string().optional(),
+
   type: z.nativeEnum(DBJobType),
   name: z
     .string()
@@ -238,13 +251,21 @@ export const stopFormSchema = z.object({
     .max(30, {
       message: "Name must not be longer than 30 characters.",
     }),
+  clientAddress: z
+    .object({
+      formatted: z.string().optional(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+    })
+    .optional()
+    .nullish(),
 
   address: z.object({
     formatted: z.string(),
     latitude: z.number(),
     longitude: z.number(),
   }),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   phone: z
     .string()
     .regex(/^\d{3}\d{3}\d{4}$/, {

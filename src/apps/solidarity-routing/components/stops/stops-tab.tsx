@@ -1,33 +1,32 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import StopCard from "~/apps/solidarity-routing/components/stops/stop-card";
-import TabOptions from "~/apps/solidarity-routing/components/ui/tab-options";
 
 import { Lightbulb } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
+
 import { Button } from "~/components/ui/button";
 import { clientJobUploadOptions } from "../../data/stops/stop-data";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import { ClientJobBundle } from "../../types.wip";
+import type { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../file-upload-modal.wip";
-import OptionsBtn from "../ui/options-btn";
+
 import { StopFilterBtn } from "./stop-filter-btn";
 import StopOptionBtn from "./stop-option-btn.wip";
 
 const StopsTab = () => {
-  const { stops, setStops } = useClientJobBundles();
+  const jobs = useClientJobBundles();
   const { status } = useSession();
 
   const fileUploadOptions = useMemo(
     () =>
       clientJobUploadOptions({
-        jobs: stops,
-        setJobs: setStops,
+        jobs: jobs.data,
+        setJobs: jobs.createMany,
         status,
       }),
-    [stops, status, setStops]
+    [jobs, status]
   );
 
   return (
@@ -37,14 +36,14 @@ const StopsTab = () => {
           <h2 className="flex scroll-m-20 gap-3 text-xl font-semibold tracking-tight">
             Stops{" "}
             <span className="rounded-lg border border-slate-300 px-2 text-base">
-              {stops?.length ?? 0}
+              {jobs.data?.length ?? 0}
             </span>
           </h2>
 
-          {stops?.length !== 0 && <StopOptionBtn />}
+          {jobs.data?.length !== 0 && <StopOptionBtn />}
         </div>
         <StopFilterBtn />
-        {stops?.length === 0 && (
+        {jobs.data?.length === 0 && (
           <>
             <p className="text-sm text-muted-foreground">
               No stops have been added to this route yet.
@@ -73,12 +72,12 @@ const StopsTab = () => {
       </div>
 
       <ScrollArea className="flex-1 px-4">
-        {stops?.length > 0 &&
-          stops.map((listing, idx) => (
+        {jobs.data?.length > 0 &&
+          jobs.data.map((listing, idx) => (
             <StopCard
               key={idx}
               id={listing.job.id}
-              name={listing.client.name ?? "New Stop"}
+              name={listing?.client?.name ?? `Job # ${listing.job.id}`}
               address={listing.job.address.formatted}
             />
           ))}

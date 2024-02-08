@@ -52,7 +52,7 @@ export const FileUploadModal = <T,>({
   const [data, setData] = useState<T[]>([]);
 
   const [tableData, setTableData] = useState<
-    { name: string; address: string }[]
+    { name: string; address: string; email?: string }[]
   >([]);
 
   const handleOnAccept = () => {
@@ -86,7 +86,7 @@ export const FileUploadModal = <T,>({
     <>
       <div onClick={() => openDialog()}>{children}</div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle className="text-2xl capitalize">
               {type as string} Import
@@ -94,6 +94,16 @@ export const FileUploadModal = <T,>({
             <DialogDescription>
               Add your {type as string}s from a CSV spreadsheet. You can click
               here to see a sample or here to take a look at our format guide.
+            </DialogDescription>
+
+            <DialogDescription className="pt-4 font-bold">
+              {((type as string) === "client" ||
+                (type as string) === "job") && (
+                <p>
+                  Only clients with valid emails will be saved to the depot for
+                  future use.{" "}
+                </p>
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -124,18 +134,25 @@ export const FileUploadModal = <T,>({
             <>
               <div className="flex  gap-4  ">
                 <div className="flex w-1/3 flex-col ">
-                  <p className="text-lg font-semibold">Names</p>
+                  <p className="text-lg font-semibold">Name</p>
                 </div>
-                <div className="flex w-2/3 flex-col ">
+                <div className="flex w-1/3 flex-col ">
+                  <p className="text-lg font-semibold">Email</p>
+                </div>
+                <div className="flex w-2/3 flex-col text-left">
                   <p className="text-lg font-semibold">Address</p>
                 </div>
               </div>
+
               <ScrollArea className="grid h-96 w-full gap-4">
                 {tableData.map((bundle, idx) => {
                   return (
-                    <div className="flex  gap-4 p-4 odd:bg-muted" key={idx}>
+                    <div className="flex gap-4 p-4 odd:bg-muted" key={idx}>
                       <div className="flex w-1/3 flex-col">
                         <p className="capitalize">{bundle.name}</p>
+                      </div>
+                      <div className="flex w-1/3 flex-col">
+                        <p className="capitalize">{bundle?.email ?? ""}</p>
                       </div>
                       <div className="flex w-2/3 flex-col">
                         <p>{bundle.address}</p>

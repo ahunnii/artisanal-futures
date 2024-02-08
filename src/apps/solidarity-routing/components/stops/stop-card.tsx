@@ -1,18 +1,16 @@
 import { useMemo, type FC } from "react";
 
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
-
 import DepotCard from "~/apps/solidarity-routing/components/ui/depot-card";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 type TStopCard = { id: string; name: string; address: string };
 
 const StopCard: FC<TStopCard> = ({ id, name, address }) => {
-  const { editStop, isStopActive } = useClientJobBundles();
+  const jobs = useClientJobBundles();
 
-  const onEdit = () => editStop(id);
+  const onEdit = () => jobs.edit(id);
 
-  const isActive = useMemo(() => isStopActive(id), [isStopActive, id]);
+  const isActive = useMemo(() => jobs.isActive(id), [jobs, id]);
 
   return (
     <DepotCard

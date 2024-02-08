@@ -106,7 +106,10 @@ export function cuidToUniqueNumber(cuid: string): number {
 }
 
 export function numberStringToPhoneFormat(input: string) {
-  //returns (###) ###-####
+  if (input.length === 11 && input.startsWith("1")) {
+    input = input.slice(1);
+  }
+
   input = input.replace(/\D/g, "");
   const size = input.length;
   if (size > 0) {

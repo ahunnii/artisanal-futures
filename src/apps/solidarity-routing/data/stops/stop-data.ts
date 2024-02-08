@@ -56,20 +56,20 @@ export const clientJobUploadOptions = ({
 }: {
   jobs: ClientJobBundle[];
   setJobs: ({
-    stops,
-    saveToDB,
+    jobs,
+    addToRoute,
   }: {
-    stops: ClientJobBundle[];
-    saveToDB: boolean;
+    jobs: ClientJobBundle[];
+    addToRoute?: boolean;
   }) => void;
   status: "authenticated" | "unauthenticated" | "loading" | "error";
 }): UploadOptions<ClientJobBundle> => ({
-  type: "client" as keyof ClientJobBundle,
+  type: "job" as keyof ClientJobBundle,
   parseHandler: handleClientSheetUpload,
-  handleAccept: ({ data, saveToDB }) => {
+  handleAccept: ({ data }) => {
     setJobs({
-      stops: data,
-      saveToDB: status === "authenticated" && saveToDB,
+      jobs: data,
+      addToRoute: true,
     });
   },
   currentData: jobs,

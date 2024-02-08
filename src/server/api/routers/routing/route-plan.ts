@@ -340,4 +340,28 @@ export const routePlanRouter = createTRPCRouter({
 
       return bundles;
     }),
+
+  getJobBundles: protectedProcedure
+    .input(z.object({ routeId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const data = await ctx.prisma.job.findMany({
+        where: {
+          routeId: input.routeId,
+        },
+        include: {
+          address: true,
+          client: {
+            include: {
+              address: true,
+            },
+          },
+        },
+      });
+      const bundles = data.map((job) => ({
+        client: job.client,
+        job: job,
+      }));
+
+      return bundles;
+    }),
 });

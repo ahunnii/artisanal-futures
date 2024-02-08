@@ -336,7 +336,7 @@ model Client {
   addressId     String?   //Optional: Main address of the client
   address       Address?  @relation(fields: [addressId], references: [id])
   phone         String?
-  email         String?
+  email         String    @unique  //Unique: Email of the client
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   defaultJobId  String?   //Optional: Default job for the client. Like a go-to order or something

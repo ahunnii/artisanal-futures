@@ -34,15 +34,10 @@ const useMap = ({
   const { selectedRoute, routes } = useFinalizedRoutes((state) => state);
 
   const drivers = useDriverVehicleBundles();
-
-  const bundles = drivers.data;
-
-  const activeDriver = drivers?.active;
+  const jobs = useClientJobBundles();
 
   // const { locations, activeLocation } = useStopsStore((state) => state);
   const { stops, selectedStop } = useDriverRoute((state) => state);
-  const { activeStop: activeLocation, stops: locations } =
-    useClientJobBundles();
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -160,12 +155,12 @@ const useMap = ({
   }, [drivers.active, mapRef, flyTo]);
 
   useEffect(() => {
-    if (activeLocation && mapRef) flyTo(activeLocation?.job.address, 15);
-  }, [activeLocation, mapRef, flyTo]);
+    if (jobs.active && mapRef) flyTo(jobs.active?.job.address, 15);
+  }, [jobs.active, mapRef, flyTo]);
 
   useEffect(() => {
     if (
-      ((locations && locations.length > 0) ||
+      ((jobs.data && jobs.data.length > 0) ||
         (drivers && drivers.data.length > 0)) &&
       mapRef
     ) {
@@ -176,7 +171,7 @@ const useMap = ({
             driver.vehicle.startAddress.longitude,
           ] as LatLngExpression
       );
-      const locationBounds = locations.map(
+      const locationBounds = jobs.data.map(
         (location) =>
           [
             location.job.address.latitude,
@@ -187,7 +182,7 @@ const useMap = ({
 
       mapRef.fitBounds(bounds);
     }
-  }, [locations, drivers, mapRef]);
+  }, [jobs.data, drivers.data, mapRef]);
 
   useEffect(() => {
     if (mapRef && stops && driverEnabled) {
