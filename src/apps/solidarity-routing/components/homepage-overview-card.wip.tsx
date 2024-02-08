@@ -2,8 +2,10 @@ import { format } from "date-fns";
 import { FilePlus, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -59,6 +61,9 @@ export const HomePageOverviewCard = ({ date }: { date: Date }) => {
         return "th";
     }
   };
+
+  const [parent] = useAutoAnimate();
+  const [another] = useAutoAnimate();
   return (
     <>
       <Card className="w-2/4">
@@ -76,7 +81,7 @@ export const HomePageOverviewCard = ({ date }: { date: Date }) => {
             {depotId as unknown as number} * No finalized routes yet
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent ref={parent}>
           <div className="flex w-full  flex-col  items-center gap-4 ">
             <RouteUploadModal variant="default" />
 
@@ -90,26 +95,38 @@ export const HomePageOverviewCard = ({ date }: { date: Date }) => {
               <Plus /> Manually create a route
             </Button>
           </div>
-          <div className="flex flex-col space-y-1 pt-4">
-            <h3 className="text-lg font-semibold">Routes</h3>
-            {routes &&
-              routes?.length > 0 &&
-              routes?.map((route) => (
-                <div key={route.id}>
-                  {/* <p>
-                    {route.vehicles.length} vehicles and {route.jobs.length}{" "}
-                    jobs.
-                  </p> */}
-                  <Link
-                    href={`/tools/solidarity-pathways/${depotId}/route/${route.id}`}
+          <h3 className="pt-4 text-lg font-semibold">Routes</h3>
+          {routes?.length === 0 && (
+            <p className="text-muted-foreground">
+              No routes found for this date
+            </p>
+          )}
+
+          {routes && (
+            <ul className="mt-4 flex flex-col" ref={another}>
+              {routes?.length > 0 &&
+                routes?.map((route) => (
+                  <li
+                    key={route.id}
+                    className=" border-b border-t border-slate-100 py-2 odd:bg-slate-100 even:bg-white hover:bg-slate-200"
                   >
-                    <Button variant="link" className="mx-0 my-0 px-0 py-0">
-                      View route # {route.id}
-                    </Button>
-                  </Link>
-                </div>
-              ))}
-          </div>
+                    <Link
+                      href={`/tools/solidarity-pathways/${depotId}/route/${route.id}`}
+                      className="  "
+                    >
+                      <div>
+                        <p className="text-lg">Route Plan #{route.id}</p>
+                        <p className="">
+                          {route.vehicles.length} vehicles and{" "}
+                          {route.jobs.length} jobs.{" "}
+                          <Badge className="">Draft</Badge>
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          )}
           <div className="mt-10 flex  w-full  flex-col items-center gap-4">
             <p>
               Need help with your spreadsheet formatting? Check out our guide on

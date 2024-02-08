@@ -33,6 +33,8 @@ const useMap = ({
 }: TUseMapProps) => {
   const { selectedRoute, routes } = useFinalizedRoutes((state) => state);
 
+  const [initial, setInitial] = useState(true);
+
   const drivers = useDriverVehicleBundles();
   const jobs = useClientJobBundles();
 
@@ -112,8 +114,8 @@ const useMap = ({
   }, [constantUserTracking]);
 
   useEffect(() => {
-    getCurrentLocation(setCurrentLocation);
-  }, [driverEnabled]);
+    if (constantUserTracking) getCurrentLocation(setCurrentLocation);
+  }, [driverEnabled, constantUserTracking]);
 
   //   Solutions to tracking map. Focuses on the selected route.
   useEffect(() => {
@@ -155,10 +157,10 @@ const useMap = ({
   }, [drivers.active, mapRef, flyTo]);
 
   useEffect(() => {
-    if (jobs.active && mapRef) flyTo(jobs.active?.job.address, 15);
+    if (jobs.active && mapRef) flyTo(jobs.active.job.address, 15);
   }, [jobs.active, mapRef, flyTo]);
 
-  useEffect(() => {
+  const expandViewToFit = useCallback(() => {
     if (
       ((jobs.data && jobs.data.length > 0) ||
         (drivers && drivers.data.length > 0)) &&
@@ -182,7 +184,40 @@ const useMap = ({
 
       mapRef.fitBounds(bounds);
     }
-  }, [jobs.data, drivers.data, mapRef]);
+  }, [mapRef, drivers, jobs]);
+
+  useEffect(() => {
+    if (initial && mapRef && drivers.data && jobs.data) {
+      expandViewToFit();
+      setInitial(false);
+    }
+  }, [expandViewToFit, mapRef, drivers.data, jobs.data, initial]);
+
+  // useEffect(() => {
+  //   if (
+  //     ((jobs.data && jobs.data.length > 0) ||
+  //       (drivers && drivers.data.length > 0)) &&
+  //     mapRef
+  //   ) {
+  //     const driverBounds = drivers.data.map(
+  //       (driver) =>
+  //         [
+  //           driver.vehicle.startAddress.latitude,
+  //           driver.vehicle.startAddress.longitude,
+  //         ] as LatLngExpression
+  //     );
+  //     const locationBounds = jobs.data.map(
+  //       (location) =>
+  //         [
+  //           location.job.address.latitude,
+  //           location.job.address.longitude,
+  //         ] as LatLngExpression
+  //     );
+  //     const bounds = L.latLngBounds([...driverBounds, ...locationBounds]);
+
+  //     mapRef.fitBounds(bounds);
+  //   }
+  // }, [jobs.data, drivers.data, mapRef]);
 
   useEffect(() => {
     if (mapRef && stops && driverEnabled) {
@@ -213,6 +248,7 @@ const useMap = ({
   }, [selectedStop, mapRef, driverEnabled]);
 
   return {
+    expandViewToFit,
     flyTo,
     convertToGeoJSON,
     convertSolutionToGeoJSON,

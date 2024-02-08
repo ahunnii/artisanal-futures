@@ -1,6 +1,7 @@
 import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
+import { stopData } from "~/apps/solidarity-routing/data/stops/stop-data";
 import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { api } from "~/utils/api";
 import { useStopsStore } from "../../use-stops-store";
@@ -54,10 +55,46 @@ export const useCreateJob = () => {
   // const createNewJob = ({ job, addToRoute }: TCreateNewJobProps) => void 0;
   // const createNewJobs = ({ jobs, addToRoute }: TCreateNewJobsProps) => void 0;
 
-  const createNewJobByLatLng = ({ lat, lng }: Coordinates) => void 0;
+  const createNewJobByLatLng = ({ lat, lng }: Coordinates) => {
+    const driver = stopData(lat, lng);
 
-  const setDepotClients = (bundles: ClientJobBundle[]) => void 0;
-  const setDepotJobs = (bundles: ClientJobBundle[]) => void 0;
+    if (isUserAllowedToSaveToDepot) {
+      setJobsToRoute.mutate({
+        bundles: [driver],
+        depotId: Number(depotId),
+        routeId,
+      });
+    } else {
+      sessionStorageJobs.appendLocation(driver);
+    }
+  };
+
+  // const setDepotClients = (bundles: ClientJobBundle[]) => void 0;
+  // const setDepotJobs = (bundles: ClientJobBundle[]) => void 0;
+
+  const createNewJob = ({
+    job,
+    addToRoute,
+  }: {
+    job: ClientJobBundle;
+    addToRoute?: boolean;
+  }) => {
+    if (isUserAllowedToSaveToDepot) {
+      // console.log("jobs", jobs);
+      setJobsToRoute.mutate({
+        bundles: [
+          { job: job.job, client: job.client?.email ? job.client : undefined },
+        ],
+        depotId,
+        routeId: addToRoute ? routeId : undefined,
+      });
+    } else {
+      sessionStorageJobs.appendLocation({
+        job: job.job,
+        client: job.client?.email ? job.client : undefined,
+      });
+    }
+  };
 
   const createNewJobs = ({
     jobs,
@@ -66,11 +103,12 @@ export const useCreateJob = () => {
     jobs: ClientJobBundle[];
     addToRoute?: boolean;
   }) => {
+    const filterClientsWithoutEmails = jobs.map((job) => ({
+      job: job.job,
+      client: job.client?.email ? job.client : undefined,
+    }));
+
     if (isUserAllowedToSaveToDepot) {
-      const filterClientsWithoutEmails = jobs.map((job) => ({
-        job: job.job,
-        client: job.client?.email ? job.client : undefined,
-      }));
       // console.log("jobs", jobs);
       setJobsToRoute.mutate({
         bundles: filterClientsWithoutEmails,
@@ -78,16 +116,18 @@ export const useCreateJob = () => {
         routeId: addToRoute ? routeId : undefined,
       });
     } else {
-      sessionStorageJobs.setLocations(jobs);
+      filterClientsWithoutEmails.forEach((job) => {
+        sessionStorageJobs.appendLocation(job);
+      });
     }
   };
 
   return {
-    // createNewJob,
+    createNewJob,
     createNewJobs,
     createNewJobByLatLng,
-    setDepotClients,
-    setDepotJobs,
+    // setDepotClients,
+    // setDepotJobs,
     // setRouteJobs,
   };
 };

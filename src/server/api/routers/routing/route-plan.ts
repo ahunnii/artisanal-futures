@@ -2,12 +2,27 @@ import { Driver } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
+  ClientJobBundle,
   DriverVehicleBundle,
   driverVehicleSchema,
 } from "~/apps/solidarity-routing/types.wip";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const routePlanRouter = createTRPCRouter({
+  getAllRoutes: protectedProcedure
+    .input(
+      z.object({
+        depotId: z.number(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.route.findMany({
+        where: {
+          depotId: input.depotId,
+        },
+      });
+    }),
+
   getRoutePlansByDate: protectedProcedure
     .input(
       z.object({
@@ -51,6 +66,53 @@ export const routePlanRouter = createTRPCRouter({
           },
         },
       });
+    }),
+
+  getStopsByDate: protectedProcedure
+    .input(
+      z.object({
+        date: z.date(),
+        depotId: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const startDate = new Date(input.date.toISOString());
+      const endDate = new Date(startDate);
+
+      // Set start time to midnight (00:00:00)
+      startDate.setHours(0, 0, 0, 0);
+
+      // Set end time to 11:59:59
+      endDate.setHours(23, 59, 59, 999);
+
+      const routes = await ctx.prisma.route.findMany({
+        where: {
+          deliveryAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        include: {
+          jobs: {
+            include: {
+              address: true,
+              client: {
+                include: {
+                  address: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const stops = routes.flatMap((route) => route.jobs);
+      const jobBundles = stops.map((job) => ({
+        client: job.client,
+        job: job,
+      }));
+
+      return jobBundles as unknown as ClientJobBundle[];
     }),
 
   getRoutePlanById: protectedProcedure

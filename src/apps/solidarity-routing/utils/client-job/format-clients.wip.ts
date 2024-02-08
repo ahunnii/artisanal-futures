@@ -10,7 +10,7 @@ import {
   minutesToSeconds,
 } from "../generic/format-utils.wip";
 
-export const formatDriverFormDataToBundle = (
+export const formatJobFormDataToBundle = (
   data: StopFormValues
 ): ClientJobBundle => ({
   client: {
@@ -29,6 +29,7 @@ export const formatDriverFormDataToBundle = (
   job: {
     id: data?.id ?? uniqueId("job_"),
     addressId: data?.addressId ?? uniqueId("address_"),
+    clientId: data?.clientId ?? undefined,
 
     address: {
       formatted: data?.address?.formatted,

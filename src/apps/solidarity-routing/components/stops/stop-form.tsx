@@ -56,6 +56,7 @@ import {
   StopFormValues,
   stopFormSchema,
 } from "../../types.wip";
+import { formatJobFormDataToBundle } from "../../utils/client-job/format-clients.wip";
 import {
   secondsToMinutes,
   unixSecondsToMilitaryTime,
@@ -98,7 +99,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
     name: activeLocation?.client?.name ?? `Job #${activeLocation?.job.id}`,
 
     address: {
-      formatted: activeLocation?.job.address.formatted ?? undefined,
+      formatted: activeLocation?.job.address.formatted ?? "",
       latitude: activeLocation?.job.address.latitude ?? undefined,
       longitude: activeLocation?.job.address.longitude ?? undefined,
     } as Coordinates & { formatted: string },
@@ -130,7 +131,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
       : 5,
 
     priority: activeLocation?.job.priority ?? 1,
-    email: activeLocation?.client?.email ?? "",
+    email: activeLocation?.client?.email ?? undefined,
     order: activeLocation?.job.order ?? "",
     notes: activeLocation?.job.notes ?? "",
   };
@@ -141,7 +142,16 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
   });
 
   function onSubmit(data: StopFormValues) {
-    // if (activeLocation) updateLocation(data.id, data);
+    if (activeLocation) {
+      jobs.updateJob({ bundle: formatJobFormDataToBundle(data) });
+
+      if (editClient && data?.clientId && !data?.clientId.includes("client_")) {
+        jobs.updateClient({ bundle: formatJobFormDataToBundle(data) });
+      }
+    } else {
+      jobs.create({ job: formatJobFormDataToBundle(data), addToRoute: true });
+    }
+
     // else appendLocation(data);
 
     toast({
@@ -158,11 +168,8 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
   const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
 
   const onDelete = () => {
-    // const temp = locations.filter(
-    //   (loc) => loc.job.id !== activeLocation?.job.id
-    // );
-    // setLocations(temp);
-    // handleOnOpenChange(false);
+    jobs.deleteJob({ id: activeLocation?.job.id });
+    handleOnOpenChange(false);
   };
 
   return (
@@ -176,6 +183,9 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+          onChange={() => {
+            console.log(form.watch("address"));
+          }}
           className="  flex  h-full max-h-[calc(100vh-50vh)] w-full flex-col  space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
         >
           {activeLocation && (
@@ -220,153 +230,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
           )}
 
           <div className=" flex-1 ">
-            <FormItem className="my-2 flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Address</FormLabel>
-
-                <FormDescription>
-                  {/* {useDefault && ( */}
-                  <>
-                    <span className="flex items-center gap-1">
-                      <Package className="h-4 w-4" />
-                      {form.watch("address.formatted")}
-                    </span>
-                  </>
-                  {/* )}
-                    {!useDefault && (
-                      <div className="flex flex-col space-y-0.5">
-                        <span className="flex items-center gap-1">
-                          {" "}
-                          <Home className="h-4 w-4" />{" "}
-                          {form.watch("startAddress.formatted")}
-                        </span>
-
-                        <span className="flex items-center gap-1">
-                          {form.watch("endAddress.formatted") !== "" && (
-                            <>
-                              <Home className="h-4 w-4" />
-                              {form.watch("endAddress.formatted")}
-                            </>
-                          )} */}
-                  {/* </span> */}
-                  {/* </div> */}
-                  {/* )} */}
-                </FormDescription>
-                <FormDescription className="text-xs text-muted-foreground/75">
-                  Switch to change the address for this stop.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={useDefault}
-                  onCheckedChange={(e: boolean) => {
-                    // enableAnimations(e);
-                    setUseDefault(e);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <div ref={parent} className="flex flex-col gap-4">
-              {!useDefault && (
-                <Controller
-                  name="address.formatted"
-                  control={form.control}
-                  render={({ field: { onChange, value } }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-normal text-muted-foreground">
-                        Job Address
-                      </FormLabel>
-
-                      <div className="flex gap-1">
-                        <AutoCompleteJobBtn
-                          value={value}
-                          onChange={onChange}
-                          form={form}
-                          useDefault={useDefault}
-                          key="address"
-                        />
-                        {/* {!form.watch("address.formatted") &&
-                          jobs?.active?.client?.address && ( */}
-                        <>
-                          {jobs?.active?.job?.address && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    size="icon"
-                                    type="button"
-                                    onClick={() => {
-                                      onChange(
-                                        activeLocation?.job?.address?.formatted
-                                      );
-                                      form.setValue(
-                                        "address.latitude",
-                                        activeLocation?.job?.address
-                                          ?.latitude ?? 0
-                                      );
-                                      form.setValue(
-                                        "address.longitude",
-                                        activeLocation?.job?.address
-                                          ?.longitude ?? 0
-                                      );
-                                    }}
-                                  >
-                                    <Undo className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Undo address change</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                          {jobs?.active?.client?.address?.formatted && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    size="icon"
-                                    type="button"
-                                    variant={"outline"}
-                                    onClick={() => {
-                                      onChange(
-                                        activeLocation?.client?.address
-                                          ?.formatted
-                                      );
-                                      form.setValue(
-                                        "address.latitude",
-                                        activeLocation?.client?.address
-                                          ?.latitude ?? 0
-                                      );
-                                      form.setValue(
-                                        "address.longitude",
-                                        activeLocation?.client?.address
-                                          ?.longitude ?? 0
-                                      );
-                                    }}
-                                  >
-                                    <Home className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Set to home address</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </>
-                        {/* )} */}
-                      </div>
-                      <FormDescription className="text-xs text-muted-foreground/75">
-                        This is where the job gets fulfilled. It defaults to the
-                        client&apos;s address.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
             <Accordion
               type="single"
               collapsible
@@ -375,9 +238,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
             >
               <StopDetailsSection form={form} />
 
-              {(!activeLocation || editClient) && (
-                <ClientDetailsSection form={form} />
-              )}
+              <ClientDetailsSection form={form} editClient={editClient} />
             </Accordion>
           </div>
         </form>

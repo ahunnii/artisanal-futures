@@ -61,7 +61,8 @@ const PathwaysDepotOverviewPage = () => {
 
   const [date, setDate] = useState<Date | undefined>(new Date());
 
-  const setSearchParamDate = (date: Date) => {
+  const setSearchParamDate = (date: Date | undefined) => {
+    if (!date) return;
     setDate(date);
     changeDate(date.toDateString());
   };
@@ -94,7 +95,7 @@ const PathwaysDepotOverviewPage = () => {
                   <Button
                     className="mx-0 flex gap-2 px-0 "
                     variant={"link"}
-                    onClick={() => drivers.setIsQuickAddOpen(true)}
+                    onClick={() => drivers.onSheetOpenChange(true)}
                   >
                     <UserPlus />
                     Add Drivers

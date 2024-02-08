@@ -40,6 +40,7 @@ import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
 import { getStyle } from "~/apps/solidarity-routing/libs/color-handling";
 import type { GeoJsonData, Stop } from "~/apps/solidarity-routing/types";
 
+import { Expand } from "lucide-react";
 import { cn } from "~/utils/styles";
 import { MAP_DATA } from "../../data/map-data";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
@@ -79,14 +80,20 @@ type IdCluster = { job_id: string; vehicle_id: string };
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const mapRef = useRef<Map>(null);
 
+  const [enableTracking, setEnableTracking] = useState(false);
+
   const params = {
     mapRef: mapRef.current!,
     trackingEnabled: true,
-    constantUserTracking: true,
+    constantUserTracking: enableTracking,
   };
 
-  const { convertSolutionToGeoJSON, flyToCurrentLocation, currentLocation } =
-    useMap(params);
+  const {
+    convertSolutionToGeoJSON,
+    expandViewToFit,
+    flyToCurrentLocation,
+    currentLocation,
+  } = useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
   const drivers = useDriverVehicleBundles();
@@ -169,12 +176,38 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
 
-          <Button
-            className="absolute bottom-3 right-3 z-[1000]"
-            onClick={flyToCurrentLocation}
-          >
-            Center to Location
-          </Button>
+          <div>
+            <Button
+              size={"icon"}
+              className={cn(
+                "absolute bottom-16 right-3 z-[1000]",
+                !enableTracking && "bottom-3"
+              )}
+              onClick={expandViewToFit}
+            >
+              <Expand />
+            </Button>
+
+            {enableTracking && (
+              <Button
+                className={cn("absolute bottom-3 right-3 z-[1000]")}
+                onClick={flyToCurrentLocation}
+              >
+                Center to Location
+              </Button>
+            )}
+
+            <Button
+              className={cn(
+                "absolute bottom-3 right-44 z-[1000]",
+                !enableTracking && "right-16"
+              )}
+              variant={enableTracking ? "secondary" : "default"}
+              onClick={() => setEnableTracking(!enableTracking)}
+            >
+              {enableTracking ? "Stop" : "Start"} Realtime Tracking
+            </Button>
+          </div>
 
           {currentLocation && (
             <RouteMarker

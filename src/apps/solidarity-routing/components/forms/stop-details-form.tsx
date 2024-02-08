@@ -1,4 +1,4 @@
-import { useMemo, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 
 import { useJsApiLoader } from "@react-google-maps/api";
 import {
@@ -35,11 +35,23 @@ import { Separator } from "~/components/ui/separator";
 
 import type { Driver, StopFormValues } from "../../types.wip";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { DriverType, JobType } from "@prisma/client";
+import { Home, Package, Undo } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { env } from "~/env.mjs";
 import { cn } from "~/utils/styles";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
+import { AutoCompleteJobBtn } from "./autocomplete-job-btn";
 
 type StopDetailsSectionProps = {
   form: UseFormReturn<StopFormValues>;
@@ -55,7 +67,11 @@ const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
     googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
     libraries,
   });
+  const [useDefault, setUseDefault] = useState(
+    form.getValues("address.formatted") === "" ? false : true
+  );
 
+  const jobBundles = useClientJobBundles();
   const handleAutoComplete = (
     address: string,
     onChange: (value: string) => void
@@ -99,6 +115,9 @@ const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
     return hasErrors;
   }, [formErrors]);
 
+  const { active: activeJob } = useClientJobBundles();
+
+  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
   return (
     <AccordionItem value="item-1" className="group">
       <AccordionTrigger
@@ -114,6 +133,152 @@ const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
       >
         <AccordionContent className="px-2">
           <div className="flex flex-col space-y-4">
+            {jobBundles.active && (
+              <FormItem className="my-2 flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Address</FormLabel>
+
+                  <FormDescription>
+                    {/* {useDefault && ( */}
+                    <>
+                      <span className="flex items-center gap-1">
+                        <Package className="h-4 w-4" />
+                        {form.watch("address.formatted")}
+                      </span>
+                    </>
+                    {/* )}
+                          {!useDefault && (
+                            <div className="flex flex-col space-y-0.5">
+                              <span className="flex items-center gap-1">
+                                {" "}
+                                <Home className="h-4 w-4" />{" "}
+                                {form.watch("startAddress.formatted")}
+                              </span>
+      
+                              <span className="flex items-center gap-1">
+                                {form.watch("endAddress.formatted") !== "" && (
+                                  <>
+                                    <Home className="h-4 w-4" />
+                                    {form.watch("endAddress.formatted")}
+                                  </>
+                                )} */}
+                    {/* </span> */}
+                    {/* </div> */}
+                    {/* )} */}
+                  </FormDescription>
+                  <FormDescription className="text-xs text-muted-foreground/75">
+                    Switch to change the address for this stop.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={useDefault}
+                    onCheckedChange={(e: boolean) => {
+                      // enableAnimations(e);
+                      setUseDefault(e);
+                    }}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+            <div ref={parent} className="flex flex-col gap-4">
+              {!useDefault && (
+                <Controller
+                  name="address.formatted"
+                  control={form.control}
+                  render={({ field: { onChange, value } }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-normal text-muted-foreground">
+                        Job Address
+                      </FormLabel>
+
+                      <div className="flex gap-1">
+                        <AutoCompleteJobBtn
+                          value={value}
+                          onChange={onChange}
+                          form={form}
+                          useDefault={useDefault}
+                          formKey="address"
+                        />
+                        {/* {!form.watch("address.formatted") &&
+                          jobs?.active?.client?.address && ( */}
+                        <>
+                          {activeJob?.job?.address && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    onClick={() => {
+                                      onChange(
+                                        activeJob?.job?.address?.formatted
+                                      );
+                                      form.setValue(
+                                        "address.latitude",
+                                        activeJob?.job?.address?.latitude ?? 0
+                                      );
+                                      form.setValue(
+                                        "address.longitude",
+                                        activeJob?.job?.address?.longitude ?? 0
+                                      );
+                                    }}
+                                  >
+                                    <Undo className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Undo address change</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {activeJob?.client?.address?.formatted && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    type="button"
+                                    variant={"outline"}
+                                    onClick={() => {
+                                      onChange(
+                                        activeJob?.client?.address?.formatted
+                                      );
+                                      form.setValue(
+                                        "address.latitude",
+                                        activeJob?.client?.address?.latitude ??
+                                          0
+                                      );
+                                      form.setValue(
+                                        "address.longitude",
+                                        activeJob?.client?.address?.longitude ??
+                                          0
+                                      );
+                                    }}
+                                  >
+                                    <Home className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Set to home address</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </>
+                        {/* )} */}
+                      </div>
+                      <FormDescription className="text-xs text-muted-foreground/75">
+                        This is where the job gets fulfilled. It defaults to the
+                        client&apos;s address.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
             <FormField
               control={form.control}
               name="prepTime"

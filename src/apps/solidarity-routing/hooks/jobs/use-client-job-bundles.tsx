@@ -120,6 +120,10 @@ export const useClientJobBundles = () => {
     return sessionStorageStops.activeLocation?.job.id === id;
   };
 
+  const getClientById = (id: string) => {
+    return clients?.find((client) => client.id === id);
+  };
+
   const openStopSheet = () => sessionStorageStops.setIsStopSheetOpen(true);
 
   const closeStopSheet = () => sessionStorageStops.setIsStopSheetOpen(false);
@@ -199,8 +203,17 @@ export const useClientJobBundles = () => {
 
     clients: clients ?? [],
 
+    getClientById,
+
+    create: createJob.createNewJob,
     createMany: createJob.createNewJobs,
     createByLatLng: sessionStorageStops.addLocationByLatLng,
+
+    updateJob: updateJob.updateRouteJob,
+    updateClient: updateJob.updateDepotClient,
+
+    deleteJob: deleteJob.deleteJobFromRoute,
+    deleteClient: deleteJob.deleteClientFromDepot,
 
     isActive: (id: string) => {
       return sessionStorageStops.activeLocation?.job.id === id;

@@ -22,7 +22,7 @@ import type { DriverFormValues, StopFormValues } from "../../types.wip";
 
 interface IProps {
   form: UseFormReturn<StopFormValues>;
-  key: "address" | "clientAddress";
+  formKey: "address" | "clientAddress";
   onChange: (value: string) => void;
   value: string | undefined;
   useDefault?: boolean;
@@ -36,7 +36,7 @@ export function AutoCompleteJobBtn({
   onChange,
   form,
   useDefault,
-  key,
+  formKey,
 }: IProps) {
   const [open, setOpen] = useState(false);
 
@@ -53,9 +53,9 @@ export function AutoCompleteJobBtn({
     geocodeByAddress(address)
       .then((results) => getLatLng(results[0]!))
       .then(({ lat, lng }) => {
-        form.setValue(`${key}.formatted`, address);
-        form.setValue(`${key}.latitude`, lat);
-        form.setValue(`${key}.longitude`, lng);
+        form.setValue(`${formKey}.formatted`, address);
+        form.setValue(`${formKey}.latitude`, lat);
+        form.setValue(`${formKey}.longitude`, lng);
       })
       .catch((err) => console.error("Error", err))
       .finally(() => setOpen(false));
