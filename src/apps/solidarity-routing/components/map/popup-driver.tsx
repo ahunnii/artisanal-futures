@@ -8,7 +8,7 @@ type IStopProps = {
 
 // Popup shown inside map when a stop is clicked
 const DriverPopup: FC<IStopProps> = ({ vehicle, route }) => {
-  const description = JSON.parse(route?.description ?? "{}");
+  const description = route?.description;
 
   const name = vehicle?.name ?? description?.name ?? "Driver";
 

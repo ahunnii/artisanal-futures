@@ -88,6 +88,18 @@ const useMap = ({
     };
   };
 
+  // const convertSolutionToGeoJSON = (solution: string) => {
+  //   return {
+  //     type: "FeatureCollection",
+  //     features: solution?.geometry.map((geometry: Polyline) => {
+  //       return {
+  //         type: "Feature",
+  //         geometry,
+  //       };
+  //     }),
+  //   };
+  // };
+
   const flyToCurrentLocation = () => {
     if (currentLocation)
       flyTo(

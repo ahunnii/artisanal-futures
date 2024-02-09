@@ -1,14 +1,133 @@
-import { Driver } from "@prisma/client";
+import { Driver, RouteStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
+import { geoJson } from "leaflet";
 import { z } from "zod";
 import {
   ClientJobBundle,
   DriverVehicleBundle,
   driverVehicleSchema,
+  optimizationPlanSchema,
 } from "~/apps/solidarity-routing/types.wip";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { vehicleRouter } from "./vehicles";
 
 export const routePlanRouter = createTRPCRouter({
+  setOptimizedData: protectedProcedure
+    .input(z.object({ data: z.string(), routeId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          optimizedData: input.data,
+        },
+      });
+    }),
+
+  setOptimizedDataWithVroom: protectedProcedure
+    .input(
+      z.object({
+        plan: optimizationPlanSchema,
+        routeId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          optimizedRoute: {
+            deleteMany: {},
+          },
+        },
+      });
+      const unassigned = input.plan.data.unassigned.map(
+        (job) => job.description
+      );
+
+      const routes = input.plan.data.routes.map((route) => ({
+        routeId: input.routeId,
+        vehicleId: route.description,
+        geoJson: route.geometry,
+        stops: route.steps.map((step) => ({
+          arrival: step.arrival,
+          departure: step.arrival + step.service,
+          duration: step.duration,
+          prep: step.setup,
+          type: step.type,
+          jobId: step?.description ?? null,
+          status: RouteStatus.PENDING,
+        })),
+      }));
+
+      await ctx.prisma.job.updateMany({
+        where: {
+          routeId: input.routeId,
+          id: {
+            notIn: unassigned,
+          },
+        },
+        data: {
+          isOptimized: true,
+        },
+      });
+
+      await Promise.all(
+        routes.map(async (route) => {
+          const optimizedRoute = await ctx.prisma.optimizedRoutePath.create({
+            data: {
+              routeId: route.routeId,
+              vehicleId: route.vehicleId,
+              geoJson: route.geoJson,
+            },
+          });
+
+          const stops = route.stops.map((stop) => ({
+            ...stop,
+            routePathId: optimizedRoute.id,
+          }));
+
+          await ctx.prisma.optimizedStop.createMany({
+            data: stops,
+          });
+
+          return optimizedRoute;
+        })
+      );
+
+      return ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          optimizedData: JSON.stringify(input.plan.data),
+        },
+      });
+
+      // })
+      // return ctx.prisma.route.update({
+      //   where: {
+      //     id: input.routeId,
+      //   },
+      //   data: {
+      //     optimizedData: JSON.stringify(input.plan.data),
+
+      //   },
+      // });
+
+      // return ctx.prisma.vehicle.update({
+      //   where: {
+      //     id: input.routeId,
+      //   },
+      //   data: {
+      //     optimizedData: input.data,
+      //     geometry: input.geometry,
+      //   },
+      // });
+    }),
+
   getAllRoutes: protectedProcedure
     .input(
       z.object({
@@ -141,6 +260,11 @@ export const routePlanRouter = createTRPCRouter({
             include: {
               address: true,
               client: true,
+            },
+          },
+          optimizedRoute: {
+            include: {
+              stops: true,
             },
           },
         },

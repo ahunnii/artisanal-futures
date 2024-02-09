@@ -13,58 +13,30 @@ import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { convertSecondsToTime } from "~/apps/solidarity-routing/libs/time-formatting";
 import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
-import { metersToMiles } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+import { OptimizedRoutePath } from "~/apps/solidarity-routing/types.wip";
+import {
+  metersToMiles,
+  unixSecondsToMilitaryTime,
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 type RouteHeaderCardProps = {
-  data: ExpandedRouteData;
+  route: OptimizedRoutePath;
 
-  textColor?: number;
+  textColor?: string;
   isOnline?: boolean;
   isTracking?: boolean;
   isButton?: boolean;
 } & React.ComponentProps<typeof CardHeader>;
 
-const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
-  data,
+export const OptimizedRouteHeaderCard: FC<RouteHeaderCardProps> = ({
+  route,
   textColor,
   className,
   isOnline = false,
   isButton = false,
 }) => {
-  const {
-    vehicleId,
-    driverId,
-  }: {
-    vehicleId: string | undefined | null;
-    driverId: string | undefined | null;
-  } = JSON.parse(data.description ?? "{}");
-
-  const drivers = useDriverVehicleBundles();
-
-  const driverName = drivers.getDriverById(vehicleId)?.driver?.name;
-
-  const startTime = convertSecondsToTime(data?.steps?.[0]?.arrival ?? 0);
-  const endTime = convertSecondsToTime(
-    (data?.steps?.[0]?.arrival ?? 0) +
-      data?.setup +
-      data?.service +
-      data?.waiting_time +
-      data?.duration
-  );
-
-  const numberOfStops = data?.steps?.filter(
-    (step) => step.type === "job"
-  ).length;
-
-  const colorText = getColor(textColor!).text;
-
-  const routeStatus = useMemo(() => {
-    const temp = data?.steps?.filter(
-      (step) => step.status && step.status !== "pending" && step.type === "job"
-    ).length;
-
-    return temp === numberOfStops;
-  }, [data?.steps, numberOfStops]);
+  const driverBundles = useDriverVehicleBundles();
+  const driverBundle = driverBundles.getVehicleById(route.vehicleId as string);
 
   return (
     <>
@@ -76,14 +48,14 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
       >
         <div>
           <CardTitle className="flex  flex-row items-center gap-4 text-base ">
-            <div className={cn("flex basis-2/3 font-bold", colorText)}>
-              {driverName} {routeStatus && "✅"}
+            <div className={cn("flex basis-2/3 font-bold", textColor)}>
+              {driverBundle?.driver?.name}
+              {/* {routeStatus && "✅"} */}
             </div>
             {isOnline && <OnlineIndicator />}
           </CardTitle>
           <CardDescription>
-            {startTime} to {endTime} • {numberOfStops} stops •{" "}
-            {metersToMiles(data?.distance)} miles
+            Not started • xx:xx to xx:xx • xxx mi
           </CardDescription>{" "}
         </div>
         {isButton && (
@@ -93,5 +65,3 @@ const RouteHeaderCard: FC<RouteHeaderCardProps> = ({
     </>
   );
 };
-
-export default RouteHeaderCard;

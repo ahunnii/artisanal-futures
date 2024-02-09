@@ -1,3 +1,5 @@
+import { createHash } from "crypto";
+
 export function militaryTimeToUnixSeconds(militaryTime: string): number {
   // Split the input military time string into hours and minutes
   const [hours, minutes] = militaryTime.split(":").map(Number);
@@ -131,3 +133,13 @@ export function phoneFormatStringToNumber(input: string) {
 
   return input.replace(/\D/g, "");
 }
+
+export const cuidToIndex = (cuid: string, arraySize: number): number => {
+  // Calculate SHA-256 hash digest
+  const hashDigest = createHash("sha256").update(cuid).digest("hex");
+  // Convert digest to integer
+  const hashInt = parseInt(hashDigest, 16);
+  // Map the hash integer to the range of the array size
+  const index = hashInt % arraySize;
+  return index;
+};

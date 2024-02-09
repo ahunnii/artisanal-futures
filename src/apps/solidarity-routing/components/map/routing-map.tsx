@@ -1,3 +1,6 @@
+import { createHash } from "crypto";
+import type L from "leaflet";
+import type { LatLngExpression, Map } from "leaflet";
 import {
   forwardRef,
   useImperativeHandle,
@@ -5,9 +8,6 @@ import {
   useState,
   type MouseEventHandler,
 } from "react";
-
-import type L from "leaflet";
-import type { LatLngExpression, Map } from "leaflet";
 import {
   Circle,
   GeoJSON,
@@ -45,6 +45,8 @@ import { cn } from "~/utils/styles";
 import { MAP_DATA } from "../../data/map-data";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
+import { useRoutePlans } from "../../hooks/plans/use-route-plans";
+import { formatGeometryString } from "../../services/optimization/aws-vroom/utils";
 import { ClientJobBundle } from "../../types.wip";
 import {
   cuidToNumber,
@@ -73,9 +75,8 @@ type MapPoint = {
   lng: number;
   name: string;
   address: string;
+  color: string;
 };
-
-type IdCluster = { job_id: string; vehicle_id: string };
 
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const mapRef = useRef<Map>(null);
@@ -96,28 +97,27 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   } = useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
-  const drivers = useDriverVehicleBundles();
-  const jobs = useClientJobBundles();
+  const driverBundles = useDriverVehicleBundles();
+  const jobBundles = useClientJobBundles();
+  const routePlans = useRoutePlans();
+
+  const COLOR_ARRAY_SIZE = 19;
+
+  const cuidToIndex = (cuid: string, arraySize: number): number => {
+    // Calculate SHA-256 hash digest
+    const hashDigest = createHash("sha256").update(cuid).digest("hex");
+    // Convert digest to integer
+    const hashInt = parseInt(hashDigest, 16);
+    // Map the hash integer to the range of the array size
+    const index = hashInt % arraySize;
+    return index;
+  };
 
   // const drivers = bundles?.all;
-  const addDriverByLatLng = drivers.createByLatLng;
-  const addJobByLatLng = jobs.createByLatLng;
+  const addDriverByLatLng = driverBundles.createByLatLng;
+  const addJobByLatLng = jobBundles.createByLatLng;
 
-  // const { locations, addLocationByLatLng } = useStopsStore((state) => state);
   const { currentRoutingSolution } = useRoutingSolutions();
-  const { filteredLocations } = useRouteOptimization();
-
-  // Filter through current stops and mark if the optimized route has assigned it to a vehicle or not
-  const assignedLocations = jobs.data.map((stop) => {
-    return {
-      ...stop,
-      isUnassigned:
-        currentRoutingSolution &&
-        !filteredLocations.some(
-          (filteredLocation) => filteredLocation.job_id === stop.job.id
-        ),
-    } as AssignedLocation;
-  });
 
   useImperativeHandle(ref, () => ({
     reactLeafletMap: mapRef.current,
@@ -128,29 +128,33 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     setLatLng(mapRef.current.mouseEventToLatLng(event));
   };
 
-  const findVehicleId = (stop: ClientJobBundle) =>
-    filteredLocations.find((item: IdCluster) => stop.job.id === item.job_id)
-      ?.vehicle_id;
-
-  const stopMapPoints: MapPoint[] = jobs.data.map((stop) => ({
+  const stopMapPoints: MapPoint[] = jobBundles.data.map((stop) => ({
     id: stop.job.id,
     type: "job",
     lat: stop.job.address.latitude,
     lng: stop.job.address.longitude,
     address: stop.job.address.formatted,
     name: stop?.client?.name ?? "New Stop",
+    color: !stop.job.isOptimized
+      ? "-1"
+      : `${cuidToIndex(
+          routePlans.findVehicleIdByJobId(stop.job.id),
+          COLOR_ARRAY_SIZE
+        )}`,
   }));
 
-  const driverMapPoints: MapPoint[] = drivers?.data?.map((driver) => ({
+  const driverMapPoints: MapPoint[] = driverBundles?.data?.map((driver) => ({
     id: driver.vehicle.id,
     type: "vehicle",
     lat: driver.vehicle.startAddress?.latitude,
     lng: driver.vehicle.startAddress?.longitude,
     address: driver.vehicle.startAddress?.formatted ?? "",
     name: driver?.driver?.name ?? "Driver",
+    color:
+      routePlans.optimized.length > 0
+        ? `${cuidToIndex(driver.vehicle.id, COLOR_ARRAY_SIZE)}`
+        : "3",
   }));
-
-  const mapPoints: MapPoint[] = [...stopMapPoints, ...driverMapPoints];
 
   return (
     <ContextMenu>
@@ -239,7 +243,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                       variant="car"
                       id={vehicle.id}
                       position={[vehicle.lat, vehicle.lng]}
-                      color={cuidToUniqueNumber(vehicle.id)}
+                      color={Number(vehicle.color)}
                     >
                       <MapPopup
                         name={vehicle.name}
@@ -252,55 +256,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             </LayersControl.Overlay>
             <LayersControl.Overlay name="Stops" checked>
               <LeafletLayerGroup>
-                {/* {assignedLocations?.length > 0 ? (
-                  <>
-                    {assignedLocations?.map((location, idx) => {
-                      const position = [
-                        location.job?.address?.latitude,
-                        location.job?.address?.longitude,
-                      ] as [number, number];
-
-                      const color =
-                        (location?.isUnassigned
-                          ? -1
-                          : findVehicleId(location)) ?? 1;
-
-                      return (
-                        <RouteMarker
-                          key={idx}
-                          variant="stop"
-                          id={location.job.id}
-                          position={position}
-                          color={color}
-                        >
-                          <StopPopup stop={location} />
-                        </RouteMarker>
-                      );
-                    })}
-                  </>
-                ) : (
-                  stops?.length > 0 &&
-                  stops.map((location, idx) => {
-                    const position = [
-                      location.job.address?.latitude,
-                      location.job.address?.longitude,
-                    ] as [number, number];
-
-                    const color = findVehicleId(location?.job?.id) ?? 3;
-
-                    return (
-                      <RouteMarker
-                        key={idx}
-                        variant="stop"
-                        id={location.id}
-                        position={position}
-                        color={color}
-                      >
-                        <StopPopup stop={location} />
-                      </RouteMarker>
-                    );
-                  })
-                )} */}
                 {stopMapPoints?.length > 0 &&
                   stopMapPoints.map((stop, idx) => (
                     <RouteMarker
@@ -308,7 +263,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                       variant="stop"
                       id={stop.id}
                       position={[stop.lat, stop.lng]}
-                      color={3}
+                      color={Number(stop.color)}
                     >
                       <MapPopup
                         name={stop.name}
@@ -321,14 +276,28 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             </LayersControl.Overlay>
           </LayersControl>
 
-          {currentRoutingSolution && (
+          {routePlans.optimized.length > 0 &&
+            routePlans.optimized.map((route) => (
+              <GeoJSON
+                key={route.id}
+                data={
+                  formatGeometryString(
+                    route.geoJson,
+                    route.vehicleId as string
+                  ) as unknown as GeoJsonData
+                }
+                style={getStyle}
+              />
+            ))}
+
+          {/* {currentRoutingSolution && (
             <GeoJSON
               data={
-                convertSolutionToGeoJSON(currentRoutingSolution) as GeoJsonData
+                convertSolutionToGeoJSON(routePlans.data.) as GeoJsonData
               }
               style={getStyle}
             />
-          )}
+          )} */}
         </MapContainer>
       </ContextMenuTrigger>
 

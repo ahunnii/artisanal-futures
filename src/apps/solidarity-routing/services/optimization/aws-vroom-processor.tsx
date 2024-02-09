@@ -2,7 +2,11 @@ import axios from "axios";
 import { uniqueId } from "lodash";
 import toast from "react-hot-toast";
 import type { OptimizationData, Polyline } from "../../types";
-import type { ClientJobBundle, DriverVehicleBundle } from "../../types.wip";
+import type {
+  ClientJobBundle,
+  DriverVehicleBundle,
+  OptimizedResponseData,
+} from "../../types.wip";
 import { formatGeometry } from "./aws-vroom/utils";
 import type { OptimizationProcessor } from "./optimization-processor";
 
@@ -51,7 +55,77 @@ export type VroomGeometry = {
   coordinates: [number, number][];
 };
 
-type VroomOptimalPaths = { geometry: Polyline[]; data: OptimizationData };
+type VroomSummaryData = {
+  amount: number[];
+  computing_times: {
+    loading: number;
+    solving: number;
+    routing: number;
+  };
+  cost: number;
+  delivery: number[];
+  distance: number;
+  duration: number;
+  pickup: number[];
+  priority: number;
+  routes: number;
+  service: number;
+  setup: number;
+  unassigned: number;
+  violations: unknown[];
+  waiting_time: number;
+};
+
+type VroomUnassignedData = {
+  id: number;
+  location: [number, number];
+  description: string;
+  type: string;
+};
+
+type VroomStepData = {
+  arrival: number;
+  distance: number;
+  duration: number;
+  load: number[];
+  location: [number, number];
+  service: number;
+  setup: number;
+  type: "job" | "pickup" | "delivery" | "shipment" | "break" | "start" | "end";
+  violations: unknown[];
+  waiting_time: number;
+  description: string;
+  id?: number;
+  job?: number;
+};
+
+type VroomRouteData = {
+  amount: number[];
+  cost: number;
+  delivery: number[];
+  description: string;
+  distance: number;
+  duration: number;
+  geometry: string;
+  pickup: number[];
+  priority: number;
+  service: number;
+  setup: number;
+  vehicle: number;
+  violations: unknown[];
+  waiting_time: number;
+  steps: VroomStepData[];
+};
+
+type VroomOptimizationData = {
+  code: number;
+  routes: VroomRouteData[];
+  summary: VroomSummaryData;
+  unassigned: VroomUnassignedData[];
+};
+
+type VroomOptimalPaths = { geometry: Polyline[]; data: VroomOptimizationData };
+
 const OPTIMIZATION_ENDPOINT =
   "https://data.artisanalfutures.org/api/v1/optimization";
 
@@ -59,13 +133,16 @@ export const awsVroomProcessor: OptimizationProcessor<
   VroomData,
   VroomOptimalPaths,
   VroomVehicle,
-  VroomJob
+  VroomJob,
+  VroomOptimizationData
 > = {
   async calculateOptimalPaths(params: VroomData): Promise<VroomOptimalPaths> {
-    const { data }: { data: OptimizationData } = await axios.post(
+    const { data }: { data: VroomOptimizationData } = await axios.post(
       OPTIMIZATION_ENDPOINT,
       params
     );
+
+    console.log(data);
 
     // TODO Swap out with notification service
     if (!data) {
@@ -90,10 +167,7 @@ export const awsVroomProcessor: OptimizationProcessor<
       return {
         id: parseInt(uniqueId()),
         profile: "car",
-        description: JSON.stringify({
-          vehicleId: bundle.vehicle.id ?? null,
-          driverId: bundle.driver.id ?? null,
-        }),
+        description: bundle.vehicle.id ?? "",
         start: [
           bundle.vehicle.startAddress.longitude,
           bundle.vehicle.startAddress.latitude,
@@ -130,10 +204,7 @@ export const awsVroomProcessor: OptimizationProcessor<
     const convertClientToJob = (bundle: ClientJobBundle) => {
       return {
         id: parseInt(uniqueId()),
-        description: JSON.stringify({
-          clientId: bundle.client.id ?? null,
-          jobId: bundle.job.id ?? null,
-        }),
+        description: bundle.job.id ?? "",
         service: bundle.job.serviceTime ?? 1800,
         location: [bundle.job.address.longitude, bundle.job.address.latitude],
         skills: [1],
@@ -143,5 +214,40 @@ export const awsVroomProcessor: OptimizationProcessor<
       };
     };
     return data.map(convertClientToJob);
+  },
+
+  formatResponseData(data: VroomOptimizationData): OptimizedResponseData {
+    const convertVroomResponseToOptimized: OptimizedResponseData = {
+      summary: {
+        totalDistance: data.summary.distance,
+        totalDuration: data.summary.duration,
+        totalPrepTime: data.summary.setup,
+        totalServiceTime: data.summary.service,
+        unassigned: data.unassigned.map((route) => route.description),
+      },
+      routes: data.routes.map((route: VroomRouteData) => ({
+        vehicleId: route.description,
+        geometry: route.geometry,
+        totalDistance: route.distance,
+        totalDuration: route.duration,
+        totalPrepTime: route.setup,
+        totalServiceTime: route.service,
+        startTime: route.steps[0]?.arrival ?? 0,
+        endTime: route.steps[route.steps.length - 1]?.arrival ?? 0,
+        stops: route.steps.map((step) => ({
+          jobId: step.description,
+          arrival: step.arrival,
+          departure:
+            step.arrival +
+            ((step?.service ?? 0) +
+              (step?.setup ?? 0) +
+              (step?.waiting_time ?? 0)),
+          serviceTime: step?.service ?? 0,
+          prepTime: step?.setup ?? 0,
+          type: step?.type,
+        })),
+      })),
+    };
+    return convertVroomResponseToOptimized;
   },
 };

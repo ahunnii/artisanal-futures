@@ -79,6 +79,8 @@ enum RouteStatus {
   IN_PROGRESS
   COMPLETED
   CANCELED
+  NOT_STARTED
+  FAILED
 }
 
 
@@ -362,6 +364,7 @@ model Job {
   timeWindowEnd   Int
   routeId         String?
   route           Route? @relation(fields: [routeId], references: [id])
+  isOptimized     Boolean   @default(false)
   notes           String?
   order           String?
   createdAt       DateTime @default(now())
@@ -378,9 +381,10 @@ model Route {
   depotId         Int
   depot           Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
   // name            String
-  jobs            Job[]
+  jobs            Job[]     
   vehicles        Vehicle[]
   optimizedRoute  OptimizedRoutePath[]
+  optimizedData   String? @db.Text
   deliveryAt      DateTime
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -392,9 +396,15 @@ model OptimizedRoutePath {
   id            String   @id @default(cuid())
   routeId       String
   route         Route   @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  vehicleId     String
   vehicle       Vehicle[]
   stops         OptimizedStop[]
-  geoJson       Json
+  distance      Float?
+  startTime     Int?
+  endTime       Int?
+  status        RouteStatus @default(NOT_STARTED)
+
+  geoJson       String @db.Text
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   @@index([routeId])
@@ -403,6 +413,7 @@ model OptimizedRoutePath {
 model OptimizedStop {
   id              String              @id @default(cuid())
   routePathId     String
+  jobId           String?
   routePath       OptimizedRoutePath  @relation(fields: [routePathId], references: [id], onDelete: Cascade)
   arrival         Int
   departure       Int

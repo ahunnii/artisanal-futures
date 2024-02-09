@@ -105,6 +105,7 @@ export const useDriverVehicleBundles = () => {
     depot: readDriver.depotDrivers,
     route: readDriver.routeDrivers,
     getDriverById: readDriver.getDriverById,
+    getVehicleById: readDriver.getVehicleById,
 
     create: createDriver.createNewDriver,
     createMany: createDriver.createNewDrivers,

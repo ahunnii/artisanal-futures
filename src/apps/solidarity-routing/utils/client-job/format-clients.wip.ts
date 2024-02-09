@@ -39,7 +39,7 @@ export const formatJobFormDataToBundle = (
 
     type: data.type,
     prepTime: minutesToSeconds(data?.prepTime ?? 0),
-    priority: Number(data?.priority) ?? 0,
+    priority: Number(data?.priority ?? 0),
     serviceTime: minutesToSeconds(data?.serviceTime ?? 0),
     timeWindowStart: militaryTimeToUnixSeconds(data.timeWindowStart),
     timeWindowEnd: militaryTimeToUnixSeconds(data.timeWindowEnd),
@@ -71,7 +71,7 @@ export const formatClientSheetRowToBundle = (data: VersionOneClientCSV) => ({
     },
     serviceTime: minutesToSeconds(data.service_time ?? 10),
     prepTime: minutesToSeconds(data.prep_time ?? 10),
-    priority: Number(data.priority) ?? 1,
+    priority: Number(data.priority ?? 1),
     timeWindowStart: militaryTimeToUnixSeconds(data.time_start ?? "09:00"),
     timeWindowEnd: militaryTimeToUnixSeconds(data.time_end ?? "17:00"),
     notes: data.notes ?? "",

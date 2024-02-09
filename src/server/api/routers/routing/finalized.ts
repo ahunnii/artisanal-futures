@@ -55,7 +55,7 @@ export const finalizedRouter = createTRPCRouter({
   createFinalizedRoute: protectedProcedure
     .input(expandedRouteDataSchema)
     .mutation(async ({ ctx, input }) => {
-      const temp = await ctx.prisma.finalizedRoute.findMany({
+      const temp = await ctx.prisma.route.findMany({
         where: {
           userId: ctx.session.user.id,
           route: {

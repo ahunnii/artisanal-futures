@@ -1,16 +1,14 @@
-import { ReloadIcon } from "@radix-ui/react-icons";
-
-import { OptimizationSummary } from "~/apps/solidarity-routing/components/solutions/optimization-summary";
+import { UnassignedSummary } from "~/apps/solidarity-routing/components/solutions/unassigned-summary";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import { useRoutingSolutions } from "~/apps/solidarity-routing/hooks/use-routing-solutions";
-
 import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
-import type { RouteData } from "~/apps/solidarity-routing/types";
+
+import { useRoutePlans } from "../../hooks/plans/use-route-plans";
+import { OptimizedRoutePath } from "../../types.wip";
 
 const CalculationsTab = () => {
-  const { currentRoutingSolution } = useRoutingSolutions();
+  const routePlan = useRoutePlans();
 
   return (
     <>
@@ -19,33 +17,23 @@ const CalculationsTab = () => {
           <h2 className="scroll-m-20 text-xl font-semibold tracking-tight">
             Routes{" "}
             <span className="rounded-lg border border-slate-300 px-2">
-              {currentRoutingSolution?.data?.routes?.length ?? 0}
+              {routePlan.data?.optimizedRoute?.length ?? 0}
             </span>
           </h2>
         </div>
       </div>
 
       <ScrollArea className=" flex-1  px-4">
-        {currentRoutingSolution && (
-          <OptimizationSummary
-            data={currentRoutingSolution?.data}
-            className="mb-4"
-          />
-        )}
-        {!currentRoutingSolution && (
-          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-        )}
-        {currentRoutingSolution && (
+        <UnassignedSummary unassigned={routePlan.unassigned} className="mb-4" />
+        {routePlan.optimized?.length > 0 && (
           <>
-            {currentRoutingSolution?.data?.routes.map(
-              (route: RouteData, idx: number) => (
-                <InteractiveRouteCard
-                  key={idx}
-                  data={route}
-                  textColor={route.vehicle}
-                />
-              )
-            )}
+            {routePlan.optimized?.map((route, idx) => (
+              <InteractiveRouteCard
+                key={idx}
+                data={route as OptimizedRoutePath}
+                textColor={1}
+              />
+            ))}
           </>
         )}{" "}
       </ScrollArea>

@@ -124,6 +124,10 @@ export const useClientJobBundles = () => {
     return clients?.find((client) => client.id === id);
   };
 
+  const getJobById = (id: string) => {
+    return getRouteJobs?.data?.find((bundle) => bundle.job.id === id);
+  };
+
   const openStopSheet = () => sessionStorageStops.setIsStopSheetOpen(true);
 
   const closeStopSheet = () => sessionStorageStops.setIsStopSheetOpen(false);
@@ -204,6 +208,7 @@ export const useClientJobBundles = () => {
     clients: clients ?? [],
 
     getClientById,
+    getJobById,
 
     create: createJob.createNewJob,
     createMany: createJob.createNewJobs,

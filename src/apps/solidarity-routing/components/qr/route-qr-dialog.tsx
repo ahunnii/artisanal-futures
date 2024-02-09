@@ -29,7 +29,7 @@ import { sendEmail } from "~/utils/email";
 type TProps = { data: ExpandedRouteData };
 
 export const RouteQRDialog: FC<TProps> = ({ data }) => {
-  const { name: driverName } = JSON.parse(data.description ?? "{}");
+  // const { name: driverName } = JSON.parse(data.description ?? "{}");
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [emailAddress, setEmailAddress] = useState<string | undefined>(
@@ -50,24 +50,24 @@ export const RouteQRDialog: FC<TProps> = ({ data }) => {
     };
   }, [fileID, emailAddress]);
 
-  const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
-    onError: (error) => {
-      toast.error(error.message);
-      console.error("Error uploading files:", error.message);
-      setFileID("");
-      setIsOpen(false);
-    },
+  // const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
+  //   onError: (error) => {
+  //     toast.error(error.message);
+  //     console.error("Error uploading files:", error.message);
+  //     setFileID("");
+  //     setIsOpen(false);
+  //   },
 
-    onSuccess: (data) => {
-      if (!data?.id) return;
-      setFileID(data.id);
-      setIsOpen(true);
-    },
-  });
+  //   onSuccess: (data) => {
+  //     if (!data?.id) return;
+  //     setFileID(data.id);
+  //     setIsOpen(true);
+  //   },
+  // });
 
   const openModal = () => {
     if (!data) return;
-    mutate(data);
+    // mutate(data);
   };
 
   return (
@@ -80,7 +80,7 @@ export const RouteQRDialog: FC<TProps> = ({ data }) => {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle> Route QR Code for {driverName}</DialogTitle>
+            <DialogTitle> Route QR Code for DriverName</DialogTitle>
             <DialogDescription>
               <Link
                 href={`/tools/routing/${encodeURIComponent(fileID)}`}

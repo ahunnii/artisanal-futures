@@ -8,8 +8,8 @@ type IStopProps = {
 
 // Popup shown inside map when a stop is clicked
 const DepotPopup: FC<IStopProps> = ({ vehicle, route }) => {
-  const description = JSON.parse(route?.description ?? "{}");
-  const address = vehicle?.address ?? description?.address ?? "Not filled out";
+  // const description = route?.description;
+  // const address = vehicle?.address ?? "Not filled out";
   return (
     <div className="flex flex-col space-y-2">
       <span className="block text-base font-bold capitalize">Depot</span>
@@ -17,7 +17,7 @@ const DepotPopup: FC<IStopProps> = ({ vehicle, route }) => {
         <span className="block font-semibold text-slate-600">
           Roundtrip Location
         </span>
-        {address}
+        {/* {address} */}
       </span>
     </div>
   );

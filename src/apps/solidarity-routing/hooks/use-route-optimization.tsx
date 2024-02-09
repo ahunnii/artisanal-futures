@@ -7,9 +7,12 @@ import { getUniqueKey } from "~/apps/solidarity-routing/libs/unique-key";
 import optimizationService from "../services/optimization";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { api } from "~/utils/api";
+import { OptimizationPlan } from "../types.wip";
 import { useClientJobBundles } from "./jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
-import { useStopsStore } from "./use-stops-store";
 
 type FilteredLocation = {
   job_id: string;
@@ -31,11 +34,26 @@ const mapJobsToVehicles = (routingSolution: Array<RouteData>) => {
 };
 
 const useRouteOptimization = () => {
-  const bundles = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
+  const jobBundles = useClientJobBundles();
+  const apiContext = api.useContext();
+  const router = useRouter();
+  const { routeId } = router.query;
+  const { data: session } = useSession();
 
-  const drivers = bundles?.data;
+  const setOptimizedData = api.routePlan.setOptimizedDataWithVroom.useMutation({
+    onSuccess: () => {
+      toast.success("Optimized data has been saved");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error("Error saving optimized data");
+    },
+    onSettled: () => {
+      void apiContext.routePlan.invalidate();
+    },
+  });
 
-  const { stops: locations } = useClientJobBundles();
   const [filteredLocations, setFilteredLocations] = useState<
     FilteredLocation[]
   >([]);
@@ -48,10 +66,15 @@ const useRouteOptimization = () => {
   } = useRoutingSolutions();
 
   const calculateRoutes = async () => {
-    const jobs = optimizationService.formatClientData(locations);
-    const vehicles = optimizationService.formatDriverData(drivers);
+    const jobs = optimizationService.formatClientData(jobBundles.data);
+    const vehicles = optimizationService.formatDriverData(driverBundles.data);
 
-    const uniqueKey = await getUniqueKey({ locations, drivers });
+    const uniqueKey = await getUniqueKey({
+      locations: jobBundles.data,
+      drivers: driverBundles.data,
+    });
+
+    console.log(uniqueKey);
 
     const params = {
       jobs,
@@ -63,13 +86,28 @@ const useRouteOptimization = () => {
 
     const results = await optimizationService.calculateOptimalPaths(params);
 
+    // if (results && session?.user && routeId) {
+    //   setOptimizedData.mutate({
+    //     routeId: routeId as string,
+    //     data: JSON.stringify(results),
+    //   });
+    // }
+
     setRoutingSolutions(uniqueKey, results);
+
+    setOptimizedData.mutate({
+      routeId: routeId as string,
+      plan: results as OptimizationPlan,
+    });
 
     return results;
   };
 
   const fetchRoutes = async () => {
-    const uniqueKey = await getUniqueKey({ locations, drivers });
+    const uniqueKey = await getUniqueKey({
+      locations: jobBundles.data,
+      drivers: driverBundles.data,
+    });
 
     if (!routingSolutions.has(uniqueKey)) return calculateRoutes();
 
@@ -85,11 +123,16 @@ const useRouteOptimization = () => {
         mapJobsToVehicles(currentRoutingSolution.data.routes)
       );
     }
-  }, [routingSolutions, drivers, locations, currentRoutingSolution]);
+  }, [
+    routingSolutions,
+    driverBundles.data,
+    jobBundles.data,
+    currentRoutingSolution,
+  ]);
 
   useEffect(() => {
     setCurrentRoutingSolution(null);
-  }, [locations, drivers, setCurrentRoutingSolution]);
+  }, [driverBundles.data, jobBundles.data, setCurrentRoutingSolution]);
 
   return {
     filteredLocations,
@@ -98,6 +141,7 @@ const useRouteOptimization = () => {
       const data = await fetchRoutes();
       setCurrentRoutingSolution(data!);
 
+      console.log(data);
       return data;
     },
     currentRoutingSolution,

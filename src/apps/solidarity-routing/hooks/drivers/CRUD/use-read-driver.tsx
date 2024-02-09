@@ -69,6 +69,24 @@ export const useReadDriver = () => {
     }
   };
 
+  const getVehicleById = (
+    vehicleId: string | null | undefined
+  ): DriverVehicleBundle | null => {
+    if (!vehicleId) return null;
+
+    if (isUserAllowedToSaveToDepot) {
+      return (
+        routeDrivers.find((driver) => driver.vehicle.id === vehicleId) ?? null
+      );
+    } else {
+      return (
+        sessionStorageDrivers.drivers?.find(
+          (driver) => driver.vehicle.id === vehicleId
+        ) ?? null
+      );
+    }
+  };
+
   const activeDriver = sessionStorageDrivers.activeDriver;
 
   // Get all depot drivers
@@ -79,6 +97,7 @@ export const useReadDriver = () => {
     routeDrivers,
     activeDriver,
     getDriverById,
+    getVehicleById,
     drivers: isUserAllowedToSaveToDepot
       ? routeDrivers ?? sessionStorageDrivers.drivers ?? []
       : sessionStorageDrivers.drivers ?? [],

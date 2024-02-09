@@ -6,24 +6,29 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import StepLineSegment from "~/apps/solidarity-routing/components/ui/step-line-segment";
 import { useDriverRoute } from "~/apps/solidarity-routing/hooks/use-driver-routes";
 import type { ExtendedStepData } from "~/apps/solidarity-routing/types";
+import {
+  DriverVehicleBundle,
+  OptimizedStop,
+} from "~/apps/solidarity-routing/types.wip";
 
 type RouteBreakdownProps = {
-  steps: ExtendedStepData[];
+  driver: DriverVehicleBundle | null | undefined;
+  steps: OptimizedStop[];
   color: string | undefined;
-  startingAddress: string;
 };
 
 /**
  * Acts as a timeline breakdown for each stop in the route.
  */
-const RouteBreakdown: FC<RouteBreakdownProps> = ({
-  steps,
-  color,
-  startingAddress,
-}) => {
-  const { setSelectedStop } = useDriverRoute((state) => state);
+const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
+  // const { setSelectedStop } = useDriverRoute((state) => state);
 
   let jobIndex = 0;
+  const startAddress = driver?.vehicle?.startAddress?.formatted ?? "";
+  const endAddress =
+    driver?.vehicle?.endAddress?.formatted ??
+    driver?.vehicle?.startAddress?.formatted ??
+    "";
 
   return (
     <ScrollArea className="flex-1 bg-slate-50 shadow-inner">
@@ -36,7 +41,7 @@ const RouteBreakdown: FC<RouteBreakdownProps> = ({
                   <Button
                     className="m-0  ml-auto flex  h-auto w-full  p-0"
                     variant={"ghost"}
-                    onClick={() => setSelectedStop(step)}
+                    // onClick={() => setSelectedStop(step)}
                   >
                     <StepLineSegment
                       step={step}
@@ -45,13 +50,20 @@ const RouteBreakdown: FC<RouteBreakdownProps> = ({
                     />{" "}
                   </Button>
                 )}
-
-                {(step.type === "start" ||
-                  step.type === "end" ||
-                  step.type === "break") && (
+                {step.type === "break" && (
+                  <StepLineSegment step={step} color={color} />
+                )}
+                {step.type === "start" && (
                   <StepLineSegment
                     step={step}
-                    addressRoundTrip={startingAddress}
+                    shiftStartAddress={startAddress}
+                    color={color}
+                  />
+                )}{" "}
+                {step.type === "end" && (
+                  <StepLineSegment
+                    step={step}
+                    shiftEndAddress={endAddress}
                     color={color}
                   />
                 )}

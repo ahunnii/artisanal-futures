@@ -95,7 +95,7 @@ const TrackingMap = forwardRef<MapRef, TrackingMapProps>(
             {routes &&
               routes.length > 0 &&
               routes.map((route, idx) => {
-                const { name } = JSON.parse(route?.description ?? "{}");
+                const { name } = route?.description;
                 return (
                   <LayersControl.Overlay name={name} checked key={idx}>
                     <LayerGroup>
