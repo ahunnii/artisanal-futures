@@ -1,11 +1,6 @@
 import { useSession } from "next-auth/react";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
 import toast from "react-hot-toast";
 import { api } from "~/utils/api";
 import optimizationService from "../../services/optimization";
@@ -13,7 +8,7 @@ import { OptimizationPlan } from "../../types.wip";
 import { getUniqueKey } from "../../utils/generic/unique-key";
 import { useDriverVehicleBundles } from "../drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../jobs/use-client-job-bundles";
-import { useRoutingSolutions } from "../use-routing-solutions";
+import { useRoutingSolutions } from "./use-routing-solutions";
 
 export const useRoutePlans = () => {
   const apiContext = api.useContext();

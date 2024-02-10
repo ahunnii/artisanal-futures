@@ -8,6 +8,7 @@ import PageLoader from "~/components/ui/page-loader";
 
 import type { RouteData, StepData } from "~/apps/solidarity-routing/types";
 
+import { MobileDrawer } from "~/apps/solidarity-routing/components/mobile-drawer.wip";
 import RouteBreakdown from "~/apps/solidarity-routing/components/solutions/route-breakdown";
 import FieldJobSheet from "~/apps/solidarity-routing/components/tracking/field-job-sheet.wip";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
@@ -68,6 +69,7 @@ const OptimizedPathPage: FC<IProps> = () => {
                     <Button>Start route</Button>
                   </>
                 </div>
+                <MobileDrawer />
 
                 <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
               </section>
