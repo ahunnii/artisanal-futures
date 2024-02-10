@@ -19,6 +19,18 @@ export const MessagingBody = () => {
           type="sender"
         />
 
+        <Message
+          content={`JOB#csdetedfsfs...: I'm doing great, thanks for asking! How about you?`}
+          time="Just now"
+          type="sender"
+        />
+
+        <Message
+          content="I'm doing great, thanks for asking! How about you?"
+          time="Just now"
+          type="sender"
+        />
+
         {/* <div className="flex items-start gap-4">
           <div className="relative h-12 w-12">
             <img

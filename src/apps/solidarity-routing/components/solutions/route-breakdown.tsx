@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import type { ElementType, FC, HTMLAttributes } from "react";
 
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -9,18 +9,24 @@ import type {
   DriverVehicleBundle,
   OptimizedStop,
 } from "~/apps/solidarity-routing/types.wip";
+import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 type RouteBreakdownProps = {
   driver: DriverVehicleBundle | null | undefined;
   steps: OptimizedStop[];
   color: string | undefined;
-};
+} & HTMLAttributes<ElementType<"div">>;
 
 /**
  * Acts as a timeline breakdown for each stop in the route.
  */
-const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
+const RouteBreakdown: FC<RouteBreakdownProps> = ({
+  driver,
+  steps,
+  color,
+  className,
+}) => {
   // const { setSelectedStop } = useDriverRoute((state) => state);
 
   const jobBundles = useClientJobBundles();
@@ -34,7 +40,7 @@ const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
     "";
 
   return (
-    <ScrollArea className="flex-1 bg-slate-50 shadow-inner">
+    <ScrollArea className={cn("flex-1 bg-slate-50 shadow-inner", className)}>
       <div className="w-full px-4 ">
         {steps?.length > 0 &&
           steps?.map((step, idx) => {
