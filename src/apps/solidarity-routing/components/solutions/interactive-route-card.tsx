@@ -14,6 +14,7 @@ import {
 
 import { cn } from "~/utils/styles";
 
+import Link from "next/link";
 import { OptimizedRouteHeaderCard } from "~/apps/solidarity-routing/components/ui/cards/optimized-route-header-card";
 import RouteBreakdown from "~/apps/solidarity-routing/components/ui/cards/route-breakdown";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
@@ -84,6 +85,11 @@ const InteractiveRouteCard: FC<TInteractiveProps> = ({
           />
           <SheetFooter>
             <MessagingSheet name={driver?.driver?.name ?? ""} />
+            <Link
+              href={`/tools/solidarity-pathways/1/route/${data.routeId}/path/${data.id}`}
+            >
+              <Button>View Route</Button>
+            </Link>
           </SheetFooter>
         </SheetContent>
       </Sheet>

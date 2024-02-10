@@ -24,6 +24,8 @@ const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
   // const { setSelectedStop } = useDriverRoute((state) => state);
 
   let jobIndex = 0;
+
+  console.log(driver);
   const startAddress = driver?.vehicle?.startAddress?.formatted ?? "";
   const endAddress =
     driver?.vehicle?.endAddress?.formatted ??

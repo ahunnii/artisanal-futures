@@ -128,6 +128,19 @@ export const routePlanRouter = createTRPCRouter({
       // });
     }),
 
+  getOptimizedData: protectedProcedure
+    .input(z.object({ pathId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.optimizedRoutePath.findUnique({
+        where: {
+          id: input.pathId,
+        },
+        include: {
+          stops: true,
+        },
+      });
+    }),
+
   getAllRoutes: protectedProcedure
     .input(
       z.object({

@@ -45,6 +45,8 @@ import { cn } from "~/utils/styles";
 import { MAP_DATA } from "../../data/map-data";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
+import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
+import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { useRoutePlans } from "../../hooks/plans/use-route-plans";
 import { formatGeometryString } from "../../services/optimization/aws-vroom/utils";
 import { ClientJobBundle } from "../../types.wip";
@@ -66,7 +68,7 @@ type AssignedLocation = ClientJobBundle & {
   isUnassigned?: boolean;
 };
 
-type MapPoint = {
+export type MapPoint = {
   id: string;
   partnerId?: string;
   isAssigned?: boolean;
@@ -117,6 +119,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const addDriverByLatLng = driverBundles.createByLatLng;
   const addJobByLatLng = jobBundles.createByLatLng;
 
+  const { pathId } = useSolidarityState();
+
+  const optimizedRoutePlan = useOptimizedRoutePlan();
+
   const { currentRoutingSolution } = useRoutingSolutions();
 
   useImperativeHandle(ref, () => ({
@@ -128,33 +134,47 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     setLatLng(mapRef.current.mouseEventToLatLng(event));
   };
 
-  const stopMapPoints: MapPoint[] = jobBundles.data.map((stop) => ({
-    id: stop.job.id,
-    type: "job",
-    lat: stop.job.address.latitude,
-    lng: stop.job.address.longitude,
-    address: stop.job.address.formatted,
-    name: stop?.client?.name ?? "New Stop",
-    color: !stop.job.isOptimized
-      ? "-1"
-      : `${cuidToIndex(
-          routePlans.findVehicleIdByJobId(stop.job.id),
-          COLOR_ARRAY_SIZE
-        )}`,
-  }));
+  const stopMapPoints: MapPoint[] = pathId
+    ? optimizedRoutePlan.mapData.jobs
+    : jobBundles.data.map((stop) => ({
+        id: stop.job.id,
+        type: "job",
+        lat: stop.job.address.latitude,
+        lng: stop.job.address.longitude,
+        address: stop.job.address.formatted,
+        name: stop?.client?.name ?? "New Stop",
+        color: !stop.job.isOptimized
+          ? "-1"
+          : `${cuidToIndex(
+              routePlans.findVehicleIdByJobId(stop.job.id),
+              COLOR_ARRAY_SIZE
+            )}`,
+      }));
 
-  const driverMapPoints: MapPoint[] = driverBundles?.data?.map((driver) => ({
-    id: driver.vehicle.id,
-    type: "vehicle",
-    lat: driver.vehicle.startAddress?.latitude,
-    lng: driver.vehicle.startAddress?.longitude,
-    address: driver.vehicle.startAddress?.formatted ?? "",
-    name: driver?.driver?.name ?? "Driver",
-    color:
-      routePlans.optimized.length > 0
-        ? `${cuidToIndex(driver.vehicle.id, COLOR_ARRAY_SIZE)}`
-        : "3",
-  }));
+  const driverMapPoints: MapPoint[] = pathId
+    ? optimizedRoutePlan.mapData.driver
+    : driverBundles?.data?.map((driver) => ({
+        id: driver.vehicle.id,
+        type: "vehicle",
+        lat: driver.vehicle.startAddress?.latitude,
+        lng: driver.vehicle.startAddress?.longitude,
+        address: driver.vehicle.startAddress?.formatted ?? "",
+        name: driver?.driver?.name ?? "Driver",
+        color:
+          routePlans.optimized.length > 0
+            ? `${cuidToIndex(driver.vehicle.id, COLOR_ARRAY_SIZE)}`
+            : "3",
+      }));
+
+  const routeGeoJsonList = pathId
+    ? optimizedRoutePlan.mapData.geometry
+    : routePlans.optimized.map((route) => {
+        return {
+          id: route.id,
+          geoJson: route.geoJson,
+          vehicleId: route.vehicleId,
+        };
+      });
 
   return (
     <ContextMenu>
@@ -276,14 +296,14 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             </LayersControl.Overlay>
           </LayersControl>
 
-          {routePlans.optimized.length > 0 &&
-            routePlans.optimized.map((route) => (
+          {routeGeoJsonList.length > 0 &&
+            routeGeoJsonList.map((route) => (
               <GeoJSON
                 key={route.id}
                 data={
                   formatGeometryString(
                     route.geoJson,
-                    route.vehicleId as string
+                    route.vehicleId
                   ) as unknown as GeoJsonData
                 }
                 style={getStyle}

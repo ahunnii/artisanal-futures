@@ -380,7 +380,6 @@ model Route {
   id              String   @id @default(cuid())
   depotId         Int
   depot           Depot @relation(fields: [depotId], references: [id], onDelete: Cascade)
-  // name            String
   jobs            Job[]     
   vehicles        Vehicle[]
   optimizedRoute  OptimizedRoutePath[]
@@ -403,7 +402,6 @@ model OptimizedRoutePath {
   startTime     Int?
   endTime       Int?
   status        RouteStatus @default(NOT_STARTED)
-
   geoJson       String @db.Text
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

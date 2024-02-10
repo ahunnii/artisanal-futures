@@ -75,9 +75,11 @@ export const useReadDriver = () => {
     if (!vehicleId) return null;
 
     if (isUserAllowedToSaveToDepot) {
-      return (
-        routeDrivers.find((driver) => driver.vehicle.id === vehicleId) ?? null
+      const driver = routeDrivers.find(
+        (driver) => driver.vehicle.id === vehicleId
       );
+
+      return (driver as DriverVehicleBundle) ?? null;
     } else {
       return (
         sessionStorageDrivers.drivers?.find(

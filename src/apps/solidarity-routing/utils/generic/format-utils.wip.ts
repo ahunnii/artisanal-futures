@@ -134,12 +134,13 @@ export function phoneFormatStringToNumber(input: string) {
   return input.replace(/\D/g, "");
 }
 
-export const cuidToIndex = (cuid: string, arraySize: number): number => {
+export const cuidToIndex = (cuid: string): number => {
+  const COLORS_ARRAY_SIZE = 19;
   // Calculate SHA-256 hash digest
   const hashDigest = createHash("sha256").update(cuid).digest("hex");
   // Convert digest to integer
   const hashInt = parseInt(hashDigest, 16);
   // Map the hash integer to the range of the array size
-  const index = hashInt % arraySize;
+  const index = hashInt % COLORS_ARRAY_SIZE;
   return index;
 };
