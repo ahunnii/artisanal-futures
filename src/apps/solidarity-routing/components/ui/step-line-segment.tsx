@@ -1,13 +1,9 @@
 import { Coffee, Home } from "lucide-react";
 
-import type { ExtendedStepData } from "~/apps/solidarity-routing/types";
-import {
-  convertSecondsToComponents,
-  convertSecondsToTime,
-} from "~/utils/routing/time-formatting";
 import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import { OptimizedStop } from "../../types.wip";
+import type { OptimizedStop } from "../../types.wip";
+import { unixSecondsToStandardTime } from "../../utils/generic/format-utils.wip";
 
 const StepLineSegment = ({
   step,
@@ -100,7 +96,7 @@ const StepLineSegment = ({
         </div>
 
         <div className="flex basis-1/3 items-center justify-end font-semibold text-slate-500">
-          {convertSecondsToTime(time)}
+          {unixSecondsToStandardTime(time)}
         </div>
       </div>
     </div>

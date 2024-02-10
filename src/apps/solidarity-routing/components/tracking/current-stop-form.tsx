@@ -18,13 +18,15 @@ import {
 } from "~/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
+import { RouteStatus } from "@prisma/client";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import type { ExtendedStepData } from "../../types";
+import { ClientJobBundle, OptimizedStop } from "../../types.wip";
 
 const notificationsFormSchema = z.object({
   status: z
-    .enum(["failed", "success", "pending"], {
+    .nativeEnum(RouteStatus, {
       required_error: "You need to select a notification type.",
     })
     .optional(),
@@ -38,13 +40,14 @@ export type EditStopFormValues = z.infer<typeof notificationsFormSchema>;
 
 type TProps = {
   callback: (data: EditStopFormValues) => void;
-  initialData?: ExtendedStepData | null;
+  initialData?: ClientJobBundle | null;
+  job?: OptimizedStop | null;
 };
 
-const CurrentStopForm: FC<TProps> = ({ callback, initialData }) => {
+const CurrentStopForm: FC<TProps> = ({ callback, initialData, job }) => {
   const defaultValues: Partial<EditStopFormValues> = {
-    status: initialData?.status ?? "pending",
-    deliveryNotes: initialData?.deliveryNotes ?? undefined,
+    status: job?.status ?? "PENDING",
+    deliveryNotes: job?.notes ?? undefined,
   };
 
   const form = useForm<EditStopFormValues>({

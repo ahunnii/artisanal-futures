@@ -1,40 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uniqueId } from "lodash";
-import { Trash } from "lucide-react";
-import { useMemo, useState, type FC } from "react";
+
+import { useState, type FC } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { Accordion } from "~/components/ui/accordion";
-import { Button } from "~/components/ui/button";
+
 import { Form } from "~/components/ui/form";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { toast } from "~/components/ui/use-toast";
 
-import DriverDetailsSection from "../forms/driver-details.form";
-import ShiftDetailsSection from "../forms/shift-details.form";
-import VehicleDetailsSection from "../forms/vehicle-details.form";
-
-import {
-  DepotValues,
-  driverFormSchema,
-  type DriverFormValues,
-  type DriverVehicleBundle,
-} from "~/apps/solidarity-routing/types.wip";
+import type { DepotValues } from "~/apps/solidarity-routing/types.wip";
 
 import type { Coordinates } from "../../types";
 
 import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 
-import { api } from "~/utils/api";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import {
-  secondsToMinutes,
-  unixSecondsToMilitaryTime,
-} from "../../libs/format-csv.wip";
-import { formatDriverFormDataToBundle } from "../../utils/driver-vehicle/format-drivers.wip";
-import { metersToMiles } from "../../utils/generic/format-utils.wip";
+
 import DepotDetailsForm from "../forms/depot-details-form";
 
 type TDriverForm = {

@@ -4,12 +4,12 @@ import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import StepLineSegment from "~/apps/solidarity-routing/components/ui/step-line-segment";
-import { useDriverRoute } from "~/apps/solidarity-routing/hooks/use-driver-routes";
-import type { ExtendedStepData } from "~/apps/solidarity-routing/types";
-import {
+
+import type {
   DriverVehicleBundle,
   OptimizedStop,
 } from "~/apps/solidarity-routing/types.wip";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 type RouteBreakdownProps = {
   driver: DriverVehicleBundle | null | undefined;
@@ -23,9 +23,10 @@ type RouteBreakdownProps = {
 const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
   // const { setSelectedStop } = useDriverRoute((state) => state);
 
+  const jobBundles = useClientJobBundles();
+
   let jobIndex = 0;
 
-  console.log(driver);
   const startAddress = driver?.vehicle?.startAddress?.formatted ?? "";
   const endAddress =
     driver?.vehicle?.endAddress?.formatted ??
@@ -43,7 +44,7 @@ const RouteBreakdown: FC<RouteBreakdownProps> = ({ driver, steps, color }) => {
                   <Button
                     className="m-0  ml-auto flex  h-auto w-full  p-0"
                     variant={"ghost"}
-                    // onClick={() => setSelectedStop(step)}
+                    onClick={() => jobBundles.view(step.jobId)}
                   >
                     <StepLineSegment
                       step={step}

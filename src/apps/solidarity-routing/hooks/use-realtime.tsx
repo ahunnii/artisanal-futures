@@ -12,7 +12,7 @@ import { pusherClient } from "~/server/soketi/client";
 import {
   removeCurrentLocation,
   sendCurrentLocation,
-} from "~/apps/solidarity-routing/libs/realtime-utils";
+} from "~/apps/solidarity-routing/utils/realtime-utils";
 
 const TRACKING_DURATION = 1000; // 10000ms = 10s
 

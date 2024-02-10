@@ -9,7 +9,7 @@ import type {
   ClientJobBundle,
   DriverVehicleBundle,
 } from "~/apps/solidarity-routing/types.wip";
-import { useStopsStore } from "../../use-stops-store";
+import { useStopsStore } from "../use-stops-store";
 
 export const useUpdateJob = () => {
   const { data: session } = useSession();

@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { stopData } from "../data/stops/stop-data";
-import type { ClientJobBundle } from "../types.wip";
+import { stopData } from "../../data/stops/stop-data";
+import type { ClientJobBundle } from "../../types.wip";
 
 interface IUseStopsStore {
   locations: ClientJobBundle[];
@@ -20,6 +20,9 @@ interface IUseStopsStore {
 
   isStopSheetOpen: boolean;
   setIsStopSheetOpen: (isOpen: boolean) => void;
+
+  isFieldJobSheetOpen: boolean;
+  setIsFieldJobSheetOpen: (isOpen: boolean) => void;
 }
 
 export const useStopsStore = create<IUseStopsStore>()(
@@ -56,6 +59,10 @@ export const useStopsStore = create<IUseStopsStore>()(
 
       isStopSheetOpen: false,
       setIsStopSheetOpen: (isStopSheetOpen) => set({ isStopSheetOpen }),
+
+      isFieldJobSheetOpen: false,
+      setIsFieldJobSheetOpen: (isFieldJobSheetOpen) =>
+        set({ isFieldJobSheetOpen }),
     }),
     {
       name: "stop-storage", // name of item in the storage (must be unique)

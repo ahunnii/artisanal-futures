@@ -11,11 +11,11 @@ import { useEffect, useState } from "react";
 
 import toast from "react-hot-toast";
 import type { ClientJobBundle } from "../../types.wip";
-import { useStopsStore } from "../use-stops-store";
 import { useCreateJob } from "./CRUD/use-create-job";
 import { useDeleteJob } from "./CRUD/use-delete-job";
 import { useReadJob } from "./CRUD/use-read-job";
 import { useUpdateJob } from "./CRUD/use-update-job";
+import { useStopsStore } from "./use-stops-store";
 
 //With two ways to use the application, this manages the state of the depot either from zustand or from the database
 export const useClientJobBundles = () => {
@@ -233,6 +233,19 @@ export const useClientJobBundles = () => {
     onSheetOpenChange: (state: boolean) => {
       if (!state) setActiveStop(null);
       sessionStorageStops.setIsStopSheetOpen(state);
+    },
+
+    isFieldJobSheetOpen: sessionStorageStops.isFieldJobSheetOpen,
+    setIsFieldJobSheetOpen: sessionStorageStops.setIsFieldJobSheetOpen,
+
+    onFieldJobSheetOpen: (state: boolean) => {
+      if (!state) setActiveStop(null);
+      sessionStorageStops.setIsFieldJobSheetOpen(state);
+    },
+
+    view: (id: string) => {
+      setActiveStop(id);
+      sessionStorageStops.setIsFieldJobSheetOpen(true);
     },
   };
 };

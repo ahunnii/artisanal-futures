@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import React, { useMemo } from "react";
+import React from "react";
 
 import { ChevronRight } from "lucide-react";
 
@@ -8,16 +8,10 @@ import { CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { cn } from "~/utils/styles";
 
 import OnlineIndicator from "~/apps/solidarity-routing/components/ui/online-indicator";
-import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
-import { convertSecondsToTime } from "~/apps/solidarity-routing/libs/time-formatting";
-import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
-import { OptimizedRoutePath } from "~/apps/solidarity-routing/types.wip";
-import {
-  metersToMiles,
-  unixSecondsToMilitaryTime,
-} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+
+import type { OptimizedRoutePath } from "~/apps/solidarity-routing/types.wip";
 
 type RouteHeaderCardProps = {
   route: OptimizedRoutePath;
@@ -36,7 +30,7 @@ export const OptimizedRouteHeaderCard: FC<RouteHeaderCardProps> = ({
   isButton = false,
 }) => {
   const driverBundles = useDriverVehicleBundles();
-  const driverBundle = driverBundles.getVehicleById(route.vehicleId as string);
+  const driverBundle = driverBundles.getVehicleById(route.vehicleId);
 
   return (
     <>

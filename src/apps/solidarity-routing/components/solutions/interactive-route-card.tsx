@@ -15,14 +15,14 @@ import {
 import { cn } from "~/utils/styles";
 
 import Link from "next/link";
-import { OptimizedRouteHeaderCard } from "~/apps/solidarity-routing/components/ui/cards/optimized-route-header-card";
-import RouteBreakdown from "~/apps/solidarity-routing/components/ui/cards/route-breakdown";
+import { OptimizedRouteHeaderCard } from "~/apps/solidarity-routing/components/solutions/optimized-route-header-card";
+import RouteBreakdown from "~/apps/solidarity-routing/components/solutions/route-breakdown";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
-import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
 import type {
   OptimizedRoutePath,
   OptimizedStop,
 } from "~/apps/solidarity-routing/types.wip";
+import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
@@ -42,12 +42,9 @@ const InteractiveRouteCard: FC<TInteractiveProps> = ({
 
   const driverBundles = useDriverVehicleBundles();
 
-  const driver = driverBundles.getVehicleById(data.vehicleId as string);
+  const driver = driverBundles.getVehicleById(data.vehicleId);
 
-  const color = useMemo(
-    () => getColor(cuidToIndex(data.vehicleId as string, 19)),
-    [data]
-  );
+  const color = useMemo(() => getColor(cuidToIndex(data.vehicleId)), [data]);
 
   return (
     <>

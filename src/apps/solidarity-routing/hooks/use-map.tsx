@@ -11,7 +11,7 @@ import type {
   VroomResponse,
 } from "~/apps/solidarity-routing/types";
 
-import { getCurrentLocation } from "~/apps/solidarity-routing/libs/realtime-utils";
+import { getCurrentLocation } from "~/apps/solidarity-routing/utils/realtime-utils";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "./jobs/use-client-job-bundles";
 import { useDriverRoute } from "./use-driver-routes";

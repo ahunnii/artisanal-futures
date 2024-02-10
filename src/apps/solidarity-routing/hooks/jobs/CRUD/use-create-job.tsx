@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { stopData } from "~/apps/solidarity-routing/data/stops/stop-data";
 import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { api } from "~/utils/api";
-import { useStopsStore } from "../../use-stops-store";
+import { useStopsStore } from "../use-stops-store";
 
 type TCreateNewJobProps = {
   job: ClientJobBundle;

@@ -1,6 +1,3 @@
-import { createHash } from "crypto";
-import type L from "leaflet";
-import type { LatLngExpression, Map } from "leaflet";
 import {
   forwardRef,
   useImperativeHandle,
@@ -8,6 +5,10 @@ import {
   useState,
   type MouseEventHandler,
 } from "react";
+
+import type L from "leaflet";
+import type { LatLngExpression, Map } from "leaflet";
+import { Expand } from "lucide-react";
 import {
   Circle,
   GeoJSON,
@@ -29,32 +30,25 @@ import {
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 
-import DriverPopup from "~/apps/solidarity-routing/components/map/popup-driver";
-import StopPopup from "~/apps/solidarity-routing/components/map/popup-stop";
 import RouteMarker from "~/apps/solidarity-routing/components/map/route-marker";
 
-import useMap from "~/apps/solidarity-routing/hooks/use-map";
-import useRouteOptimization from "~/apps/solidarity-routing/hooks/use-route-optimization";
-import { useRoutingSolutions } from "~/apps/solidarity-routing/hooks/use-routing-solutions";
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
-import { getStyle } from "~/apps/solidarity-routing/libs/color-handling";
-import type { GeoJsonData, Stop } from "~/apps/solidarity-routing/types";
+import { getStyle } from "~/apps/solidarity-routing/utils/generic/color-handling";
 
-import { Expand } from "lucide-react";
+import useMap from "~/apps/solidarity-routing/hooks/use-map";
+
+import type { GeoJsonData } from "~/apps/solidarity-routing/types";
+
+import { MapPopup } from "~/apps/solidarity-routing/components/map/map-popup.wip";
+import { MAP_DATA } from "~/apps/solidarity-routing/data/map-data";
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
+import { useOptimizedRoutePlan } from "~/apps/solidarity-routing/hooks/optimized-data/use-optimized-route-plan";
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
+import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
+import { formatGeometryString } from "~/apps/solidarity-routing/services/optimization/aws-vroom/utils";
+import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+
 import { cn } from "~/utils/styles";
-import { MAP_DATA } from "../../data/map-data";
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
-import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
-import { useRoutePlans } from "../../hooks/plans/use-route-plans";
-import { formatGeometryString } from "../../services/optimization/aws-vroom/utils";
-import { ClientJobBundle } from "../../types.wip";
-import {
-  cuidToNumber,
-  cuidToUniqueNumber,
-} from "../../utils/generic/format-utils.wip";
-import { MapPopup } from "./map-popup.wip";
 
 interface MapProps {
   className?: string;
@@ -63,10 +57,6 @@ interface MapProps {
 interface MapRef {
   reactLeafletMap: Map | null;
 }
-
-type AssignedLocation = ClientJobBundle & {
-  isUnassigned?: boolean;
-};
 
 export type MapPoint = {
   id: string;
@@ -91,29 +81,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     constantUserTracking: enableTracking,
   };
 
-  const {
-    convertSolutionToGeoJSON,
-    expandViewToFit,
-    flyToCurrentLocation,
-    currentLocation,
-  } = useMap(params);
+  const { expandViewToFit, flyToCurrentLocation, currentLocation } =
+    useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
 
   const driverBundles = useDriverVehicleBundles();
   const jobBundles = useClientJobBundles();
   const routePlans = useRoutePlans();
-
-  const COLOR_ARRAY_SIZE = 19;
-
-  const cuidToIndex = (cuid: string, arraySize: number): number => {
-    // Calculate SHA-256 hash digest
-    const hashDigest = createHash("sha256").update(cuid).digest("hex");
-    // Convert digest to integer
-    const hashInt = parseInt(hashDigest, 16);
-    // Map the hash integer to the range of the array size
-    const index = hashInt % arraySize;
-    return index;
-  };
 
   // const drivers = bundles?.all;
   const addDriverByLatLng = driverBundles.createByLatLng;
@@ -122,8 +96,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
   const { pathId } = useSolidarityState();
 
   const optimizedRoutePlan = useOptimizedRoutePlan();
-
-  const { currentRoutingSolution } = useRoutingSolutions();
 
   useImperativeHandle(ref, () => ({
     reactLeafletMap: mapRef.current,
@@ -145,10 +117,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
         name: stop?.client?.name ?? "New Stop",
         color: !stop.job.isOptimized
           ? "-1"
-          : `${cuidToIndex(
-              routePlans.findVehicleIdByJobId(stop.job.id),
-              COLOR_ARRAY_SIZE
-            )}`,
+          : `${cuidToIndex(routePlans.findVehicleIdByJobId(stop.job.id))}`,
       }));
 
   const driverMapPoints: MapPoint[] = pathId
@@ -162,7 +131,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
         name: driver?.driver?.name ?? "Driver",
         color:
           routePlans.optimized.length > 0
-            ? `${cuidToIndex(driver.vehicle.id, COLOR_ARRAY_SIZE)}`
+            ? `${cuidToIndex(driver.vehicle.id)}`
             : "3",
       }));
 
@@ -309,15 +278,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                 style={getStyle}
               />
             ))}
-
-          {/* {currentRoutingSolution && (
-            <GeoJSON
-              data={
-                convertSolutionToGeoJSON(routePlans.data.) as GeoJsonData
-              }
-              style={getStyle}
-            />
-          )} */}
         </MapContainer>
       </ContextMenuTrigger>
 

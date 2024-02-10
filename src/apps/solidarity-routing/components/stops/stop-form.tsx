@@ -25,7 +25,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import type { Coordinates } from "~/apps/solidarity-routing/types";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {

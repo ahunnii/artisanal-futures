@@ -5,8 +5,8 @@ import { useMemo, type FC } from "react";
 import ReactDOMServer from "react-dom/server";
 import { Marker, Popup, type MarkerProps } from "react-leaflet";
 
-import { getColor } from "~/apps/solidarity-routing/libs/color-handling";
 import type { Driver, RouteData, Stop } from "~/apps/solidarity-routing/types";
+import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 
 interface IProps extends MarkerProps {
   variant: "stop" | "car" | "depot" | "currentPosition";

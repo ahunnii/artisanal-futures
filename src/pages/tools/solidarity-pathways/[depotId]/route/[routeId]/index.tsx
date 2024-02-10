@@ -1,8 +1,14 @@
 import dynamic from "next/dynamic";
-
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { ArrowRight, Building, Calendar, Pencil } from "lucide-react";
+
+import { AbsolutePageLoader } from "~/components/absolute-page-loader";
+import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent } from "~/components/ui/tabs";
 
 import { DriversTab } from "~/apps/solidarity-routing/components/drivers";
 import {
@@ -14,18 +20,12 @@ import CalculationsTab from "~/apps/solidarity-routing/components/solutions/calc
 import BottomSheet from "~/apps/solidarity-routing/components/ui/bottom-sheet";
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
-import { AbsolutePageLoader } from "~/components/absolute-page-loader";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent } from "~/components/ui/tabs";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -38,7 +38,6 @@ const LazyRoutingMap = dynamic(
  * Page component that allows users to generate routes based on their input.
  */
 const SingleRoutePage = () => {
-  const params = useParams();
   const driverBundles = useDriverVehicleBundles();
   const jobBundles = useClientJobBundles();
   const routePlans = useRoutePlans();

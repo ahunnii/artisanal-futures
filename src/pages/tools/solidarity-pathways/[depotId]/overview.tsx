@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { FilePlus, Settings, UserPlus } from "lucide-react";
 
-import { StopSheet } from "~/apps/solidarity-routing/components/stops";
-
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/use-stops-store";
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
@@ -28,7 +26,7 @@ import { useSession } from "next-auth/react";
 import { DriverAddSheet } from "~/apps/solidarity-routing/components/drivers/driver-add-sheet";
 import { FileUploadModal } from "~/apps/solidarity-routing/components/file-upload-modal.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/drivers/driver-data";
-import { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { RouteData } from "~/apps/solidarity-routing/types";
 
 import toast from "react-hot-toast";
-import { getUniqueKey } from "~/apps/solidarity-routing/libs/unique-key";
+import { getUniqueKey } from "~/apps/solidarity-routing/utils/generic/unique-key";
 
 import optimizationService from "../services/optimization";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";

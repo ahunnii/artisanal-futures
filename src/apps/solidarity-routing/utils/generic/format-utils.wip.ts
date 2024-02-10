@@ -31,6 +31,49 @@ export function unixSecondsToMilitaryTime(unixSeconds: number): string {
   return militaryTime;
 }
 
+// export function unixSecondsToTime(seconds: number): string {
+//   // Convert seconds to minutes
+//   const minutes = seconds / 60;
+
+//   // Extract hours and minutes from the total minutes
+//   const hours = Math.floor(minutes / 60);
+//   const remainingMinutes = Math.floor(minutes % 60);
+
+//   // Format the hours and minutes to ensure they have leading zeros if needed
+//   const formattedHours = hours.toString().padStart(2, "0");
+//   const formattedMinutes = remainingMinutes.toString().padStart(2, "0");
+
+//   // Concatenate hours and minutes with a colon to get the time string
+//   const time = `${formattedHours}:${formattedMinutes}`;
+
+//   //Add AM or PM
+//   const hour = parseInt(formattedHours);
+//   const amOrPm = hour >= 12 ? "PM" : "AM";
+
+//   return time + " " + amOrPm;
+// }
+
+export function unixSecondsToStandardTime(seconds: number): string {
+  // Create a new Date object using the provided Unix seconds
+  const date = new Date(seconds * 1000);
+
+  // Extract hours and minutes from the Date object
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Format the hours and minutes to ensure they have leading zeros if needed
+  const formattedHours = hours.toString().padStart(2, "0");
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+
+  //Add AM or PM
+  const hour = parseInt(formattedHours);
+  const amOrPm = hour >= 12 ? "PM" : "AM";
+
+  // Concatenate hours and minutes with a colon to get the time string
+  const time = `${formattedHours}:${formattedMinutes}`;
+
+  return time + " " + amOrPm;
+}
 export function minutesToSeconds(minutesString: string | number): number {
   if (typeof minutesString === "number") return minutesString * 60;
 
