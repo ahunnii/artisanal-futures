@@ -369,6 +369,8 @@ model Job {
   order           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  optimizedStopId String?
+  optimizedStop   OptimizedStop? 
 
   @@index([addressId])
   @@index([clientId])
@@ -411,7 +413,8 @@ model OptimizedRoutePath {
 model OptimizedStop {
   id              String              @id @default(cuid())
   routePathId     String
-  jobId           String?
+  jobId           String?             @unique
+  job             Job?                @relation(fields: [jobId], references: [id])
   routePath       OptimizedRoutePath  @relation(fields: [routePathId], references: [id], onDelete: Cascade)
   arrival         Int
   departure       Int

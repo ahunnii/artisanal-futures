@@ -1,4 +1,4 @@
-import { Coffee, Home } from "lucide-react";
+import { CheckCircle, Coffee, Home, XCircle } from "lucide-react";
 
 import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
@@ -22,11 +22,11 @@ const StepLineSegment = ({
   const time = step?.arrival ?? "00:00";
 
   const jobBundles = useClientJobBundles();
-  const job = jobBundles.getJobById(step?.jobId) ?? null;
+  const job = step?.jobId ? jobBundles.getJobById(step?.jobId) : null;
 
   const segmentType = {
     job: {
-      firstLine: (job?.client?.name ?? job?.job.type) + " - " + step?.status,
+      firstLine: job?.job.type,
       secondLine: job?.job?.address?.formatted ?? "",
       Icon: <>{idx}</>,
     },
@@ -49,7 +49,7 @@ const StepLineSegment = ({
 
   return (
     <div className="flex  w-full text-sm font-medium ">
-      <div className="relative col-start-2 col-end-4 mr-10 md:mx-auto">
+      <div className="relative col-start-2 col-end-2 mr-10 md:mx-auto">
         <div className="flex h-full w-6 items-center justify-center">
           <div
             className={cn(
@@ -73,11 +73,11 @@ const StepLineSegment = ({
           </i>
         </div>
       </div>
-      <div className=" col-start-4 col-end-12 my-2 mr-auto flex w-full items-center justify-between  rounded-xl p-4 ">
+      <div className=" col-start-2 col-end-12 my-2 mr-auto flex w-full items-center justify-between  rounded-xl p-4 ">
         <div className="basis-2/3 flex-col text-left ">
           <h3
             className={cn(
-              "mb-1 text-base font-semibold  capitalize  text-slate-500",
+              "mb-1 text-sm font-semibold  capitalize  text-slate-500",
               step?.status === "COMPLETED" && "text-green-400 line-through",
               step?.status === "FAILED" && "text-red-400 line-through"
             )}
@@ -86,7 +86,7 @@ const StepLineSegment = ({
           </h3>
           <p
             className={cn(
-              "w-full text-justify text-sm capitalize leading-tight text-slate-400",
+              "w-full text-sm capitalize leading-tight text-slate-400",
               step?.status === "COMPLETED" && "text-green-400 line-through",
               step?.status === "FAILED" && "text-red-400 line-through"
             )}
@@ -95,8 +95,12 @@ const StepLineSegment = ({
           </p>
         </div>
 
-        <div className="flex basis-1/3 items-center justify-end font-semibold text-slate-500">
+        <div className="relative flex basis-1/3 items-center justify-end text-sm font-semibold text-slate-500">
           {unixSecondsToStandardTime(time)}
+          {step?.status === "COMPLETED" && (
+            <CheckCircle className="h-3 w-3 text-green-500" />
+          )}
+          {step?.status === "FAILED" && <XCircle className="h-3 w-3" />}
         </div>
       </div>
     </div>

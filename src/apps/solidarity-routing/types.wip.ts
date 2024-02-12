@@ -420,23 +420,36 @@ export const optimizationPlanSchema = z.object({
 
 export type OptimizationPlan = z.infer<typeof optimizationPlanSchema>;
 
-export type OptimizedStop = {
-  jobId: string;
-  arrival: number;
-  distance?: number;
-  duration?: number;
-  departure?: number;
-  prep: number;
-  type: string;
-  notes?: string;
-  order?: string;
-  status: RouteStatus;
-};
+// export type OptimizedStop = {
+//   id: string;
+//   jobId: string | undefined | null;
+//   job: Job | null | undefined;
+//   arrival: number;
+//   distance?: number;
+//   duration?: number;
+//   departure?: number;
+//   prep: number;
+//   type: string;
+//   notes?: string;
+//   order?: string;
+//   status: RouteStatus;
+// };
 // export type OptimizedRoutePath = {
 //   vehicleId: string;
 //   stops: OptimizedStop[];
 //   geoJson: string;
 // };
+
+export type OptimizedStop = Prisma.OptimizedStopGetPayload<{
+  include: {
+    job: {
+      include: {
+        client: true;
+        address: true;
+      };
+    };
+  };
+}>;
 
 export type OptimizedRoutePath = Prisma.OptimizedRoutePathGetPayload<{
   include: {

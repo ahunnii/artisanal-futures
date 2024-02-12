@@ -194,6 +194,7 @@ export const useClientJobBundles = () => {
     isLoading: user ? depotStopsLoading : false,
     active: sessionStorageStops.activeLocation,
 
+    setActive: setActiveStop,
     isStopActive: isActive,
     openStopSheet,
     closeStopSheet,
@@ -243,7 +244,8 @@ export const useClientJobBundles = () => {
       sessionStorageStops.setIsFieldJobSheetOpen(state);
     },
 
-    view: (id: string) => {
+    view: (id: string | null) => {
+      if (!id) return;
       setActiveStop(id);
       sessionStorageStops.setIsFieldJobSheetOpen(true);
     },

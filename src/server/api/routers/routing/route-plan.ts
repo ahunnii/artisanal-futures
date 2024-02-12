@@ -128,6 +128,51 @@ export const routePlanRouter = createTRPCRouter({
       // });
     }),
 
+  updateOptimizedStopState: protectedProcedure
+    .input(
+      z.object({
+        stopId: z.string(),
+        state: z.nativeEnum(RouteStatus),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.optimizedStop.update({
+        where: {
+          id: input.stopId,
+        },
+        data: {
+          status: input.state,
+          notes: input.notes,
+        },
+      });
+    }),
+
+  getOptimizedStopsByAddress: protectedProcedure
+    .input(z.object({ address: z.string(), optimizedRouteId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const stops = await ctx.prisma.optimizedStop.findMany({
+        where: {
+          routePathId: input.optimizedRouteId,
+
+          job: {
+            address: {
+              formatted: input.address,
+            },
+          },
+        },
+        include: {
+          job: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
+      });
+
+      return stops;
+    }),
   getOptimizedData: protectedProcedure
     .input(z.object({ pathId: z.string() }))
     .query(async ({ ctx, input }) => {
