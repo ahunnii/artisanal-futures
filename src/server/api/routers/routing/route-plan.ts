@@ -8,6 +8,8 @@ import {
   driverVehicleSchema,
   optimizationPlanSchema,
 } from "~/apps/solidarity-routing/types.wip";
+import { pusherServer } from "~/server/soketi/server";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { vehicleRouter } from "./vehicles";
 
@@ -137,7 +139,7 @@ export const routePlanRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.optimizedStop.update({
+      const optimizedStop = ctx.prisma.optimizedStop.update({
         where: {
           id: input.stopId,
         },
@@ -146,6 +148,38 @@ export const routePlanRouter = createTRPCRouter({
           notes: input.notes,
         },
       });
+
+      await pusherServer.trigger("map", `evt::invalidate-stops`, {});
+
+      return optimizedStop;
+    }),
+
+  updateOptimizedRoutePathStatus: protectedProcedure
+    .input(
+      z.object({
+        pathId: z.string(),
+        state: z.nativeEnum(RouteStatus),
+        // notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const optimizedStop = ctx.prisma.optimizedRoutePath.update({
+        where: {
+          id: input.pathId,
+        },
+        data: {
+          status: input.state,
+        },
+      });
+
+      await pusherServer.trigger("map", `evt::invalidate-stops`, {});
+      await pusherServer.trigger(
+        "map",
+        `evt::update-route-status`,
+        `Route ${input.pathId} status was updated to ${input.state}`
+      );
+
+      return optimizedStop;
     }),
 
   getOptimizedStopsByAddress: protectedProcedure

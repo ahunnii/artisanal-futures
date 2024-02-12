@@ -1,4 +1,5 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { RouteStatus } from "@prisma/client";
 import { Car, Check, MoreVertical } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -111,7 +112,7 @@ export const MobileDrawer = () => {
               <Separator className="my-4" />
               {optimizedRoutePlan.data && (
                 <RouteBreakdown
-                  className="h-96 flex-none"
+                  className="h-96 flex-none pb-5"
                   steps={optimizedRoutePlan.data.stops as OptimizedStop[]}
                   driver={driver}
                   color={
@@ -123,9 +124,34 @@ export const MobileDrawer = () => {
             </div>
 
             <DrawerFooter>
-              <Button>
-                <Check /> Mark route as complete
-              </Button>
+              {optimizedRoutePlan?.data?.status === RouteStatus.NOT_STARTED && (
+                <Button
+                  onClick={() => {
+                    if (optimizedRoutePlan?.data?.id)
+                      optimizedRoutePlan.updateRoutePathStatus({
+                        pathId: optimizedRoutePlan.data.id,
+                        state: RouteStatus.IN_PROGRESS,
+                      });
+                  }}
+                >
+                  Start route
+                </Button>
+              )}
+
+              {optimizedRoutePlan?.data?.status === RouteStatus.IN_PROGRESS && (
+                <Button
+                  onClick={() => {
+                    if (optimizedRoutePlan?.data?.id)
+                      optimizedRoutePlan.updateRoutePathStatus({
+                        pathId: optimizedRoutePlan.data.id,
+                        state: RouteStatus.COMPLETED,
+                      });
+                  }}
+                >
+                  <Check /> Mark route as complete
+                </Button>
+              )}
+
               <DrawerClose asChild>
                 <Button variant="outline">Close</Button>
               </DrawerClose>

@@ -23,9 +23,12 @@ import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-dri
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
+import { toast } from "sonner";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
+import { pusherClient } from "~/server/soketi/client";
+import { api } from "~/utils/api";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -42,10 +45,51 @@ const SingleRoutePage = () => {
   const jobBundles = useClientJobBundles();
   const routePlans = useRoutePlans();
 
+  const apiContext = api.useContext();
+
+  const [incomingNotifications, setIncomingNotifications] = useState<string[]>(
+    []
+  );
+
   useEffect(() => {
     void useStopsStore.persist.rehydrate();
     void useDriversStore.persist.rehydrate();
   }, []);
+
+  useEffect(() => {
+    pusherClient.subscribe("map");
+
+    pusherClient.bind("evt::notify-dispatch", (message: string) => {
+      setIncomingNotifications((prev) => [...prev, message]);
+    });
+
+    pusherClient.bind("evt::invalidate-stops", () => {
+      void apiContext.finalizedRoutes.invalidate();
+      void apiContext.routePlan.invalidate();
+    });
+
+    pusherClient.bind("evt::update-route-status", (message: string) => {
+      toast.info(message);
+      void apiContext.finalizedRoutes.invalidate();
+      void apiContext.routePlan.invalidate();
+    });
+
+    // await pusherServer.trigger(
+    //   "map",
+    //   `evt::update-route-status`,
+    //   `Route ${input.pathId} status was updated to ${input.state}`
+    // );
+
+    return () => {
+      pusherClient.unsubscribe("map");
+    };
+  }, []);
+
+  useEffect(() => {
+    if (incomingNotifications.length > 0) {
+      toast.info(incomingNotifications[incomingNotifications.length - 1]);
+    }
+  }, [incomingNotifications]);
 
   const calculateOptimalPaths = () => {
     setTabValue("calculate");

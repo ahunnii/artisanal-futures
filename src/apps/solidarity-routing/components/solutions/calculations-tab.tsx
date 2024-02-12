@@ -7,6 +7,13 @@ import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions
 import { useRoutePlans } from "../../hooks/plans/use-route-plans";
 import { OptimizedRoutePath } from "../../types.wip";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+
 const CalculationsTab = () => {
   const routePlan = useRoutePlans();
 
@@ -25,17 +32,68 @@ const CalculationsTab = () => {
 
       <ScrollArea className=" flex-1  px-4">
         <UnassignedSummary unassigned={routePlan.unassigned} className="mb-4" />
-        {routePlan.optimized?.length > 0 && (
-          <>
-            {routePlan.optimized?.map((route, idx) => (
-              <InteractiveRouteCard
-                key={idx}
-                data={route as OptimizedRoutePath}
-                textColor={1}
-              />
-            ))}
-          </>
-        )}{" "}
+        <Accordion type="multiple">
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-xs">
+              {" "}
+              Not Started
+            </AccordionTrigger>
+            <AccordionContent>
+              {routePlan.optimized?.length > 0 && (
+                <>
+                  {routePlan.optimized?.map((route, idx) => {
+                    if (route.status === "NOT_STARTED")
+                      return (
+                        <InteractiveRouteCard
+                          key={idx}
+                          data={route as OptimizedRoutePath}
+                          textColor={1}
+                        />
+                      );
+                  })}
+                </>
+              )}{" "}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="text-xs">In Progress</AccordionTrigger>
+            <AccordionContent>
+              {routePlan.optimized?.length > 0 && (
+                <>
+                  {routePlan.optimized?.map((route, idx) => {
+                    if (route.status === "IN_PROGRESS")
+                      return (
+                        <InteractiveRouteCard
+                          key={idx}
+                          data={route as OptimizedRoutePath}
+                          textColor={1}
+                        />
+                      );
+                  })}
+                </>
+              )}{" "}
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-3">
+            <AccordionTrigger className="text-xs">Completed</AccordionTrigger>
+            <AccordionContent>
+              {routePlan.optimized?.length > 0 && (
+                <>
+                  {routePlan.optimized?.map((route, idx) => {
+                    if (route.status === "COMPLETED")
+                      return (
+                        <InteractiveRouteCard
+                          key={idx}
+                          data={route as OptimizedRoutePath}
+                          textColor={1}
+                        />
+                      );
+                  })}
+                </>
+              )}{" "}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </ScrollArea>
     </>
   );

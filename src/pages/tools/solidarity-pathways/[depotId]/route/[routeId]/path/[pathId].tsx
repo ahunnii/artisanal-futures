@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import React, { type FC } from "react";
+import React, { useEffect, useState, type FC } from "react";
 
 import { Beforeunload } from "react-beforeunload";
 
@@ -8,6 +8,7 @@ import PageLoader from "~/components/ui/page-loader";
 
 import type { RouteData, StepData } from "~/apps/solidarity-routing/types";
 
+import axios from "axios";
 import { MobileDrawer } from "~/apps/solidarity-routing/components/mobile-drawer.wip";
 import RouteBreakdown from "~/apps/solidarity-routing/components/solutions/route-breakdown";
 import FieldJobSheet from "~/apps/solidarity-routing/components/tracking/field-job-sheet.wip";
@@ -32,12 +33,24 @@ const LazyRoutingMap = dynamic(
 );
 
 const OptimizedPathPage: FC<IProps> = () => {
+  const [notificationSent, setNotificationSent] = useState(false);
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const driverRoute = useDriverVehicleBundles();
 
   const driver = driverRoute.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
+
+  useEffect(() => {
+    if (driver && !notificationSent) {
+      void axios.post("/api/realtime/online-driver", {
+        depotId: 1,
+        driverId: driver?.driver.id,
+        vehicleId: driver?.vehicle.id,
+      });
+      setNotificationSent(true);
+    }
+  }, [driver, notificationSent]);
 
   return (
     <>

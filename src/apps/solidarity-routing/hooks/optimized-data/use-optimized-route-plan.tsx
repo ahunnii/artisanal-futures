@@ -25,6 +25,14 @@ type Destination = Map<string, Bundle[]>;
 
 export const useOptimizedRoutePlan = () => {
   const { pathId, routeId } = useSolidarityState();
+  const apiContext = api.useContext();
+
+  const updateRoutePathStatus =
+    api.routePlan.updateOptimizedRoutePathStatus.useMutation({
+      onSettled: () => {
+        void apiContext.routePlan.invalidate();
+      },
+    });
 
   const getOptimizedData = api.routePlan.getOptimizedData.useQuery(
     { pathId: pathId as string },
@@ -131,5 +139,6 @@ export const useOptimizedRoutePlan = () => {
     mapData,
 
     destinations: routeDestinations,
+    updateRoutePathStatus: updateRoutePathStatus.mutate,
   };
 };
