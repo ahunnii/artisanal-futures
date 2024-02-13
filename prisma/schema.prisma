@@ -307,7 +307,7 @@ model Vehicle {
   routeId           String?
   route             Route?              @relation(fields: [routeId], references: [id])
   optimizedRouteId  String?
-  optimizedRoute    OptimizedRoutePath? @relation(fields: [optimizedRouteId], references: [id])
+  optimizedRoute    OptimizedRoutePath? 
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
@@ -394,11 +394,11 @@ model Route {
 }
 
 model OptimizedRoutePath {
-  id            String   @id @default(cuid())
+  id            String            @id @default(cuid())
   routeId       String
-  route         Route   @relation(fields: [routeId], references: [id], onDelete: Cascade)
-  vehicleId     String
-  vehicle       Vehicle[]
+  route         Route             @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  vehicleId     String            @unique
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id])
   stops         OptimizedStop[]
   distance      Float?
   startTime     Int?

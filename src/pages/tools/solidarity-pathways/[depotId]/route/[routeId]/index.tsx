@@ -23,6 +23,7 @@ import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-dri
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
+import axios from "axios";
 import { toast } from "sonner";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
@@ -177,7 +178,16 @@ const SingleRoutePage = () => {
                     >
                       <Pencil />
                     </Button>
-                    <Button className="flex-1 gap-2">
+                    <Button
+                      className="flex-1 gap-2"
+                      onClick={() => {
+                        console.log(routePlans?.emailBundles);
+
+                        void axios.post("/api/routing/send-route", {
+                          emailBundles: routePlans?.emailBundles,
+                        });
+                      }}
+                    >
                       Send to Driver(s) <ArrowRight />
                     </Button>
                   </div>

@@ -55,8 +55,8 @@ export const routePlanRouter = createTRPCRouter({
         geoJson: route.geometry,
         stops: route.steps.map((step) => ({
           arrival: step.arrival,
-          departure: step.arrival + step.service,
-          duration: step.duration,
+          departure: step.arrival + (step.service + step.setup),
+          duration: step.service + step.setup + step.waiting_time,
           prep: step.setup,
           type: step.type,
           jobId: step?.description ?? null,
@@ -78,11 +78,20 @@ export const routePlanRouter = createTRPCRouter({
 
       await Promise.all(
         routes.map(async (route) => {
+          const totalDistance = route.stops.reduce((acc, stop, index) => {
+            if (index === 0) return acc;
+            const prevStop = route.stops[index - 1];
+            return acc + (prevStop?.duration ?? 0);
+          }, 0);
+
           const optimizedRoute = await ctx.prisma.optimizedRoutePath.create({
             data: {
               routeId: route.routeId,
               vehicleId: route.vehicleId,
               geoJson: route.geoJson,
+              distance: totalDistance,
+              startTime: route?.stops?.[0]?.arrival,
+              endTime: route?.stops?.[route.stops.length - 1]?.departure,
             },
           });
 
@@ -357,6 +366,11 @@ export const routePlanRouter = createTRPCRouter({
           optimizedRoute: {
             include: {
               stops: true,
+              vehicle: {
+                include: {
+                  driver: true,
+                },
+              },
             },
           },
         },

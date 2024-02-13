@@ -2,6 +2,7 @@ import { useSession } from "next-auth/react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import toast from "react-hot-toast";
+import { env } from "~/env.mjs";
 import { api } from "~/utils/api";
 import optimizationService from "../../services/optimization";
 import { OptimizationPlan } from "../../types.wip";
@@ -9,6 +10,20 @@ import { getUniqueKey } from "../../utils/generic/unique-key";
 import { useDriverVehicleBundles } from "../drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
+
+import * as crypto from "crypto";
+
+function generatePasscode(email: string): string {
+  // Create a SHA-256 hash
+  const hash = crypto.createHash("sha256");
+  // Update the hash with the email
+  hash.update(email);
+  // Get the hashed value as a hexadecimal string
+  const hashedEmail = hash.digest("hex");
+  // Take the first 6 characters of the hashed email
+  const passcode = hashedEmail.substring(0, 6);
+  return passcode;
+}
 
 export const useRoutePlans = () => {
   const apiContext = api.useContext();
@@ -108,6 +123,20 @@ export const useRoutePlans = () => {
     );
   };
 
+  const emailBundles = useMemo(() => {
+    const bundles = getRoutePlanById.data?.optimizedRoute?.map((route) => {
+      return {
+        email: route?.vehicle?.driver?.email,
+        url: `http://localhost:3000/tools/solidarity-pathways/1/route/${routeId}/path/${
+          route.id
+        }?pc=${generatePasscode(route?.vehicle?.driver?.email as string)}`,
+        passcode: generatePasscode(route?.vehicle?.driver?.email as string),
+      };
+    });
+
+    return bundles?.filter((bundle) => bundle.email);
+  }, [getRoutePlanById.data?.optimizedRoute, routeId]);
+
   return {
     data: getRoutePlanById.data ?? null,
     isLoading: getRoutePlanById.isLoading,
@@ -118,5 +147,6 @@ export const useRoutePlans = () => {
     calculate: calculateRoutes,
     bundles: jobVehicleBundles,
     findVehicleIdByJobId,
+    emailBundles,
   };
 };

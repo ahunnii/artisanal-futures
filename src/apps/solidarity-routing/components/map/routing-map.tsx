@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -7,7 +8,7 @@ import {
 } from "react";
 
 import type L from "leaflet";
-import type { LatLngExpression, Map } from "leaflet";
+import { LatLngExpression, Map as LeafletMap } from "leaflet";
 import { Expand } from "lucide-react";
 import {
   Circle,
@@ -48,6 +49,7 @@ import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-p
 import { formatGeometryString } from "~/apps/solidarity-routing/services/optimization/aws-vroom/utils";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
+import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 
 interface MapProps {
@@ -55,7 +57,7 @@ interface MapProps {
 }
 
 interface MapRef {
-  reactLeafletMap: Map | null;
+  reactLeafletMap: LeafletMap | null;
 }
 
 export type MapPoint = {
@@ -70,8 +72,10 @@ export type MapPoint = {
   color: string;
 };
 
+type CoordMap = Record<string, { lat: number; lng: number }>;
+
 const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
-  const mapRef = useRef<Map>(null);
+  const mapRef = useRef<LeafletMap>(null);
 
   const [enableTracking, setEnableTracking] = useState(false);
 
@@ -81,9 +85,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
     constantUserTracking: enableTracking,
   };
 
-  const { expandViewToFit, flyToCurrentLocation, currentLocation } =
-    useMap(params);
+  const {
+    expandViewToFit,
+    flyToCurrentLocation,
+    currentLocation,
+    toggleConstantTracking,
+    constantTracking,
+  } = useMap(params);
   const [latLng, setLatLng] = useState<L.LatLng | null>(null);
+
+  // const activeDrivers = new Map<string, { lat: number; lng: number }>();
+
+  const [activeDrivers, setActiveDrivers] = useState<CoordMap>({});
 
   const driverBundles = useDriverVehicleBundles();
   const jobBundles = useClientJobBundles();
@@ -145,6 +158,30 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
         };
       });
 
+  useEffect(() => {
+    pusherClient.subscribe("map");
+
+    pusherClient.bind("evt::update-location", setStuff);
+
+    return () => {
+      pusherClient.unsubscribe("map");
+    };
+  }, []);
+
+  const setStuff = (obj: {
+    vehicleId: string;
+    latitude: number;
+    longitude: number;
+  }) => {
+    setActiveDrivers((prevCoordMap) => ({
+      ...prevCoordMap,
+      [obj.vehicleId]: {
+        lat: obj.latitude,
+        lng: obj.longitude,
+      },
+    }));
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -183,6 +220,15 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
 
             {enableTracking && (
               <Button
+                className={cn("absolute bottom-3 left-20 z-[1000]")}
+                onClick={toggleConstantTracking}
+              >
+                {constantTracking ? "Stop" : "Start"} transmitting
+              </Button>
+            )}
+
+            {enableTracking && (
+              <Button
                 className={cn("absolute bottom-3 right-3 z-[1000]")}
                 onClick={flyToCurrentLocation}
               >
@@ -190,16 +236,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
               </Button>
             )}
 
-            <Button
-              className={cn(
-                "absolute bottom-3 right-44 z-[1000]",
-                !enableTracking && "right-16"
-              )}
-              variant={enableTracking ? "secondary" : "default"}
-              onClick={() => setEnableTracking(!enableTracking)}
-            >
-              {enableTracking ? "Stop" : "Start"} Realtime Tracking
-            </Button>
+            {pathId && (
+              <Button
+                className={cn(
+                  "absolute bottom-3 right-44 z-[1000]",
+                  !enableTracking && "right-16"
+                )}
+                variant={enableTracking ? "secondary" : "default"}
+                onClick={() => setEnableTracking(!enableTracking)}
+              >
+                {enableTracking ? "Stop" : "Start"} Realtime Tracking
+              </Button>
+            )}
           </div>
 
           {currentLocation && (
@@ -222,25 +270,60 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
               />
             </RouteMarker>
           )}
+
+          {activeDrivers &&
+            Object.keys(activeDrivers).map((vehicleId) => {
+              const latLng = activeDrivers[vehicleId];
+              const driver = driverBundles.getVehicleById(vehicleId);
+
+              return (
+                <RouteMarker
+                  id={"0"}
+                  key={vehicleId}
+                  variant="car"
+                  position={[latLng!.lat, latLng!.lng]}
+                  color={cuidToIndex(vehicleId)}
+                >
+                  <MapPopup
+                    name={driver?.driver.name ?? "Driver"}
+                    address={driver?.driver?.address?.formatted ?? ""}
+                    type={"vehicle"}
+                  />
+                </RouteMarker>
+              );
+            })}
           <LayersControl position="topright">
             <LayersControl.Overlay name="Drivers" checked>
               <LeafletLayerGroup>
                 {driverMapPoints?.length > 0 &&
-                  driverMapPoints.map((vehicle, idx) => (
-                    <RouteMarker
-                      key={idx}
-                      variant="car"
-                      id={vehicle.id}
-                      position={[vehicle.lat, vehicle.lng]}
-                      color={Number(vehicle.color)}
-                    >
-                      <MapPopup
-                        name={vehicle.name}
-                        address={vehicle.address}
-                        type={vehicle.type}
-                      />
-                    </RouteMarker>
-                  ))}{" "}
+                  driverMapPoints.map((vehicle, idx) => {
+                    const latLng: [number, number] = [vehicle.lat, vehicle.lng];
+
+                    const isActive = activeDrivers[vehicle.id];
+
+                    // if (activeDrivers.has(vehicle.id)) {
+                    //   latLng = [
+                    //     activeDrivers.get(vehicle.id)!.lat,
+                    //     activeDrivers.get(vehicle.id)!.lng,
+                    //   ];
+                    // }
+
+                    return (
+                      <RouteMarker
+                        key={idx}
+                        variant={isActive ? "depot" : "car"}
+                        id={vehicle.id}
+                        position={latLng}
+                        color={Number(vehicle.color)}
+                      >
+                        <MapPopup
+                          name={vehicle.name}
+                          address={vehicle.address}
+                          type={vehicle.type}
+                        />
+                      </RouteMarker>
+                    );
+                  })}{" "}
               </LeafletLayerGroup>
             </LayersControl.Overlay>
             <LayersControl.Overlay name="Stops" checked>

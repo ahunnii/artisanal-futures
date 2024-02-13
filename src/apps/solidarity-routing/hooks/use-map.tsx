@@ -11,9 +11,13 @@ import type {
   VroomResponse,
 } from "~/apps/solidarity-routing/types";
 
+import axios from "axios";
+import { useParams } from "next/navigation";
 import { getCurrentLocation } from "~/apps/solidarity-routing/utils/realtime-utils";
+import useInterval from "~/hooks/use-interval";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "./jobs/use-client-job-bundles";
+import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
 type TUseMapProps = {
   mapRef: Map;
@@ -31,8 +35,27 @@ const useMap = ({
 }: TUseMapProps) => {
   const [initial, setInitial] = useState(true);
 
+  const [constantTracking, setConstantTracking] = useState(false);
+
+  const [status, setStatus] = useState<"idle" | "active">("idle");
+
   const drivers = useDriverVehicleBundles();
   const jobs = useClientJobBundles();
+
+  const { pathId } = useSolidarityState();
+
+  useInterval(
+    () => {
+      getCurrentLocation(setCurrentLocation);
+      if (pathId && currentLocation)
+        void axios.post("/api/realtime/update-location", {
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          pathId: pathId,
+        });
+    },
+    status === "active" ? 1000 : null
+  );
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -92,15 +115,12 @@ const useMap = ({
       );
   };
 
-  const enableConstantTracking = () => {
-    setInterval(() => {
-      getCurrentLocation(setCurrentLocation);
-    }, 5000);
+  const toggleConstantTracking = () => {
+    if (pathId && currentLocation.latitude && currentLocation.longitude) {
+      setStatus((status) => (status === "active" ? "idle" : "active"));
+      setConstantTracking(!constantTracking);
+    }
   };
-
-  useEffect(() => {
-    if (constantUserTracking) enableConstantTracking();
-  }, [constantUserTracking]);
 
   useEffect(() => {
     if (constantUserTracking) getCurrentLocation(setCurrentLocation);
@@ -157,6 +177,8 @@ const useMap = ({
     convertSolutionToGeoJSON,
     currentLocation,
     flyToCurrentLocation,
+    toggleConstantTracking,
+    constantTracking,
   };
 };
 

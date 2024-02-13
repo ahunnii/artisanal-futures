@@ -29,7 +29,7 @@ export const UnassignedSummary = ({
   return (
     <Card className={cn("w-full", className)} {...props}>
       <CardHeader>
-        <CardTitle className="text-lg">Unassigned</CardTitle>
+        <CardTitle className="text-xs">Unassigned</CardTitle>
         <CardDescription>
           You have {unassigned.length} unassigned routes.
         </CardDescription>

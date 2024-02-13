@@ -1,21 +1,30 @@
 import { UnassignedSummary } from "~/apps/solidarity-routing/components/solutions/unassigned-summary";
 
-import { ScrollArea } from "~/components/ui/scroll-area";
-
 import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useRoutePlans } from "../../hooks/plans/use-route-plans";
 import { OptimizedRoutePath } from "../../types.wip";
 
+import { Eye, Pencil } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { cn } from "~/utils/styles";
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 const CalculationsTab = () => {
   const routePlan = useRoutePlans();
+  const jobBundles = useClientJobBundles();
 
   return (
     <>
@@ -31,12 +40,45 @@ const CalculationsTab = () => {
       </div>
 
       <ScrollArea className=" flex-1  px-4">
-        <UnassignedSummary unassigned={routePlan.unassigned} className="mb-4" />
-        <Accordion type="multiple">
+        <Accordion type="multiple" defaultValue={["item-1"]}>
+          <AccordionItem value="item-0">
+            <AccordionTrigger className="py-2 text-xs">
+              Unassigned ({routePlan.unassigned.length})
+            </AccordionTrigger>
+            <AccordionContent>
+              {routePlan.unassigned?.length > 0 && (
+                <>
+                  {routePlan.unassigned?.map((bundle) => {
+                    return (
+                      <Card
+                        key={bundle.job.id}
+                        className={cn("my-2 w-full hover:bg-slate-50")}
+                      >
+                        <CardHeader
+                          className={cn(
+                            "flex w-full cursor-pointer flex-row items-center justify-between py-2 shadow-inner"
+                          )}
+                        >
+                          <CardTitle className="flex  w-full flex-row  items-center  justify-between text-xs font-bold text-black ">
+                            {bundle?.job.address.formatted}
+                            <Pencil className="h-4 w-4 text-slate-800 group-hover:bg-opacity-30" />
+                          </CardTitle>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </>
+              )}{" "}
+            </AccordionContent>
+          </AccordionItem>
           <AccordionItem value="item-1">
-            <AccordionTrigger className="text-xs">
-              {" "}
-              Not Started
+            <AccordionTrigger className="py-2 text-xs">
+              Not Started (
+              {
+                routePlan.optimized?.filter((r) => r.status === "NOT_STARTED")
+                  .length
+              }
+              )
             </AccordionTrigger>
             <AccordionContent>
               {routePlan.optimized?.length > 0 && (
@@ -56,7 +98,14 @@ const CalculationsTab = () => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
-            <AccordionTrigger className="text-xs">In Progress</AccordionTrigger>
+            <AccordionTrigger className="py-2 text-xs">
+              In Progress (
+              {
+                routePlan.optimized?.filter((r) => r.status === "IN_PROGRESS")
+                  .length
+              }
+              )
+            </AccordionTrigger>
             <AccordionContent>
               {routePlan.optimized?.length > 0 && (
                 <>
@@ -75,7 +124,14 @@ const CalculationsTab = () => {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-3">
-            <AccordionTrigger className="text-xs">Completed</AccordionTrigger>
+            <AccordionTrigger className="py-2 text-xs">
+              Completed (
+              {
+                routePlan.optimized?.filter((r) => r.status === "COMPLETED")
+                  .length
+              }
+              )
+            </AccordionTrigger>
             <AccordionContent>
               {routePlan.optimized?.length > 0 && (
                 <>

@@ -12,6 +12,10 @@ import OnlineIndicator from "~/apps/solidarity-routing/components/ui/online-indi
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
 import type { OptimizedRoutePath } from "~/apps/solidarity-routing/types.wip";
+import {
+  metersToMiles,
+  unixSecondsToStandardTime,
+} from "../../utils/generic/format-utils.wip";
 
 type RouteHeaderCardProps = {
   route: OptimizedRoutePath;
@@ -46,7 +50,7 @@ export const OptimizedRouteHeaderCard: FC<RouteHeaderCardProps> = ({
     <>
       <CardHeader
         className={cn(
-          "flex w-full flex-row items-center justify-between py-1 pt-3 shadow-inner",
+          "flex w-full flex-row items-center justify-between py-1 shadow-inner",
           className
         )}
       >
@@ -59,8 +63,10 @@ export const OptimizedRouteHeaderCard: FC<RouteHeaderCardProps> = ({
             {isOnline && <OnlineIndicator />}
           </CardTitle>
           <CardDescription className="text-xs">
-            <span className="normal-case">{status}</span> • xx:xx to xx:xx • xxx
-            mi
+            <span className="normal-case">{status}</span> •{" "}
+            {unixSecondsToStandardTime(route?.startTime ?? 0)} to{" "}
+            {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
+            {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </CardDescription>{" "}
         </div>
         {isButton && (

@@ -40,7 +40,7 @@ export const MobileDrawer = () => {
 
   return (
     <>
-      <div className="flex w-full">
+      <div className="flex w-full lg:hidden ">
         <Button
           variant="ghost"
           className="flex-1"
