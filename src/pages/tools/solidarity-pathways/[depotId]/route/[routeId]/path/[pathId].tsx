@@ -35,11 +35,13 @@ const LazyRoutingMap = dynamic(
 
 import { useSearchParams } from "next/navigation";
 import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
+import { useUrlParams } from "~/hooks/use-url-params";
 
 const OptimizedPathPage: FC<IProps> = () => {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [approval, setApproval] = useState(false);
+  const { updateUrlParams } = useUrlParams();
 
   const [notificationSent, setNotificationSent] = useState(false);
   const optimizedRoutePlan = useOptimizedRoutePlan();
@@ -54,10 +56,21 @@ const OptimizedPathPage: FC<IProps> = () => {
   );
 
   useEffect(() => {
-    if (driver?.driver.name && !notificationSent) {
+    if (!searchParams.get("vehicle") && optimizedRoutePlan?.data?.vehicleId) {
+      updateUrlParams({
+        key: "vehicle",
+        value: optimizedRoutePlan?.data?.vehicleId,
+      });
+    }
+    if (
+      driver?.driver.name &&
+      !notificationSent &&
+      searchParams.get("vehicle")
+    ) {
       setNotificationSent(true);
+
       axios
-        .post("/api/realtime/online-driver", {
+        .post("/api/routing/online-driver", {
           depotId: 1,
           vehicleId: searchParams.get("vehicle"),
         })
@@ -66,7 +79,7 @@ const OptimizedPathPage: FC<IProps> = () => {
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driver, notificationSent]);
+  }, [driver, notificationSent, searchParams]);
 
   if (!approval && !session?.user)
     return (

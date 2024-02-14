@@ -20,7 +20,7 @@ const baseUrl = process.env.NEXTAUTH_URL
   ? `https://${process.env.NEXTAUTH_URL}`
   : "";
 
-export const RoutingMagicLink = ({
+export const NewRouteTemplate = ({
   url,
   loginCode = "sparo-ndigo-amurt-secan",
 }: RoutingMagicLinkProps) => (
@@ -93,7 +93,7 @@ export const RoutingMagicLink = ({
   </Html>
 );
 
-export default RoutingMagicLink;
+export default NewRouteTemplate;
 
 const main = {
   backgroundColor: "#ffffff",

@@ -1,18 +1,10 @@
-import polyline from "@mapbox/polyline";
 import L, { type LatLngExpression, type Map } from "leaflet";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  Coordinates,
-  ExpandedRouteData,
-  GeoJsonData,
-  Polyline,
-  RouteData,
-  VroomResponse,
-} from "~/apps/solidarity-routing/types";
+import type { Coordinates } from "~/apps/solidarity-routing/types";
 
 import axios from "axios";
 
-import { getCurrentLocation } from "~/apps/solidarity-routing/utils/realtime-utils";
+import { getCurrentLocation } from "~/apps/solidarity-routing/utils/get-current-location";
 import useInterval from "~/hooks/use-interval";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "./jobs/use-client-job-bundles";
@@ -50,7 +42,7 @@ const useMap = ({
     () => {
       getCurrentLocation(setCurrentLocation);
       if (pathId && currentLocation)
-        void axios.post("/api/realtime/update-location", {
+        void axios.post("/api/routing/update-user-location", {
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
           pathId: pathId,
@@ -74,38 +66,6 @@ const useMap = ({
     [mapRef]
   );
 
-  const convertToGeoJSON = (
-    route?: RouteData | ExpandedRouteData | null,
-    geometry?: string,
-    color?: number
-  ) => {
-    const temp = polyline.toGeoJSON(route?.geometry ?? geometry!) as Polyline;
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            ...temp,
-            properties: { color: route?.vehicle ?? color! },
-          },
-        },
-      ],
-    } as GeoJsonData;
-  };
-
-  const convertSolutionToGeoJSON = (solution: VroomResponse) => {
-    return {
-      type: "FeatureCollection",
-      features: solution?.geometry.map((geometry: Polyline) => {
-        return {
-          type: "Feature",
-          geometry,
-        };
-      }),
-    };
-  };
-
   const flyToCurrentLocation = () => {
     if (currentLocation)
       flyTo(
@@ -123,21 +83,6 @@ const useMap = ({
       setConstantTracking(!constantTracking);
     }
   };
-
-  useEffect(() => {
-    if (constantUserTracking) getCurrentLocation(setCurrentLocation);
-  }, [driverEnabled, constantUserTracking]);
-
-  //   Solutions to tracking map. Focuses on the selected route.
-
-  useEffect(() => {
-    if (driverBundles.active && mapRef)
-      flyTo(driverBundles.active.vehicle.startAddress, 15);
-  }, [driverBundles.active, mapRef, flyTo]);
-
-  useEffect(() => {
-    if (jobs.active && mapRef) flyTo(jobs.active.job.address, 15);
-  }, [jobs.active, mapRef, flyTo]);
 
   const expandViewToFit = useCallback(() => {
     if (
@@ -170,6 +115,19 @@ const useMap = ({
   }, [mapRef, driverBundles, jobs, optimizedRoutePlan, pathId]);
 
   useEffect(() => {
+    if (constantUserTracking) getCurrentLocation(setCurrentLocation);
+  }, [driverEnabled, constantUserTracking]);
+
+  useEffect(() => {
+    if (driverBundles.active && mapRef)
+      flyTo(driverBundles.active.vehicle.startAddress, 15);
+  }, [driverBundles.active, mapRef, flyTo]);
+
+  useEffect(() => {
+    if (jobs.active && mapRef) flyTo(jobs.active.job.address, 15);
+  }, [jobs.active, mapRef, flyTo]);
+
+  useEffect(() => {
     if (initial && mapRef && driverBundles.data && jobs.data) {
       expandViewToFit();
       setInitial(false);
@@ -179,8 +137,6 @@ const useMap = ({
   return {
     expandViewToFit,
     flyTo,
-    convertToGeoJSON,
-    convertSolutionToGeoJSON,
     currentLocation,
     flyToCurrentLocation,
     toggleConstantTracking,

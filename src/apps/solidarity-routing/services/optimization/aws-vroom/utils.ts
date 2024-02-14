@@ -1,10 +1,11 @@
 import polyline from "@mapbox/polyline";
-import { createHash } from "crypto";
+
 import type {
   OptimizationData,
   Polyline,
   RouteData,
 } from "~/apps/solidarity-routing/types";
+import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 const calculateGeometry = (data: OptimizationData): Polyline[] => {
   return data.routes.map((route: RouteData) => {
@@ -38,15 +39,6 @@ export const formatGeometry = (data: OptimizationData): Polyline[] => {
   return colorizedGeometry;
 };
 
-const cuidToIndex = (cuid: string, arraySize: number): number => {
-  // Calculate SHA-256 hash digest
-  const hashDigest = createHash("sha256").update(cuid).digest("hex");
-  // Convert digest to integer
-  const hashInt = parseInt(hashDigest, 16);
-  // Map the hash integer to the range of the array size
-  const index = hashInt % arraySize;
-  return index;
-};
 export const formatGeometryString = (
   geometryString: string,
   vehicleId: string
@@ -55,7 +47,7 @@ export const formatGeometryString = (
 
   const colorizedGeometry = {
     ...geometry,
-    properties: { color: cuidToIndex(vehicleId, 19) },
+    properties: { color: cuidToIndex(vehicleId) },
   };
 
   return colorizedGeometry as Polyline;

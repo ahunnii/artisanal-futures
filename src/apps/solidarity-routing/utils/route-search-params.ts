@@ -11,7 +11,6 @@ export const updateRouteSearchParams = (
     console.log(value);
     params.set(`${key}`, `${value}`);
   } else {
-    console.log("nope");
     params.delete(`${value}`);
   }
   return params.toString();
