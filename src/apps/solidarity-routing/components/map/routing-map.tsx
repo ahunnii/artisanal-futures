@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import type L from "leaflet";
-import { LatLngExpression, Map as LeafletMap } from "leaflet";
+import type { LatLngExpression, Map as LeafletMap } from "leaflet";
 import { Expand } from "lucide-react";
 import {
   Circle,
@@ -287,7 +287,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                   <MapPopup
                     name={driver?.driver.name ?? "Driver"}
                     address={driver?.driver?.address?.formatted ?? ""}
-                    type={"vehicle"}
                   />
                 </RouteMarker>
               );
@@ -301,13 +300,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
 
                     const isActive = activeDrivers[vehicle.id];
 
-                    // if (activeDrivers.has(vehicle.id)) {
-                    //   latLng = [
-                    //     activeDrivers.get(vehicle.id)!.lat,
-                    //     activeDrivers.get(vehicle.id)!.lng,
-                    //   ];
-                    // }
-
                     return (
                       <RouteMarker
                         key={idx}
@@ -319,7 +311,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                         <MapPopup
                           name={vehicle.name}
                           address={vehicle.address}
-                          type={vehicle.type}
                         />
                       </RouteMarker>
                     );
@@ -337,11 +328,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                       position={[stop.lat, stop.lng]}
                       color={Number(stop.color)}
                     >
-                      <MapPopup
-                        name={stop.name}
-                        address={stop.address}
-                        type={stop.type}
-                      />
+                      <MapPopup name={stop.name} address={stop.address} />
                     </RouteMarker>
                   ))}{" "}
               </LeafletLayerGroup>

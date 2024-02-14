@@ -1,16 +1,31 @@
 import { uniqueId } from "lodash";
+
 import {
-  UploadOptions,
   jobTypeSchema,
   type ClientJobBundle,
-} from "../../types.wip";
-import { handleClientSheetUpload } from "../../utils/client-job/parse-clients.wip";
+  type UploadOptions,
+} from "~/apps/solidarity-routing/types.wip";
+import { handleClientSheetUpload } from "~/apps/solidarity-routing/utils/client-job/parse-clients.wip";
 import {
   militaryTimeToUnixSeconds,
   minutesToSeconds,
-} from "../../utils/generic/format-utils.wip";
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
-export const stopData = (lat: number, lng: number): ClientJobBundle => {
+interface IUploadOptions {
+  jobs: ClientJobBundle[];
+  setJobs: ({
+    jobs,
+    addToRoute,
+  }: {
+    jobs: ClientJobBundle[];
+    addToRoute?: boolean;
+  }) => void;
+}
+
+export const clientJobDataForNewLatLng = (
+  lat: number,
+  lng: number
+): ClientJobBundle => {
   return {
     client: {
       id: uniqueId("client_"),
@@ -40,7 +55,7 @@ export const stopData = (lat: number, lng: number): ClientJobBundle => {
     },
   };
 };
-const clientJobDefaults = {
+export const clientJobDefaults = {
   serviceTime: minutesToSeconds(60),
   prepTime: minutesToSeconds(2),
   priority: 1,
@@ -52,18 +67,7 @@ const clientJobDefaults = {
 export const clientJobUploadOptions = ({
   jobs,
   setJobs,
-  status,
-}: {
-  jobs: ClientJobBundle[];
-  setJobs: ({
-    jobs,
-    addToRoute,
-  }: {
-    jobs: ClientJobBundle[];
-    addToRoute?: boolean;
-  }) => void;
-  status: "authenticated" | "unauthenticated" | "loading" | "error";
-}): UploadOptions<ClientJobBundle> => ({
+}: IUploadOptions): UploadOptions<ClientJobBundle> => ({
   type: "job" as keyof ClientJobBundle,
   parseHandler: handleClientSheetUpload,
   handleAccept: ({ data }) => {

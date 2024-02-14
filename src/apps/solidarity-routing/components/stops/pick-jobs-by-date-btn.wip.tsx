@@ -4,9 +4,9 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import * as React from "react";
-import { SelectSingleEventHandler } from "react-day-picker";
+import type { SelectSingleEventHandler } from "react-day-picker";
 
-import { Button, buttonVariants } from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,

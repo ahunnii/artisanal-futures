@@ -1,17 +1,32 @@
 import { uniqueId } from "lodash";
+
 import {
   driverTypeSchema,
   type DriverVehicleBundle,
   type UploadOptions,
 } from "~/apps/solidarity-routing/types.wip";
+import { handleDriverSheetUpload } from "~/apps/solidarity-routing/utils/driver-vehicle/parse-drivers.wip";
 import {
   milesToMeters,
   militaryTimeToUnixSeconds,
   minutesToSeconds,
 } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
-import { handleDriverSheetUpload } from "../../utils/driver-vehicle/parse-drivers.wip";
 
-export const driverData = (lat: number, lng: number): DriverVehicleBundle => {
+interface IUploadOptions {
+  drivers: DriverVehicleBundle[];
+  setDrivers: ({
+    drivers,
+    addToRoute,
+  }: {
+    drivers: DriverVehicleBundle[];
+    addToRoute?: boolean;
+  }) => void;
+}
+
+export const driverVehicleDataForNewLatLng = (
+  lat: number,
+  lng: number
+): DriverVehicleBundle => {
   return {
     driver: {
       type: "FULL_TIME",
@@ -75,18 +90,7 @@ export const driverVehicleDefaults = {
 export const driverVehicleUploadOptions = ({
   drivers,
   setDrivers,
-  status,
-}: {
-  drivers: DriverVehicleBundle[];
-  setDrivers: ({
-    drivers,
-    addToRoute,
-  }: {
-    drivers: DriverVehicleBundle[];
-    addToRoute?: boolean;
-  }) => void;
-  status: "authenticated" | "unauthenticated" | "loading" | "error";
-}): UploadOptions<DriverVehicleBundle> => ({
+}: IUploadOptions): UploadOptions<DriverVehicleBundle> => ({
   type: "driver" as keyof DriverVehicleBundle,
   parseHandler: handleDriverSheetUpload,
   handleAccept: ({ data }) => {

@@ -1,29 +1,17 @@
-import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+
 import { api } from "~/utils/api";
 import { useDriversStore } from "../use-drivers-store";
 
-import { useParams, usePathname } from "next/navigation";
-
-import toast from "react-hot-toast";
-
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 
 export const useUpdateDriver = () => {
-  const { data: session } = useSession();
+  const { isUserAllowedToSaveToDepot, routeId, depotId } = useSolidarityState();
+
   const sessionStorageDrivers = useDriversStore((state) => state);
 
-  const pathname = usePathname();
-
-  const params = useParams();
-
   const apiContext = api.useContext();
-
-  const routeId = params?.routeId as string;
-  const depotId = params?.depotId as string;
-
-  const isSandbox = pathname?.includes("sandbox");
-
-  const isUserAllowedToSaveToDepot = (session?.user ?? null) && !isSandbox;
 
   const updateDriverDefaults = api.drivers.updateDriverDefaults.useMutation({
     onSuccess: () => toast.success("Driver(s) successfully created."),
@@ -36,6 +24,7 @@ export const useUpdateDriver = () => {
       void apiContext.routePlan.invalidate();
     },
   });
+
   const updateVehicleDetails = api.drivers.updateVehicleDetails.useMutation({
     onSuccess: () => toast.success("Driver(s) successfully created."),
     onError: (e: unknown) => {
@@ -47,6 +36,7 @@ export const useUpdateDriver = () => {
       void apiContext.routePlan.invalidate();
     },
   });
+
   const updateDriverDetails = api.drivers.updateDriverDetails.useMutation({
     onSuccess: () => toast.success("Driver(s) successfully created."),
     onError: (e: unknown) => {
@@ -63,7 +53,7 @@ export const useUpdateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       updateVehicleDetails.mutate({
         vehicle: bundle.vehicle,
-        routeId,
+        routeId: routeId as string,
       });
     } else {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
@@ -101,10 +91,6 @@ export const useUpdateDriver = () => {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
     }
   };
-
-  // Update a driver's details (reflects in depot)
-  // Update a driver's defaults (reflects in depot)
-  // Update a vehicle's details in the route
 
   return {
     updateRouteVehicle,

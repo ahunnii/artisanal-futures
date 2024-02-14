@@ -1,6 +1,5 @@
 import { format } from "date-fns";
-import { MapPin, Truck, Users } from "lucide-react";
-import { useParams } from "next/navigation";
+import { MapPin, Truck } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -12,15 +11,20 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 
-import type { DriverVehicleBundle, UploadOptions } from "../types.wip";
+import type {
+  ClientJobBundle,
+  DriverVehicleBundle,
+  UploadOptions,
+} from "../types.wip";
 
-import { useDriverVehicleBundles } from "../hooks/drivers/use-driver-vehicle-bundles";
-import { handleDriverSheetUpload } from "../utils/driver-vehicle/parse-drivers.wip";
-import { FileUploadModal } from "./file-upload-modal.wip";
-
-import { useRouter } from "next/router";
-import toast from "react-hot-toast";
-import { api } from "~/utils/api";
+import { FileUploadModal } from "~/apps/solidarity-routing/components/file-upload-modal.wip";
+import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
+import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
+import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
+import { nthNumber } from "../utils/generic/nth-date";
 import {
   HomePageOverviewImportBtn,
   type HomePageImportBtnProps,
@@ -36,72 +40,56 @@ interface IProps {
   status: "authenticated" | "loading" | "unauthenticated";
 }
 export const HomePageOnboardingCard = ({ date, status }: IProps) => {
-  const params = useParams();
-  const depotId = params?.depotId as string;
-  const router = useRouter();
-  const drivers = useDriverVehicleBundles();
+  const { depotId } = useSolidarityState();
 
-  const { mutate: createRoute } = api.routePlan.createRoutePlan.useMutation({
-    onSuccess: (data) => {
-      toast.success("Route created!");
-      void router.push(
-        `/tools/solidarity-pathways/${depotId}/route/${data.id}`
-      );
-    },
-    onError: (error) => {
-      toast.error("There was an error creating the route. Please try again.");
-      console.error(error);
-    },
-    onSettled: () => {
-      console.log("settled");
-    },
-  });
+  const routePlan = useRoutePlans();
+
+  const driverBundles = useDriverVehicleBundles();
+  const jobs = useClientJobBundles();
 
   const driverImportButtonProps = {
     button: {
       Icon: Truck,
       caption: "Add your drivers from spreadsheet",
-      isProcessed: drivers.depot.length > 0,
+      isProcessed: driverBundles.depot.length > 0,
     },
-    fileUpload: {
-      type: "driver" as keyof DriverVehicleBundle,
-      parseHandler: handleDriverSheetUpload,
-      handleAccept: ({ data }) => {
-        drivers.createMany({
-          drivers: data,
-        });
-      },
-      currentData: drivers.depot,
-    },
+    fileUpload: driverVehicleUploadOptions({
+      drivers: driverBundles.data,
+      setDrivers: driverBundles.createMany,
+    }),
   } as UploadButtonOptions<DriverVehicleBundle>;
 
-  const clientImportButtonProps = {
-    Icon: Users,
-    caption: "Add your drivers from spreadsheet",
-    isProcessed: false,
-  };
+  const jobImportButtonProps = {
+    button: {
+      Icon: MapPin,
+      caption: "Add your stops from spreadsheet",
+      isProcessed: false,
+    },
+    fileUpload: clientJobUploadOptions({
+      jobs: jobs.data,
+      setJobs: jobs.createMany,
+    }),
+  } as UploadButtonOptions<ClientJobBundle>;
 
-  const routeImportButtonProps = {
-    Icon: MapPin,
-    caption: "Add your clients from spreadsheet",
-    isProcessed: false,
-  };
+  const manuallyCreateRoute = () => routePlan.create({ depotId, date });
+
+  const todayDate =
+    format(date, "MMMM dd yyyy") === format(new Date(), "MMMM dd yyyy");
+
+  const dateTitle = todayDate
+    ? "Today's"
+    : `${format(date, "MMMM d")}${nthNumber(Number(format(date, "d")))}`;
 
   return (
     <>
-      <Card className="w-3/4">
+      <Card className="w-full max-w-xl">
         <CardHeader>
-          <CardTitle>
-            {date.getDate() === new Date().getDate()
-              ? "Today's Overview"
-              : `Overview`}
-          </CardTitle>
+          <CardTitle>{dateTitle} Overview</CardTitle>
 
           {status === "authenticated" && (
             <>
               <CardDescription>
-                {format(date, "MMMM dd yyyy")} * Depot{" "}
-                {depotId as unknown as number} * No finalized routes yet
+                {format(date, "MMMM dd yyyy")} * Depot {depotId}
               </CardDescription>
             </>
           )}
@@ -119,10 +107,10 @@ export const HomePageOnboardingCard = ({ date, status }: IProps) => {
             <p className="mb-6 leading-7 [&:not(:first-child)]:mt-6">
               It looks like you are not logged in. You can still continue to use
               Solidarity Pathways, but all routes and data will be discarded
-              after you close the page.{" "}
+              after you close the page.
             </p>
           )}{" "}
-          <div className="grid  w-full grid-cols-1 items-center gap-4 md:grid-cols-3">
+          <div className="grid  w-full grid-cols-1 items-center gap-4 md:grid-cols-2">
             <FileUploadModal<DriverVehicleBundle>
               {...driverImportButtonProps.fileUpload!}
             >
@@ -133,27 +121,17 @@ export const HomePageOnboardingCard = ({ date, status }: IProps) => {
               </span>
             </FileUploadModal>
 
-            <span>
-              <HomePageOverviewImportBtn
-                {...clientImportButtonProps}
-                isDisabled={true}
-              />
-            </span>
-            <span>
-              <HomePageOverviewImportBtn
-                {...routeImportButtonProps}
-                isDisabled={true}
-              />
-            </span>
+            <FileUploadModal<ClientJobBundle>
+              {...jobImportButtonProps.fileUpload!}
+            >
+              <span>
+                <HomePageOverviewImportBtn {...jobImportButtonProps.button} />
+              </span>
+            </FileUploadModal>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-4">
-          <Button
-            variant="outline"
-            onClick={() =>
-              createRoute({ depotId: Number(params.depotId), date })
-            }
-          >
+          <Button variant="secondary" onClick={manuallyCreateRoute}>
             Nah, I&apos;ll just do it later{" "}
           </Button>
         </CardFooter>

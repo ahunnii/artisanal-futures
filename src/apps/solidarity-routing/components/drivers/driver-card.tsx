@@ -7,11 +7,14 @@ import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers
 type TDriverCard = { id: string; name: string };
 
 const DriverCard: FC<TDriverCard> = ({ id, name }) => {
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
-  const onEdit = () => drivers.edit(id);
+  const onEdit = () => driverBundles.edit(id);
 
-  const isActive = useMemo(() => drivers.isActive(id), [drivers, id]);
+  const isActive = useMemo(
+    () => driverBundles.isActive(id),
+    [driverBundles, id]
+  );
 
   return (
     <DepotCard

@@ -1,18 +1,8 @@
-import { ReloadIcon } from "@radix-ui/react-icons";
-import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 
-import {
-  ChevronDownIcon,
-  DownloadCloud,
-  FilePlus,
-  FilePlus2,
-  Pencil,
-  Plus,
-  Upload,
-} from "lucide-react";
+import { ChevronDownIcon, FilePlus2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,36 +11,25 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
-import { clientJobUploadOptions } from "../../data/stops/stop-data";
+import { clientJobUploadOptions } from "../../data/stop-data";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import { ClientJobBundle } from "../../types.wip";
+import type { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../file-upload-modal.wip";
-import { StopAddSheet } from "./stop-add-sheet";
-import StopSheet from "./stop-sheet";
 
-// import useTabOptions from "~/apps/solidarity-routing/hooks/use-tab-options";
+import StopSheet from "./stop-sheet";
 
 const StopOptionBtn = () => {
   const [isOpen, setIsOpen] = useState(false);
   const jobs = useClientJobBundles();
-  const { status } = useSession();
 
   const fileUploadOptions = useMemo(
     () =>
       clientJobUploadOptions({
         jobs: jobs.data,
         setJobs: jobs.createMany,
-        status,
       }),
-    [jobs, status]
+    [jobs]
   );
-
-  // const {
-  //   // handleCSVUpload,
-  //   addNewItem,
-  //   DatabaseSelect,
-  //   handleAddFromDatabase,
-  // } = useTabOptions(type);
 
   const closeSheetFirst = () => {
     setIsOpen(false);

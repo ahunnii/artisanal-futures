@@ -3,11 +3,11 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import StopCard from "~/apps/solidarity-routing/components/stops/stop-card";
 
 import { Lightbulb } from "lucide-react";
-import { useSession } from "next-auth/react";
+
 import { useMemo } from "react";
 
 import { Button } from "~/components/ui/button";
-import { clientJobUploadOptions } from "../../data/stops/stop-data";
+import { clientJobUploadOptions } from "../../data/stop-data";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../file-upload-modal.wip";
@@ -17,16 +17,14 @@ import StopOptionBtn from "./stop-option-btn.wip";
 
 const StopsTab = () => {
   const jobs = useClientJobBundles();
-  const { status } = useSession();
 
   const fileUploadOptions = useMemo(
     () =>
       clientJobUploadOptions({
         jobs: jobs.data,
         setJobs: jobs.createMany,
-        status,
       }),
-    [jobs, status]
+    [jobs]
   );
 
   return (

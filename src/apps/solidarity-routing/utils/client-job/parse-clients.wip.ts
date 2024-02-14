@@ -1,11 +1,11 @@
-import geocodingService from "../../services/autocomplete";
-import {
+import geocodingService from "~/apps/solidarity-routing/services/autocomplete";
+import type {
   ClientJobBundle,
   FileUploadHandler,
   VersionOneClientCSV,
-} from "../../types.wip";
-import { parseSpreadSheet } from "../generic/parse-csv.wip";
-import { formatClientSheetRowToBundle } from "./format-clients.wip";
+} from "~/apps/solidarity-routing/types.wip";
+import { formatClientSheetRowToBundle } from "~/apps/solidarity-routing/utils/client-job/format-clients.wip";
+import { parseSpreadSheet } from "~/apps/solidarity-routing/utils/generic/parse-csv.wip";
 
 export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
   event,
@@ -23,14 +23,18 @@ export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
           const address = await geocodingService.geocodeByAddress(
             clientJobBundle.job.address.formatted
           );
+
+          const client = clientJobBundle.client
+            ? {
+                ...clientJobBundle.client,
+                address: {
+                  ...address,
+                },
+              }
+            : undefined;
+
           return {
-            ...clientJobBundle,
-            client: {
-              ...clientJobBundle.client,
-              address: {
-                ...address,
-              },
-            },
+            client: client,
             job: {
               ...clientJobBundle.job,
               address: {
@@ -44,11 +48,11 @@ export const handleClientSheetUpload: FileUploadHandler<ClientJobBundle> = ({
       });
       setIsLoading(false);
       const tableData =
-        revisedClients?.map((driver) => {
+        revisedClients?.map((bundle) => {
           return {
-            name: driver?.client?.name ?? `Job #${driver.job.id}`,
-            address: driver.job.address.formatted,
-            email: driver.client.email ?? "",
+            name: bundle?.client?.name ?? `Job #${bundle.job.id}`,
+            address: bundle.job.address.formatted,
+            email: bundle?.client?.email ?? "",
           };
         }) ?? [];
       callback({ data: revisedClients ?? [], tableData });

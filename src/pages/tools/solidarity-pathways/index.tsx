@@ -4,7 +4,7 @@ import { type GetServerSidePropsContext } from "next";
 
 import { useDepotModal } from "~/apps/solidarity-routing/hooks/use-depot-modal.wip";
 
-import { DepotModal } from "~/apps/solidarity-routing/components/depot-modal.wip";
+import { DepotModal } from "~/apps/solidarity-routing/components/depot/depot-modal.wip";
 import { getServerAuthSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 
@@ -18,7 +18,7 @@ const SolidarityPathwaysHomePage = () => {
     }
   }, [isOpen, onOpen]);
 
-  return <DepotModal />;
+  return <DepotModal initialData={null} />;
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
@@ -34,31 +34,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   }
 
   const userId = session.user.id;
-  const userRole = session.user.role;
-
-  // if (userRole !== "ADMIN")
-  //   return {
-  //     redirect: {
-  //       destination: "/unauthorized",
-  //       permanent: false,
-  //     },
-  //   };
 
   const depot = await prisma.depot.findFirst({
     where: {
       ownerId: userId,
     },
   });
-
-  // const joinedDepots = await prisma.depot.findMany({
-  //   where: {
-  //     users: {
-  //       some: {
-  //         id: userId,
-  //       },
-  //     },
-  //   },
-  // });
 
   if (depot)
     return {

@@ -1,73 +1,38 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useJsApiLoader } from "@react-google-maps/api";
+
 import { uniqueId } from "lodash";
-import { FileCog, Home, Package, Pencil, Trash, Undo } from "lucide-react";
-import { useMemo, useState, type FC } from "react";
+import { Pencil, Trash } from "lucide-react";
+import { useState, type FC } from "react";
 
-import GooglePlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from "react-google-places-autocomplete";
+import { useForm } from "react-hook-form";
 
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "~/components/ui/button";
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
+import { Form } from "~/components/ui/form";
 
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import type { Coordinates } from "~/apps/solidarity-routing/types";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { toast } from "~/components/ui/use-toast";
-import { env } from "~/env.mjs";
 
-import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { toast } from "~/components/ui/use-toast";
+
 import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 import { Accordion } from "~/components/ui/accordion";
-import { Switch } from "~/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+
 import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import {
-  ClientJobBundle,
-  StopFormValues,
   stopFormSchema,
+  type ClientJobBundle,
+  type StopFormValues,
 } from "../../types.wip";
 import { formatJobFormDataToBundle } from "../../utils/client-job/format-clients.wip";
 import {
   secondsToMinutes,
   unixSecondsToMilitaryTime,
 } from "../../utils/generic/format-utils.wip";
-import { AutoCompleteBtn } from "../forms/autocomplete-btn";
-import { AutoCompleteJobBtn } from "../forms/autocomplete-job-btn";
+
 import ClientDetailsSection from "../forms/client-detail-form";
 import StopDetailsSection from "../forms/stop-details-form";
-
-type Library = "places";
-const libraries: Library[] = ["places"];
 
 type TStopForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -77,15 +42,11 @@ type TStopForm = {
 const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
   const jobs = useClientJobBundles();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [editClient, setEditClient] = useState(false);
   const { status } = useSession();
 
-  const [accordionValue, setAccordionValue] = useState(
-    activeLocation ? "item-2" : "item-1"
-  );
-
-  const [useDefault, setUseDefault] = useState(true);
+  const [, setAccordionValue] = useState(activeLocation ? "item-2" : "item-1");
 
   const defaultValues: Partial<StopFormValues> = {
     id: activeLocation?.job.id ?? uniqueId("job_"),
@@ -165,7 +126,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
 
     handleOnOpenChange(false);
   }
-  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
 
   const onDelete = () => {
     jobs.deleteJob({ id: activeLocation?.job.id });

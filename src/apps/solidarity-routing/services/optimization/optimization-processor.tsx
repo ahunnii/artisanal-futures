@@ -11,14 +11,14 @@ export interface OptimizationProcessor<T, Data, Drivers, Jobs, ResponseData> {
   formatResponseData(data: ResponseData): OptimizedResponseData;
 }
 
-export class OptimizationService<T, Data, Drivers, Jobs> {
+export class OptimizationService<T, Data, Drivers, Jobs, ResponseData> {
   constructor(
     private optimizationProcessor: OptimizationProcessor<
       T,
       Data,
       Drivers,
       Jobs,
-      Response
+      ResponseData
     >
   ) {}
 
@@ -31,7 +31,7 @@ export class OptimizationService<T, Data, Drivers, Jobs> {
   formatClientData(data: ClientJobBundle[]): Jobs[] {
     return this.optimizationProcessor.formatClientData(data);
   }
-  formatResponseData(data: Response): OptimizedResponseData {
+  formatResponseData(data: ResponseData): OptimizedResponseData {
     return this.optimizationProcessor.formatResponseData(data);
   }
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { Address } from "../optimization/types";
-import { GeocodingProcessor } from "./geocoding-processor";
+import type { Address } from "../optimization/types";
+import type { GeocodingProcessor } from "./geocoding-processor";
 
 const GOOGLE_GEOCODING_ENDPOINT =
   "https://maps.googleapis.com/maps/api/geocode/json";

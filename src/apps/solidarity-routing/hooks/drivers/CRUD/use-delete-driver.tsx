@@ -1,22 +1,14 @@
-import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+
 import { api } from "~/utils/api";
 import { useDriversStore } from "../use-drivers-store";
 
-import { usePathname } from "next/navigation";
-
-import toast from "react-hot-toast";
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 
 export const useDeleteDriver = () => {
-  const { data: session } = useSession();
-  const sessionStorageDrivers = useDriversStore((state) => state);
-
-  const pathname = usePathname();
-
   const apiContext = api.useContext();
-
-  const isSandbox = pathname?.includes("sandbox");
-
-  const isUserAllowedToSaveToDepot = (session?.user ?? null) && !isSandbox;
+  const { isUserAllowedToSaveToDepot, depotId } = useSolidarityState();
+  const sessionStorageDrivers = useDriversStore((state) => state);
 
   const deleteFromRoute = api.drivers.deleteVehicle.useMutation({
     onSuccess: () => toast.success("Driver(s) successfully created."),
@@ -39,6 +31,32 @@ export const useDeleteDriver = () => {
     onSettled: () => {
       void apiContext.drivers.invalidate();
       void apiContext.routePlan.invalidate();
+    },
+  });
+
+  const purgeAllDrivers = api.drivers.deleteAllDepotDrivers.useMutation({
+    onSuccess: () => {
+      toast.success("Drivers deleted!");
+    },
+    onError: (e) => {
+      toast.error("There seems to be an issue with deleting your drivers.");
+      console.log(e);
+    },
+    onSettled: () => {
+      void apiContext.drivers.invalidate();
+    },
+  });
+
+  const purgeAllVehicles = api.vehicles.deleteAllDepotVehicles.useMutation({
+    onSuccess: () => {
+      toast.success("Vehicles deleted!");
+    },
+    onError: (e) => {
+      toast.error("There seems to be an issue with deleting your vehicles.");
+      console.log(e);
+    },
+    onSettled: () => {
+      void apiContext.vehicles.invalidate();
     },
   });
 
@@ -79,5 +97,11 @@ export const useDeleteDriver = () => {
   return {
     deleteDriverFromRoute,
     deleteDriverFromDepot,
+    purgeAllDrivers: () => void purgeAllDrivers.mutate({ depotId }),
+    purgeAllVehicles: () => void purgeAllVehicles.mutate({ depotId }),
+    purgeAllDriverVehicleBundles: () => {
+      void purgeAllDrivers.mutate({ depotId });
+      void purgeAllVehicles.mutate({ depotId });
+    },
   };
 };

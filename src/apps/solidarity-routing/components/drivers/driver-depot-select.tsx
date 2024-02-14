@@ -10,15 +10,13 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
-import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -38,10 +36,10 @@ import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-
 import type { DriverVehicleBundle } from "../../types.wip";
 
 const DeleteComponent = ({ row }: { row: DriverVehicleBundle }) => {
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
   const editPost = () => {
-    drivers.deleteFromDepot({
+    driverBundles.deleteFromDepot({
       driverId: row.driver.id,
       vehicleId: row.vehicle.id,
     });
@@ -55,10 +53,10 @@ const DeleteComponent = ({ row }: { row: DriverVehicleBundle }) => {
 };
 
 const EditComponent = ({ row }: { row: DriverVehicleBundle }) => {
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
   const editPost = (id: string) => {
-    drivers.edit(id);
+    driverBundles.edit(id);
   };
 
   return <p onClick={() => editPost(row.vehicle.id)}>Edit</p>;

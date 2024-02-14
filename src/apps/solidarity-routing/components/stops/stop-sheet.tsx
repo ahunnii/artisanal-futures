@@ -7,12 +7,12 @@ import {
   SheetTitle,
 } from "~/components/ui/map-sheet";
 
-import { Home, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
+
 import { SheetTrigger } from "~/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { api } from "~/utils/api";
@@ -23,7 +23,7 @@ import { PickJobsByDateBtn } from "./pick-jobs-by-date-btn.wip";
 const StopSheet = ({ standalone }: { standalone?: boolean }) => {
   const jobs = useClientJobBundles();
 
-  const [selectedData, setSelectedData] = useState<ClientJobBundle[]>([]);
+  const [, setSelectedData] = useState<ClientJobBundle[]>([]);
   const [tabValue, setTabValue] = useState<string>("account");
 
   const { status } = useSession();

@@ -1,6 +1,4 @@
-// import { Address } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { get } from "jquery";
 import { z } from "zod";
 
 import {
@@ -9,6 +7,7 @@ import {
   vehicleSchema,
   type DriverVehicleBundle,
 } from "~/apps/solidarity-routing/types.wip";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const driversRouter = createTRPCRouter({

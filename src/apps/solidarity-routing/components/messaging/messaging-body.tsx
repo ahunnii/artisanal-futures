@@ -30,50 +30,6 @@ export const MessagingBody = () => {
           time="Just now"
           type="sender"
         />
-
-        {/* <div className="flex items-start gap-4">
-          <div className="relative h-12 w-12">
-            <img
-              alt="Avatar"
-              className="rounded-full object-cover"
-              height="56"
-              src="/placeholder.svg"
-              style={{
-                aspectRatio: "56/56",
-                objectFit: "cover",
-              }}
-              width="56"
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-950">
-            <p>Hey! Just wanted to check in and see how you're doing.</p>
-            <time className="text-sm text-gray-500 dark:text-gray-400">
-              2 minutes ago
-            </time>
-          </div>
-        </div>
-        <div className="flex items-end gap-4">
-          <div className="flex-1" />
-          <div className="relative h-12 w-12">
-            <img
-              alt="Avatar"
-              className="rounded-full object-cover"
-              height="56"
-              src="/placeholder.svg"
-              style={{
-                aspectRatio: "56/56",
-                objectFit: "cover",
-              }}
-              width="56"
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-2 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-950">
-            <p>I'm doing great, thanks for asking! How about you?</p>
-            <time className="text-sm text-gray-500 dark:text-gray-400">
-              Just now
-            </time>
-          </div>
-        </div> */}
       </div>
       <div className="flex-shrink-0">
         <form action="#" className="flex items-center gap-2 px-4">

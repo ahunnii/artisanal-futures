@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import React, { useEffect, useRef, useState, type FC } from "react";
+import React, { useEffect, useState, type FC } from "react";
 
 import { Beforeunload } from "react-beforeunload";
 
@@ -20,18 +20,6 @@ import type { OptimizedStop } from "~/apps/solidarity-routing/types.wip";
 import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-
 interface IProps {
   data: RouteData;
   steps: StepData[];
@@ -45,27 +33,14 @@ const LazyRoutingMap = dynamic(
   }
 );
 
-import * as crypto from "crypto";
 import { useSearchParams } from "next/navigation";
-
-function generatePasscode(email: string): string {
-  // Create a SHA-256 hash
-  const hash = crypto.createHash("sha256");
-  // Update the hash with the email
-  hash.update(email);
-  // Get the hashed value as a hexadecimal string
-  const hashedEmail = hash.digest("hex");
-  // Take the first 6 characters of the hashed email
-  const passcode = hashedEmail.substring(0, 6);
-  return passcode;
-}
+import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
 
 const OptimizedPathPage: FC<IProps> = () => {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [approval, setApproval] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
+
   const [notificationSent, setNotificationSent] = useState(false);
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const driverRoute = useDriverVehicleBundles();
@@ -73,75 +48,32 @@ const OptimizedPathPage: FC<IProps> = () => {
   const driver = driverRoute.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
-  // session?.user?.role != "ADMIN" &&
-  useEffect(() => {
-    if (!approval) {
-      setOpen(true);
-    }
-  }, [session, approval]);
+
+  const routeColor = getColor(
+    cuidToIndex(optimizedRoutePlan?.data?.vehicleId ?? "")
+  );
 
   useEffect(() => {
-    if (driver && !notificationSent) {
-      void axios.post("/api/realtime/online-driver", {
-        depotId: 1,
-        driverId: driver?.driver.id,
-        vehicleId: driver?.vehicle.id,
-      });
+    if (driver?.driver.name && !notificationSent) {
       setNotificationSent(true);
+      axios
+        .post("/api/realtime/online-driver", {
+          depotId: 1,
+          vehicleId: searchParams.get("vehicle"),
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [driver, notificationSent]);
 
-  // session?.user?.role !== "ADMIN" &&
-  if (!approval && !session?.user) {
+  if (!approval && !session?.user)
     return (
-      <Dialog onOpenChange={setOpen} open={open}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Verify Driver</DialogTitle>
-            <DialogDescription>
-              Enter the email the depot has of you to verify your identity
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="z-[1000] grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                ref={inputRef}
-                placeholder="e.g. awesome@test.com"
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              className="disabled:cursor-not-allowed"
-              type="button"
-              // disabled={inputRef?.current?.value === ""}
-              onClick={() => {
-                // TODO: Add cookie verifying this page is good
-                const temp = inputRef?.current?.value
-                  ? generatePasscode(inputRef.current.value)
-                  : "";
-                if (temp === searchParams.get("pc")) {
-                  setApproval(true);
-                } else {
-                  alert("Invalid passcode");
-                }
-              }}
-            >
-              Submit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DriverVerificationDialog approval={approval} setApproval={setApproval} />
     );
-  }
 
-  // session?.user?.role === "ADMIN" ||
-  if (approval || session?.user) {
+  if (approval || session?.user)
     return (
       <>
         <FieldJobSheet />
@@ -163,11 +95,7 @@ const OptimizedPathPage: FC<IProps> = () => {
                       <RouteBreakdown
                         steps={optimizedRoutePlan.data.stops as OptimizedStop[]}
                         driver={driver}
-                        color={
-                          getColor(
-                            cuidToIndex(optimizedRoutePlan.data.vehicleId)
-                          ).background
-                        }
+                        color={routeColor.background}
                       />
 
                       <Button>Start route</Button>
@@ -183,7 +111,6 @@ const OptimizedPathPage: FC<IProps> = () => {
         </RouteLayout>
       </>
     );
-  }
 };
 
 export default OptimizedPathPage;

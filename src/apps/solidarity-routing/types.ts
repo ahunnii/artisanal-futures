@@ -1,4 +1,4 @@
-import { DriverType, DriverVehicleBundle } from "./types.wip";
+import { type DriverType } from "./types.wip";
 
 export type TimeWindow = {
   startTime: string;

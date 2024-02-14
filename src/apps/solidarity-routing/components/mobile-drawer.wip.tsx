@@ -1,4 +1,3 @@
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { RouteStatus } from "@prisma/client";
 import { Car, Check, MoreVertical } from "lucide-react";
 import { useState } from "react";
@@ -7,17 +6,14 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
 } from "~/components/ui/drawer";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/utils/styles";
 import { useDriverVehicleBundles } from "../hooks/drivers/use-driver-vehicle-bundles";
 import { useOptimizedRoutePlan } from "../hooks/optimized-data/use-optimized-route-plan";
-import { OptimizedStop } from "../types.wip";
+import type { OptimizedStop } from "../types.wip";
 import { getColor } from "../utils/generic/color-handling";
 import {
   cuidToIndex,
@@ -31,9 +27,9 @@ export const MobileDrawer = () => {
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const [open, setOpen] = useState(false);
 
-  const driverRoute = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
-  const driver = driverRoute.getVehicleById(
+  const driver = driverBundles.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
   const [snap, setSnap] = useState<number | string | null>(0.22);

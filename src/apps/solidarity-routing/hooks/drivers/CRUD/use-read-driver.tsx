@@ -1,72 +1,69 @@
-import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { useDriversStore } from "../use-drivers-store";
 
-import { useParams, usePathname } from "next/navigation";
-
-import toast from "react-hot-toast";
-import { driverData } from "~/apps/solidarity-routing/data/drivers/driver-data";
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-
-type TCreateNewDriversProps = {
-  driver: DriverVehicleBundle;
-};
-
-type Coordinates = {
-  lat: number;
-  lng: number;
-};
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 
 export const useReadDriver = () => {
-  const { data: session, status } = useSession();
+  const { depotId, isUserAllowedToSaveToDepot, routeId } = useSolidarityState();
+
   const sessionStorageDrivers = useDriversStore((state) => state);
-
-  const pathname = usePathname();
-
-  const params = useParams();
-
-  const apiContext = api.useContext();
-
-  const depotId = Number(params?.depotId as string);
-  const routeId = params?.routeId as string;
-
-  const isSandbox = pathname?.includes("sandbox");
-
-  const isUserAllowedToSaveToDepot = status === "authenticated" && !isSandbox;
 
   const getDepotDrivers = api.drivers.getDepotDrivers.useQuery(
     { depotId },
     { enabled: isUserAllowedToSaveToDepot }
   );
 
-  // const getRouteVehicles = api.drivers.getRouteVehicles.useQuery(
-  //   { routeId },
-  //   { enabled: isUserAllowedToSaveToDepot }
-  // );
-
   const getRouteVehicles = api.routePlan.getVehicleBundles.useQuery(
-    {
-      routeId,
-    },
+    { routeId: routeId as string },
     { enabled: isUserAllowedToSaveToDepot && routeId !== undefined }
   );
 
   const depotDrivers = getDepotDrivers.data ?? [];
 
-  const routeDrivers = isUserAllowedToSaveToDepot
-    ? getRouteVehicles.data ?? []
-    : sessionStorageDrivers.drivers;
+  const routeDrivers =
+    (isUserAllowedToSaveToDepot
+      ? getRouteVehicles.data
+      : sessionStorageDrivers.drivers) ?? [];
 
-  const getDriverById = (vehicleId: string | null | undefined) => {
+  const checkIfDriverExistsInStorage = (
+    id: string | null
+  ): DriverVehicleBundle | null => {
+    return (
+      sessionStorageDrivers.drivers?.find(
+        (driver) => driver.vehicle.id === id
+      ) ?? null
+    );
+  };
+
+  const checkIfDriverExistsInRoute = (
+    id: string | null
+  ): DriverVehicleBundle | null => {
+    return (
+      routeDrivers?.find(
+        (bundle: DriverVehicleBundle) => bundle.vehicle.id === id
+      ) ?? null
+    );
+  };
+
+  const checkIfDriverExistsInDepot = (
+    id: string | null
+  ): DriverVehicleBundle | null => {
+    return (
+      depotDrivers?.find(
+        (bundle: DriverVehicleBundle) => bundle.vehicle.id === id
+      ) ?? null
+    );
+  };
+
+  const getDriverById = (
+    vehicleId: string | null | undefined
+  ): DriverVehicleBundle | null => {
     if (!vehicleId) return null;
 
-    if (isUserAllowedToSaveToDepot) {
-      return depotDrivers.find((driver) => driver.vehicle.id === vehicleId);
-    } else {
-      return sessionStorageDrivers.drivers?.find(
-        (driver) => driver.vehicle.id === vehicleId
-      );
-    }
+    if (isUserAllowedToSaveToDepot)
+      return checkIfDriverExistsInDepot(vehicleId);
+    else return checkIfDriverExistsInStorage(vehicleId);
   };
 
   const getVehicleById = (
@@ -74,32 +71,27 @@ export const useReadDriver = () => {
   ): DriverVehicleBundle | null => {
     if (!vehicleId) return null;
 
-    if (isUserAllowedToSaveToDepot) {
-      const driver = routeDrivers.find(
-        (driver) => driver.vehicle.id === vehicleId
-      );
-
-      return (driver as DriverVehicleBundle) ?? null;
-    } else {
-      return (
-        sessionStorageDrivers.drivers?.find(
-          (driver) => driver.vehicle.id === vehicleId
-        ) ?? null
-      );
-    }
+    if (isUserAllowedToSaveToDepot)
+      return checkIfDriverExistsInRoute(vehicleId);
+    else return checkIfDriverExistsInStorage(vehicleId);
   };
 
   const activeDriver = sessionStorageDrivers.activeDriver;
 
-  // Get all depot drivers
-  // Get all route vehicle bundles
-  // Get active driver
+  const isLoading = isUserAllowedToSaveToDepot
+    ? getRouteVehicles.isLoading
+    : false;
+
   return {
+    isLoading,
     depotDrivers,
     routeDrivers,
     activeDriver,
     getDriverById,
     getVehicleById,
+    checkIfDriverExistsInDepot,
+    checkIfDriverExistsInStorage,
+    checkIfDriverExistsInRoute,
     drivers: isUserAllowedToSaveToDepot
       ? routeDrivers ?? sessionStorageDrivers.drivers ?? []
       : sessionStorageDrivers.drivers ?? [],

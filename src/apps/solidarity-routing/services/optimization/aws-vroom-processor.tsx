@@ -1,7 +1,7 @@
 import axios from "axios";
 import { uniqueId } from "lodash";
 import toast from "react-hot-toast";
-import type { OptimizationData, Polyline } from "../../types";
+import type { Polyline } from "../../types";
 import type {
   ClientJobBundle,
   DriverVehicleBundle,

@@ -23,7 +23,7 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { env } from "~/env.mjs";
-import { api } from "~/utils/api";
+
 import { sendEmail } from "~/utils/email";
 
 type TProps = { data: ExpandedRouteData };
@@ -35,7 +35,7 @@ export const RouteQRDialog: FC<TProps> = ({ data }) => {
   const [emailAddress, setEmailAddress] = useState<string | undefined>(
     undefined
   );
-  const [fileID, setFileID] = useState<string>("");
+  const [fileID] = useState<string>("");
 
   const emailPayload = useMemo(() => {
     return {
@@ -49,21 +49,6 @@ export const RouteQRDialog: FC<TProps> = ({ data }) => {
       },
     };
   }, [fileID, emailAddress]);
-
-  // const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
-  //   onError: (error) => {
-  //     toast.error(error.message);
-  //     console.error("Error uploading files:", error.message);
-  //     setFileID("");
-  //     setIsOpen(false);
-  //   },
-
-  //   onSuccess: (data) => {
-  //     if (!data?.id) return;
-  //     setFileID(data.id);
-  //     setIsOpen(true);
-  //   },
-  // });
 
   const openModal = () => {
     if (!data) return;

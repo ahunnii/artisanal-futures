@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { stopData } from "../../data/stops/stop-data";
+import { clientJobDataForNewLatLng } from "../../data/stop-data";
 import type { ClientJobBundle } from "../../types.wip";
 
 interface IUseStopsStore {
@@ -54,7 +54,7 @@ export const useStopsStore = create<IUseStopsStore>()(
         set((state) => ({ locations: [...state.locations, location] })),
       addLocationByLatLng: (lat, lng) =>
         set((state) => ({
-          locations: [...state.locations, stopData(lat, lng)],
+          locations: [...state.locations, clientJobDataForNewLatLng(lat, lng)],
         })),
 
       isStopSheetOpen: false,

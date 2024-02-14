@@ -1,11 +1,5 @@
 import { useMemo, useState, type FC } from "react";
 
-import { useJsApiLoader } from "@react-google-maps/api";
-import {
-  default as GooglePlacesAutocomplete,
-  geocodeByAddress,
-  getLatLng,
-} from "react-google-places-autocomplete";
 import { Controller, type UseFormReturn } from "react-hook-form";
 
 import {
@@ -31,12 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Separator } from "~/components/ui/separator";
 
-import type { Driver, StopFormValues } from "../../types.wip";
+import type { StopFormValues } from "../../types.wip";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { DriverType, JobType } from "@prisma/client";
+import { JobType } from "@prisma/client";
 import { Home, Package, Undo } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -48,7 +41,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { env } from "~/env.mjs";
+
 import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import { AutoCompleteJobBtn } from "./autocomplete-job-btn";
@@ -58,42 +51,12 @@ type StopDetailsSectionProps = {
   // databaseDrivers?: Array<Driver>;
 };
 
-type Library = "places";
-const libraries: Library[] = ["places"];
-
 const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-autocomplete-strict",
-    googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-    libraries,
-  });
   const [useDefault, setUseDefault] = useState(
     form.getValues("address.formatted") === "" ? false : true
   );
 
   const jobBundles = useClientJobBundles();
-  const handleAutoComplete = (
-    address: string,
-    onChange: (value: string) => void
-  ) => {
-    if (!address) return;
-
-    onChange(address);
-    geocodeByAddress(address)
-      .then((results) => getLatLng(results[0]!))
-      .then(({ lat, lng }) => {
-        console.log("Successfully got latitude and longitude", {
-          latitude: lat,
-          longitude: lng,
-        });
-        form.setValue("address", {
-          formatted: address,
-          latitude: lat,
-          longitude: lng,
-        });
-      })
-      .catch((err) => console.error("Error", err));
-  };
 
   const formErrors = form.formState.errors;
   const checkIfFormHasErrors = useMemo(() => {
@@ -117,7 +80,7 @@ const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
 
   const { active: activeJob } = useClientJobBundles();
 
-  const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
+  const [parent] = useAutoAnimate(/* optional config */);
   return (
     <AccordionItem value="item-1" className="group">
       <AccordionTrigger
@@ -139,32 +102,12 @@ const StopDetailsSection: FC<StopDetailsSectionProps> = ({ form }) => {
                   <FormLabel className="text-base">Address</FormLabel>
 
                   <FormDescription>
-                    {/* {useDefault && ( */}
                     <>
                       <span className="flex items-center gap-1">
                         <Package className="h-4 w-4" />
                         {form.watch("address.formatted")}
                       </span>
                     </>
-                    {/* )}
-                          {!useDefault && (
-                            <div className="flex flex-col space-y-0.5">
-                              <span className="flex items-center gap-1">
-                                {" "}
-                                <Home className="h-4 w-4" />{" "}
-                                {form.watch("startAddress.formatted")}
-                              </span>
-      
-                              <span className="flex items-center gap-1">
-                                {form.watch("endAddress.formatted") !== "" && (
-                                  <>
-                                    <Home className="h-4 w-4" />
-                                    {form.watch("endAddress.formatted")}
-                                  </>
-                                )} */}
-                    {/* </span> */}
-                    {/* </div> */}
-                    {/* )} */}
                   </FormDescription>
                   <FormDescription className="text-xs text-muted-foreground/75">
                     Switch to change the address for this stop.

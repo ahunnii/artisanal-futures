@@ -40,7 +40,7 @@ type DriverDetailsSectionProps = {
 };
 
 const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
   const test =
     form.watch("endAddress.formatted") === "" ||
@@ -201,17 +201,17 @@ const VehicleDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
                                   type="button"
                                   onClick={() => {
                                     onChange(
-                                      drivers.active?.vehicle.endAddress
+                                      driverBundles.active?.vehicle.endAddress
                                         .formatted
                                     );
                                     form.setValue(
                                       "endAddress.latitude",
-                                      drivers.active?.vehicle.endAddress
+                                      driverBundles.active?.vehicle.endAddress
                                         .latitude
                                     );
                                     form.setValue(
                                       "endAddress.longitude",
-                                      drivers.active?.vehicle.endAddress
+                                      driverBundles.active?.vehicle.endAddress
                                         .longitude
                                     );
                                   }}

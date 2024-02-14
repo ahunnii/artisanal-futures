@@ -1,20 +1,10 @@
 import { useSession } from "next-auth/react";
 import { useParams, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { stopData } from "~/apps/solidarity-routing/data/stops/stop-data";
-import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
+import { clientJobDataForNewLatLng } from "~/apps/solidarity-routing/data/stop-data";
+import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { api } from "~/utils/api";
 import { useStopsStore } from "../use-stops-store";
-
-type TCreateNewJobProps = {
-  job: ClientJobBundle;
-  addToRoute?: boolean;
-};
-
-type TCreateNewJobsProps = {
-  jobs: ClientJobBundle[];
-  addToRoute?: boolean;
-};
 
 type Coordinates = {
   lat: number;
@@ -56,7 +46,7 @@ export const useCreateJob = () => {
   // const createNewJobs = ({ jobs, addToRoute }: TCreateNewJobsProps) => void 0;
 
   const createNewJobByLatLng = ({ lat, lng }: Coordinates) => {
-    const driver = stopData(lat, lng);
+    const driver = clientJobDataForNewLatLng(lat, lng);
 
     if (isUserAllowedToSaveToDepot) {
       setJobsToRoute.mutate({

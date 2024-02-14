@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  MapPin,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
+import { MapPin, User } from "lucide-react";
 import * as React from "react";
 import { Button } from "~/components/ui/button";
 
@@ -21,7 +13,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "~/components/ui/command";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 

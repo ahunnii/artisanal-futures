@@ -1,10 +1,8 @@
-import { UnknownErrorParams } from "@prisma/client/runtime/library";
 import axios from "axios";
-import type { EditStopFormValues } from "~/apps/solidarity-routing/components/tracking/current-stop-form";
 
 import type { RouteData } from "~/apps/solidarity-routing/types";
 
-const DISPATCH_CONTACT = "/api/realtime/contact-dispatch";
+// const DISPATCH_CONTACT = "/api/realtime/contact-dispatch";
 const DISPATCH_LOCATION = "/api/realtime/update-location";
 
 export const getCurrentLocation = (

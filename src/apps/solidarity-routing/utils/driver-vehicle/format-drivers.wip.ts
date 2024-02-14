@@ -2,15 +2,14 @@ import type {
   DriverFormValues,
   DriverVehicleBundle,
   VersionOneDriverCSV,
-} from "../../types.wip";
+} from "~/apps/solidarity-routing/types.wip";
 
 import { uniqueId } from "lodash";
 import {
-  metersToMiles,
   milesToMeters,
   militaryTimeToUnixSeconds,
   minutesToSeconds,
-} from "../generic/format-utils.wip";
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 export const formatDriverFormDataToBundle = (
   data: DriverFormValues

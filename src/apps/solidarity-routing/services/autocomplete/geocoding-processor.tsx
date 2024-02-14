@@ -1,4 +1,4 @@
-import { Address } from "../optimization/types";
+import type { Address } from "../optimization/types";
 
 export interface GeocodingProcessor<T> {
   geocodeByAddress(address: string): Promise<Address>;

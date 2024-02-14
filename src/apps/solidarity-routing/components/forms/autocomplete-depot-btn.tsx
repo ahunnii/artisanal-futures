@@ -3,7 +3,12 @@ import GooglePlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-google-places-autocomplete";
-import type { UseFormReturn } from "react-hook-form";
+import type {
+  FieldValues,
+  Path,
+  PathValue,
+  UseFormReturn,
+} from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -18,12 +23,13 @@ import {
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { env } from "~/env.mjs";
-import type { StopFormValues } from "../../types.wip";
+import type { DriverFormValues } from "../../types.wip";
 
-interface IProps {
-  form: UseFormReturn<StopFormValues>;
-  formKey: "address" | "clientAddress";
+interface IProps<T extends FieldValues> {
+  form: UseFormReturn<T>;
+  formKey: string;
   onChange: (value: string) => void;
+  onLatLngChange: (lat: number, lng: number) => void;
   value: string | undefined;
   useDefault?: boolean;
 }
@@ -31,13 +37,14 @@ interface IProps {
 type Library = "places";
 const libraries: Library[] = ["places"];
 
-export function AutoCompleteJobBtn({
+export function AutoCompleteDepotBtn<T extends FieldValues>({
   value,
   onChange,
+  onLatLngChange,
   form,
   useDefault,
   formKey,
-}: IProps) {
+}: IProps<T>) {
   const [open, setOpen] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
@@ -53,9 +60,19 @@ export function AutoCompleteJobBtn({
     geocodeByAddress(address)
       .then((results) => getLatLng(results[0]!))
       .then(({ lat, lng }) => {
-        form.setValue(`${formKey}.formatted`, address);
-        form.setValue(`${formKey}.latitude`, lat);
-        form.setValue(`${formKey}.longitude`, lng);
+        form.setValue(
+          `${formKey}.formatted` as Path<T>,
+          address as PathValue<T, Path<T>>
+        );
+        onLatLngChange(lat, lng);
+        form.setValue(
+          `${formKey}.latitude` as Path<T>,
+          lat as PathValue<T, Path<T>>
+        );
+        form.setValue(
+          `${formKey}.longitude` as Path<T>,
+          lng as PathValue<T, Path<T>>
+        );
       })
       .catch((err) => console.error("Error", err))
       .finally(() => setOpen(false));
@@ -90,7 +107,9 @@ export function AutoCompleteJobBtn({
             <GooglePlacesAutocomplete
               selectProps={{
                 defaultInputValue:
-                  value === "" ? form.watch("address.formatted") : value,
+                  value === ""
+                    ? form.watch("address.formatted" as Path<T>)
+                    : value,
                 onChange: (e) => handleAutoComplete(e!.label),
                 classNames: {
                   control: (state) =>

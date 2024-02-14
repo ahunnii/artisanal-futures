@@ -7,13 +7,13 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import toast from "react-hot-toast";
 import type { ClientJobBundle } from "../../types.wip";
 import { useCreateJob } from "./CRUD/use-create-job";
 import { useDeleteJob } from "./CRUD/use-delete-job";
-import { useReadJob } from "./CRUD/use-read-job";
+// import { useReadJob } from "./CRUD/use-read-job";
 import { useUpdateJob } from "./CRUD/use-update-job";
 import { useStopsStore } from "./use-stops-store";
 
@@ -25,7 +25,7 @@ export const useClientJobBundles = () => {
   const router = useRouter();
   const params = useParams();
 
-  const readJob = useReadJob();
+  // const readJob = useReadJob();
   const createJob = useCreateJob();
   const updateJob = useUpdateJob();
   const deleteJob = useDeleteJob();
@@ -59,7 +59,7 @@ export const useClientJobBundles = () => {
       { enabled: status === "authenticated" }
     );
 
-  const { mutate: createDBJobs, isLoading: isJobMutationLoading } =
+  const { mutate: createDBJobs } =
     api.clients.createManyClientAndJob.useMutation({
       onSuccess: () => {
         toast.success("Woohoo! Jobs created!");
@@ -153,19 +153,15 @@ export const useClientJobBundles = () => {
   };
 
   //////
-  const addStop = (stop: ClientJobBundle, saveToDB: boolean) => {
+  const addStop = (stop: ClientJobBundle) => {
     sessionStorageStops.appendLocation(stop);
   };
 
-  const updateStop = (
-    id: string,
-    data: Partial<ClientJobBundle>,
-    saveToDB: boolean
-  ) => {
+  const updateStop = (id: string, data: Partial<ClientJobBundle>) => {
     sessionStorageStops.updateLocation(id, data);
   };
 
-  const removeStop = (id: string, saveToDB: boolean) => {
+  const removeStop = (id: string) => {
     sessionStorageStops.removeLocation(id);
   };
 
@@ -176,6 +172,7 @@ export const useClientJobBundles = () => {
     ) {
       setActiveById(searchParams.get("stopId"));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

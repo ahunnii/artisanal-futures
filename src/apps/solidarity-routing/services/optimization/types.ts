@@ -91,26 +91,3 @@ type TimeSlot = {
   start: number;
   end: number;
 };
-
-type PreoptimizedRoute = {
-  drivers: {
-    driver: Driver;
-    vehicle: {
-      id: number;
-      vehicle_type: string;
-      capacity: number;
-      max_travel_time: number;
-      max_stops: number;
-    };
-  };
-  clients: {
-    client: Client;
-    stop: {
-      id: number;
-      vehicle_type: string;
-      capacity: number;
-      max_travel_time: number;
-      max_stops: number;
-    };
-  };
-};

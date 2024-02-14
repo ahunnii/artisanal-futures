@@ -1,12 +1,10 @@
-import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { useDriversStore } from "../use-drivers-store";
 
-import { useParams, usePathname } from "next/navigation";
-
 import toast from "react-hot-toast";
-import { driverData } from "~/apps/solidarity-routing/data/drivers/driver-data";
+import { driverVehicleDataForNewLatLng } from "~/apps/solidarity-routing/data/driver-data";
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 
 type TCreateNewDriversProps = {
   driver: DriverVehicleBundle;
@@ -18,21 +16,11 @@ type Coordinates = {
 };
 
 export const useCreateDriver = () => {
-  const { data: session } = useSession();
+  const { isUserAllowedToSaveToDepot, depotId, routeId } = useSolidarityState();
+
   const sessionStorageDrivers = useDriversStore((state) => state);
 
-  const pathname = usePathname();
-
-  const params = useParams();
-
   const apiContext = api.useContext();
-
-  const depotId = Number(params?.depotId as string);
-  const routeId = params?.routeId as string;
-
-  const isSandbox = pathname?.includes("sandbox");
-
-  const isUserAllowedToSaveToDepot = (session?.user ?? null) && !isSandbox;
 
   const createVehicleBundles = api.drivers.createVehicleBundles.useMutation({
     onSuccess: () => toast.success("Driver(s) successfully created."),
@@ -78,7 +66,7 @@ export const useCreateDriver = () => {
       createVehicleBundles.mutate({
         data: [driver],
         depotId: Number(depotId),
-        routeId,
+        routeId: routeId as string,
       });
     } else {
       sessionStorageDrivers.appendDriver(driver);
@@ -96,7 +84,7 @@ export const useCreateDriver = () => {
       createVehicleBundles.mutate({
         data: drivers,
         depotId: Number(depotId),
-        routeId: addToRoute ? routeId : undefined,
+        routeId: addToRoute ? (routeId as string) : undefined,
       });
     } else {
       drivers.forEach((driver) => {
@@ -106,13 +94,13 @@ export const useCreateDriver = () => {
   };
 
   const createNewDriverByLatLng = ({ lat, lng }: Coordinates) => {
-    const driver = driverData(lat, lng);
+    const driver = driverVehicleDataForNewLatLng(lat, lng);
 
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: [driver],
         depotId: Number(depotId),
-        routeId,
+        routeId: routeId as string,
       });
     } else {
       sessionStorageDrivers.appendDriver(driver);
@@ -134,7 +122,7 @@ export const useCreateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       overrideCurrentRoutes.mutate({
         data: drivers,
-        routeId,
+        routeId: routeId as string,
       });
     } else {
       sessionStorageDrivers.setDrivers(drivers);

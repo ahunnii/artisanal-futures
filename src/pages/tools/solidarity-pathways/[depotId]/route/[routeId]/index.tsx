@@ -1,10 +1,12 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import axios from "axios";
 import { ArrowRight, Building, Calendar, Pencil } from "lucide-react";
+import { toast as hotToast } from "react-hot-toast";
+import { toast } from "sonner";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
@@ -16,18 +18,26 @@ import {
   StopsTab,
 } from "~/apps/solidarity-routing/components/stops";
 
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTrigger,
+} from "~/components/ui/drawer";
+
 import CalculationsTab from "~/apps/solidarity-routing/components/solutions/calculations-tab";
-import BottomSheet from "~/apps/solidarity-routing/components/ui/bottom-sheet";
+
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 import RouteLayout from "~/apps/solidarity-routing/route-layout";
 
-import axios from "axios";
-import { toast } from "sonner";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
 
@@ -42,15 +52,15 @@ const LazyRoutingMap = dynamic(
  * Page component that allows users to generate routes based on their input.
  */
 const SingleRoutePage = () => {
+  const [tabValue, setTabValue] = useState<string>("plan");
+  const [parent] = useAutoAnimate();
+
   const driverBundles = useDriverVehicleBundles();
+
   const jobBundles = useClientJobBundles();
   const routePlans = useRoutePlans();
 
   const apiContext = api.useContext();
-
-  const [incomingNotifications, setIncomingNotifications] = useState<string[]>(
-    []
-  );
 
   useEffect(() => {
     void useStopsStore.persist.rehydrate();
@@ -61,7 +71,7 @@ const SingleRoutePage = () => {
     pusherClient.subscribe("map");
 
     pusherClient.bind("evt::notify-dispatch", (message: string) => {
-      setIncomingNotifications((prev) => [...prev, message]);
+      toast.info(message);
     });
 
     pusherClient.bind("evt::invalidate-stops", () => {
@@ -75,43 +85,42 @@ const SingleRoutePage = () => {
       void apiContext.routePlan.invalidate();
     });
 
-    // await pusherServer.trigger(
-    //   "map",
-    //   `evt::update-route-status`,
-    //   `Route ${input.pathId} status was updated to ${input.state}`
-    // );
-
     return () => {
       pusherClient.unsubscribe("map");
     };
   }, []);
 
   useEffect(() => {
-    if (incomingNotifications.length > 0) {
-      toast.info(incomingNotifications[incomingNotifications.length - 1]);
+    if (routePlans.optimized.length > 0) {
+      setTabValue("calculate");
     }
-  }, [incomingNotifications]);
+  }, [routePlans.optimized]);
 
   const calculateOptimalPaths = () => {
     setTabValue("calculate");
     void routePlans.calculate();
   };
 
-  const openTrackingPage = () =>
-    window.open("/tools/routing/tracking", "_blank");
-
   const isRouteDataMissing =
     jobBundles.data.length === 0 || driverBundles.data.length === 0;
 
-  const [tabValue, setTabValue] = useState<string>("plan");
-
-  const [parent] = useAutoAnimate();
-
-  useEffect(() => {
-    if (routePlans.optimized.length > 0) {
-      setTabValue("calculate");
-    }
-  }, [routePlans.optimized]);
+  const massSendRouteEmails = () => {
+    axios
+      .post("/api/routing/send-route", {
+        emailBundles: routePlans?.emailBundles,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          hotToast.success("Route sent to drivers successfully");
+        } else {
+          hotToast.error("Error sending route to drivers");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        hotToast.error("Error sending route to drivers");
+      });
+  };
 
   return (
     <>
@@ -180,13 +189,7 @@ const SingleRoutePage = () => {
                     </Button>
                     <Button
                       className="flex-1 gap-2"
-                      onClick={() => {
-                        console.log(routePlans?.emailBundles);
-
-                        void axios.post("/api/routing/send-route", {
-                          emailBundles: routePlans?.emailBundles,
-                        });
-                      }}
+                      onClick={massSendRouteEmails}
                     >
                       Send to Driver(s) <ArrowRight />
                     </Button>
@@ -194,31 +197,79 @@ const SingleRoutePage = () => {
                 </>
               </TabsContent>
             </Tabs>
-            <div className="flex lg:hidden">
-              <BottomSheet title="Plan">
-                <DriversTab />
-                <StopsTab />
-              </BottomSheet>
-
-              <BottomSheet
-                title="Calculate"
-                isDisabled={
-                  jobBundles.data.length === 0 ||
-                  driverBundles.data.length === 0
-                }
-                // handleOnClick={calculateOptimalPaths}
-              >
-                <CalculationsTab />
-              </BottomSheet>
-
-              <Button
-                className="w-full"
-                variant={"ghost"}
-                disabled={isRouteDataMissing}
-                onClick={openTrackingPage}
-              >
-                Track
-              </Button>
+            <div className="flex gap-2 p-1 lg:hidden">
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button variant="secondary" className="">
+                    <Pencil /> Edit
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className=" max-h-screen ">
+                  <DrawerHeader />
+                  <ScrollArea className="mx-auto flex w-full  max-w-sm flex-col">
+                    <DriversTab />
+                    <StopsTab />
+                    <div className=" flex h-16 items-center justify-end bg-white p-4"></div>
+                  </ScrollArea>
+                  <DrawerFooter>
+                    {routePlans.optimized.length === 0 && (
+                      <Button
+                        onClick={calculateOptimalPaths}
+                        className="gap-2"
+                        disabled={isRouteDataMissing}
+                      >
+                        Calculate Routes <ArrowRight />
+                      </Button>
+                    )}
+                    <DrawerClose>
+                      <Button variant="outline">Cancel</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button variant="default" className="w-full ">
+                    Routes
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className=" max-h-screen ">
+                  <DrawerHeader />
+                  <ScrollArea className="mx-auto flex w-full  max-w-sm flex-col">
+                    <StopSheet standalone={true} />
+                    <CalculationsTab />
+                    <div className=" flex h-16 items-center justify-between gap-2 bg-white p-4">
+                      <Button
+                        size="icon"
+                        variant={"outline"}
+                        onClick={() => setTabValue("plan")}
+                      >
+                        <Pencil />
+                      </Button>
+                      <Button
+                        className="flex-1 gap-2"
+                        onClick={massSendRouteEmails}
+                      >
+                        Send to Driver(s) <ArrowRight />
+                      </Button>
+                    </div>
+                  </ScrollArea>
+                  <DrawerFooter>
+                    {routePlans.optimized.length === 0 && (
+                      <Button
+                        onClick={calculateOptimalPaths}
+                        className="gap-2"
+                        disabled={isRouteDataMissing}
+                      >
+                        Calculate Routes <ArrowRight />
+                      </Button>
+                    )}
+                    <DrawerClose>
+                      <Button variant="outline">Cancel</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
             </div>
             <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
           </section>

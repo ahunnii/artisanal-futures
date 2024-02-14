@@ -1,12 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Navigation,
-  Package,
-  PackageCheck,
-  PackageCheckIcon,
-  PackageXIcon,
-} from "lucide-react";
-import { useMemo, type FC } from "react";
+import { Navigation, PackageCheckIcon, PackageXIcon } from "lucide-react";
+import { type FC } from "react";
 
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -16,7 +10,6 @@ import { Button } from "~/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,13 +21,12 @@ import { RouteStatus } from "@prisma/client";
 import Link from "next/link";
 import { toast as hotToast } from "react-hot-toast";
 import { AutoResizeTextArea } from "~/components/ui/auto-resize-textarea";
-import { Textarea } from "~/components/ui/textarea";
+
 import { toast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
-import type { ExtendedStepData } from "../../types";
-import { ClientJobBundle, OptimizedStop } from "../../types.wip";
+
+import type { OptimizedStop } from "../../types.wip";
 
 const notificationsFormSchema = z.object({
   status: z.nativeEnum(RouteStatus, {
@@ -53,85 +45,19 @@ type TProps = {
 
 const CurrentStopForm: FC<TProps> = ({ initialData }) => {
   const jobBundles = useClientJobBundles();
-  const optimizedRoutePlan = useOptimizedRoutePlan();
+
   const apiContext = api.useContext();
-  // const currentJob = jobBundles.active?.job;
-
-  // const stopsByAddress = api.routePlan.getOptimizedStopsByAddress.useQuery(
-  //   {
-  //     optimizedRouteId: optimizedRoutePlan.data?.id ?? "",
-  //     address: currentJob?.address.formatted ?? "",
-  //   },
-  //   {
-  //     enabled:
-  //       currentJob?.address.formatted !== undefined &&
-  //       optimizedRoutePlan.data?.id !== undefined,
-  //   }
-  // );
-
-  // const pendingStopsAtAddress = stopsByAddress.data?.filter(
-  //   (stop) =>
-  //     stop.status !== RouteStatus.COMPLETED &&
-  //     stop.status !== RouteStatus.FAILED
-  // );
-
-  // const stopsByAddress = api.routePlan.getOptimizedStopsByAddress.useQuery(
-  //   {
-  //     optimizedRouteId: optimizedRoutePlan.data?.id ?? "",
-  //     address: currentJob?.address.formatted ?? "",
-  //   },
-  //   {
-  //     enabled:
-  //       currentJob?.address.formatted !== undefined &&
-  //       optimizedRoutePlan.data?.id !== undefined,
-  //   }
-  // );
-
-  // const currentJob = jobBundles.active?.job;
-
-  // const pendingDestinationStops = useMemo(() => {
-  //   return jobBundles.active?.job?.address?.formatted
-  //     ? optimizedRoutePlan.destinations
-  //         .get(jobBundles.active?.job?.address?.formatted ?? "")
-  //         ?.filter(
-  //           (stop) =>
-  //             stop?.optimized?.status !== RouteStatus.COMPLETED &&
-  //             stop?.optimized?.status !== RouteStatus.FAILED
-  //         )
-  //     : [];
-  // }, [jobBundles.active, optimizedRoutePlan]);
-
-  // console.log(pendingDestinationStops);
 
   const updateStopStatus = api.routePlan.updateOptimizedStopState.useMutation({
     onSuccess: () => {
       hotToast.success("Stop status updated.");
-
-      // jobBundles.setActive(null);
-      // void apiContext.routePlan.invalidate();
-      // void apiContext.jobs.invalidate();
-      // void apiContext.vehicles.invalidate();
-      // jobBundles.view(pendingStopsAtAddress?.[0]?.jobId ?? null);
-
-      // if (pendingDestinationStops?.length != 0) {
-      //   jobBundles.view(pendingDestinationStops?.[0]?.optimized?.jobId ?? null);
-      //   form.reset(defaultValues);
-      // }
-
-      // jobBundles.onFieldJobSheetOpen();
     },
     onError: (error) => {
       console.error(error);
     },
     onSettled: () => {
       jobBundles.onFieldJobSheetOpen(false);
-      // if (
-      //   jobBundles &&
-      //   pendingStopsAtAddress &&
-      //   pendingStopsAtAddress?.length > 0
-      // ) {
-      //   jobBundles.view(pendingStopsAtAddress?.[0]?.jobId ?? null);
-      // }
+
       void apiContext.routePlan.invalidate();
     },
   });
@@ -182,7 +108,7 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
                 <div className=" flex h-16  w-full items-center justify-between">
                   <Link
                     href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-                      (initialData?.job?.address?.formatted as string) ?? ""
+                      initialData?.job?.address?.formatted ?? ""
                     )}`}
                     target="_blank"
                     className="h-full"

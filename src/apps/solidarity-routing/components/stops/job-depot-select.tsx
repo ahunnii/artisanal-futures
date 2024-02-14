@@ -1,5 +1,4 @@
 import {
-  PaginationState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -8,18 +7,17 @@ import {
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type PaginationState,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
-import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -35,27 +33,24 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { api } from "~/utils/api";
+
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
-import { PickJobsByDateBtn } from "./pick-jobs-by-date-btn.wip";
 
-const DeleteComponent = ({ row }: { row: ClientJobBundle }) => {
-  const jobs = useClientJobBundles();
+const DeleteComponent = () =>
+  // { row }: { row: ClientJobBundle }
+  {
+    // const jobs = useClientJobBundles();
 
-  const editPost = () => {
-    // drivers.deleteFromDepot({
-    //   driverId: row.driver.id,
-    //   vehicleId: row.vehicle.id,
-    // });
+    // const editPost = () => {
+    //   // drivers.deleteFromDepot({
+    //   //   driverId: row.driver.id,
+    //   //   vehicleId: row.vehicle.id,
+    //   // });
+    // };
+
+    return <p className="text-red-500 hover:text-red-400">Delete from Depot</p>;
   };
-
-  return (
-    <p onClick={editPost} className="text-red-500 hover:text-red-400">
-      Delete from Depot
-    </p>
-  );
-};
 
 const EditComponent = ({ row }: { row: ClientJobBundle }) => {
   const jobs = useClientJobBundles();
@@ -139,7 +134,7 @@ export const columns: ColumnDef<ClientJobBundle>[] = [
 
             <DropdownMenuItem>
               {" "}
-              <DeleteComponent row={job} />
+              <DeleteComponent />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -19,13 +19,14 @@ const onlineDriverHandler = async (
 
     const { depotId, driverId, vehicleId } = req.body;
 
-    const driver = await prisma.driver.findFirst({
-      where: { id: driverId },
+    const vehicle = await prisma.vehicle.findFirst({
+      where: { id: vehicleId },
+      include: { driver: true },
     });
 
-    if (!driver) return res.status(200).send("Driver not found");
+    if (!vehicle) return res.status(200).send("Driver not found");
 
-    const message = `${driver.name} is online`;
+    const message = `${vehicle?.driver?.name} is online`;
 
     // Create notification in database?
 

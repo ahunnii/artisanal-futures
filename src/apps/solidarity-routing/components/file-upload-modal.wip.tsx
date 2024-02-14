@@ -16,15 +16,8 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import { useSession } from "next-auth/react";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -84,7 +77,9 @@ export const FileUploadModal = <T,>({
 
   return (
     <>
-      <div onClick={() => openDialog()}>{children}</div>
+      <div onClick={() => openDialog()} className="w-full">
+        {children}
+      </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -118,12 +113,15 @@ export const FileUploadModal = <T,>({
             />
           </div>
 
-          {currentData && currentData?.length > 0 && data?.length === 0 && (
-            <p className="py-2 font-bold ">
-              You currently have {currentData.length} {type as string}s
-              available. You can always add more.
-            </p>
-          )}
+          {currentData &&
+            currentData?.length > 0 &&
+            data?.length === 0 &&
+            type !== "job" && (
+              <p className="py-2 font-bold ">
+                You currently have {currentData.length} {type as string}s
+                available. You can always add more.
+              </p>
+            )}
 
           {isLoading && (
             <div className="flex-center flex h-96 items-center justify-center">

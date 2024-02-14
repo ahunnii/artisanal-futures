@@ -21,7 +21,7 @@ import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 import { numberStringToPhoneFormat } from "../../utils/generic/format-utils.wip";
 
 export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
 
   const [selectedData, setSelectedData] = useState<DriverVehicleBundle[]>([]);
   const [tabValue, setTabValue] = useState<string>("account");
@@ -29,7 +29,10 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
   const { status } = useSession();
 
   return (
-    <Sheet open={drivers.isSheetOpen} onOpenChange={drivers.onSheetOpenChange}>
+    <Sheet
+      open={driverBundles.isSheetOpen}
+      onOpenChange={driverBundles.onSheetOpenChange}
+    >
       {!standalone && (
         <SheetTrigger asChild>
           <Button variant="outline" className="px-3 shadow-none">
@@ -46,10 +49,12 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
       >
         <SheetHeader>
           <SheetTitle className="text-center text-xl md:text-left">
-            {drivers.active ? `${drivers.active.driver.name}` : "Add Driver"}
+            {driverBundles.active
+              ? `${driverBundles.active.driver.name}`
+              : "Add Driver"}
           </SheetTitle>
           <SheetDescription className="text-center md:text-left">
-            {drivers.active ? (
+            {driverBundles.active ? (
               <>
                 <div className="flex w-full flex-1 flex-col border-b border-t py-4 text-sm">
                   {/* <p className="flex items-center gap-2 text-black ">
@@ -57,14 +62,16 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
                   </p> */}
                   <p className="flex items-center gap-2 font-light text-muted-foreground ">
                     <Home size={15} />{" "}
-                    {drivers.active.driver.address?.formatted}
+                    {driverBundles.active.driver.address?.formatted}
                   </p>
                   <p className="flex items-center gap-2 font-light text-muted-foreground ">
                     <Phone size={15} />{" "}
-                    {numberStringToPhoneFormat(drivers.active.driver.phone)}
+                    {numberStringToPhoneFormat(
+                      driverBundles.active.driver.phone
+                    )}
                   </p>
                   <p className="flex items-center gap-2 font-light text-muted-foreground ">
-                    <Mail size={15} /> {drivers.active.driver.email}
+                    <Mail size={15} /> {driverBundles.active.driver.email}
                   </p>
                 </div>
               </>
@@ -78,7 +85,7 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
 
         {status === "loading" && <p>Loading...</p>}
 
-        {drivers?.active === null &&
+        {driverBundles?.active === null &&
           status === "authenticated" &&
           !standalone && (
             <>
@@ -100,7 +107,7 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
                       <Button
                         className="flex-1"
                         onClick={() => {
-                          drivers.assign({
+                          driverBundles.assign({
                             drivers: selectedData,
                           });
                         }}
@@ -111,15 +118,15 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
                   </div>
 
                   <DriverDepotSelect
-                    storeData={drivers.data}
-                    data={drivers.depot}
+                    storeData={driverBundles.data}
+                    data={driverBundles.depot}
                     setSelectedData={setSelectedData}
                   />
                 </TabsContent>
                 <TabsContent value="password">
                   <DriverForm
-                    handleOnOpenChange={drivers.onSheetOpenChange}
-                    activeDriver={drivers.active}
+                    handleOnOpenChange={driverBundles.onSheetOpenChange}
+                    activeDriver={driverBundles.active}
                   />
                 </TabsContent>
               </Tabs>
@@ -129,12 +136,12 @@ export const DriverAddSheet = ({ standalone }: { standalone?: boolean }) => {
         {/* Option 2: use is logged in and allows for user to select existing drivers
           as well as add new drivers to the database
         */}
-        {(drivers?.active !== null ||
+        {(driverBundles?.active !== null ||
           status === "unauthenticated" ||
           standalone) && (
           <DriverForm
-            handleOnOpenChange={drivers.onSheetOpenChange}
-            activeDriver={drivers.active}
+            handleOnOpenChange={driverBundles.onSheetOpenChange}
+            activeDriver={driverBundles.active}
           />
         )}
       </SheetContent>

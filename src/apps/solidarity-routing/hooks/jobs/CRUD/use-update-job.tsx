@@ -5,10 +5,7 @@ import { useParams, usePathname } from "next/navigation";
 
 import toast from "react-hot-toast";
 
-import type {
-  ClientJobBundle,
-  DriverVehicleBundle,
-} from "~/apps/solidarity-routing/types.wip";
+import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { useStopsStore } from "../use-stops-store";
 
 export const useUpdateJob = () => {

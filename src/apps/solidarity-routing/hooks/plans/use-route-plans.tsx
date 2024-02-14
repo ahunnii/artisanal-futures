@@ -1,17 +1,18 @@
 import { useSession } from "next-auth/react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import toast from "react-hot-toast";
-import { env } from "~/env.mjs";
+
 import { api } from "~/utils/api";
 import optimizationService from "../../services/optimization";
-import { OptimizationPlan } from "../../types.wip";
+import type { OptimizationPlan } from "../../types.wip";
 import { getUniqueKey } from "../../utils/generic/unique-key";
 import { useDriverVehicleBundles } from "../drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
 
 import * as crypto from "crypto";
+import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 
 function generatePasscode(email: string): string {
   // Create a SHA-256 hash
@@ -26,31 +27,45 @@ function generatePasscode(email: string): string {
 }
 
 export const useRoutePlans = () => {
+  const { depotId, routeDate, routeId } = useSolidarityState();
   const apiContext = api.useContext();
   const { data: session } = useSession();
 
   const pathname = usePathname();
   const router = useRouter();
-  const params = useParams();
 
   const driverBundles = useDriverVehicleBundles();
   const jobBundles = useClientJobBundles();
 
   const routingSolutions = useRoutingSolutions();
 
-  const routeId = params?.routeId as string;
-  const user = session?.user ?? null;
+  // const routeId = params?.routeId as string;
+  // const user = session?.user ?? null;
   const isSandbox = pathname?.includes("sandbox");
   const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
 
   const getRoutePlanById = api.routePlan.getRoutePlanById.useQuery(
     {
-      id: params?.routeId as string,
+      id: routeId as string,
     },
     {
-      enabled: !!params?.routeId,
+      enabled: !!routeId,
     }
   );
+
+  const createRoutePlan = api.routePlan.createRoutePlan.useMutation({
+    onSuccess: (data) => {
+      toast.success("Route created!");
+      router.push(`/tools/solidarity-pathways/${depotId}/route/${data.id}`);
+    },
+    onError: (error) => {
+      toast.error("There was an error creating the route. Please try again.");
+      console.error(error);
+    },
+    onSettled: () => {
+      console.log("settled");
+    },
+  });
 
   const route = getRoutePlanById?.data;
 
@@ -91,7 +106,7 @@ export const useRoutePlans = () => {
 
     if (isUserAllowedToSaveToDepot) {
       setOptimizedData.mutate({
-        routeId,
+        routeId: routeId as string,
         plan: results as OptimizationPlan,
       });
     } else {
@@ -127,15 +142,32 @@ export const useRoutePlans = () => {
     const bundles = getRoutePlanById.data?.optimizedRoute?.map((route) => {
       return {
         email: route?.vehicle?.driver?.email,
-        url: `http://localhost:3000/tools/solidarity-pathways/1/route/${routeId}/path/${
-          route.id
-        }?pc=${generatePasscode(route?.vehicle?.driver?.email as string)}`,
-        passcode: generatePasscode(route?.vehicle?.driver?.email as string),
+        url: `http://localhost:3000/tools/solidarity-pathways/1/route/${
+          routeId as string
+        }/path/${route.id}?pc=${generatePasscode(
+          route?.vehicle?.driver?.email ?? ""
+        )}`,
+        passcode: generatePasscode(route?.vehicle?.driver?.email ?? ""),
       };
     });
 
     return bundles?.filter((bundle) => bundle.email);
   }, [getRoutePlanById.data?.optimizedRoute, routeId]);
+
+  const getAllRoutes = api.routePlan.getAllRoutes.useQuery(
+    { depotId },
+    { enabled: !!depotId }
+  );
+
+  const getAllRoutesByDate = api.routePlan.getRoutePlansByDate.useQuery(
+    {
+      date: routeDate ?? new Date(),
+      depotId,
+    },
+    {
+      enabled: !!depotId && !!routeDate,
+    }
+  );
 
   return {
     data: getRoutePlanById.data ?? null,
@@ -148,5 +180,8 @@ export const useRoutePlans = () => {
     bundles: jobVehicleBundles,
     findVehicleIdByJobId,
     emailBundles,
+    allRoutes: getAllRoutes.data ?? [],
+    routesByDate: getAllRoutesByDate.data ?? [],
+    create: createRoutePlan.mutate,
   };
 };

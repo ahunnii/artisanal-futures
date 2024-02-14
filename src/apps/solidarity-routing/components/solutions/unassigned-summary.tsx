@@ -1,6 +1,4 @@
-import { useState, type ComponentProps } from "react";
-
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import { type ComponentProps } from "react";
 
 import {
   Card,

@@ -1,11 +1,8 @@
 import {
   DriverType as DBDriverType,
   JobType as DBJobType,
-  RouteStatus,
   type Prisma,
 } from "@prisma/client";
-
-import type { OptimizationData, Polyline } from "./types";
 
 import * as z from "zod";
 

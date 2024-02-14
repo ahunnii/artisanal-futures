@@ -1,18 +1,11 @@
-import { UnassignedSummary } from "~/apps/solidarity-routing/components/solutions/unassigned-summary";
-
 import InteractiveRouteCard from "~/apps/solidarity-routing/components/solutions/interactive-route-card";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { useRoutePlans } from "../../hooks/plans/use-route-plans";
-import { OptimizedRoutePath } from "../../types.wip";
+import type { OptimizedRoutePath } from "../../types.wip";
 
-import { Eye, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -20,11 +13,9 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { cn } from "~/utils/styles";
-import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 const CalculationsTab = () => {
   const routePlan = useRoutePlans();
-  const jobBundles = useClientJobBundles();
 
   return (
     <>

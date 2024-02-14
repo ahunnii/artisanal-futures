@@ -7,12 +7,11 @@ import type {
   GeoJsonData,
   Polyline,
   RouteData,
-  StepData,
   VroomResponse,
 } from "~/apps/solidarity-routing/types";
 
 import axios from "axios";
-import { useParams } from "next/navigation";
+
 import { getCurrentLocation } from "~/apps/solidarity-routing/utils/realtime-utils";
 import useInterval from "~/hooks/use-interval";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
@@ -29,7 +28,7 @@ type TUseMapProps = {
 
 const useMap = ({
   mapRef,
-  trackingEnabled = false,
+
   driverEnabled = false,
   constantUserTracking = false,
 }: TUseMapProps) => {
@@ -39,7 +38,7 @@ const useMap = ({
 
   const [status, setStatus] = useState<"idle" | "active">("idle");
 
-  const drivers = useDriverVehicleBundles();
+  const driverBundles = useDriverVehicleBundles();
   const jobs = useClientJobBundles();
 
   const { pathId } = useSolidarityState();
@@ -129,9 +128,9 @@ const useMap = ({
   //   Solutions to tracking map. Focuses on the selected route.
 
   useEffect(() => {
-    if (drivers.active && mapRef)
-      flyTo(drivers.active.vehicle.startAddress, 15);
-  }, [drivers.active, mapRef, flyTo]);
+    if (driverBundles.active && mapRef)
+      flyTo(driverBundles.active.vehicle.startAddress, 15);
+  }, [driverBundles.active, mapRef, flyTo]);
 
   useEffect(() => {
     if (jobs.active && mapRef) flyTo(jobs.active.job.address, 15);
@@ -140,10 +139,10 @@ const useMap = ({
   const expandViewToFit = useCallback(() => {
     if (
       ((jobs.data && jobs.data.length > 0) ||
-        (drivers && drivers.data.length > 0)) &&
+        (driverBundles && driverBundles.data.length > 0)) &&
       mapRef
     ) {
-      const driverBounds = drivers.data.map(
+      const driverBounds = driverBundles.data.map(
         (driver) =>
           [
             driver.vehicle.startAddress.latitude,
@@ -161,14 +160,14 @@ const useMap = ({
 
       mapRef.fitBounds(bounds);
     }
-  }, [mapRef, drivers, jobs]);
+  }, [mapRef, driverBundles, jobs]);
 
   useEffect(() => {
-    if (initial && mapRef && drivers.data && jobs.data) {
+    if (initial && mapRef && driverBundles.data && jobs.data) {
       expandViewToFit();
       setInitial(false);
     }
-  }, [expandViewToFit, mapRef, drivers.data, jobs.data, initial]);
+  }, [expandViewToFit, mapRef, driverBundles.data, jobs.data, initial]);
 
   return {
     expandViewToFit,

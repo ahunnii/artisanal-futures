@@ -1,11 +1,5 @@
 import { useMemo, type FC } from "react";
 
-import { useJsApiLoader } from "@react-google-maps/api";
-import {
-  default as GooglePlacesAutocomplete,
-  geocodeByAddress,
-  getLatLng,
-} from "react-google-places-autocomplete";
 import { Controller, type UseFormReturn } from "react-hook-form";
 
 import {
@@ -15,7 +9,6 @@ import {
 } from "~/components/ui/accordion";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,16 +26,14 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 
-import type { Driver, StopFormValues } from "../../types.wip";
-
-import { DriverType } from "@prisma/client";
+import type { StopFormValues } from "../../types.wip";
 
 import { UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Textarea } from "~/components/ui/textarea";
-import { env } from "~/env.mjs";
+
 import { cn } from "~/utils/styles";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import { AutoCompleteJobBtn } from "./autocomplete-job-btn";
@@ -53,41 +44,10 @@ type ClientDetailsSectionProps = {
   editClient?: boolean;
 };
 
-type Library = "places";
-const libraries: Library[] = ["places"];
-
 const ClientDetailsSection: FC<ClientDetailsSectionProps> = ({
   form,
   editClient,
 }) => {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-autocomplete-strict",
-    googleMapsApiKey: env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
-    libraries,
-  });
-
-  const handleAutoComplete = (
-    address: string,
-    onChange: (value: string) => void
-  ) => {
-    if (!address) return;
-
-    onChange(address);
-    geocodeByAddress(address)
-      .then((results) => getLatLng(results[0]!))
-      .then(({ lat, lng }) => {
-        console.log("Successfully got latitude and longitude", {
-          latitude: lat,
-          longitude: lng,
-        });
-        form.setValue("address", {
-          formatted: address,
-          latitude: lat,
-          longitude: lng,
-        });
-      })
-      .catch((err) => console.error("Error", err));
-  };
   const formErrors = form.formState.errors;
   const checkIfFormHasErrors = useMemo(() => {
     const keys = ["clientAddress.formatted", "name", "email", "phone", "notes"];
@@ -210,29 +170,27 @@ const ClientDetailsSection: FC<ClientDetailsSectionProps> = ({
                     )}
                   />
 
-                  {isLoaded && (
-                    <Controller
-                      name="clientAddress.formatted"
-                      control={form.control}
-                      render={({ field: { onChange, value } }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-normal text-muted-foreground">
-                            Home Address
-                          </FormLabel>
+                  <Controller
+                    name="clientAddress.formatted"
+                    control={form.control}
+                    render={({ field: { onChange, value } }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-normal text-muted-foreground">
+                          Home Address
+                        </FormLabel>
 
-                          <AutoCompleteJobBtn
-                            value={value}
-                            onChange={onChange}
-                            form={form}
-                            // useDefault={useDefault}
-                            formKey="clientAddress"
-                          />
+                        <AutoCompleteJobBtn
+                          value={value}
+                          onChange={onChange}
+                          form={form}
+                          // useDefault={useDefault}
+                          formKey="clientAddress"
+                        />
 
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}

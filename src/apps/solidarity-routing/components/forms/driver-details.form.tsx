@@ -71,8 +71,6 @@ type Library = "places";
 const libraries: Library[] = ["places"];
 
 const DriverDetailsSection: FC<DriverDetailsSectionProps> = ({ form }) => {
-  const { active: activeDriver } = useDriverVehicleBundles();
-
   const [parent, enableAnimations] = useAutoAnimate(/* optional config */);
   const { isLoaded } = useJsApiLoader({
     id: "google-map-autocomplete-strict",

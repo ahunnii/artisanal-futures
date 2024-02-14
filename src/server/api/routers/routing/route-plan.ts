@@ -268,6 +268,7 @@ export const routePlanRouter = createTRPCRouter({
           },
         },
         include: {
+          optimizedRoute: true,
           vehicles: {
             include: {
               driver: {
@@ -626,11 +627,11 @@ export const routePlanRouter = createTRPCRouter({
       });
 
       const bundles = data.map((vehicle) => ({
-        driver: vehicle.driver,
+        driver: vehicle.driver ?? null,
         vehicle: vehicle,
       }));
 
-      return bundles;
+      return bundles as unknown as DriverVehicleBundle[];
     }),
 
   getJobBundles: protectedProcedure

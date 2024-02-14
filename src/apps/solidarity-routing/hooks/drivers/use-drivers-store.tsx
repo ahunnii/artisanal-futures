@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { driverData } from "../../data/drivers/driver-data";
+import { driverVehicleDataForNewLatLng } from "../../data/driver-data";
 import type { DriverVehicleBundle } from "../../types.wip";
 
 interface useDriversStore {
@@ -59,7 +59,9 @@ export const useDriversStore = create<useDriversStore>()(
         set((state) => ({ drivers: [...state.drivers, driver] })),
 
       addDriverByLatLng: (lat, lng) =>
-        set((state) => ({ drivers: [...state.drivers, driverData(lat, lng)] })),
+        set((state) => ({
+          drivers: [...state.drivers, driverVehicleDataForNewLatLng(lat, lng)],
+        })),
 
       isDriverSheetOpen: false,
       setIsDriverSheetOpen: (isDriverSheetOpen) => set({ isDriverSheetOpen }),

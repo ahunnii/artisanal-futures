@@ -1,11 +1,11 @@
-import geocodingService from "../../services/autocomplete";
+import geocodingService from "~/apps/solidarity-routing/services/autocomplete";
 import type {
   DriverVehicleBundle,
   FileUploadHandler,
   VersionOneDriverCSV,
-} from "../../types.wip";
-import { parseSpreadSheet } from "../generic/parse-csv.wip";
-import { formatDriverSheetRowToBundle } from "./format-drivers.wip";
+} from "~/apps/solidarity-routing/types.wip";
+import { formatDriverSheetRowToBundle } from "~/apps/solidarity-routing/utils/driver-vehicle/format-drivers.wip";
+import { parseSpreadSheet } from "~/apps/solidarity-routing/utils/generic/parse-csv.wip";
 
 export const handleDriverSheetUpload: FileUploadHandler<
   DriverVehicleBundle

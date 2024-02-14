@@ -1,110 +1,64 @@
-import { useSession } from "next-auth/react";
-import { api } from "~/utils/api";
-import { useDriversStore } from "./use-drivers-store";
-
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
 import { useEffect } from "react";
 
-import type { DriverVehicleBundle } from "../../types.wip";
-import { updateSearchParams } from "../../utils/generic/update-search-params";
+import { useDriversStore } from "./use-drivers-store";
+
+import { useUrlParams } from "~/hooks/use-url-params";
+
+import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 import { useCreateDriver } from "./CRUD/use-create-driver";
 import { useDeleteDriver } from "./CRUD/use-delete-driver";
 import { useReadDriver } from "./CRUD/use-read-driver";
 import { useUpdateDriver } from "./CRUD/use-update-driver";
 
 export const useDriverVehicleBundles = () => {
-  const { data: session } = useSession();
-
-  const pathname = usePathname();
-  const router = useRouter();
-  const params = useParams();
+  const { updateUrlParams, getUrlParam } = useUrlParams();
+  const { isUserAllowedToSaveToDepot } = useSolidarityState();
 
   const readDriver = useReadDriver();
   const createDriver = useCreateDriver();
   const updateDriver = useUpdateDriver();
   const deleteDriver = useDeleteDriver();
 
-  const searchParams = useSearchParams();
-
   const sessionStorageDrivers = useDriversStore((state) => state);
 
-  const routeId = params?.routeId as string;
-  const user = session?.user ?? null;
-  const isSandbox = pathname?.includes("sandbox");
-  const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
-
-  const getRouteVehicles = api.routePlan.getVehicleBundles.useQuery(
-    { routeId },
-    { enabled: isUserAllowedToSaveToDepot && routeId !== undefined }
-  );
-
-  const checkIfSearchParamExistsInDrivers = (id: string | null) => {
-    return sessionStorageDrivers.drivers?.some(
-      (driver) => driver.driver.id === id
-    );
-  };
-
-  const updateDriverSearchParam = (id: number | string | null) => {
-    const updatedParams = updateSearchParams({
-      id,
-      searchParams,
-      type: "driver",
+  const setActiveDriver = (id: string | null) => {
+    updateUrlParams({
+      key: "driverId",
+      value: id,
     });
 
-    void router.replace(`${pathname}?${updatedParams}`);
-  };
+    const driver = isUserAllowedToSaveToDepot
+      ? readDriver.checkIfDriverExistsInDepot(id)
+      : readDriver.checkIfDriverExistsInStorage(id);
 
-  const setActiveDriver = (id: string | null) => {
-    updateDriverSearchParam(id);
-
-    if (user && !isSandbox) {
-      // Check if the route has data
-      if (getRouteVehicles.data) {
-        // Find the driver in the route
-        const depotDriver = (
-          getRouteVehicles.data as unknown as DriverVehicleBundle[]
-        )?.find((bundle: DriverVehicleBundle) => bundle.vehicle.id === id);
-
-        // Assign the driver to the active driver or null if not found
-        if (depotDriver) sessionStorageDrivers.setActiveDriver(depotDriver);
-        else sessionStorageDrivers.setActiveDriver(null);
-      }
-    } else {
-      // If the user is not authenticated, set the active driver from the zustand store
-      if (sessionStorageDrivers.drivers)
-        sessionStorageDrivers.setActiveDriverById(id);
-      else sessionStorageDrivers.setActiveDriver(null);
+    if (!driver) {
+      sessionStorageDrivers.setActiveDriverById(null);
+      return;
     }
+
+    if (!isUserAllowedToSaveToDepot)
+      sessionStorageDrivers.setActiveDriverById(id);
+    else sessionStorageDrivers.setActiveDriver(driver);
   };
 
   useEffect(() => {
-    if (
-      sessionStorageDrivers.drivers &&
-      checkIfSearchParamExistsInDrivers(searchParams.get("driverId"))
-    ) {
-      setActiveDriver(searchParams.get("driverId"));
-    }
+    const driverId = getUrlParam("driverId");
+    if (driverId) setActiveDriver(driverId);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
-    isDataLoading: user && !isSandbox ? getRouteVehicles.isLoading : false,
+    data: readDriver.routeDrivers,
+    isDataLoading: readDriver.isLoading,
 
-    data:
-      user && !isSandbox
-        ? (getRouteVehicles.data as unknown as DriverVehicleBundle[]) ??
-          sessionStorageDrivers.drivers ??
-          ([] as DriverVehicleBundle[])
-        : sessionStorageDrivers.drivers ?? ([] as DriverVehicleBundle[]),
     active: sessionStorageDrivers.activeDriver,
+    isActive: (id: string) => {
+      return sessionStorageDrivers.activeDriver?.vehicle.id === id;
+    },
+
     depot: readDriver.depotDrivers,
-    route: readDriver.routeDrivers,
-    getDriverById: readDriver.getDriverById,
+
     getVehicleById: readDriver.getVehicleById,
 
     create: createDriver.createNewDriver,
@@ -118,9 +72,9 @@ export const useDriverVehicleBundles = () => {
     deleteFromRoute: deleteDriver.deleteDriverFromRoute,
     deleteFromDepot: deleteDriver.deleteDriverFromDepot,
 
-    isActive: (id: string) => {
-      return sessionStorageDrivers.activeDriver?.vehicle.id === id;
-    },
+    deleteAllDrivers: deleteDriver.purgeAllDrivers,
+    deleteAllVehicles: deleteDriver.purgeAllVehicles,
+    deleteAll: deleteDriver.purgeAllDriverVehicleBundles,
 
     edit: (id: string) => {
       setActiveDriver(id);
@@ -134,6 +88,5 @@ export const useDriverVehicleBundles = () => {
     },
 
     assign: createDriver.setRouteDrivers,
-    assignToDepot: createDriver.setDepotDrivers,
   };
 };
