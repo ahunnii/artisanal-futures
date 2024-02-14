@@ -16,6 +16,7 @@ import { getCurrentLocation } from "~/apps/solidarity-routing/utils/realtime-uti
 import useInterval from "~/hooks/use-interval";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "./jobs/use-client-job-bundles";
+import { useOptimizedRoutePlan } from "./optimized-data/use-optimized-route-plan";
 import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
 type TUseMapProps = {
@@ -42,6 +43,8 @@ const useMap = ({
   const jobs = useClientJobBundles();
 
   const { pathId } = useSolidarityState();
+
+  const optimizedRoutePlan = useOptimizedRoutePlan();
 
   useInterval(
     () => {
@@ -142,25 +145,29 @@ const useMap = ({
         (driverBundles && driverBundles.data.length > 0)) &&
       mapRef
     ) {
-      const driverBounds = driverBundles.data.map(
-        (driver) =>
-          [
-            driver.vehicle.startAddress.latitude,
-            driver.vehicle.startAddress.longitude,
-          ] as LatLngExpression
-      );
-      const locationBounds = jobs.data.map(
-        (location) =>
-          [
-            location.job.address.latitude,
-            location.job.address.longitude,
-          ] as LatLngExpression
-      );
+      const driverBounds = pathId
+        ? optimizedRoutePlan.mapCoordinates.driver
+        : driverBundles.data.map(
+            (driver) =>
+              [
+                driver.vehicle.startAddress.latitude,
+                driver.vehicle.startAddress.longitude,
+              ] as LatLngExpression
+          );
+      const locationBounds = pathId
+        ? optimizedRoutePlan.mapCoordinates.jobs
+        : jobs.data.map(
+            (location) =>
+              [
+                location.job.address.latitude,
+                location.job.address.longitude,
+              ] as LatLngExpression
+          );
       const bounds = L.latLngBounds([...driverBounds, ...locationBounds]);
 
       mapRef.fitBounds(bounds);
     }
-  }, [mapRef, driverBundles, jobs]);
+  }, [mapRef, driverBundles, jobs, optimizedRoutePlan, pathId]);
 
   useEffect(() => {
     if (initial && mapRef && driverBundles.data && jobs.data) {

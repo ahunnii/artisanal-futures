@@ -88,6 +88,7 @@ const SingleRoutePage = () => {
     return () => {
       pusherClient.unsubscribe("map");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -134,7 +135,7 @@ const SingleRoutePage = () => {
               value={tabValue}
               onValueChange={setTabValue}
               ref={parent}
-              className="flex w-full flex-col gap-4 max-lg:hidden max-lg:h-4/6 lg:w-5/12 xl:w-3/12"
+              className="flex w-full max-w-sm flex-col gap-4 max-lg:hidden max-lg:h-4/6"
             >
               <div className="flex items-center gap-1 px-4 pt-4 text-sm">
                 <Link
@@ -271,7 +272,7 @@ const SingleRoutePage = () => {
                 </DrawerContent>
               </Drawer>
             </div>
-            <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
+            <LazyRoutingMap className="w-full max-md:aspect-square" />
           </section>
         )}
 

@@ -46,7 +46,10 @@ const StopSheet = ({ standalone }: { standalone?: boolean }) => {
     <Sheet open={jobs.isSheetOpen} onOpenChange={jobs.onSheetOpenChange}>
       {!standalone && (
         <SheetTrigger asChild>
-          <Button variant="outline" className="border-0 px-3 shadow-none">
+          <Button
+            variant="outline"
+            className="w-full whitespace-nowrap border-0 px-3 shadow-none"
+          >
             <MapPin className="mr-2 h-4 w-4" />
             Add Stop
           </Button>

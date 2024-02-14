@@ -36,7 +36,7 @@ const StopOptionBtn = () => {
   };
 
   return (
-    <div className="z-30 flex items-center rounded-md border bg-white text-secondary-foreground">
+    <div className="z-30 flex w-auto  items-center justify-between rounded-md border bg-white text-secondary-foreground">
       <StopSheet />
 
       <Separator orientation="vertical" className="h-[20px]" />
@@ -49,7 +49,7 @@ const StopOptionBtn = () => {
             <Button
               size={"icon"}
               variant={"outline"}
-              className="rounded-l-none border-0"
+              className="rounded-l-none border-0 "
             >
               <ChevronDownIcon className="h-4 w-4" />
             </Button>

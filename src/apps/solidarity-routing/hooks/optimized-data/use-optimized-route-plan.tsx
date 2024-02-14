@@ -1,3 +1,4 @@
+import type { LatLngExpression } from "leaflet";
 import { useMemo } from "react";
 import { api } from "~/utils/api";
 import type { MapPoint } from "../../components/map/routing-map";
@@ -128,6 +129,15 @@ export const useOptimizedRoutePlan = () => {
     };
   }, [assigned, currentDriver, getOptimizedData.data]);
 
+  const mapCoordinates = useMemo(() => {
+    return {
+      driver: mapData?.driver?.map(
+        (driver) => [driver.lat, driver.lng] as LatLngExpression
+      ),
+      jobs: mapData?.jobs?.map((job) => [job.lat, job.lng] as LatLngExpression),
+    };
+  }, [mapData]);
+
   return {
     data: getOptimizedData.data ?? null,
     routeDetails: getRoutePlan.data ?? null,
@@ -137,7 +147,7 @@ export const useOptimizedRoutePlan = () => {
     assigned: assigned ?? [],
     routes: [],
     mapData,
-
+    mapCoordinates,
     destinations: routeDestinations,
     updateRoutePathStatus: updateRoutePathStatus.mutate,
   };

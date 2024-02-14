@@ -160,15 +160,14 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
 
   useEffect(() => {
     pusherClient.subscribe("map");
-
-    pusherClient.bind("evt::update-location", setStuff);
+    pusherClient.bind("evt::update-location", setActiveDriverIcons);
 
     return () => {
       pusherClient.unsubscribe("map");
     };
   }, []);
 
-  const setStuff = (obj: {
+  const setActiveDriverIcons = (obj: {
     vehicleId: string;
     latitude: number;
     longitude: number;
