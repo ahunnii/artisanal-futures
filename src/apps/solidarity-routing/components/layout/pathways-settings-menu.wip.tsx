@@ -3,7 +3,7 @@
 import { Bomb, Building, Car, Map, Settings, Truck, User } from "lucide-react";
 
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import toast from "react-hot-toast";
 
 import { Button } from "~/components/ui/button";
@@ -26,7 +26,7 @@ import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-st
 import { useDepotModal } from "../../hooks/use-depot-modal.wip";
 import { DepotModal } from "../depot/depot-modal.wip";
 
-export const PathwaysSettingsMenu = () => {
+export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const apiContext = api.useContext();
@@ -88,9 +88,10 @@ export const PathwaysSettingsMenu = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"ghost"} aria-label="Settings">
+        {children}
+        {/* <Button variant={"ghost"} aria-label="Settings">
           <Settings />
-        </Button>
+        </Button> */}
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>

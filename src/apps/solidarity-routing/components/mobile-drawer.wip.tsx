@@ -17,6 +17,7 @@ import type { OptimizedStop } from "../types.wip";
 import { getColor } from "../utils/generic/color-handling";
 import {
   cuidToIndex,
+  metersToMiles,
   unixSecondsToStandardTime,
 } from "../utils/generic/format-utils.wip";
 import { FieldJobSearch } from "./field-job-search.wip";
@@ -32,30 +33,33 @@ export const MobileDrawer = () => {
   const driver = driverBundles.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
+  const route = optimizedRoutePlan?.data;
   const [snap, setSnap] = useState<number | string | null>(0.22);
 
   return (
     <>
-      <div className="flex w-full lg:hidden ">
+      <div className="flex w-full bg-white lg:hidden">
         <Button
+          size={"lg"}
           variant="ghost"
           className="flex-1"
           onClick={() => setOpen(true)}
         >
-          <p className="text-xs font-normal text-muted-foreground">
-            Shift: {unixSecondsToStandardTime(driver?.vehicle?.shiftStart ?? 0)}{" "}
-            - {unixSecondsToStandardTime(driver?.vehicle?.shiftEnd ?? 0)} •{" "}
-            {optimizedRoutePlan?.data?.stops?.length} stops • XX mi
+          <p className="text-sm font-normal text-muted-foreground">
+            Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
+            {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
+            {route?.stops?.length} stops •{" "}
+            {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </p>
         </Button>
         <FieldJobSearch isIcon={true} />{" "}
-        <Button
+        {/* <Button
           size="icon"
           variant={"ghost"}
           className="font-normal text-muted-foreground "
         >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
+          <MoreVertical className="h-4 w-4" /> */}
+        {/* </Button> */}
       </div>
       <Drawer
         snapPoints={[0.22, 0.8, 1]}
@@ -69,13 +73,13 @@ export const MobileDrawer = () => {
             <DrawerHeader className="flex justify-between">
               <FieldJobSearch isIcon={false} />
 
-              <Button
+              {/* <Button
                 size="icon"
                 variant={"ghost"}
                 className="font-normal text-muted-foreground "
               >
                 <MoreVertical className="h-4 w-4" />
-              </Button>
+              </Button> */}
             </DrawerHeader>
 
             <div
@@ -88,20 +92,20 @@ export const MobileDrawer = () => {
               )}
             >
               <p className="text-xs font-normal text-muted-foreground">
-                Shift:{" "}
-                {unixSecondsToStandardTime(driver?.vehicle?.shiftStart ?? 0)} -{" "}
-                {unixSecondsToStandardTime(driver?.vehicle?.shiftEnd ?? 0)} •{" "}
-                {optimizedRoutePlan?.data?.stops?.length} stops • XX mi
+                Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
+                {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
+                {route?.stops?.length} stops •{" "}
+                {Math.round(metersToMiles(route?.distance ?? 0))}mi
               </p>
               <h2 className="text-xl font-semibold">
                 {optimizedRoutePlan.routeDetails?.deliveryAt.toDateString() ??
                   ""}
               </h2>
               <div className="flex py-1">
-                <Button className="flex items-center gap-2" variant={"outline"}>
+                {/* <Button className="flex items-center gap-2" variant={"outline"}>
                   <Car />
                   Load vehicle
-                </Button>
+                </Button> */}
                 <MessageSheet />
               </div>
 

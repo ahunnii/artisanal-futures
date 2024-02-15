@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import NavbarActions from "~/components/navbar-actions";
 
+import { Settings } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import { PathwaysSettingsMenu } from "../layout/pathways-settings-menu.wip";
 
 const Navbar = () => {
@@ -35,7 +37,11 @@ const Navbar = () => {
             </Link>
 
             <div className="ml-auto flex items-center space-x-6">
-              <PathwaysSettingsMenu />
+              <PathwaysSettingsMenu>
+                <Button variant={"ghost"} aria-label="Settings">
+                  <Settings />
+                </Button>
+              </PathwaysSettingsMenu>
               <NavbarActions />
             </div>
           </div>

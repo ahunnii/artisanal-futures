@@ -20,6 +20,7 @@ import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
+import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/layout/pathways-settings-menu.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
@@ -116,10 +117,12 @@ const PathwaysDepotOverviewPage = () => {
                     </Button>{" "}
                   </FileUploadModal>
 
-                  <Button className="mx-0 flex gap-2 px-0 " variant={"link"}>
-                    <Settings />
-                    Settings
-                  </Button>
+                  <PathwaysSettingsMenu>
+                    <Button className="mx-0 flex gap-2 px-0 " variant={"link"}>
+                      <Settings />
+                      Settings
+                    </Button>
+                  </PathwaysSettingsMenu>
                 </div>
               </>
             </TabsContent>

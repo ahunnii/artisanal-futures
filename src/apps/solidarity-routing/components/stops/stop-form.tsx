@@ -31,6 +31,7 @@ import {
   unixSecondsToMilitaryTime,
 } from "../../utils/generic/format-utils.wip";
 
+import { useUrlParams } from "~/hooks/use-url-params";
 import ClientDetailsSection from "../forms/client-detail-form";
 import StopDetailsSection from "../forms/stop-details-form";
 
@@ -45,7 +46,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
   const [loading] = useState(false);
   const [editClient, setEditClient] = useState(false);
   const { status } = useSession();
-
+  const { updateUrlParams, getUrlParam } = useUrlParams();
   const [, setAccordionValue] = useState(activeLocation ? "item-2" : "item-1");
 
   const defaultValues: Partial<StopFormValues> = {
@@ -112,8 +113,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
     } else {
       jobs.create({ job: formatJobFormDataToBundle(data), addToRoute: true });
     }
-
-    // else appendLocation(data);
 
     toast({
       title: "You submitted the following values:",

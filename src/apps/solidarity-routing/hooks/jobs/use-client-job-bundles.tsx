@@ -14,6 +14,7 @@ import type { ClientJobBundle } from "../../types.wip";
 import { useCreateJob } from "./CRUD/use-create-job";
 import { useDeleteJob } from "./CRUD/use-delete-job";
 // import { useReadJob } from "./CRUD/use-read-job";
+import { useUrlParams } from "~/hooks/use-url-params";
 import { useUpdateJob } from "./CRUD/use-update-job";
 import { useStopsStore } from "./use-stops-store";
 
@@ -73,19 +74,21 @@ export const useClientJobBundles = () => {
       },
     });
 
+  const { updateUrlParams, getUrlParam } = useUrlParams();
   const checkIfSearchParamExistsInStops = (id: string | null) => {
     return sessionStorageStops.locations?.some((stop) => stop.job.id === id);
   };
 
   const updateStopSearchParam = (id: number | string | null) => {
-    const params = new URLSearchParams(searchParams);
+    updateUrlParams({ key: "stopId", value: id });
+    // const params = new URLSearchParams(searchParams);
 
-    if (id) {
-      params.set("stopId", `${id}`);
-    } else {
-      params.delete("stopId");
-    }
-    void router.replace(`${pathname}?${params.toString()}`);
+    // if (id) {
+    //   params.set("stopId", `${id}`);
+    // } else {
+    //   params.delete("stopId");
+    // }
+    // void router.replace(`${pathname}?${params.toString()}`);
   };
 
   const setActiveStop = (id: string | null) => {

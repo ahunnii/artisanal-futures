@@ -92,7 +92,13 @@ export const HomePageOverviewCard = ({ date }: { date: Date }) => {
                   key={route.id}
                   className=" my-2 rounded-md border  p-2 hover:bg-gray-100 hover:shadow-inner"
                 >
-                  <Link href={`${baseRouteUrl}${route.id}`}>
+                  <Link
+                    href={`${baseRouteUrl}${route.id}?${
+                      route.optimizedRoute.length > 0
+                        ? "mode=calculate"
+                        : "mode=plan"
+                    }`}
+                  >
                     <div>
                       <p className="text-sm font-semibold">
                         Route Plan #{route.id}

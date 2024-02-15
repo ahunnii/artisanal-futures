@@ -80,12 +80,12 @@ const InteractiveRouteCard: FC<TInteractiveProps> = ({
             color={color.background}
             driver={driver}
           />
-          <SheetFooter>
+          <SheetFooter className="flex flex-row gap-2">
             <MessagingSheet name={driver?.driver?.name ?? ""} />
             <Link
               href={`/tools/solidarity-pathways/1/route/${data.routeId}/path/${data.id}`}
             >
-              <Button>View Route</Button>
+              <Button className="">View Route</Button>
             </Link>
           </SheetFooter>
         </SheetContent>
@@ -100,7 +100,7 @@ const MessagingSheet = ({ name }: { name: string }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="flex gap-2">
+        <Button className="flex flex-1 gap-2" variant={"outline"}>
           <MessageCircle /> Send Message to {name}
         </Button>
       </SheetTrigger>

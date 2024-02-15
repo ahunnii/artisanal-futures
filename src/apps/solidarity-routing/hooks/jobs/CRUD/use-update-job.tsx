@@ -6,9 +6,13 @@ import { useParams, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 
 import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
+import { useUrlParams } from "~/hooks/use-url-params";
+import { useRoutePlans } from "../../plans/use-route-plans";
 import { useStopsStore } from "../use-stops-store";
 
 export const useUpdateJob = () => {
+  // const { updateUrlParams, getUrlParam } = useUrlParams();
+  // const routePlan = useRoutePlans();
   const { data: session } = useSession();
   const sessionStorageJobs = useStopsStore((state) => state);
 
@@ -34,6 +38,9 @@ export const useUpdateJob = () => {
     onSettled: () => {
       void apiContext.jobs.invalidate();
       void apiContext.routePlan.invalidate();
+      // if (routePlan.optimized.length > 0) {
+      //   updateUrlParams({ key: "modified", value: "true" });
+      // }
     },
   });
   const updateClient = api.jobs.updateDepotClient.useMutation({
