@@ -326,6 +326,7 @@ export type Driver = Prisma.DriverGetPayload<{
 
 export type DepotValues = {
   id: number;
+  ownerId: string;
   name: string | undefined;
   depotAddressId: string | undefined;
   address?: {

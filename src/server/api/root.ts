@@ -3,6 +3,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { authRouter } from "./routers/auth";
 import { commentRouter } from "./routers/comment";
 
+import { solidarityPathwaysMessagingRouter } from "./routers/messaging/routing";
 import { postRouter } from "./routers/post";
 import { productsRouter } from "./routers/products";
 import { addressRouter } from "./routers/routing/addresses";
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
   surveys: surveysRouter,
   routePlan: routePlanRouter,
 
+  routeMessaging: solidarityPathwaysMessagingRouter,
   auth: authRouter,
   user: userRouter,
   post: postRouter,

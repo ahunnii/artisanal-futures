@@ -85,6 +85,20 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
     }
   );
 
+  const { mutate: nukeMessaging } =
+    api.routeMessaging.nukeEverything.useMutation({
+      onSuccess: () => {
+        toast.success("Messaging deleted!");
+      },
+      onError: (e) => {
+        toast.error("There seems to be an issue with deleting your Messaging.");
+        console.log(e);
+      },
+      onSettled: () => {
+        void apiContext.routeMessaging.invalidate();
+      },
+    });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -140,6 +154,14 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                     </Button>
                   </>
                 )}
+
+                <Button
+                  onClick={() => nukeMessaging()}
+                  className="w-full"
+                  variant={"destructive"}
+                >
+                  <Bomb /> Nuke Messaging
+                </Button>
               </div>
             </div>
             <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">

@@ -25,8 +25,11 @@ interface useDriversStore {
   isDriverSheetOpen: boolean;
   setIsDriverSheetOpen: (isOpen: boolean) => void;
 
-  isDriverEditPanelOpen: boolean;
-  setIsDriverEditPanelOpen: (isOpen: boolean) => void;
+  isDriverRoutePanelOpen: boolean;
+  setIsDriverRoutePanelOpen: (isOpen: boolean) => void;
+
+  isDriverMessagePanelOpen: boolean;
+  setIsDriverMessagePanelOpen: (isOpen: boolean) => void;
 }
 
 export const useDriversStore = create<useDriversStore>()(
@@ -66,9 +69,13 @@ export const useDriversStore = create<useDriversStore>()(
       isDriverSheetOpen: false,
       setIsDriverSheetOpen: (isDriverSheetOpen) => set({ isDriverSheetOpen }),
 
-      isDriverEditPanelOpen: false,
-      setIsDriverEditPanelOpen: (isDriverEditPanelOpen) =>
-        set({ isDriverEditPanelOpen }),
+      isDriverRoutePanelOpen: false,
+      setIsDriverRoutePanelOpen: (isDriverRoutePanelOpen) =>
+        set({ isDriverRoutePanelOpen }),
+
+      isDriverMessagePanelOpen: false,
+      setIsDriverMessagePanelOpen: (isDriverMessagePanelOpen) =>
+        set({ isDriverMessagePanelOpen }),
     }),
     {
       name: "driver-storage", // name of item in the storage (must be unique)

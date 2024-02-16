@@ -20,6 +20,7 @@ import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
+import toast from "react-hot-toast";
 import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/layout/pathways-settings-menu.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
@@ -31,6 +32,7 @@ import type {
 } from "~/apps/solidarity-routing/types.wip";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import { useUrlParams } from "~/hooks/use-url-params";
+import { api } from "~/utils/api";
 
 const PathwaysDepotOverviewPage = () => {
   const { status } = useSession();
@@ -76,6 +78,21 @@ const PathwaysDepotOverviewPage = () => {
     setJobs: jobBundles.createMany,
   });
 
+  const { mutate: createServer } =
+    api.routeMessaging.createNewDepotServer.useMutation({
+      onSuccess: (data) => {
+        console.log(data);
+        toast.success("Server for depot has been created");
+      },
+      onError: (error) => {
+        console.error(error);
+        toast.error("Error creating server for depot");
+      },
+    });
+
+  const depot = api.depots.getDepot.useQuery({
+    id: 1,
+  });
   return (
     <>
       <DriverAddSheet standalone={true} />
@@ -102,6 +119,19 @@ const PathwaysDepotOverviewPage = () => {
                   <RouteCalendar date={date} setDate={updateSelectedDate} />
                 </div>
                 <div className=" flex flex-col items-start bg-white p-4 text-left">
+                  <Button
+                    className="mx-0 flex gap-2 px-0 "
+                    variant={"link"}
+                    onClick={() => {
+                      createServer({
+                        depotId: 1,
+                        ownerId: depot?.data?.ownerId ?? "",
+                      });
+                    }}
+                  >
+                    <UserPlus />
+                    Create server
+                  </Button>
                   <Button
                     className="mx-0 flex gap-2 px-0 "
                     variant={"link"}

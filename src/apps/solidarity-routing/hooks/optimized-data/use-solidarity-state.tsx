@@ -12,6 +12,7 @@ export const useSolidarityState = () => {
   const depotId = Number(params?.depotId) ?? undefined;
   const routeId = params?.routeId ?? undefined;
   const pathId = params?.pathId ?? undefined;
+  const driverId = searchParams.get("driverId") ?? undefined;
 
   const date = searchParams.get("date") ?? "";
   const formattedDateString = date?.replace(/\+/g, " ");
@@ -26,6 +27,7 @@ export const useSolidarityState = () => {
     depotId,
     routeId,
     pathId,
+    driverId,
     routeDate: date ? dateObject : null,
   };
 };

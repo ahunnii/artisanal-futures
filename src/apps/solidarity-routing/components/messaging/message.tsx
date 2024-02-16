@@ -1,3 +1,4 @@
+import { LucideIcon, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { cn } from "~/utils/styles";
 
@@ -5,10 +6,12 @@ export const Message = ({
   content,
   time,
   type,
+  Icon,
 }: {
   content: string;
   time: string;
   type: "sender" | "receiver";
+  Icon?: LucideIcon;
 }) => {
   return (
     <>
@@ -21,8 +24,10 @@ export const Message = ({
         <div className="relative h-12 w-12">
           {type === "receiver" && (
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-white">
+                {Icon ? <Icon /> : <User />}
+              </AvatarFallback>
             </Avatar>
           )}
         </div>

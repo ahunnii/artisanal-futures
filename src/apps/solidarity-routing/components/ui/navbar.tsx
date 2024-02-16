@@ -3,9 +3,10 @@ import Link from "next/link";
 
 import NavbarActions from "~/components/navbar-actions";
 
-import { Settings } from "lucide-react";
+import { Bell, Settings } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { PathwaysSettingsMenu } from "../layout/pathways-settings-menu.wip";
+import { PathwaysNotifications } from "./pathways-notifications";
 
 const Navbar = () => {
   return (
@@ -43,6 +44,7 @@ const Navbar = () => {
                 </Button>
               </PathwaysSettingsMenu>
               <NavbarActions />
+              <PathwaysNotifications />
             </div>
           </div>
         </>

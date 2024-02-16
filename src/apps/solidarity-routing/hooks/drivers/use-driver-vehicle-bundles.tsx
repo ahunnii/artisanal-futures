@@ -88,5 +88,27 @@ export const useDriverVehicleBundles = () => {
     },
 
     assign: createDriver.setRouteDrivers,
+
+    isMessageSheetOpen: sessionStorageDrivers.isDriverMessagePanelOpen,
+    onMessageSheetOpenChange: (state: boolean) => {
+      if (!state) setActiveDriver(null);
+      sessionStorageDrivers.setIsDriverMessagePanelOpen(state);
+    },
+
+    message: (id: string) => {
+      setActiveDriver(id);
+      sessionStorageDrivers.setIsDriverMessagePanelOpen(true);
+    },
+
+    isRouteSheetOpen: sessionStorageDrivers.isDriverRoutePanelOpen,
+    onRouteSheetOpenChange: (state: boolean) => {
+      if (!state) setActiveDriver(null);
+      sessionStorageDrivers.setIsDriverRoutePanelOpen(state);
+    },
+
+    route: (id: string) => {
+      setActiveDriver(id);
+      sessionStorageDrivers.setIsDriverRoutePanelOpen(true);
+    },
   };
 };

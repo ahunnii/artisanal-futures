@@ -484,6 +484,7 @@ model Message {
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   deleted Boolean @default(false)
+  unread Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

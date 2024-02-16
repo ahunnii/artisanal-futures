@@ -150,5 +150,6 @@ export const useOptimizedRoutePlan = () => {
     mapCoordinates,
     destinations: routeDestinations,
     updateRoutePathStatus: updateRoutePathStatus.mutate,
+    currentDriver,
   };
 };
