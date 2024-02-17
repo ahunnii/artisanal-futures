@@ -35,7 +35,7 @@ const StopSheet = ({ standalone }: { standalone?: boolean }) => {
   const getStopsByDate = api.routePlan.getStopsByDate.useQuery(
     {
       date: date!,
-      depotId: Number(depotId),
+      depotId: depotId,
     },
     {
       enabled: !!date,

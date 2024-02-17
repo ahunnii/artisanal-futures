@@ -324,17 +324,11 @@ export type Driver = Prisma.DriverGetPayload<{
   };
 }>;
 
-export type DepotValues = {
-  id: number;
-  ownerId: string;
-  name: string | undefined;
-  depotAddressId: string | undefined;
-  address?: {
-    formatted: string;
-    latitude: number;
-    longitude: number;
+export type DepotValues = Prisma.DepotGetPayload<{
+  include: {
+    address: true;
   };
-};
+}>;
 
 export const optimizationPlanSchema = z.object({
   geometry: z.array(

@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { driverVehicleSchema } from "~/apps/solidarity-routing/types.wip";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -9,7 +10,7 @@ import { pusherServer } from "~/server/soketi/server";
 
 export const solidarityPathwaysMessagingRouter = createTRPCRouter({
   createNewDepotServer: protectedProcedure
-    .input(z.object({ ownerId: z.string(), depotId: z.number() }))
+    .input(z.object({ ownerId: z.string(), depotId: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { ownerId, depotId } = input;
 
@@ -139,8 +140,138 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       return { server, channel };
     }),
 
+  createDriverChannels: protectedProcedure
+    .input(z.object({ depotId: z.string(), bundles: z.array(z.string()) }))
+    .mutation(async ({ input, ctx }) => {
+      const server = await ctx.prisma.server.findUnique({
+        where: {
+          inviteCode: `depot-${input.depotId}`,
+        },
+      });
+
+      if (!server) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Depot server not found",
+        });
+      }
+
+      const ownerProfile = await ctx.prisma.profile.findUnique({
+        where: {
+          userId: ctx.session.user?.id,
+        },
+        include: {
+          servers: true,
+          members: true,
+        },
+      });
+
+      if (!ownerProfile) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Owner not found",
+        });
+      }
+
+      // Create and add to server
+      if (input.bundles.length > 0) {
+        const res = await Promise.all(
+          input.bundles.map(async (bundle) => {
+            // if (!driver) {
+            //   throw new TRPCError({
+            //     code: "NOT_FOUND",
+            //     message: "Driver not found",
+            //   });
+            // }
+
+            // Create and add to server
+
+            const driver = await ctx.prisma.driver.findUnique({
+              where: {
+                id: bundle,
+              },
+            });
+
+            if (!driver) {
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: "Driver not found",
+              });
+            }
+
+            const driverProfile = await ctx.prisma.profile.upsert({
+              where: {
+                driverId: bundle,
+              },
+              update: {
+                servers: {
+                  connect: {
+                    id: server.id,
+                  },
+                },
+              },
+              create: {
+                email: driver?.email,
+                driverId: driver?.id,
+                name: driver?.name,
+                imageUrl: "",
+                servers: {
+                  connect: {
+                    id: server.id,
+                  },
+                },
+              },
+              include: {
+                members: true,
+                channels: true,
+              },
+            });
+
+            let member = driverProfile.members.find(
+              (m) => m.serverId === server.id
+            );
+
+            if (!member) {
+              member = await ctx.prisma.member.create({
+                data: {
+                  profileId: driverProfile.id,
+                  serverId: server.id,
+                },
+              });
+            }
+
+            let channel = driverProfile.channels.find(
+              (c) => c.name === driver?.email
+            );
+
+            if (!channel) {
+              channel = await ctx.prisma.channel.create({
+                data: {
+                  serverId: server.id,
+                  name: driver?.email,
+                  profileId: ownerProfile.id,
+                },
+              });
+            }
+
+            return channel;
+          })
+        )
+          .then((data) => data)
+          .catch((err) => {
+            console.error(err);
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Something happened while creating drivers and vehicles",
+            });
+          });
+
+        return res;
+      }
+    }),
+
   getDepotGeneralChannel: protectedProcedure
-    .input(z.object({ depotId: z.number() }))
+    .input(z.object({ depotId: z.string() }))
     .query(async ({ input, ctx }) => {
       const depotServer = await ctx.prisma.server.findUnique({
         where: {
@@ -166,7 +297,7 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
     }),
 
   getDepotDriverChannel: protectedProcedure
-    .input(z.object({ depotId: z.number(), driverId: z.string() }))
+    .input(z.object({ depotId: z.string(), driverId: z.string() }))
     .query(async ({ input, ctx }) => {
       const driver = await ctx.prisma.driver.findUnique({
         where: {
@@ -218,7 +349,7 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       z.object({
         driverId: z.string().optional(),
         ownerId: z.string().optional(),
-        depotId: z.number(),
+        depotId: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {

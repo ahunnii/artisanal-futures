@@ -92,14 +92,14 @@ const SingleRoutePage = () => {
       toast.info(message);
     });
 
-    pusherClient.bind("evt::invalidate-stops", () => {
-      void apiContext.finalizedRoutes.invalidate();
+    pusherClient.bind("evt::invalidate-stops", (message: string) => {
+      toast.info(message);
       void apiContext.routePlan.invalidate();
     });
 
     pusherClient.bind("evt::update-route-status", (message: string) => {
       toast.info(message);
-      void apiContext.finalizedRoutes.invalidate();
+
       void apiContext.routePlan.invalidate();
     });
 
@@ -109,23 +109,20 @@ const SingleRoutePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (routePlans.optimized.length > 0) {
-  //     updateUrlParams({ key: "mode", value: "calculate" });
-  //   } else {
-  //     updateUrlParams({ key: "mode", value: "plan" });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [routePlans.optimized]);
-
   useEffect(() => {
     if (routePlans.optimized.length > 0) {
-      setTabValue("calculate");
+      updateUrlParams({
+        key: "mode",
+        value: "calculate",
+      });
     }
   }, [routePlans.optimized]);
 
   const calculateOptimalPaths = () => {
-    setTabValue("calculate");
+    updateUrlParams({
+      key: "mode",
+      value: "calculate",
+    });
     void routePlans.calculate();
   };
 
@@ -174,7 +171,10 @@ const SingleRoutePage = () => {
                     className="flex gap-1"
                   >
                     <Building className="h-4 w-4" /> Depot{" "}
-                    {routePlans.data.depotId} /{" "}
+                    <span className="max-w-28 truncate text-ellipsis ">
+                      {routePlans.depot?.name ?? routePlans.depot?.id}
+                    </span>{" "}
+                    /{" "}
                   </Link>
                   <Link
                     href={`/tools/solidarity-pathways/${

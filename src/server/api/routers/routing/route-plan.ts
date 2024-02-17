@@ -1,17 +1,19 @@
-import { Driver, RouteStatus } from "@prisma/client";
+import { RouteStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { geoJson } from "leaflet";
+
 import { z } from "zod";
 import {
-  ClientJobBundle,
-  DriverVehicleBundle,
+  clientJobSchema,
   driverVehicleSchema,
   optimizationPlanSchema,
+  type ClientJobBundle,
+  type DriverVehicleBundle,
 } from "~/apps/solidarity-routing/types.wip";
 import { pusherServer } from "~/server/soketi/server";
 
+import { appRouter } from "~/server/api/root";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { vehicleRouter } from "./vehicles";
+import { jobRouter } from "./jobs";
 
 export const routePlanRouter = createTRPCRouter({
   setOptimizedData: protectedProcedure
@@ -116,27 +118,6 @@ export const routePlanRouter = createTRPCRouter({
           optimizedData: JSON.stringify(input.plan.data),
         },
       });
-
-      // })
-      // return ctx.prisma.route.update({
-      //   where: {
-      //     id: input.routeId,
-      //   },
-      //   data: {
-      //     optimizedData: JSON.stringify(input.plan.data),
-
-      //   },
-      // });
-
-      // return ctx.prisma.vehicle.update({
-      //   where: {
-      //     id: input.routeId,
-      //   },
-      //   data: {
-      //     optimizedData: input.data,
-      //     geometry: input.geometry,
-      //   },
-      // });
     }),
 
   updateOptimizedStopState: protectedProcedure
@@ -148,7 +129,7 @@ export const routePlanRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const optimizedStop = ctx.prisma.optimizedStop.update({
+      const optimizedStop = await ctx.prisma.optimizedStop.update({
         where: {
           id: input.stopId,
         },
@@ -156,9 +137,21 @@ export const routePlanRouter = createTRPCRouter({
           status: input.state,
           notes: input.notes,
         },
+        include: {
+          job: {
+            include: {
+              client: true,
+              address: true,
+            },
+          },
+        },
       });
 
-      await pusherServer.trigger("map", `evt::invalidate-stops`, {});
+      await pusherServer.trigger(
+        "map",
+        `evt::invalidate-stops`,
+        `Stop at ${optimizedStop?.job?.address?.formatted} was updated to ${input.state}`
+      );
 
       return optimizedStop;
     }),
@@ -232,7 +225,7 @@ export const routePlanRouter = createTRPCRouter({
   getAllRoutes: protectedProcedure
     .input(
       z.object({
-        depotId: z.number(),
+        depotId: z.string(),
       })
     )
     .query(({ ctx, input }) => {
@@ -247,7 +240,7 @@ export const routePlanRouter = createTRPCRouter({
     .input(
       z.object({
         date: z.date(),
-        depotId: z.number(),
+        depotId: z.string(),
       })
     )
     .query(({ ctx, input }) => {
@@ -293,7 +286,7 @@ export const routePlanRouter = createTRPCRouter({
     .input(
       z.object({
         date: z.date(),
-        depotId: z.number(),
+        depotId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -381,7 +374,7 @@ export const routePlanRouter = createTRPCRouter({
   createRoutePlan: protectedProcedure
     .input(
       z.object({
-        depotId: z.number(),
+        depotId: z.string(),
         date: z.date(),
       })
     )
@@ -469,7 +462,6 @@ export const routePlanRouter = createTRPCRouter({
               formatted: defaultVehicle.startAddress.formatted,
               latitude: defaultVehicle.startAddress.latitude,
               longitude: defaultVehicle.startAddress.longitude,
-              depotId: route!.depotId,
             },
           });
 
@@ -479,7 +471,6 @@ export const routePlanRouter = createTRPCRouter({
                   formatted: defaultVehicle.endAddress.formatted,
                   latitude: defaultVehicle.endAddress.latitude,
                   longitude: defaultVehicle.endAddress.longitude,
-                  depotId: route!.depotId,
                 },
               })
             : {
@@ -569,7 +560,6 @@ export const routePlanRouter = createTRPCRouter({
           formatted: input.vehicle.driver.address.formatted,
           latitude: input.vehicle.driver.address.latitude,
           longitude: input.vehicle.driver.address.longitude,
-          depotId: route!.depotId,
         },
       });
 

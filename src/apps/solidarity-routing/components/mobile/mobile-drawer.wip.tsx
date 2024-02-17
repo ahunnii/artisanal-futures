@@ -38,6 +38,8 @@ export const MobileDrawer = () => {
   const route = optimizedRoutePlan?.data;
   const [snap, setSnap] = useState<number | string | null>(0.22);
 
+  console.log(driver);
+
   return (
     <>
       <div className="flex w-full bg-white lg:hidden">

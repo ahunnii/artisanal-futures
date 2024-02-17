@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Send, User } from "lucide-react";
+import { Building, Send, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 import { Button } from "~/components/ui/button";
@@ -133,7 +133,7 @@ export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
               <MessagingBody
                 messages={driverChannel?.messages ?? []}
                 senderId={membership?.id}
-                SenderIcon={User}
+                SenderIcon={isDepot ? User : Building}
               />
               <div ref={bottomRef} />
             </ScrollArea>

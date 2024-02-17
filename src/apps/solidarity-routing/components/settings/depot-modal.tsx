@@ -22,6 +22,7 @@ import { useDepotModal } from "~/apps/solidarity-routing/hooks/depot/use-depot-m
 import { depotFormSchema } from "~/apps/solidarity-routing/schemas.wip";
 import type { DepotValues } from "~/apps/solidarity-routing/types.wip";
 
+import Link from "next/link";
 import { useDepot } from "~/apps/solidarity-routing/hooks/depot/use-depot";
 
 type TDepotForm = z.infer<typeof depotFormSchema>;
@@ -147,16 +148,25 @@ export const DepotModal = ({ initialData }: Props) => {
           />
 
           <div className="flex w-full items-center justify-end space-x-2 pt-6">
-            <Button
-              disabled={isLoading}
-              variant="outline"
-              onClick={depotModal.onClose}
-              type="button"
-            >
-              Cancel
-            </Button>
+            {!initialData && (
+              <Link href="/tools/solidarity-pathways/sandbox">
+                <Button variant="outline" type="button">
+                  Nah, I&apos;m good
+                </Button>
+              </Link>
+            )}
+            {initialData && (
+              <Button
+                disabled={isLoading}
+                variant="outline"
+                onClick={depotModal.onClose}
+                type="button"
+              >
+                Cancel
+              </Button>
+            )}
             <Button disabled={isLoading} type="submit">
-              Continue
+              {initialData ? "Save" : "Create"}
             </Button>
           </div>
         </form>

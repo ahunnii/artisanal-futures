@@ -47,7 +47,7 @@ export const useDeleteDriver = () => {
     },
   });
 
-  const purgeAllVehicles = api.vehicles.deleteAllDepotVehicles.useMutation({
+  const purgeAllVehicles = api.drivers.deleteAllVehicles.useMutation({
     onSuccess: () => {
       toast.success("Vehicles deleted!");
     },
@@ -56,7 +56,7 @@ export const useDeleteDriver = () => {
       console.log(e);
     },
     onSettled: () => {
-      void apiContext.vehicles.invalidate();
+      void apiContext.drivers.invalidate();
     },
   });
 

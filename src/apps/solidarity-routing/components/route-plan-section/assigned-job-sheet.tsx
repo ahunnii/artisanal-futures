@@ -26,6 +26,8 @@ import type {
 import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
+import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
+import { useSolidarityMessaging } from "../../hooks/use-solidarity-messaging";
 import { MessageSheet } from "../messaging/message-sheet";
 
 type Props = {
@@ -35,6 +37,7 @@ type Props = {
 export const AssignedJobSheet: FC<Props> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const driverBundles = useDriverVehicleBundles();
+  const { depotId } = useSolidarityState();
 
   const color = useMemo(() => getColor(cuidToIndex(data.vehicleId)), [data]);
 
@@ -93,7 +96,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
               </MessageSheet>
 
               <Link
-                href={`/tools/solidarity-pathways/1/route/${data.routeId}/path/${data.id}`}
+                href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}`}
               >
                 <Button className="">View Route</Button>
               </Link>

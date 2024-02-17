@@ -26,11 +26,37 @@ export const useCreateDriver = () => {
 
   const apiContext = api.useContext();
 
+  const createDriverChannels =
+    api.routeMessaging.createDriverChannels.useMutation({
+      onSuccess: () =>
+        notificationService.notifySuccess({
+          message: "Driver channels has been successfully created.",
+        }),
+
+      onError: (error) =>
+        notificationService.notifyError({
+          message:
+            "Something went wrong with creating the driver channels. Please try again.",
+          error,
+        }),
+    });
+
   const createVehicleBundles = api.drivers.createVehicleBundles.useMutation({
-    onSuccess: () =>
+    onSuccess: (data: DriverVehicleBundle[]) => {
       notificationService.notifySuccess({
         message: "Driver(s) successfully created.",
-      }),
+      });
+
+      const driverIds = data.map(
+        (driver: DriverVehicleBundle) => driver.driver.id
+      );
+
+      createDriverChannels.mutate({
+        depotId: depotId,
+        bundles: driverIds,
+      });
+    },
+
     onError: (error: unknown) =>
       notificationService.notifyError({
         message: "There was an issue creating the driver(s). Please try again.",
@@ -81,8 +107,8 @@ export const useCreateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: [driver],
-        depotId: Number(depotId),
-        routeId: routeId as string,
+        depotId: depotId,
+        routeId: routeId,
       });
     } else {
       sessionStorageDrivers.appendDriver(driver);
@@ -96,8 +122,8 @@ export const useCreateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: drivers,
-        depotId: Number(depotId),
-        routeId: addToRoute ? (routeId as string) : undefined,
+        depotId: depotId,
+        routeId: addToRoute ? routeId : undefined,
       });
     } else {
       drivers.forEach((driver) => {
@@ -113,7 +139,7 @@ export const useCreateDriver = () => {
       createVehicleBundles.mutate({
         data: [driver],
         depotId,
-        routeId: routeId as string,
+        routeId: routeId,
       });
     } else {
       sessionStorageDrivers.appendDriver(driver);
@@ -135,7 +161,7 @@ export const useCreateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       overrideCurrentRoutes.mutate({
         data: drivers,
-        routeId: routeId as string,
+        routeId: routeId,
       });
     } else {
       sessionStorageDrivers.setDrivers(drivers);

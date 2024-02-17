@@ -9,8 +9,8 @@ export const useSolidarityState = () => {
   const { data: session, status } = useSession();
 
   const isSandbox = pathname?.includes("sandbox");
-  const depotId = Number(params?.depotId) ?? undefined;
-  const routeId = params?.routeId ?? undefined;
+  const depotId = params?.depotId as string;
+  const routeId = params?.routeId as string;
   const pathId = params?.pathId ?? undefined;
   const driverId = searchParams.get("driverId") ?? undefined;
   const optimizedId = searchParams.get("optimizedId") ?? undefined;

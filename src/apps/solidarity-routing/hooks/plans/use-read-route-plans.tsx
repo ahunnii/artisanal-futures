@@ -4,7 +4,7 @@ import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 export const useReadRoutePlans = () => {
   const { routeId } = useSolidarityState();
   const currentRoute = api.routePlan.getRoutePlanById.useQuery(
-    { id: routeId as string },
+    { id: routeId },
     { enabled: !!routeId }
   );
 

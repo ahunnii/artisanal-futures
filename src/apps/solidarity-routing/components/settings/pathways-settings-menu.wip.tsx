@@ -22,6 +22,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { api } from "~/utils/api";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 
+import { DialogClose } from "@radix-ui/react-dialog";
 import { useDepotModal } from "../../hooks/depot/use-depot-modal.wip";
 import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { DepotModal } from "./depot-modal";
@@ -35,19 +36,18 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
 
   const { depotId } = useSolidarityState();
 
-  const { mutate: deleteClients } =
-    api.clients.deleteAllDepotClients.useMutation({
-      onSuccess: () => {
-        toast.success("Clients deleted!");
-      },
-      onError: (e) => {
-        toast.error("There seems to be an issue with deleting your clients.");
-        console.log(e);
-      },
-      onSettled: () => {
-        void apiContext.clients.invalidate();
-      },
-    });
+  const { mutate: deleteClients } = api.jobs.deleteAllDepotClients.useMutation({
+    onSuccess: () => {
+      toast.success("Clients deleted!");
+    },
+    onError: (e) => {
+      toast.error("There seems to be an issue with deleting your clients.");
+      console.log(e);
+    },
+    onSettled: () => {
+      void apiContext.jobs.invalidate();
+    },
+  });
 
   const { mutate: deleteJobs } = api.jobs.deleteAllDepotJobs.useMutation({
     onSuccess: () => {
@@ -62,19 +62,19 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
     },
   });
 
-  const { mutate: deleteAddresses } =
-    api.addresses.deleteAllDepotAddresses.useMutation({
-      onSuccess: () => {
-        toast.success("Addresses deleted!");
-      },
-      onError: (e) => {
-        toast.error("There seems to be an issue with deleting your addresses.");
-        console.log(e);
-      },
-      onSettled: () => {
-        void apiContext.addresses.invalidate();
-      },
-    });
+  // const { mutate: deleteAddresses } =
+  //   api.addresses.deleteAllDepotAddresses.useMutation({
+  //     onSuccess: () => {
+  //       toast.success("Addresses deleted!");
+  //     },
+  //     onError: (e) => {
+  //       toast.error("There seems to be an issue with deleting your addresses.");
+  //       console.log(e);
+  //     },
+  //     onSettled: () => {
+  //       void apiContext.addresses.invalidate();
+  //     },
+  //   });
 
   const getDepot = api.depots.getDepot.useQuery(
     {
@@ -215,7 +215,7 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                   className="flex items-center gap-2"
                   variant={"destructive"}
                   onClick={() => {
-                    deleteClients({ depotId: 1 });
+                    deleteClients({ depotId });
                   }}
                 >
                   <User className="h-4 w-4" />
@@ -226,7 +226,7 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                   className="flex items-center gap-2"
                   variant={"destructive"}
                   onClick={() => {
-                    deleteJobs({ depotId: 1 });
+                    deleteJobs({ depotId });
                   }}
                 >
                   <Building className="h-4 w-4" />
@@ -243,18 +243,18 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                 </p>
               </div>
 
-              <div className="flex gap-4">
+              {/* <div className="flex gap-4">
                 <Button
                   variant={"destructive"}
                   className="flex items-center gap-2"
                   onClick={() => {
-                    deleteAddresses({ depotId: 1 });
+                    deleteAddresses({ depotId});
                   }}
                 >
                   <Map className="h-4 w-4" />
                   Nuke Addresses
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex w-full flex-col  space-y-8 rounded-md border border-red-500 bg-red-500/5 p-4">
@@ -272,10 +272,10 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                   className="flex w-full items-center gap-2"
                   onClick={() => {
                     driverBundles.deleteAll();
-                    deleteClients({ depotId: 1 });
+                    deleteClients({ depotId });
 
-                    deleteJobs({ depotId: 1 });
-                    deleteAddresses({ depotId: 1 });
+                    deleteJobs({ depotId });
+                    // deleteAddresses({ depotId});
                   }}
                 >
                   <Bomb className="h-4 w-4" />
@@ -287,7 +287,9 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
         </ScrollArea>
         <DialogFooter>
           {" "}
-          <Button>Go back</Button>
+          <DialogClose>
+            <Button>Go back</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

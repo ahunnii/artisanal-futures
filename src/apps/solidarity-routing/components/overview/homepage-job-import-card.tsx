@@ -17,14 +17,14 @@ type UploadButtonOptions<T> = {
 };
 
 export const HomepageJobImportCard: FC = () => {
-  const { routeJobs } = useReadJob();
+  const { routeJobs, depotClients } = useReadJob();
   const { createNewJobs } = useCreateJob();
 
   const jobImportButtonProps = {
     button: {
       Icon: MapPin,
       caption: "Add your stops from spreadsheet",
-      isProcessed: false,
+      isProcessed: depotClients.length > 0,
     },
     fileUpload: clientJobUploadOptions({
       jobs: routeJobs,

@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
+  ClientJobBundle,
   clientJobSchema,
   clientSchema,
   jobSchema,
@@ -14,7 +15,7 @@ export const jobRouter = createTRPCRouter({
     .input(
       z.object({
         bundles: z.array(clientJobSchema),
-        depotId: z.number(),
+        depotId: z.string(),
         routeId: z.string().optional(),
       })
     )
@@ -27,7 +28,6 @@ export const jobRouter = createTRPCRouter({
               formatted: clientJob.job.address.formatted,
               latitude: clientJob.job.address.latitude,
               longitude: clientJob.job.address.longitude,
-              depotId: input.depotId,
             },
           });
 
@@ -46,7 +46,23 @@ export const jobRouter = createTRPCRouter({
               notes: clientJob.job.notes,
               order: clientJob.job.order,
             },
+            include: {
+              address: true,
+            },
           });
+
+          const clientAddress =
+            clientJob?.client?.email !== undefined &&
+            clientJob?.client?.email !== "" &&
+            clientJob?.client?.email !== null
+              ? await ctx.prisma.address.create({
+                  data: {
+                    formatted: clientJob.job.address.formatted,
+                    latitude: clientJob.job.address.latitude,
+                    longitude: clientJob.job.address.longitude,
+                  },
+                })
+              : { id: undefined };
 
           // Next, check if client exists via email. If it does, assume updated info,
           // otherwise create a new client and link with new job
@@ -61,11 +77,14 @@ export const jobRouter = createTRPCRouter({
                   },
                   update: {},
                   create: {
-                    addressId: address.id,
+                    addressId: clientAddress.id,
                     name: clientJob.client.name,
                     phone: clientJob.client.phone,
                     email: clientJob.client.email,
                     depotId: input.depotId,
+                  },
+                  include: {
+                    address: true,
                   },
                 })
               : {
@@ -81,7 +100,7 @@ export const jobRouter = createTRPCRouter({
             },
           });
 
-          return { client, job };
+          return { client, job } as ClientJobBundle;
         })
       )
         .then((data) => data)
@@ -96,14 +115,136 @@ export const jobRouter = createTRPCRouter({
       return res;
     }),
 
+  createRouteFromJobBundles: protectedProcedure
+    .input(
+      z.object({
+        bundles: z.array(clientJobSchema),
+        depotId: z.string(),
+        date: z.date(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const route = await ctx.prisma.route.create({
+        data: {
+          depotId: input.depotId,
+          deliveryAt: input.date,
+        },
+      });
+
+      if (!route) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something happened while creating the route",
+        });
+      }
+      const res = await Promise.all(
+        input.bundles.map(async (clientJob) => {
+          // First, create the job address
+          const address = await ctx.prisma.address.create({
+            data: {
+              formatted: clientJob.job.address.formatted,
+              latitude: clientJob.job.address.latitude,
+              longitude: clientJob.job.address.longitude,
+            },
+          });
+
+          // Then create the job itself
+          const job = await ctx.prisma.job.create({
+            data: {
+              depotId: input.depotId,
+              routeId: route.id,
+              addressId: address.id,
+              timeWindowStart: clientJob.job.timeWindowStart,
+              timeWindowEnd: clientJob.job.timeWindowEnd,
+              serviceTime: clientJob.job.serviceTime,
+              prepTime: clientJob.job.prepTime,
+              priority: clientJob.job.priority,
+              type: clientJob.job.type,
+              notes: clientJob.job.notes,
+              order: clientJob.job.order,
+            },
+            include: {
+              address: true,
+            },
+          });
+
+          const clientAddress =
+            clientJob?.client?.email !== undefined &&
+            clientJob?.client?.email !== "" &&
+            clientJob?.client?.email !== null
+              ? await ctx.prisma.address.create({
+                  data: {
+                    formatted: clientJob.job.address.formatted,
+                    latitude: clientJob.job.address.latitude,
+                    longitude: clientJob.job.address.longitude,
+                  },
+                })
+              : { id: undefined };
+
+          // Next, check if client exists via email. If it does, assume updated info,
+          // otherwise create a new client and link with new job
+          // If no client info is provided, just create the job
+          const client =
+            clientJob?.client?.email !== undefined &&
+            clientJob?.client?.email !== "" &&
+            clientJob?.client?.email !== null
+              ? await ctx.prisma.client.upsert({
+                  where: {
+                    email: clientJob.client.email,
+                  },
+                  update: {},
+                  create: {
+                    addressId: clientAddress.id,
+                    name: clientJob.client.name,
+                    phone: clientJob.client.phone,
+                    email: clientJob.client.email,
+                    depotId: input.depotId,
+                  },
+                  include: {
+                    address: true,
+                  },
+                })
+              : {
+                  id: undefined,
+                };
+
+          await ctx.prisma.job.update({
+            where: {
+              id: job.id,
+            },
+            data: {
+              clientId: client.id,
+            },
+          });
+
+          return { client, job } as ClientJobBundle;
+        })
+      )
+        .then((data) => data)
+        .catch((e) => {
+          console.error(e);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Something happened while creating the jobs and clients",
+          });
+        });
+
+      return { res, route };
+    }),
+
   updateRouteJob: protectedProcedure
     .input(z.object({ routeId: z.string(), job: jobSchema }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.prisma.address.update({
+      const address = await ctx.prisma.address.upsert({
         where: {
           id: input.job.addressId,
         },
-        data: {
+        update: {
+          formatted: input.job.address.formatted,
+          latitude: input.job.address.latitude,
+          longitude: input.job.address.longitude,
+        },
+        create: {
           formatted: input.job.address.formatted,
           latitude: input.job.address.latitude,
           longitude: input.job.address.longitude,
@@ -116,6 +257,7 @@ export const jobRouter = createTRPCRouter({
         },
         data: {
           clientId: input.job.clientId,
+          addressId: address.id,
           timeWindowStart: input.job.timeWindowStart,
           timeWindowEnd: input.job.timeWindowEnd,
           serviceTime: input.job.serviceTime,
@@ -131,7 +273,7 @@ export const jobRouter = createTRPCRouter({
     }),
 
   updateDepotClient: protectedProcedure
-    .input(z.object({ depotId: z.number(), client: clientSchema }))
+    .input(z.object({ depotId: z.string(), client: clientSchema }))
     .mutation(async ({ ctx, input }) => {
       const address = await ctx.prisma.address.upsert({
         where: {
@@ -146,7 +288,6 @@ export const jobRouter = createTRPCRouter({
           formatted: input.client?.address?.formatted ?? "",
           latitude: input.client?.address?.latitude ?? 0,
           longitude: input.client?.address?.longitude ?? 0,
-          depotId: input.depotId,
         },
       });
 
@@ -167,7 +308,7 @@ export const jobRouter = createTRPCRouter({
     }),
 
   getCurrentDepotJobs: protectedProcedure
-    .input(z.object({ depotId: z.number() }))
+    .input(z.object({ depotId: z.string() }))
     .query(async ({ ctx, input }) => {
       const jobs = await ctx.prisma.job.findMany({
         where: {
@@ -180,6 +321,22 @@ export const jobRouter = createTRPCRouter({
       });
 
       return jobs;
+    }),
+
+  getCurrentDepotClients: protectedProcedure
+    .input(z.object({ depotId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const clients = await ctx.prisma.client.findMany({
+        where: {
+          depotId: input.depotId,
+        },
+        include: {
+          address: true,
+          jobs: true,
+        },
+      });
+
+      return clients;
     }),
 
   getClientById: protectedProcedure
@@ -222,7 +379,7 @@ export const jobRouter = createTRPCRouter({
     }),
 
   deleteAllDepotJobs: protectedProcedure
-    .input(z.object({ depotId: z.number() }))
+    .input(z.object({ depotId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const jobs = await ctx.prisma.job.deleteMany({
         where: {
@@ -231,5 +388,17 @@ export const jobRouter = createTRPCRouter({
       });
 
       return jobs;
+    }),
+
+  deleteAllDepotClients: protectedProcedure
+    .input(z.object({ depotId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const clients = await ctx.prisma.client.deleteMany({
+        where: {
+          depotId: input.depotId,
+        },
+      });
+
+      return clients;
     }),
 });

@@ -7,20 +7,6 @@ import Navbar from "./navbar";
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
   const apiContext = api.useContext();
 
-  const updateStore = useCallback(() => {
-    void apiContext.finalizedRoutes.getAllFormattedFinalizedRoutes.invalidate();
-    void apiContext.finalizedRoutes.getFinalizedRoute.invalidate();
-  }, [apiContext]);
-
-  useEffect(() => {
-    document.addEventListener("visibilitychange", updateStore);
-    window.addEventListener("focus", updateStore);
-    return () => {
-      document.removeEventListener("visibilitychange", updateStore);
-      window.removeEventListener("focus", updateStore);
-    };
-  }, [updateStore]);
-
   return (
     <>
       <Head>

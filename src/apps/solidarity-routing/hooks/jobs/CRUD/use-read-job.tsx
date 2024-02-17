@@ -9,11 +9,11 @@ export const useReadJob = () => {
   const sessionStorageJobs = useStopsStore((state) => state);
 
   const getRouteJobs = api.routePlan.getJobBundles.useQuery(
-    { routeId: routeId as string },
+    { routeId },
     { enabled: isUserAllowedToSaveToDepot && routeId !== undefined }
   );
 
-  const getDepotClients = api.clients.getDepotClients.useQuery(
+  const getDepotClients = api.jobs.getCurrentDepotClients.useQuery(
     { depotId },
     { enabled: isUserAllowedToSaveToDepot && !!depotId }
   );

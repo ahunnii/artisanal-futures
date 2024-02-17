@@ -63,7 +63,7 @@ export const useUpdateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       updateVehicleDetails.mutate({
         vehicle: bundle.vehicle,
-        routeId: routeId as string,
+        routeId: routeId,
       });
     } else {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
@@ -95,7 +95,7 @@ export const useUpdateDriver = () => {
       updateDriverDefaults.mutate({
         bundle,
         defaultId: id,
-        depotId: Number(depotId),
+        depotId: depotId,
       });
     } else {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);

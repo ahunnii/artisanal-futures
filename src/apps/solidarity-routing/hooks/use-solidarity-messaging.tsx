@@ -53,6 +53,7 @@ export const useSolidarityMessaging = ({
       },
     });
 
+  console.log(getChannelMembership.data);
   return {
     driverChannel: getDepotDriverChannel.data,
     membership: getChannelMembership.data,

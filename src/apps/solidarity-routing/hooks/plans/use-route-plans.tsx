@@ -39,14 +39,14 @@ export const useRoutePlans = () => {
 
   const routingSolutions = useRoutingSolutions();
 
-  // const routeId = params?.routeId as string;
+  // const routeId = params?.routeId ;
   // const user = session?.user ?? null;
   const isSandbox = pathname?.includes("sandbox");
   const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
 
   const getRoutePlanById = api.routePlan.getRoutePlanById.useQuery(
     {
-      id: routeId as string,
+      id: routeId,
     },
     {
       enabled: !!routeId,
@@ -64,6 +64,41 @@ export const useRoutePlans = () => {
     },
     onSettled: () => {
       console.log("settled");
+    },
+  });
+
+  const getDepot = api.depots.getDepot.useQuery(
+    {
+      id: depotId,
+    },
+    {
+      enabled: !!depotId,
+    }
+  );
+  const createRoutePlanWithJobs = api.routePlan.createRoutePlan.useMutation({
+    onSuccess: (data) => {
+      toast.success("Route created!");
+    },
+    onError: (error) => {
+      toast.error("There was an error creating the route. Please try again.");
+      console.error(error);
+    },
+    onSettled: () => {
+      console.log("settled");
+    },
+  });
+
+  const createJobBundles = api.jobs.createJobBundles.useMutation({
+    onSuccess: () => {
+      toast.success("Jobs were successfully added to route.");
+    },
+    onError: (e: unknown) => {
+      console.error(e);
+      toast.error("There was an error adding jobs to route.");
+    },
+    onSettled: () => {
+      void apiContext.jobs.invalidate();
+      void apiContext.routePlan.invalidate();
     },
   });
 
@@ -106,7 +141,7 @@ export const useRoutePlans = () => {
 
     if (isUserAllowedToSaveToDepot) {
       setOptimizedData.mutate({
-        routeId: routeId as string,
+        routeId: routeId,
         plan: results as OptimizationPlan,
       });
     } else {
@@ -142,11 +177,9 @@ export const useRoutePlans = () => {
     const bundles = getRoutePlanById.data?.optimizedRoute?.map((route) => {
       return {
         email: route?.vehicle?.driver?.email,
-        url: `http://localhost:3000/tools/solidarity-pathways/1/route/${
-          routeId as string
-        }/path/${route.id}?pc=${generatePasscode(
-          route?.vehicle?.driver?.email ?? ""
-        )}`,
+        url: `http://localhost:3000/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${
+          route.id
+        }?pc=${generatePasscode(route?.vehicle?.driver?.email ?? "")}`,
         passcode: generatePasscode(route?.vehicle?.driver?.email ?? ""),
       };
     });
@@ -183,5 +216,6 @@ export const useRoutePlans = () => {
     allRoutes: getAllRoutes.data ?? [],
     routesByDate: getAllRoutesByDate.data ?? [],
     create: createRoutePlan.mutate,
+    depot: getDepot.data,
   };
 };

@@ -37,7 +37,8 @@ import { api } from "~/utils/api";
 
 const PathwaysDepotOverviewPage = () => {
   const { status } = useSession();
-  const { routeDate } = useSolidarityState();
+
+  const { routeDate, depotId } = useSolidarityState();
   const [date, setDate] = useState<Date | undefined>(routeDate ?? new Date());
 
   const [tabValue, setTabValue] = useState<string>("plan");
@@ -93,7 +94,7 @@ const PathwaysDepotOverviewPage = () => {
     });
 
   const depot = api.depots.getDepot.useQuery({
-    id: 1,
+    id: depotId,
   });
   return (
     <>
@@ -126,7 +127,7 @@ const PathwaysDepotOverviewPage = () => {
                     variant={"link"}
                     onClick={() => {
                       createServer({
-                        depotId: 1,
+                        depotId: depotId,
                         ownerId: depot?.data?.ownerId ?? "",
                       });
                     }}
@@ -207,13 +208,15 @@ const PathwaysDepotOverviewPage = () => {
   );
 };
 export const getServerSideProps = (ctx: GetServerSidePropsContext) => {
-  const { depotId, date } = ctx.query;
+  const { depotId, date, welcome } = ctx.query;
   if (!date)
     return {
       redirect: {
         destination: `/tools/solidarity-pathways/${
           depotId as string
-        }/overview?date=${new Date().toDateString().replace(/\s/g, "+")}`,
+        }/overview?date=${new Date().toDateString().replace(/\s/g, "+")}${
+          welcome ? `&welcome=${welcome as string}` : ""
+        }`,
         permanent: false,
       },
     };

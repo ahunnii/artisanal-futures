@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { DepotValues } from "~/apps/solidarity-routing/types.wip";
+
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const depotsRouter = createTRPCRouter({
@@ -14,7 +14,7 @@ export const depotsRouter = createTRPCRouter({
   getDepot: protectedProcedure
     .input(
       z.object({
-        id: z.number(),
+        id: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -22,20 +22,12 @@ export const depotsRouter = createTRPCRouter({
         where: {
           id: input.id,
         },
+        include: {
+          address: true,
+        },
       });
 
-      const address = depot?.depotAddressId
-        ? await ctx.prisma.address.findFirst({
-            where: {
-              id: depot.depotAddressId,
-            },
-          })
-        : undefined;
-
-      return {
-        ...depot,
-        address: address ?? undefined,
-      } as DepotValues;
+      return depot;
     }),
 
   createDepot: protectedProcedure
@@ -68,7 +60,6 @@ export const depotsRouter = createTRPCRouter({
             formatted: input.address.formatted,
             latitude: input.address.latitude,
             longitude: input.address.longitude,
-            depotId: depot.id,
           },
         });
       }
@@ -78,7 +69,7 @@ export const depotsRouter = createTRPCRouter({
           id: depot.id,
         },
         data: {
-          depotAddressId: address?.id ?? undefined,
+          addressId: address?.id ?? undefined,
         },
       });
     }),
@@ -86,7 +77,7 @@ export const depotsRouter = createTRPCRouter({
   updateDepot: protectedProcedure
     .input(
       z.object({
-        depotId: z.number(),
+        depotId: z.string(),
         name: z.string().optional(),
 
         address: z
@@ -112,7 +103,7 @@ export const depotsRouter = createTRPCRouter({
         address =
           (await ctx.prisma.address.upsert({
             where: {
-              id: depot?.depotAddressId ?? "",
+              id: depot?.addressId ?? "",
             },
             update: {
               formatted: input.address.formatted,
@@ -123,19 +114,16 @@ export const depotsRouter = createTRPCRouter({
               formatted: input.address.formatted,
               latitude: input.address.latitude,
               longitude: input.address.longitude,
-              depotId: input.depotId,
             },
           })) ?? null;
       }
-
-      console.log(address);
 
       return ctx.prisma.depot.update({
         where: {
           id: input.depotId,
         },
         data: {
-          depotAddressId: address?.id ?? null,
+          addressId: address?.id ?? null,
           name: input.name,
         },
       });

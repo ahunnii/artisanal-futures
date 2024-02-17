@@ -69,7 +69,7 @@ export const useUpdateJob = () => {
     if (!bundle.client) throw new Error("No client");
     if (isUserAllowedToSaveToDepot) {
       updateClient.mutate({
-        depotId: Number(depotId),
+        depotId: depotId,
         client: bundle.client,
       });
     } else {

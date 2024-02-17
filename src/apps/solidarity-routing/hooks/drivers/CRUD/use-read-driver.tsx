@@ -11,11 +11,11 @@ export const useReadDriver = () => {
 
   const getDepotDrivers = api.drivers.getDepotDrivers.useQuery(
     { depotId },
-    { enabled: isUserAllowedToSaveToDepot }
+    { enabled: isUserAllowedToSaveToDepot && depotId !== undefined }
   );
 
   const getRouteVehicles = api.routePlan.getVehicleBundles.useQuery(
-    { routeId: routeId as string },
+    { routeId: routeId },
     { enabled: isUserAllowedToSaveToDepot && routeId !== undefined }
   );
 
