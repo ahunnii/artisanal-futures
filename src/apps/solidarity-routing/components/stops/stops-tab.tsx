@@ -10,7 +10,7 @@ import { Button } from "~/components/ui/button";
 import { clientJobUploadOptions } from "../../data/stop-data";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
-import { FileUploadModal } from "../file-upload-modal.wip";
+import { FileUploadModal } from "../shared/file-upload-modal.wip";
 
 import { StopFilterBtn } from "./stop-filter-btn";
 import StopOptionBtn from "./stop-option-btn.wip";

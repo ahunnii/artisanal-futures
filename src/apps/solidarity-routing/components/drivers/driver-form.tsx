@@ -11,9 +11,9 @@ import { Form } from "~/components/ui/form";
 
 import { toast } from "~/components/ui/use-toast";
 
-import DriverDetailsSection from "../forms/driver-details.form";
-import ShiftDetailsSection from "../forms/shift-details.form";
-import VehicleDetailsSection from "../forms/vehicle-details.form";
+import { DriverDetailsSection } from "./driver-details.form";
+import { ShiftDetailsSection } from "./shift-details.form";
+import { VehicleDetailsSection } from "./vehicle-details.form";
 
 import {
   driverFormSchema,
@@ -43,7 +43,13 @@ type TDriverForm = {
 };
 
 const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
-  const driverBundles = useDriverVehicleBundles();
+  const {
+    updateDriver,
+    updateDepotDriver,
+    create,
+    deleteFromRoute,
+    updateDefaults,
+  } = useDriverVehicleBundles();
   const [open, setOpen] = useState(false);
 
   const [editDriver, setEditDriver] = useState(false);
@@ -112,14 +118,14 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
 
   function onSubmit(data: DriverFormValues) {
     if (activeDriver) {
-      driverBundles.updateDriver({
+      updateDriver({
         bundle: formatDriverFormDataToBundle(data),
       });
       if (editDriver)
-        driverBundles.updateDepotDriver({
+        updateDepotDriver({
           bundle: formatDriverFormDataToBundle(data),
         });
-    } else driverBundles.create({ driver: formatDriverFormDataToBundle(data) });
+    } else create({ driver: formatDriverFormDataToBundle(data) });
 
     toast({
       title: "You submitted the following values:",
@@ -134,15 +140,13 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   }
 
   const onDelete = () => {
-    driverBundles.deleteFromRoute({ vehicleId: activeDriver?.vehicle.id });
+    deleteFromRoute({ vehicleId: activeDriver?.vehicle.id });
     handleOnOpenChange(false);
   };
 
   const updateDefault = (data: DriverFormValues) => {
     const temp = formatDriverFormDataToBundle(data);
-
-    console.log(temp);
-    driverBundles.updateDefaults(activeDriver?.driver?.defaultVehicleId, temp);
+    updateDefaults(activeDriver?.driver?.defaultVehicleId, temp);
   };
 
   return (
@@ -157,10 +161,8 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
       <Form {...form}>
         <form
           onSubmit={(e) => {
-            console.log(form.formState.errors);
             void form.handleSubmit(onSubmit)(e);
           }}
-          onChange={() => console.log(form.watch("phone"))}
           className="  flex  h-full max-h-[calc(100vh-50vh)] w-full flex-col  space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
         >
           {activeDriver && (

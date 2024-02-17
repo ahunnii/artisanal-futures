@@ -1,28 +1,26 @@
 import { useMemo, type FC } from "react";
 
-import DepotCard from "~/apps/solidarity-routing/components/ui/depot-card";
+import DepotCard from "~/apps/solidarity-routing/components/shared/depot-card";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-type TDriverCard = { id: string; name: string };
+type Props = {
+  id: string;
+  name: string;
+};
 
-const DriverCard: FC<TDriverCard> = ({ id, name }) => {
-  const driverBundles = useDriverVehicleBundles();
+export const DriverCard: FC<Props> = ({ id, name }) => {
+  const { edit, isActive } = useDriverVehicleBundles();
 
-  const onEdit = () => driverBundles.edit(id);
+  const onDriverEdit = () => edit(id);
 
-  const isActive = useMemo(
-    () => driverBundles.isActive(id),
-    [driverBundles, id]
-  );
+  const isDriverActive = useMemo(() => isActive(id), [isActive, id]);
 
   return (
     <DepotCard
-      isActive={isActive}
+      isActive={isDriverActive}
       title={name ?? "Route Driver"}
-      onEdit={onEdit}
+      onEdit={onDriverEdit}
     />
   );
 };
-
-export default DriverCard;

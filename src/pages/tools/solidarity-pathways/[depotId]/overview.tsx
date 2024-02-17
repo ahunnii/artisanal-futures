@@ -8,20 +8,20 @@ import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 
-import { DriverAddSheet } from "~/apps/solidarity-routing/components/drivers/driver-add-sheet";
-import { FileUploadModal } from "~/apps/solidarity-routing/components/file-upload-modal.wip";
-import { HomePageOnboardingCard } from "~/apps/solidarity-routing/components/homepage-onboarding-card.wip";
-import { HomePageOverviewCard } from "~/apps/solidarity-routing/components/homepage-overview-card.wip";
-import { RouteCalendar } from "~/apps/solidarity-routing/components/route-calendar.wip";
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers/driver-vehicle-sheet";
+import { HomePageOnboardingCard } from "~/apps/solidarity-routing/components/overview/homepage-onboarding-card.wip";
+import { HomePageOverviewCard } from "~/apps/solidarity-routing/components/overview/homepage-overview-card.wip";
+import { RouteCalendar } from "~/apps/solidarity-routing/components/overview/route-calendar.wip";
+import { FileUploadModal } from "~/apps/solidarity-routing/components/shared/file-upload-modal.wip";
 
-import RouteLayout from "~/apps/solidarity-routing/route-layout";
+import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 import toast from "react-hot-toast";
-import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/layout/pathways-settings-menu.wip";
+import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/settings/pathways-settings-menu.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
@@ -32,12 +32,14 @@ import type {
 } from "~/apps/solidarity-routing/types.wip";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import { useUrlParams } from "~/hooks/use-url-params";
+import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api";
 
 const PathwaysDepotOverviewPage = () => {
   const { status } = useSession();
   const { routeDate } = useSolidarityState();
   const [date, setDate] = useState<Date | undefined>(routeDate ?? new Date());
+
   const [tabValue, setTabValue] = useState<string>("plan");
 
   const driverBundles = useDriverVehicleBundles();
@@ -95,7 +97,7 @@ const PathwaysDepotOverviewPage = () => {
   });
   return (
     <>
-      <DriverAddSheet standalone={true} />
+      <DriverVehicleSheet standalone={true} />
       <RouteLayout>
         <section className="flex flex-col-reverse  border-2 max-lg:justify-center max-md:h-full md:flex-1 lg:flex-row">
           <Tabs
@@ -153,6 +155,19 @@ const PathwaysDepotOverviewPage = () => {
                       Settings
                     </Button>
                   </PathwaysSettingsMenu>
+
+                  <Button
+                    className="mx-0 flex gap-2 px-0 "
+                    variant={"link"}
+                    onClick={() =>
+                      notificationService.notifySuccess({
+                        message: "yolo",
+                      })
+                    }
+                  >
+                    <Settings />
+                    Test
+                  </Button>
                 </div>
               </>
             </TabsContent>

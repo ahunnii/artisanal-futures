@@ -10,12 +10,12 @@ import type { RouteData, StepData } from "~/apps/solidarity-routing/types";
 
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 import { MobileDrawer } from "~/apps/solidarity-routing/components/mobile-drawer.wip";
-import RouteBreakdown from "~/apps/solidarity-routing/components/solutions/route-breakdown";
+import RouteBreakdown from "~/apps/solidarity-routing/components/route-plan-tab/route-breakdown";
 import FieldJobSheet from "~/apps/solidarity-routing/components/tracking/field-job-sheet.wip";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useOptimizedRoutePlan } from "~/apps/solidarity-routing/hooks/optimized-data/use-optimized-route-plan";
-import RouteLayout from "~/apps/solidarity-routing/route-layout";
 import type { OptimizedStop } from "~/apps/solidarity-routing/types.wip";
 import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";

@@ -2,9 +2,9 @@ import { useEffect } from "react";
 
 import { type GetServerSidePropsContext } from "next";
 
-import { useDepotModal } from "~/apps/solidarity-routing/hooks/use-depot-modal.wip";
+import { useDepotModal } from "~/apps/solidarity-routing/hooks/depot/use-depot-modal.wip";
 
-import { DepotModal } from "~/apps/solidarity-routing/components/depot/depot-modal.wip";
+import { DepotModal } from "~/apps/solidarity-routing/components/settings/depot-modal";
 import { getServerAuthSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 

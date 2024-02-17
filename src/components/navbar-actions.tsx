@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { MobileNav } from "~/apps/solidarity-routing/components/layout/mobile-nav";
-import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/layout/pathways-settings-menu.wip";
+
 import UserNav from "./ui/user-nav";
 
 const NavbarActions = () => {

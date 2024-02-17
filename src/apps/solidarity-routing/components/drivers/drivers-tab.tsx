@@ -1,9 +1,10 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import DriverCard from "~/apps/solidarity-routing/components/drivers/driver-card";
+import { DriverCard } from "~/apps/solidarity-routing/components/drivers/driver-card";
 
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import { DriverOptionsBtn } from "./driver-options-btn.wip";
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers/driver-vehicle-sheet";
 
 const DriversTab = () => {
   const driverBundles = useDriverVehicleBundles();
@@ -21,11 +22,11 @@ const DriversTab = () => {
             </span>
           </h2>
 
-          <DriverOptionsBtn />
+          <DriverVehicleSheet />
         </div>
 
         {driverBundles.data?.length === 0 && (
-          <p className="pb-4 pt-2   text-sm text-muted-foreground">
+          <p className="pb-4 pt-2 text-sm text-muted-foreground">
             No drivers have been added to this route yet.
           </p>
         )}

@@ -1,4 +1,4 @@
-import RouteLayout from "~/apps/solidarity-routing/route-layout";
+import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 
 const SandboxRoutingPage = () => {
   return (

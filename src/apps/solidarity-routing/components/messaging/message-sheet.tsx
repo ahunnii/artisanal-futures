@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building, MessageSquare, Send } from "lucide-react";
+import { Send, User } from "lucide-react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import type * as z from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -15,78 +15,61 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "~/components/ui/map-sheet";
 
-import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useEffect, useRef, type ReactNode } from "react";
+
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+
+import { useSolidarityMessaging } from "~/apps/solidarity-routing/hooks/use-solidarity-messaging";
+import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 import { AutoResizeTextArea } from "~/components/ui/auto-resize-textarea";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
-import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
-import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
+import { messageSchema } from "../../schemas.wip";
 import { MessagingBody } from "./messaging-body";
 
-const messageSchema = z.object({
-  message: z.string(),
-});
+type Props = {
+  currentDriver: DriverVehicleBundle | null;
+  isDepot: boolean;
+  children: ReactNode;
+};
 
-export const MessageSheet = () => {
-  const [open, setOpen] = useState(false);
+type MessageFormValues = z.infer<typeof messageSchema>;
+
+export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
+  const { driverChannel, membership, createMessage } = useSolidarityMessaging({
+    currentDriver: currentDriver,
+    isDepot: isDepot,
+  });
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { depotId } = useSolidarityState();
+
   const apiContext = api.useContext();
-  const optimizedRoute = useOptimizedRoutePlan();
-  const { data: depotChannel } =
-    api.routeMessaging.getDepotDriverChannel.useQuery(
-      {
-        depotId,
-        driverId: optimizedRoute?.currentDriver!.driver.id,
-      },
-      {
-        enabled:
-          optimizedRoute?.currentDriver?.driver?.id !== undefined && open,
-      }
-    );
+  const driverBundles = useDriverVehicleBundles();
 
-  const { data: membership } = api.routeMessaging.getMember.useQuery(
-    {
-      depotId,
-      driverId: optimizedRoute?.currentDriver?.driver?.id,
-    },
-    {
-      enabled: optimizedRoute?.currentDriver?.driver?.id !== undefined && open,
-    }
-  );
-
-  const { mutate: createMessage } =
-    api.routeMessaging.sendDriverChannelMessage.useMutation({
-      onSuccess: () => {
-        toast.success("Message sent");
-      },
-      onError: (e) => {
-        toast.error("There was an issue sending your message");
-        console.log(e);
-      },
-      onSettled: () => {
-        void apiContext.routeMessaging.invalidate();
-      },
-    });
+  useEffect(() => {
+    if (
+      bottomRef.current &&
+      driverChannel?.messages &&
+      membership &&
+      driverBundles.isMessageSheetOpen
+    )
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [driverChannel?.messages, membership, driverBundles.isMessageSheetOpen]);
 
   const onSubmit = (data: MessageFormValues) => {
-    if (membership?.id !== undefined && depotChannel?.id !== undefined) {
+    if (membership?.id !== undefined && driverChannel?.id !== undefined) {
       createMessage({
         memberId: membership?.id,
-        channelId: depotChannel?.id,
+        channelId: driverChannel?.id,
         message: data.message,
       });
       bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
+      form.reset();
     }
   };
-
-  type MessageFormValues = z.infer<typeof messageSchema>;
 
   const form = useForm<MessageFormValues>({
     resolver: zodResolver(messageSchema),
@@ -94,12 +77,6 @@ export const MessageSheet = () => {
       message: "",
     },
   });
-
-  useEffect(() => {
-    // 👇️ scroll to bottom every time messages change
-    if (bottomRef.current && depotChannel?.messages && membership && open)
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [depotChannel?.messages, membership, open]);
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -118,25 +95,20 @@ export const MessageSheet = () => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        toast.success(form.getValues().message);
         onSubmit(form.getValues());
-        form.reset();
-        // setOpen((open) => !open);
       }
     };
-
-    document.addEventListener("keydown", down);
+    if (form) document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [membership?.id, driverChannel?.id]);
 
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
-      <SheetTrigger asChild>
-        <Button variant="outline" className="px-3 shadow-none">
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Open Messaging
-        </Button>
-      </SheetTrigger>
+    <Sheet
+      open={driverBundles.isMessageSheetOpen}
+      onOpenChange={driverBundles.onMessageSheetOpenChange}
+    >
+      <SheetTrigger asChild>{children}</SheetTrigger>
 
       <SheetContent
         side={"right"}
@@ -144,26 +116,32 @@ export const MessageSheet = () => {
         onInteractOutside={(e) => e.preventDefault()}
       >
         <SheetHeader>
-          <SheetTitle className="text-center text-xl md:text-left">
-            General Messaging for Depot {depotChannel?.id} -{" "}
-            {depotChannel?.name}
-          </SheetTitle>
-          <SheetDescription className="text-center md:text-left">
-            Ask questions about the route, or send updates about a stop to the
-            depot.
+          <h3>
+            Message Thread with{" "}
+            {isDepot ? currentDriver?.driver?.name : "Depot"}
+          </h3>
+          <SheetDescription>
+            General messaging for {driverChannel?.name}. Ask questions about the
+            routes or provide updates.
           </SheetDescription>
         </SheetHeader>
-
-        {open && depotChannel?.messages && membership && (
-          <ScrollArea>
-            <MessagingBody
-              messages={depotChannel?.messages ?? []}
-              senderId={membership?.id}
-              SenderIcon={Building}
-            />
-            <div ref={bottomRef} />
-          </ScrollArea>
-        )}
+        {driverBundles.isMessageSheetOpen &&
+          driverChannel?.messages &&
+          driverChannel?.messages?.length > 0 &&
+          membership && (
+            <ScrollArea>
+              <MessagingBody
+                messages={driverChannel?.messages ?? []}
+                senderId={membership?.id}
+                SenderIcon={User}
+              />
+              <div ref={bottomRef} />
+            </ScrollArea>
+          )}
+        {!driverChannel?.messages ||
+          (driverChannel?.messages?.length === 0 && (
+            <ScrollArea className="flex-1 bg-slate-50 shadow-inner"></ScrollArea>
+          ))}
 
         <Form {...form}>
           <div className="flex-shrink-0">

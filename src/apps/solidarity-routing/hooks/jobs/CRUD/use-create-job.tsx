@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { clientJobDataForNewLatLng } from "~/apps/solidarity-routing/data/stop-data";
 import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { api } from "~/utils/api";
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 import { useStopsStore } from "../use-stops-store";
 
 type Coordinates = {
@@ -11,24 +12,23 @@ type Coordinates = {
   lng: number;
 };
 
+type TCreateNewJobProps = {
+  job: ClientJobBundle;
+  addToRoute?: boolean;
+};
+
+type TCreateNewJobsProps = {
+  jobs: ClientJobBundle[];
+  addToRoute?: boolean;
+};
 export const useCreateJob = () => {
-  const { data: session } = useSession();
+  const { isUserAllowedToSaveToDepot, depotId, routeId } = useSolidarityState();
+
   const sessionStorageJobs = useStopsStore((state) => state);
-
-  const pathname = usePathname();
-
-  const params = useParams();
 
   const apiContext = api.useContext();
 
-  const depotId = Number(params?.depotId as string);
-  const routeId = params?.routeId as string;
-
-  const isSandbox = pathname?.includes("sandbox");
-
-  const isUserAllowedToSaveToDepot = (session?.user ?? null) && !isSandbox;
-
-  const setJobsToRoute = api.jobs.createJobBundles.useMutation({
+  const createJobBundles = api.jobs.createJobBundles.useMutation({
     onSuccess: () => {
       toast.success("Jobs were successfully added to route.");
     },
@@ -39,44 +39,31 @@ export const useCreateJob = () => {
     onSettled: () => {
       void apiContext.jobs.invalidate();
       void apiContext.routePlan.invalidate();
-      // void apiContext.clients.invalidate();
     },
   });
-  // const createNewJob = ({ job, addToRoute }: TCreateNewJobProps) => void 0;
-  // const createNewJobs = ({ jobs, addToRoute }: TCreateNewJobsProps) => void 0;
 
   const createNewJobByLatLng = ({ lat, lng }: Coordinates) => {
     const driver = clientJobDataForNewLatLng(lat, lng);
 
     if (isUserAllowedToSaveToDepot) {
-      setJobsToRoute.mutate({
+      createJobBundles.mutate({
         bundles: [driver],
         depotId: Number(depotId),
-        routeId,
+        routeId: routeId as string,
       });
     } else {
       sessionStorageJobs.appendLocation(driver);
     }
   };
 
-  // const setDepotClients = (bundles: ClientJobBundle[]) => void 0;
-  // const setDepotJobs = (bundles: ClientJobBundle[]) => void 0;
-
-  const createNewJob = ({
-    job,
-    addToRoute,
-  }: {
-    job: ClientJobBundle;
-    addToRoute?: boolean;
-  }) => {
+  const createNewJob = ({ job, addToRoute }: TCreateNewJobProps) => {
     if (isUserAllowedToSaveToDepot) {
-      // console.log("jobs", jobs);
-      setJobsToRoute.mutate({
+      createJobBundles.mutate({
         bundles: [
           { job: job.job, client: job.client?.email ? job.client : undefined },
         ],
         depotId,
-        routeId: addToRoute ? routeId : undefined,
+        routeId: addToRoute ? (routeId as string) : undefined,
       });
     } else {
       sessionStorageJobs.appendLocation({
@@ -86,24 +73,17 @@ export const useCreateJob = () => {
     }
   };
 
-  const createNewJobs = ({
-    jobs,
-    addToRoute,
-  }: {
-    jobs: ClientJobBundle[];
-    addToRoute?: boolean;
-  }) => {
+  const createNewJobs = ({ jobs, addToRoute }: TCreateNewJobsProps) => {
     const filterClientsWithoutEmails = jobs.map((job) => ({
       job: job.job,
       client: job.client?.email ? job.client : undefined,
     }));
 
     if (isUserAllowedToSaveToDepot) {
-      // console.log("jobs", jobs);
-      setJobsToRoute.mutate({
+      createJobBundles.mutate({
         bundles: filterClientsWithoutEmails,
         depotId,
-        routeId: addToRoute ? routeId : undefined,
+        routeId: addToRoute ? (routeId as string) : undefined,
       });
     } else {
       filterClientsWithoutEmails.forEach((job) => {
@@ -116,8 +96,5 @@ export const useCreateJob = () => {
     createNewJob,
     createNewJobs,
     createNewJobByLatLng,
-    // setDepotClients,
-    // setDepotJobs,
-    // setRouteJobs,
   };
 };

@@ -18,8 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { api } from "~/utils/api";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
-import { JobDepotSelect } from "./job-depot-select";
-import { PickJobsByDateBtn } from "./pick-jobs-by-date-btn.wip";
+import { JobDepotDataTable } from "./job-depot-data-table";
+import { JobDepotDateSelectBtn } from "./job-depot-date-select-btn";
 const StopSheet = ({ standalone }: { standalone?: boolean }) => {
   const jobs = useClientJobBundles();
 
@@ -136,11 +136,11 @@ const StopSheet = ({ standalone }: { standalone?: boolean }) => {
                   <h3 className="text-lg font-medium text-muted-foreground">
                     Select a date to add previous stops
                   </h3>
-                  <PickJobsByDateBtn date={date} setDate={setDate} />
+                  <JobDepotDateSelectBtn date={date} setDate={setDate} />
                 </div>
 
                 {date && (
-                  <JobDepotSelect
+                  <JobDepotDataTable
                     storeData={jobs.data}
                     data={getStopsByDate.data ?? []}
                     setSelectedData={setSelectedData}

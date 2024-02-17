@@ -6,14 +6,14 @@ export const useSolidarityState = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const isSandbox = pathname?.includes("sandbox");
   const depotId = Number(params?.depotId) ?? undefined;
   const routeId = params?.routeId ?? undefined;
   const pathId = params?.pathId ?? undefined;
   const driverId = searchParams.get("driverId") ?? undefined;
-
+  const optimizedId = searchParams.get("optimizedId") ?? undefined;
   const date = searchParams.get("date") ?? "";
   const formattedDateString = date?.replace(/\+/g, " ");
   const dateObject = new Date(formattedDateString);
@@ -28,6 +28,8 @@ export const useSolidarityState = () => {
     routeId,
     pathId,
     driverId,
+    optimizedId,
     routeDate: date ? dateObject : null,
+    sessionStatus: status,
   };
 };

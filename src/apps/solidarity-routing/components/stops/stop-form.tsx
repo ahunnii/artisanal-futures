@@ -31,9 +31,8 @@ import {
   unixSecondsToMilitaryTime,
 } from "../../utils/generic/format-utils.wip";
 
-import { useUrlParams } from "~/hooks/use-url-params";
-import ClientDetailsSection from "../forms/client-detail-form";
-import StopDetailsSection from "../forms/stop-details-form";
+import ClientDetailsSection from "./client-detail-form";
+import StopDetailsSection from "./job-details-form";
 
 type TStopForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -46,7 +45,7 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
   const [loading] = useState(false);
   const [editClient, setEditClient] = useState(false);
   const { status } = useSession();
-  const { updateUrlParams, getUrlParam } = useUrlParams();
+
   const [, setAccordionValue] = useState(activeLocation ? "item-2" : "item-1");
 
   const defaultValues: Partial<StopFormValues> = {
@@ -142,9 +141,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-          onChange={() => {
-            console.log(form.watch("address"));
-          }}
           className="  flex  h-full max-h-[calc(100vh-50vh)] w-full flex-col  space-y-8 md:h-[calc(100vh-15vh)] lg:flex-grow"
         >
           {activeLocation && (
@@ -162,12 +158,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
                   <Trash className="h-4 w-4" />
                   <span className="sr-only">Delete</span>
                 </Button>
-
-                {/* {status === "authenticated" && (
-                  <Button type="submit" className="flex-1" variant={"outline"}>
-                    {activeLocation ? "Set as client default" : "Save and add"}
-                  </Button>
-                )} */}
               </div>
             </div>
           )}
@@ -205,20 +195,6 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
 
       {activeLocation?.client && (
         <div className=" mt-auto  w-full flex-col  gap-2 space-y-0.5 border-t  pt-4">
-          {/* <div className="flex w-full">
-            <Button
-              variant={"link"}
-              type="button"
-              className=" m-0 items-center  gap-1 p-0"
-              onClick={() => {
-                console.log(form.getValues());
-                // updateDefault(form.getValues());
-              }}
-            >
-              <FileCog className="h-4 w-4" />
-              Set as default for {activeLocation?.driver.name}
-            </Button>
-          </div> */}
           <div className="flex w-full">
             <Button
               variant={"link"}

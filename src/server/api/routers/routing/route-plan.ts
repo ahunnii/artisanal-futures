@@ -653,7 +653,7 @@ export const routePlanRouter = createTRPCRouter({
       const bundles = data.map((job) => ({
         client: job.client,
         job: job,
-      }));
+      })) as ClientJobBundle[];
 
       return bundles;
     }),

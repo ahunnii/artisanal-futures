@@ -4,6 +4,7 @@ import { useDriversStore } from "./use-drivers-store";
 
 import { useUrlParams } from "~/hooks/use-url-params";
 
+import { useRouteStore } from "~/store";
 import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 import { useCreateDriver } from "./CRUD/use-create-driver";
 import { useDeleteDriver } from "./CRUD/use-delete-driver";
@@ -20,6 +21,7 @@ export const useDriverVehicleBundles = () => {
   const deleteDriver = useDeleteDriver();
 
   const sessionStorageDrivers = useDriversStore((state) => state);
+  const sessionStorageRoutes = useRouteStore((state) => state);
 
   const setActiveDriver = (id: string | null) => {
     updateUrlParams({
@@ -28,7 +30,7 @@ export const useDriverVehicleBundles = () => {
     });
 
     const driver = isUserAllowedToSaveToDepot
-      ? readDriver.checkIfDriverExistsInDepot(id)
+      ? readDriver.checkIfDriverExistsInRoute(id)
       : readDriver.checkIfDriverExistsInStorage(id);
 
     if (!driver) {
@@ -53,6 +55,7 @@ export const useDriverVehicleBundles = () => {
     isDataLoading: readDriver.isLoading,
 
     active: sessionStorageDrivers.activeDriver,
+    setActive: setActiveDriver,
     isActive: (id: string) => {
       return sessionStorageDrivers.activeDriver?.vehicle.id === id;
     },
@@ -103,11 +106,22 @@ export const useDriverVehicleBundles = () => {
     isRouteSheetOpen: sessionStorageDrivers.isDriverRoutePanelOpen,
     onRouteSheetOpenChange: (state: boolean) => {
       if (!state) setActiveDriver(null);
+      if (!state)
+        updateUrlParams({
+          key: "optimizedId",
+          value: null,
+        });
+
       sessionStorageDrivers.setIsDriverRoutePanelOpen(state);
     },
 
-    route: (id: string) => {
+    route: (id: string, routeId: string) => {
       setActiveDriver(id);
+      updateUrlParams({
+        key: "optimizedId",
+        value: routeId,
+      });
+
       sessionStorageDrivers.setIsDriverRoutePanelOpen(true);
     },
   };

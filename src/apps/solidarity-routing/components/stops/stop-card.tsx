@@ -1,6 +1,6 @@
 import { useMemo, type FC } from "react";
 
-import DepotCard from "~/apps/solidarity-routing/components/ui/depot-card";
+import DepotCard from "~/apps/solidarity-routing/components/shared/depot-card";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
 type TStopCard = { id: string; name: string; address: string };
