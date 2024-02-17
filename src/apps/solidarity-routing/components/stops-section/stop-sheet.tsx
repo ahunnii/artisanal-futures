@@ -1,4 +1,4 @@
-import StopForm from "~/apps/solidarity-routing/components/stops/stop-form";
+import StopForm from "~/apps/solidarity-routing/components/stops-section/stop-form";
 import {
   Sheet,
   SheetContent,

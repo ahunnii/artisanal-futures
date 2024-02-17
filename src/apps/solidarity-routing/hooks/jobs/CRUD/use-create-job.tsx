@@ -1,5 +1,3 @@
-import { useSession } from "next-auth/react";
-import { useParams, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { clientJobDataForNewLatLng } from "~/apps/solidarity-routing/data/stop-data";
 import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";

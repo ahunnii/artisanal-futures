@@ -1,19 +1,23 @@
 import { api } from "~/utils/api";
 import { useDriversStore } from "../use-drivers-store";
 
-import toast from "react-hot-toast";
 import { driverVehicleDataForNewLatLng } from "~/apps/solidarity-routing/data/driver-data";
-import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+import type {
+  Coordinates,
+  DriverVehicleBundle,
+} from "~/apps/solidarity-routing/types.wip";
+import { notificationService } from "~/services/notification";
 import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 
-type TCreateNewDriversProps = {
+type TCreateNewDriverProps = {
   driver: DriverVehicleBundle;
 };
 
-type Coordinates = {
-  lat: number;
-  lng: number;
-};
+type DriverVehicleBundles = { drivers: DriverVehicleBundle[] };
+
+type TCreateNewDriversProps = {
+  addToRoute?: boolean;
+} & DriverVehicleBundles;
 
 export const useCreateDriver = () => {
   const { isUserAllowedToSaveToDepot, depotId, routeId } = useSolidarityState();
@@ -23,11 +27,15 @@ export const useCreateDriver = () => {
   const apiContext = api.useContext();
 
   const createVehicleBundles = api.drivers.createVehicleBundles.useMutation({
-    onSuccess: () => toast.success("Driver(s) successfully created."),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
+    onSuccess: () =>
+      notificationService.notifySuccess({
+        message: "Driver(s) successfully created.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "There was an issue creating the driver(s). Please try again.",
+        error,
+      }),
     onSettled: () => {
       void apiContext.drivers.invalidate();
       void apiContext.routePlan.invalidate();
@@ -35,11 +43,15 @@ export const useCreateDriver = () => {
   });
 
   const overrideCurrentDepot = api.drivers.setDepotVehicles.useMutation({
-    onSuccess: () => toast.success("Woohoo! Drivers created!"),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
+    onSuccess: () =>
+      notificationService.notifySuccess({
+        message: "Depot drivers were successfully set.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "There was an issue setting the driver(s). Please try again.",
+        error,
+      }),
     onSettled: () => {
       void apiContext.drivers.invalidate();
       void apiContext.routePlan.invalidate();
@@ -48,20 +60,24 @@ export const useCreateDriver = () => {
 
   const overrideCurrentRoutes = api.routePlan.setRouteVehicles.useMutation({
     onSuccess: () =>
-      toast.success("Drivers were successfully added to the route."),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
+      notificationService.notifySuccess({
+        message: "Route drivers were successfully set.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "There was an issue setting the driver(s). Please try again.",
+        error,
+      }),
     onSettled: () => {
       void apiContext.drivers.invalidate();
       void apiContext.routePlan.invalidate();
+
       sessionStorageDrivers.setIsDriverSheetOpen(false);
       sessionStorageDrivers.setActiveDriver(null);
     },
   });
 
-  const createNewDriver = ({ driver }: TCreateNewDriversProps) => {
+  const createNewDriver = ({ driver }: TCreateNewDriverProps) => {
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: [driver],
@@ -76,10 +92,7 @@ export const useCreateDriver = () => {
   const createNewDrivers = ({
     drivers,
     addToRoute,
-  }: {
-    drivers: DriverVehicleBundle[];
-    addToRoute?: boolean;
-  }) => {
+  }: TCreateNewDriversProps) => {
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: drivers,
@@ -99,7 +112,7 @@ export const useCreateDriver = () => {
     if (isUserAllowedToSaveToDepot) {
       createVehicleBundles.mutate({
         data: [driver],
-        depotId: Number(depotId),
+        depotId,
         routeId: routeId as string,
       });
     } else {
@@ -107,18 +120,18 @@ export const useCreateDriver = () => {
     }
   };
 
-  const setDepotDrivers = ({ drivers }: { drivers: DriverVehicleBundle[] }) => {
+  const setDepotDrivers = ({ drivers }: DriverVehicleBundles) => {
     if (isUserAllowedToSaveToDepot) {
       overrideCurrentDepot.mutate({
         data: drivers,
-        depotId: Number(depotId),
+        depotId,
       });
     } else {
       sessionStorageDrivers.setDrivers(drivers);
     }
   };
 
-  const setRouteDrivers = ({ drivers }: { drivers: DriverVehicleBundle[] }) => {
+  const setRouteDrivers = ({ drivers }: DriverVehicleBundles) => {
     if (isUserAllowedToSaveToDepot) {
       overrideCurrentRoutes.mutate({
         data: drivers,

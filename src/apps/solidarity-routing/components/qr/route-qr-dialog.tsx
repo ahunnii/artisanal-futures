@@ -5,7 +5,7 @@ import { QrCode } from "lucide-react";
 
 import "react-phone-number-input/style.css";
 
-import LoadingIndicator from "~/apps/solidarity-routing/components/route-plan-tab/loading-indicator";
+import LoadingIndicator from "~/apps/solidarity-routing/components/route-plan-section/loading-indicator";
 
 import { Button } from "~/components/ui/button";
 import {

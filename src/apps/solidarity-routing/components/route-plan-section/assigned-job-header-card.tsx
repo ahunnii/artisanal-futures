@@ -11,8 +11,6 @@ import OnlineIndicator from "~/apps/solidarity-routing/components/ui/online-indi
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import { RouteStatus } from "@prisma/client";
-import type { OptimizedRoutePath } from "~/apps/solidarity-routing/types.wip";
 import { formatWord } from "../../utils/format-word";
 import {
   metersToMiles,

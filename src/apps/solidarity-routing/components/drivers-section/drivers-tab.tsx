@@ -1,10 +1,10 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import { DriverCard } from "~/apps/solidarity-routing/components/drivers/driver-card";
+import { DriverCard } from "~/apps/solidarity-routing/components/drivers-section/driver-card";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers/driver-vehicle-sheet";
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
 
 const DriversTab = () => {
   const driverBundles = useDriverVehicleBundles();

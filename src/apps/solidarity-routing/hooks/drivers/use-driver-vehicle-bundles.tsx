@@ -4,7 +4,6 @@ import { useDriversStore } from "./use-drivers-store";
 
 import { useUrlParams } from "~/hooks/use-url-params";
 
-import { useRouteStore } from "~/store";
 import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 import { useCreateDriver } from "./CRUD/use-create-driver";
 import { useDeleteDriver } from "./CRUD/use-delete-driver";
@@ -21,7 +20,6 @@ export const useDriverVehicleBundles = () => {
   const deleteDriver = useDeleteDriver();
 
   const sessionStorageDrivers = useDriversStore((state) => state);
-  const sessionStorageRoutes = useRouteStore((state) => state);
 
   const setActiveDriver = (id: string | null) => {
     updateUrlParams({

@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Bomb, Building, Car, Map, Settings, Truck, User } from "lucide-react";
+import { Bomb, Building, Car, Map, Truck, User } from "lucide-react";
 
 import { useRouter } from "next/router";
-import { ReactNode, useState } from "react";
+import { useState, type ReactNode } from "react";
 import toast from "react-hot-toast";
 
 import { Button } from "~/components/ui/button";

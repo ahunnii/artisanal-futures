@@ -356,7 +356,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
           </ContextMenuLabel>
           <ContextMenuItem
-            onClick={() => addJobByLatLng(latLng?.lat, latLng?.lng)}
+            onClick={() =>
+              addJobByLatLng({
+                lat: latLng?.lat,
+                lng: latLng?.lng,
+              })
+            }
           >
             Add as Stop
           </ContextMenuItem>

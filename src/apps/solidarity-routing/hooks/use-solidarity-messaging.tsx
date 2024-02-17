@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api";
-import { DriverVehicleBundle } from "../types.wip";
+import type { DriverVehicleBundle } from "../types.wip";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
-import { useOptimizedRoutePlan } from "./optimized-data/use-optimized-route-plan";
+
 import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
 export const useSolidarityMessaging = ({

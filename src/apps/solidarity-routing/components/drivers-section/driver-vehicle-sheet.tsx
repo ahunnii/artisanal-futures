@@ -13,8 +13,8 @@ import {
 } from "~/components/ui/map-sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import { DriverDepotDataTable } from "~/apps/solidarity-routing/components/drivers/driver-depot-data-table";
-import DriverForm from "~/apps/solidarity-routing/components/drivers/driver-form";
+import { DriverDepotDataTable } from "~/apps/solidarity-routing/components/drivers-section/driver-depot-data-table";
+import DriverForm from "~/apps/solidarity-routing/components/drivers-section/driver-form";
 
 import { numberStringToPhoneFormat } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 

@@ -16,8 +16,8 @@ import { cn } from "~/utils/styles";
 
 import Link from "next/link";
 
-import { AssignedJobHeaderCard } from "~/apps/solidarity-routing/components/route-plan-tab/assigned-job-header-card";
-import RouteBreakdown from "~/apps/solidarity-routing/components/route-plan-tab/route-breakdown";
+import { AssignedJobHeaderCard } from "~/apps/solidarity-routing/components/route-plan-section/assigned-job-header-card";
+import RouteBreakdown from "~/apps/solidarity-routing/components/route-plan-section/route-breakdown";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import type {
   OptimizedRoutePath,

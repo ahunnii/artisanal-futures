@@ -8,7 +8,7 @@ import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 
-import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers/driver-vehicle-sheet";
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
 import { HomePageOnboardingCard } from "~/apps/solidarity-routing/components/overview/homepage-onboarding-card.wip";
 import { HomePageOverviewCard } from "~/apps/solidarity-routing/components/overview/homepage-overview-card.wip";
 import { RouteCalendar } from "~/apps/solidarity-routing/components/overview/route-calendar.wip";

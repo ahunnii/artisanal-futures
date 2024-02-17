@@ -19,11 +19,11 @@ import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 
-import { DriversTab } from "~/apps/solidarity-routing/components/drivers";
+import { DriversTab } from "~/apps/solidarity-routing/components/drivers-section";
 import {
   StopSheet,
   StopsTab,
-} from "~/apps/solidarity-routing/components/stops";
+} from "~/apps/solidarity-routing/components/stops-section";
 
 import {
   Drawer,
@@ -34,7 +34,7 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 
-import CalculationsTab from "~/apps/solidarity-routing/components/route-plan-tab/calculations-tab";
+import CalculationsTab from "~/apps/solidarity-routing/components/route-plan-section/calculations-tab";
 
 import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
 

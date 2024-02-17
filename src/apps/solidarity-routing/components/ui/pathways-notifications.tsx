@@ -1,9 +1,7 @@
 import { Bell, Car } from "lucide-react";
 
-import { useMemo } from "react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+
 import {
   Popover,
   PopoverContent,
@@ -40,7 +38,7 @@ export const PathwaysNotifications = () => {
       <PopoverTrigger asChild>
         <Button variant="ghost" size={"icon"} className="relative">
           <Bell />{" "}
-          {notifications?.length > 0 && (
+          {notifications && notifications?.length > 0 && (
             <span className="absolute right-0 top-0 flex h-3 w-3">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
               <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
@@ -66,7 +64,7 @@ export const PathwaysNotifications = () => {
                   variant={"ghost"}
                   onClick={() => {
                     updateMessages({ channelId: notification.id });
-                    driverBundles.message(notification.driverId as string);
+                    driverBundles.message(notification.driverId);
                   }}
                 >
                   <span className="aspect-square h-fit rounded-full bg-slate-100 p-2">
@@ -82,6 +80,13 @@ export const PathwaysNotifications = () => {
                     </p> */}
                   </div>
                 </Button>
+              ))}
+
+            {!notifications ||
+              (notifications.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No new notifications
+                </p>
               ))}
           </div>
         </div>

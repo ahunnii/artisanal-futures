@@ -1,4 +1,4 @@
-import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
+import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 import { api } from "~/utils/api";
 import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 import { useStopsStore } from "../use-stops-store";

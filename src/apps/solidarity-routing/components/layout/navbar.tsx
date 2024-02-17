@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import NavbarActions from "~/components/navbar-actions";
 
-import { Bell, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { PathwaysSettingsMenu } from "../settings/pathways-settings-menu.wip";
 import { PathwaysNotifications } from "../ui/pathways-notifications";

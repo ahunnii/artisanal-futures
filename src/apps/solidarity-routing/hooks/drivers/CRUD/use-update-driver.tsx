@@ -5,14 +5,13 @@ import { useDriversStore } from "../use-drivers-store";
 
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 import { useUrlParams } from "~/hooks/use-url-params";
-import { useOptimizedRoutePlan } from "../../optimized-data/use-optimized-route-plan";
+
 import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
-import { useRoutePlans } from "../../plans/use-route-plans";
 
 export const useUpdateDriver = () => {
   // const routePlan = useRoutePlans();
 
-  const { updateUrlParams, getUrlParam } = useUrlParams();
+  const { updateUrlParams } = useUrlParams();
 
   const { isUserAllowedToSaveToDepot, routeId, depotId } = useSolidarityState();
 

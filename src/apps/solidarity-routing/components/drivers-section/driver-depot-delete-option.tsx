@@ -1,15 +1,15 @@
-import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+import { useDeleteDriver } from "../../hooks/drivers/CRUD/use-delete-driver";
 
 type Props = {
   row: DriverVehicleBundle;
 };
 
 export const DriverDepotDeleteOption = ({ row }: Props) => {
-  const { deleteFromDepot } = useDriverVehicleBundles();
+  const { deleteDriverFromDepot } = useDeleteDriver();
 
   const editPost = () => {
-    deleteFromDepot({
+    deleteDriverFromDepot({
       driverId: row.driver.id,
       vehicleId: row.vehicle.id,
     });

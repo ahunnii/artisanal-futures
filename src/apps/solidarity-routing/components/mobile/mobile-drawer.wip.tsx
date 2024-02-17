@@ -1,5 +1,5 @@
 import { RouteStatus } from "@prisma/client";
-import { Car, Check, MessageSquare, MoreVertical } from "lucide-react";
+import { Check, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -11,19 +11,19 @@ import {
 } from "~/components/ui/drawer";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/utils/styles";
-import { useDriverVehicleBundles } from "../hooks/drivers/use-driver-vehicle-bundles";
-import { useOptimizedRoutePlan } from "../hooks/optimized-data/use-optimized-route-plan";
-import { useSolidarityMessaging } from "../hooks/use-solidarity-messaging";
-import type { OptimizedStop } from "../types.wip";
-import { getColor } from "../utils/generic/color-handling";
+import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
+import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
+
+import type { OptimizedStop } from "../../types.wip";
+import { getColor } from "../../utils/generic/color-handling";
 import {
   cuidToIndex,
   metersToMiles,
   unixSecondsToStandardTime,
-} from "../utils/generic/format-utils.wip";
-import { FieldJobSearch } from "./field-job-search.wip";
-import { MessageSheet } from "./messaging/message-sheet";
-import RouteBreakdown from "./route-plan-tab/route-breakdown";
+} from "../../utils/generic/format-utils.wip";
+import { FieldJobSearch } from "../field-job-search.wip";
+import { MessageSheet } from "../messaging/message-sheet";
+import RouteBreakdown from "../route-plan-section/route-breakdown";
 
 export const MobileDrawer = () => {
   const optimizedRoutePlan = useOptimizedRoutePlan();

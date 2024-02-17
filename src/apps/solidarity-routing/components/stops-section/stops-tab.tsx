@@ -1,6 +1,6 @@
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import StopCard from "~/apps/solidarity-routing/components/stops/stop-card";
+import StopCard from "~/apps/solidarity-routing/components/stops-section/stop-card";
 
 import { Lightbulb } from "lucide-react";
 
