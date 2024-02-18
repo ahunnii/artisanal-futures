@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/settings/pathways-settings-menu.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
+import { useDepot } from "~/apps/solidarity-routing/hooks/depot/use-depot";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 import type {
@@ -76,6 +77,7 @@ const PathwaysDepotOverviewPage = () => {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const addSingleDriver = () => driverBundles.onSheetOpenChange(true);
 
+  const { currentDepot } = useDepot();
   const clientJobImportOptions = clientJobUploadOptions({
     jobs: jobBundles.data,
     setJobs: jobBundles.createMany,
@@ -93,9 +95,9 @@ const PathwaysDepotOverviewPage = () => {
       },
     });
 
-  const depot = api.depots.getDepot.useQuery({
-    id: depotId,
-  });
+  // const depot = api.depots.getDepot.useQuery({
+  //   id: depotId,
+  // });
   return (
     <>
       <DriverVehicleSheet standalone={true} />
@@ -128,7 +130,7 @@ const PathwaysDepotOverviewPage = () => {
                     onClick={() => {
                       createServer({
                         depotId: depotId,
-                        ownerId: depot?.data?.ownerId ?? "",
+                        ownerId: currentDepot?.ownerId ?? "",
                       });
                     }}
                   >

@@ -23,6 +23,7 @@ import { api } from "~/utils/api";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 
 import { DialogClose } from "@radix-ui/react-dialog";
+import { useDepot } from "../../hooks/depot/use-depot";
 import { useDepotModal } from "../../hooks/depot/use-depot-modal.wip";
 import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { DepotModal } from "./depot-modal";
@@ -30,6 +31,7 @@ import { DepotModal } from "./depot-modal";
 export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { currentDepot, deleteDepot } = useDepot();
   const apiContext = api.useContext();
   const onOpen = useDepotModal((state) => state.onOpen);
   const driverBundles = useDriverVehicleBundles();
@@ -62,29 +64,6 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
     },
   });
 
-  // const { mutate: deleteAddresses } =
-  //   api.addresses.deleteAllDepotAddresses.useMutation({
-  //     onSuccess: () => {
-  //       toast.success("Addresses deleted!");
-  //     },
-  //     onError: (e) => {
-  //       toast.error("There seems to be an issue with deleting your addresses.");
-  //       console.log(e);
-  //     },
-  //     onSettled: () => {
-  //       void apiContext.addresses.invalidate();
-  //     },
-  //   });
-
-  const getDepot = api.depots.getDepot.useQuery(
-    {
-      id: depotId,
-    },
-    {
-      enabled: !!depotId && open,
-    }
-  );
-
   const { mutate: nukeMessaging } =
     api.routeMessaging.nukeEverything.useMutation({
       onSuccess: () => {
@@ -98,6 +77,11 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
         void apiContext.routeMessaging.invalidate();
       },
     });
+
+  const deleteCurrentDepot = () => {
+    nukeMessaging();
+    deleteDepot.mutate({ depotId });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -146,14 +130,22 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
                 </p>
               </div>
               <div className="flex gap-4">
-                {getDepot?.data && (
+                {currentDepot && (
                   <>
-                    <DepotModal initialData={getDepot?.data ?? null} />
+                    <DepotModal initialData={currentDepot ?? null} />
                     <Button onClick={() => onOpen()} className="w-full">
                       Edit Depot
                     </Button>
                   </>
                 )}
+
+                <Button
+                  onClick={deleteCurrentDepot}
+                  className="w-full"
+                  variant={"destructive"}
+                >
+                  <Bomb /> Nuke Depot
+                </Button>
 
                 <Button
                   onClick={() => nukeMessaging()}

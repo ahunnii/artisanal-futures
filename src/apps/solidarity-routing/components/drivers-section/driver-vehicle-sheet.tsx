@@ -58,14 +58,14 @@ export const DriverVehicleSheet: FC<Props> = ({ standalone }) => {
       open={driverBundles.isSheetOpen}
       onOpenChange={driverBundles.onSheetOpenChange}
     >
-      {!standalone && (
+      {/* {!standalone && (
         <SheetTrigger asChild>
           <Button variant="outline" className="px-3 shadow-none">
             <Users className="mr-2 h-4 w-4" />
             Manage Drivers
           </Button>
         </SheetTrigger>
-      )}
+      )} */}
 
       <SheetContent
         side={"left"}
@@ -147,7 +147,7 @@ const DriverSheetDescription = ({
 }: IDriverSheetDescriptionProps) => (
   <SheetDescription className="text-center md:text-left">
     {activeVehicle ? (
-      <section className="flex w-full flex-1 flex-col border-b border-t py-4 text-sm">
+      <span className="flex w-full flex-1 flex-col border-b border-t py-4 text-sm">
         <p className="flex items-center gap-2 font-light text-muted-foreground ">
           <Home size={15} /> {activeVehicle.driver.address?.formatted}
         </p>
@@ -158,7 +158,7 @@ const DriverSheetDescription = ({
         <p className="flex items-center gap-2 font-light text-muted-foreground ">
           <Mail size={15} /> {activeVehicle.driver.email}
         </p>
-      </section>
+      </span>
     ) : (
       <p>Add drivers to your route plan from existing, or create a new one.</p>
     )}

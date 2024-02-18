@@ -12,6 +12,7 @@ import { useClientJobBundles } from "../jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
 
 import * as crypto from "crypto";
+import { useDepot } from "../depot/use-depot";
 import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 
 function generatePasscode(email: string): string {
@@ -38,7 +39,7 @@ export const useRoutePlans = () => {
   const jobBundles = useClientJobBundles();
 
   const routingSolutions = useRoutingSolutions();
-
+  const { currentDepot } = useDepot();
   // const routeId = params?.routeId ;
   // const user = session?.user ?? null;
   const isSandbox = pathname?.includes("sandbox");
@@ -67,14 +68,6 @@ export const useRoutePlans = () => {
     },
   });
 
-  const getDepot = api.depots.getDepot.useQuery(
-    {
-      id: depotId,
-    },
-    {
-      enabled: !!depotId,
-    }
-  );
   const createRoutePlanWithJobs = api.routePlan.createRoutePlan.useMutation({
     onSuccess: (data) => {
       toast.success("Route created!");
@@ -216,6 +209,6 @@ export const useRoutePlans = () => {
     allRoutes: getAllRoutes.data ?? [],
     routesByDate: getAllRoutesByDate.data ?? [],
     create: createRoutePlan.mutate,
-    depot: getDepot.data,
+    depot: currentDepot,
   };
 };

@@ -7,10 +7,10 @@ import { solidarityPathwaysMessagingRouter } from "./routers/messaging/routing";
 import { postRouter } from "./routers/post";
 import { productsRouter } from "./routers/products";
 
-import { depotsRouter } from "./routers/routing/depots";
-import { driversRouter } from "./routers/routing/drivers";
+import { depotRouter } from "./routers/routing/depot-router";
+import { driverRouter } from "./routers/routing/driver-router";
 
-import { jobRouter } from "./routers/routing/jobs";
+import { jobRouter } from "./routers/routing/job-router";
 import { routePlanRouter } from "./routers/routing/route-plan";
 
 import { shopsRouter } from "./routers/shops";
@@ -34,8 +34,8 @@ export const appRouter = createTRPCRouter({
 
   products: productsRouter,
 
-  drivers: driversRouter,
-  depots: depotsRouter,
+  drivers: driverRouter,
+  depots: depotRouter,
   jobs: jobRouter,
   routePlan: routePlanRouter,
   routeMessaging: solidarityPathwaysMessagingRouter,

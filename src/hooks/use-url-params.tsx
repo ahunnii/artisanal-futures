@@ -11,13 +11,29 @@ export const useUrlParams = () => {
   const searchParams = useSearchParams();
 
   const updateUrlParams = ({ key, value }: Param) => {
+    console.log("updateUrlParams", key, value);
     const params = new URLSearchParams(searchParams);
+    console.log("params", params);
+    console.log(pathname);
     if (value) {
       params.set(`${key}`, `${value}`);
     } else {
       params.delete(`${key}`);
     }
     void router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const testUrlParams = ({ key, value }: Param) => {
+    console.log("updateUrlParams", key, value);
+    const params = new URLSearchParams(searchParams);
+    console.log("params", params);
+    console.log(pathname);
+    if (value) {
+      params.set(`${key}`, `${value}`);
+    } else {
+      params.delete(`${key}`);
+    }
+    console.log(`${pathname}?${params.toString()}`);
   };
 
   const getUrlParam = (key: string) => {
@@ -27,5 +43,7 @@ export const useUrlParams = () => {
   return {
     updateUrlParams,
     getUrlParam,
+    pathname,
+    testUrlParams,
   };
 };

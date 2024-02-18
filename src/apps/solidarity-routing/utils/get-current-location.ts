@@ -6,7 +6,6 @@ export const getCurrentLocation = (
     return;
   }
 
-  console.log("Getting current location...");
   // navigator.geolocation.watchPosition((position) => success(position.coords));
 
   navigator.geolocation.getCurrentPosition((position) =>

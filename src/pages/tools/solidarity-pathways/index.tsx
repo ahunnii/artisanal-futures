@@ -4,6 +4,7 @@ import { type GetServerSidePropsContext } from "next";
 
 import { useDepotModal } from "~/apps/solidarity-routing/hooks/depot/use-depot-modal.wip";
 
+import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 import { DepotModal } from "~/apps/solidarity-routing/components/settings/depot-modal";
 import { getServerAuthSession } from "~/server/auth";
 import { prisma } from "~/server/db";
@@ -18,7 +19,13 @@ const SolidarityPathwaysHomePage = () => {
     }
   }, [isOpen, onOpen]);
 
-  return <DepotModal initialData={null} />;
+  return (
+    <>
+      <RouteLayout>
+        <DepotModal initialData={null} />
+      </RouteLayout>
+    </>
+  );
 };
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {

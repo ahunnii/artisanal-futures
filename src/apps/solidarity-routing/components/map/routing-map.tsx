@@ -219,10 +219,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
 
             {enableTracking && (
               <Button
-                className={cn("absolute bottom-3 left-20 z-[1000]")}
+                className={cn("absolute right-20 top-3 z-[1000]")}
                 onClick={toggleConstantTracking}
               >
-                {constantTracking ? "Stop" : "Start"} transmitting
+                {constantTracking ? "Stop" : "Start"} transmitting realtime
               </Button>
             )}
 
@@ -244,7 +244,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                 variant={enableTracking ? "secondary" : "default"}
                 onClick={() => setEnableTracking(!enableTracking)}
               >
-                {enableTracking ? "Stop" : "Start"} Realtime Tracking
+                {enableTracking ? "Stop" : "Start"} Location Services
               </Button>
             )}
           </div>

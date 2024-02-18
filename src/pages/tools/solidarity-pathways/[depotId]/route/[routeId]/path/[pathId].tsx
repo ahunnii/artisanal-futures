@@ -41,7 +41,7 @@ const OptimizedPathPage: FC<IProps> = () => {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [approval, setApproval] = useState(false);
-  const { updateUrlParams } = useUrlParams();
+  const { updateUrlParams, testUrlParams, pathname } = useUrlParams();
 
   const [notificationSent, setNotificationSent] = useState(false);
   const optimizedRoutePlan = useOptimizedRoutePlan();
@@ -54,6 +54,21 @@ const OptimizedPathPage: FC<IProps> = () => {
   const routeColor = getColor(
     cuidToIndex(optimizedRoutePlan?.data?.vehicleId ?? "")
   );
+
+  // useEffect(() => {
+  //   if (pathname)
+  //     axios
+  //       .get("/api/routing/auth-driver")
+  //       .then((res) => {
+  //         updateUrlParams({
+  //           key: "magicCode",
+  //           value: res.data?.magicCode ?? null,
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         console.error(err);
+  //       });
+  // }, [pathname]);
 
   useEffect(() => {
     if (!searchParams.get("vehicle") && optimizedRoutePlan?.data?.vehicleId) {

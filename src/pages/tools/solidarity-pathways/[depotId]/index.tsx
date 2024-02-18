@@ -24,7 +24,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const depot = await prisma.depot.findUnique({
     where: {
       ownerId: userId,
-      id: Number(ctx.params?.depotId),
+      id: ctx.params?.depotId as string,
     },
   });
 

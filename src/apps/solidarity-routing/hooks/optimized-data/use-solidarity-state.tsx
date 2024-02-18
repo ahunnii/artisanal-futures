@@ -17,6 +17,7 @@ export const useSolidarityState = () => {
   const date = searchParams.get("date") ?? "";
   const formattedDateString = date?.replace(/\+/g, " ");
   const dateObject = new Date(formattedDateString);
+  const vehicle = searchParams.get("vehicle") ?? undefined;
 
   const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
 
@@ -29,6 +30,7 @@ export const useSolidarityState = () => {
     pathId,
     driverId,
     optimizedId,
+    vehicle,
     routeDate: date ? dateObject : null,
     sessionStatus: status,
   };

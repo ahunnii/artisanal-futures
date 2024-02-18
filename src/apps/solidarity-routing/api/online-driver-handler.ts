@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import type { PusherMessage } from "~/apps/solidarity-routing/types";
 
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
@@ -15,7 +14,7 @@ const onlineDriverHandler = async (
 
     if (!session?.user?.id) throw new Error("No user id");
 
-    const { depotId, driverId, vehicleId } = req.body;
+    const { vehicleId } = req.body;
 
     const vehicle = await prisma.vehicle.findFirst({
       where: { id: vehicleId },
@@ -28,7 +27,6 @@ const onlineDriverHandler = async (
 
     // Create notification in database?
 
-    console.log(message);
     // Trigger a Pusher event with the updated locations
     await pusherServer.trigger("map", `evt::notify-dispatch`, message);
 

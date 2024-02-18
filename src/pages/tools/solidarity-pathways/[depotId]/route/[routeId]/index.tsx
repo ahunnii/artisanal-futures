@@ -42,8 +42,9 @@ import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layou
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 import { GetServerSidePropsContext } from "next";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
@@ -65,11 +66,6 @@ const LazyRoutingMap = dynamic(
  */
 const SingleRoutePage = () => {
   const { updateUrlParams, getUrlParam } = useUrlParams();
-  const [tabValue, setTabValue] = useState<string>("plan");
-
-  // const [searchParams, setSearchParams] = useSearchParams({
-  //   mode: "plan",
-  // });
 
   const [parent] = useAutoAnimate();
 
@@ -84,6 +80,16 @@ const SingleRoutePage = () => {
     void useStopsStore.persist.rehydrate();
     void useDriversStore.persist.rehydrate();
   }, []);
+
+  useEffect(() => {
+    // Add the search parameter to the URL
+
+    if (!getUrlParam("mode"))
+      updateUrlParams({
+        key: "mode",
+        value: "plan",
+      });
+  }, []); // Empty dependency array ensures this effect runs only once, similar to componentDidMount
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -150,6 +156,8 @@ const SingleRoutePage = () => {
   return (
     <>
       <RouteLayout>
+        <DriverVehicleSheet />
+
         {routePlans.isLoading && <AbsolutePageLoader />}
 
         {!routePlans.isLoading &&
@@ -374,5 +382,19 @@ const SingleRoutePage = () => {
     </>
   );
 };
+
+// export function getServerSideProps(ctx: GetServerSidePropsContext) {
+//   const pageMode = ctx.query?.mode;
+
+//   const { query } = ctx;
+//   // Modify the query object to add searchParam
+//   const updatedQuery = { ...query, mode: pageMode ?? "plan" };
+
+//   return {
+//     props: {
+//       query: updatedQuery,
+//     },
+//   };
+// }
 
 export default SingleRoutePage;

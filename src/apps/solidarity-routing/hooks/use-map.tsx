@@ -40,6 +40,13 @@ const useMap = ({
 
   useInterval(
     () => {
+      if (
+        !constantUserTracking &&
+        currentLocation.latitude === 0 &&
+        currentLocation.longitude === 0
+      )
+        return;
+      console.log(currentLocation);
       getCurrentLocation(setCurrentLocation);
       if (pathId && currentLocation)
         void axios.post("/api/routing/update-user-location", {
@@ -48,7 +55,7 @@ const useMap = ({
           pathId: pathId,
         });
     },
-    status === "active" ? 1000 : null
+    status === "active" ? 1000 : 5000
   );
 
   const [currentLocation, setCurrentLocation] = useState<
@@ -116,7 +123,7 @@ const useMap = ({
 
   useEffect(() => {
     if (constantUserTracking) getCurrentLocation(setCurrentLocation);
-  }, [driverEnabled, constantUserTracking]);
+  }, [driverEnabled, constantUserTracking, status]);
 
   useEffect(() => {
     if (driverBundles.active && mapRef)

@@ -1,12 +1,19 @@
 import { useRouter } from "next/router";
 import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api";
+import { useSolidarityState } from "../optimized-data/use-solidarity-state";
 import { useDepotModal } from "./use-depot-modal.wip";
 
 export const useDepot = () => {
+  const { depotId } = useSolidarityState();
   const apiContext = api.useContext();
   const depotModal = useDepotModal();
   const router = useRouter();
+
+  const getDepot = api.depots.getDepot.useQuery(
+    { depotId },
+    { enabled: !!depotId }
+  );
 
   const createDepot = api.depots.createDepot.useMutation({
     onSuccess: ({ id, ownerId }) =>
@@ -61,8 +68,25 @@ export const useDepot = () => {
     },
   });
 
+  const deleteDepot = api.depots.deleteDepot.useMutation({
+    onSuccess: () => {
+      notificationService.notifySuccess({ message: "Depot deleted!" });
+      void router.push("/tools/solidarity-pathways/");
+    },
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        error,
+        message: "There seems to be an issue with deleting your depot.",
+      }),
+    onSettled: () => {
+      void apiContext.depots.invalidate();
+    },
+  });
+
   return {
     createDepot,
     updateDepot,
+    deleteDepot,
+    currentDepot: getDepot.data,
   };
 };

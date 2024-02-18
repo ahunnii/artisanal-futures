@@ -215,11 +215,10 @@ model Depot {
   id              String    @id @default(cuid())
   ownerId         String    @unique //One owner can have one depot
   name            String?   //Name of the depot
+  magicCode       String   
 
-  addressId  String?   @unique  //Main Address of the depot
-  address    Address?  @relation( fields: [addressId], references: [id], onDelete: Cascade)
-  
-
+ 
+  address         Address? 
 
   drivers         Driver[] //All drivers associated with the depot
   vehicles        Vehicle[] //All vehicles associated with the depot
@@ -227,8 +226,6 @@ model Depot {
   jobs            Job[] //All jobs associated with the depot
   users           User[] //All users associated with the depot
   routes          Route[] //All routes associated with the depot
-
-  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -246,14 +243,24 @@ model Address {
   latitude        Float
   longitude       Float
 
+  depotId  String?                @unique  //Main Address of the depot
+  depot    Depot?                 @relation( fields: [depotId], references: [id], onDelete: Cascade) 
+
+  driverId  String?               @unique  //Main Address of the driver
+  driver    Driver?               @relation( fields: [driverId], references: [id], onDelete: Cascade) 
+
+  startVehicleId    String?       @unique
+  startVehicle      Vehicle?      @relation("StartAddressToVehicle", fields: [startVehicleId], references: [id], onDelete: Cascade)
+
+  endVehicleId      String?       @unique
+  endVehicle        Vehicle?      @relation("EndAddressToVehicle", fields: [endVehicleId], references: [id], onDelete:Cascade)
 
 
-  depot               Depot?    
-  driver              Driver?
-  startVehicle        Vehicle?  @relation("StartAddressToVehicle")
-  endVehicle          Vehicle?  @relation("EndAddressToVehicle")
-  client              Client? 
-  job                 Job? 
+  clientId          String?       @unique  //Main Address of the client
+  client            Client?       @relation( fields: [clientId], references: [id], onDelete: Cascade)
+
+  jobId          String?        @unique  //Main Address of the client
+  job            Job?           @relation( fields: [jobId], references: [id], onDelete: Cascade)
  
 
 
@@ -284,8 +291,7 @@ model Driver {
   depotId           String
   depot             Depot       @relation(fields: [depotId], references: [id], onDelete: Cascade)
   name              String
-  addressId         String?     @unique   //Driver's home or default address
-  address           Address?    @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  address           Address? 
   phone             String
   email             String
   schedule          Schedule[]
@@ -294,8 +300,6 @@ model Driver {
   profile           Profile?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
-
-  @@index([addressId])
   @@index([depotId])
 }
 
@@ -306,10 +310,10 @@ model Vehicle {
   driverId          String?
   driver            Driver?             @relation(fields: [driverId], references: [id])
 
-  startAddressId    String              @unique //Starting address of the vehicle. Can default to depot address or driver's address.
-  startAddress      Address             @relation("StartAddressToVehicle", fields: [startAddressId], references: [id])
-  endAddressId      String?             @unique //Optional, leave blank if roundtrip
-  endAddress        Address?            @relation("EndAddressToVehicle", fields: [endAddressId], references: [id])
+  
+  startAddress      Address?             @relation("StartAddressToVehicle")
+  endAddress        Address?             @relation("EndAddressToVehicle")
+
   shiftStart        Int                 //Start of shift in unix time
   shiftEnd          Int                 //Start of shift in unix time
   capacity          Int?                //Optional: Capacity of the vehicle (i.e. max number of units it can carry )
@@ -326,8 +330,7 @@ model Vehicle {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
-  @@index([endAddressId])
-  @@index([startAddressId])
+
   @@index([driverId])
   @@index([routeId])
   @@index([optimizedRouteId])
@@ -351,8 +354,8 @@ model Client {
   depotId       String
   depot         Depot     @relation(fields: [depotId], references: [id], onDelete: Cascade)
   name          String
-  addressId     String?   @unique//Optional: Main address of the client
-  address       Address?  @relation(fields: [addressId], references: [id])
+
+  address       Address?  
   phone         String?
   email         String    @unique  //Unique: Email of the client
   createdAt     DateTime  @default(now())
@@ -360,7 +363,7 @@ model Client {
   defaultJobId  String?   //Optional: Default job for the client. Like a go-to order or something
   jobs          Job[]
 
-  @@index([addressId])
+
   @@index([depotId])
 }
 
@@ -369,8 +372,7 @@ model Job {
   type            JobType
   depotId         String
   depot           Depot     @relation(fields: [depotId], references: [id], onDelete: Cascade)
-  addressId       String    @unique 
-  address         Address   @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  address         Address?
   clientId        String?
   client          Client?   @relation(fields: [clientId], references: [id])
   prepTime        Int       //Preparation time in seconds
@@ -388,7 +390,7 @@ model Job {
   optimizedStopId String?
   optimizedStop   OptimizedStop? 
 
-  @@index([addressId])
+
   @@index([clientId])
   @@index([routeId])
   @@index([depotId])
@@ -417,7 +419,7 @@ model OptimizedRoutePath {
   routeId       String
   route         Route             @relation(fields: [routeId], references: [id], onDelete: Cascade)
   vehicleId     String            @unique
-  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id])
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   stops         OptimizedStop[]
   distance      Float?
   startTime     Int?
@@ -433,7 +435,7 @@ model OptimizedStop {
   id              String              @id @default(cuid())
   routePathId     String
   jobId           String?             @unique
-  job             Job?                @relation(fields: [jobId], references: [id])
+  job             Job?                @relation(fields: [jobId], references: [id], onDelete: Cascade)
   routePath       OptimizedRoutePath  @relation(fields: [routePathId], references: [id], onDelete: Cascade)
   arrival         Int
   departure       Int

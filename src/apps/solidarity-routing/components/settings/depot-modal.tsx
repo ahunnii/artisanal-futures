@@ -40,42 +40,37 @@ export const DepotModal = ({ initialData }: Props) => {
     resolver: zodResolver(depotFormSchema),
     defaultValues: {
       name: initialData?.name ?? "",
-      address: {
-        formatted: initialData?.address?.formatted ?? undefined,
-        latitude: initialData?.address?.latitude ?? undefined,
-        longitude: initialData?.address?.longitude ?? undefined,
-      },
+      address: initialData?.address
+        ? {
+            formatted: initialData?.address?.formatted,
+            latitude: initialData?.address?.latitude,
+            longitude: initialData?.address?.longitude,
+          }
+        : undefined,
+      magicCode: initialData?.magicCode ?? "",
     },
   });
 
   const onDepotFormSubmit = (values: TDepotForm) => {
     if (initialData)
       updateDepot.mutate({
+        ...values,
         depotId: initialData.id,
-        name: values.name,
         address:
           values.address?.formatted &&
           values.address?.latitude &&
           values.address?.longitude
-            ? {
-                formatted: values.address?.formatted,
-                latitude: values.address?.latitude,
-                longitude: values.address?.longitude,
-              }
+            ? { ...values.address }
             : undefined,
       });
     else
       createDepot.mutate({
-        name: values.name,
+        ...values,
         address:
           values.address?.formatted &&
           values.address?.latitude &&
           values.address?.longitude
-            ? {
-                formatted: values.address?.formatted,
-                latitude: values.address?.latitude,
-                longitude: values.address?.longitude,
-              }
+            ? { ...values.address }
             : undefined,
       });
   };
@@ -91,7 +86,7 @@ export const DepotModal = ({ initialData }: Props) => {
       description={
         initialData
           ? "Edit your depot details"
-          : "Create a new depot to get started with routing."
+          : "Create a new depot to get started with Solidarity Pathways."
       }
       isOpen={depotModal.isOpen}
       onClose={depotModal.onClose}
@@ -99,7 +94,7 @@ export const DepotModal = ({ initialData }: Props) => {
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onDepotFormSubmit)(e)}
-          className="space-y-2 "
+          className="space-y-4 "
         >
           <FormField
             control={form.control}
@@ -119,8 +114,29 @@ export const DepotModal = ({ initialData }: Props) => {
                 <FormMessage />
               </FormItem>
             )}
+          />{" "}
+          <FormField
+            control={form.control}
+            name="magicCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-normal text-muted-foreground">
+                  Magic Code
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isLoading}
+                    placeholder="e.g. super-secret-code-1234"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription className="text-xs text-muted-foreground/75">
+                  This code allows your drivers to access the route page
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-
           <Controller
             name="address.formatted"
             control={form.control}
@@ -146,7 +162,6 @@ export const DepotModal = ({ initialData }: Props) => {
               </FormItem>
             )}
           />
-
           <div className="flex w-full items-center justify-end space-x-2 pt-6">
             {!initialData && (
               <Link href="/tools/solidarity-pathways/sandbox">

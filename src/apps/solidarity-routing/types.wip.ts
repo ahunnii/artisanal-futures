@@ -128,11 +128,13 @@ export const vehicleSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
   }),
-  endAddress: z.object({
-    formatted: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
+  endAddress: z
+    .object({
+      formatted: z.string(),
+      latitude: z.number(),
+      longitude: z.number(),
+    })
+    .optional(),
   capacity: z.number().optional(),
   maxTasks: z.number().optional(),
   maxTravelTime: z.number().optional(),
