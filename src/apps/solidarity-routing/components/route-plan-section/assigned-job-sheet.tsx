@@ -28,7 +28,6 @@ import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-util
 
 import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { useSolidarityMessaging } from "../../hooks/use-solidarity-messaging";
-import { MessageSheet } from "../messaging/message-sheet";
 
 type Props = {
   data: OptimizedRoutePath;
@@ -37,6 +36,7 @@ type Props = {
 export const AssignedJobSheet: FC<Props> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const driverBundles = useDriverVehicleBundles();
+  const solidarityMessaging = useSolidarityMessaging();
   const { depotId } = useSolidarityState();
 
   const color = useMemo(() => getColor(cuidToIndex(data.vehicleId)), [data]);
@@ -85,22 +85,23 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
               driver={driver}
             />
             <SheetFooter className="flex flex-row gap-2">
-              <MessageSheet currentDriver={driver} isDepot={true}>
-                <Button
-                  className="flex flex-1 gap-2"
-                  variant={"outline"}
-                  onClick={() => driverBundles.message(data.vehicleId)}
-                >
-                  <MessageCircle /> Send Message to {driver?.driver?.name}
-                </Button>
-              </MessageSheet>
+              <Button
+                className="flex flex-1 gap-2"
+                variant={"outline"}
+                disabled={!driver?.driver?.email}
+                onClick={() => {
+                  if (!driver?.driver?.email) return;
+                  solidarityMessaging.messageDriver(driver?.driver?.email);
+                }}
+              >
+                <MessageCircle /> Send Message to {driver?.driver?.name}
+              </Button>
 
               <Link
                 href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}`}
               >
                 <Button className="">View Route</Button>
               </Link>
-              {/* <RouteQRDialog pathId={data.id} /> */}
             </SheetFooter>
           </SheetContent>
         )}

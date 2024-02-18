@@ -344,6 +344,36 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       );
     }),
 
+  getAllDepotChannels: protectedProcedure
+    .input(z.object({ depotId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const depotServer = await ctx.prisma.server.findUnique({
+        where: {
+          inviteCode: `depot-${input.depotId}`,
+        },
+        include: {
+          channels: {
+            include: {
+              messages: {
+                orderBy: {
+                  createdAt: "asc",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!depotServer) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Depot server not found",
+        });
+      }
+
+      return depotServer.channels;
+    }),
+
   getMember: protectedProcedure
     .input(
       z.object({
@@ -427,6 +457,38 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       return ownerProfile.members.find(
         (member) => member.serverId === server?.id
       );
+    }),
+
+  getAllMembers: protectedProcedure
+    .input(
+      z.object({
+        depotId: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { depotId } = input;
+
+      const server = await ctx.prisma.server.findUnique({
+        where: {
+          inviteCode: `depot-${depotId}`,
+        },
+        include: {
+          members: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      });
+
+      if (!server) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Server not found",
+        });
+      }
+
+      return server.members;
     }),
 
   joinDepotChannel: protectedProcedure

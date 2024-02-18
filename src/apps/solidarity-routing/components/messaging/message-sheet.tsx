@@ -15,15 +15,14 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTrigger,
 } from "~/components/ui/map-sheet";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
 import { useSolidarityMessaging } from "~/apps/solidarity-routing/hooks/use-solidarity-messaging";
-import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
+
 import { AutoResizeTextArea } from "~/components/ui/auto-resize-textarea";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { pusherClient } from "~/server/soketi/client";
@@ -31,45 +30,19 @@ import { api } from "~/utils/api";
 import { messageSchema } from "../../schemas.wip";
 import { MessagingBody } from "./messaging-body";
 
-type Props = {
-  currentDriver: DriverVehicleBundle | null;
-  isDepot: boolean;
-  children: ReactNode;
-};
-
 type MessageFormValues = z.infer<typeof messageSchema>;
 
-export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
-  const { driverChannel, membership, createMessage } = useSolidarityMessaging({
-    currentDriver: currentDriver,
-    isDepot: isDepot,
-  });
+export const MessageSheet = () => {
+  const solidarityMessaging = useSolidarityMessaging();
+  const driverBundles = useDriverVehicleBundles();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const apiContext = api.useContext();
-  const driverBundles = useDriverVehicleBundles();
 
-  useEffect(() => {
-    if (
-      bottomRef.current &&
-      driverChannel?.messages &&
-      membership &&
-      driverBundles.isMessageSheetOpen
-    )
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [driverChannel?.messages, membership, driverBundles.isMessageSheetOpen]);
-
-  const onSubmit = (data: MessageFormValues) => {
-    if (membership?.id !== undefined && driverChannel?.id !== undefined) {
-      createMessage({
-        memberId: membership?.id,
-        channelId: driverChannel?.id,
-        message: data.message,
-      });
-      bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
-      form.reset();
-    }
-  };
+  const checkIfMessagingIsValid =
+    solidarityMessaging.messages?.length > 0 &&
+    solidarityMessaging.memberId &&
+    solidarityMessaging.isMessageSheetOpen;
 
   const form = useForm<MessageFormValues>({
     resolver: zodResolver(messageSchema),
@@ -77,6 +50,24 @@ export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
       message: "",
     },
   });
+
+  const onSubmit = useCallback(
+    (data: MessageFormValues) => {
+      if (
+        solidarityMessaging.memberId !== undefined &&
+        solidarityMessaging.active?.id !== undefined
+      ) {
+        solidarityMessaging.createMessage({
+          memberId: solidarityMessaging.memberId,
+          channelId: solidarityMessaging.active?.id,
+          message: data.message,
+        });
+        bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
+        form.reset();
+      }
+    },
+    [solidarityMessaging, form]
+  );
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -100,49 +91,49 @@ export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
     };
     if (form) document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [membership?.id, driverChannel?.id]);
+  }, [solidarityMessaging, form, onSubmit]);
+
+  useEffect(() => {
+    if (bottomRef.current && checkIfMessagingIsValid)
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [solidarityMessaging, checkIfMessagingIsValid]);
+
+  const messageThreadName = solidarityMessaging.isDepot
+    ? `${driverBundles?.active?.driver?.name}`
+    : "Depot";
+
+  const channelName = solidarityMessaging.active?.name;
 
   return (
     <Sheet
-      open={driverBundles.isMessageSheetOpen}
-      onOpenChange={driverBundles.onMessageSheetOpenChange}
+      open={solidarityMessaging.isMessageSheetOpen}
+      onOpenChange={solidarityMessaging.onMessageSheetOpenChange}
     >
-      <SheetTrigger asChild>{children}</SheetTrigger>
-
       <SheetContent
         side={"right"}
         className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg "
         onInteractOutside={(e) => e.preventDefault()}
       >
         <SheetHeader>
-          <h3>
-            Message Thread with{" "}
-            {isDepot ? currentDriver?.driver?.name : "Depot"}
-          </h3>
+          <h3>Message Thread with {messageThreadName}</h3>
           <SheetDescription>
-            General messaging for {driverChannel?.name}. Ask questions about the
-            routes or provide updates.
+            General messaging for {channelName}. Ask questions about the routes
+            or provide updates.
           </SheetDescription>
         </SheetHeader>
-        {driverBundles.isMessageSheetOpen &&
-          driverChannel?.messages &&
-          driverChannel?.messages?.length > 0 &&
-          membership && (
-            <ScrollArea>
+
+        <ScrollArea className="flex-1 bg-slate-50 shadow-inner">
+          {checkIfMessagingIsValid && (
+            <>
               <MessagingBody
-                messages={driverChannel?.messages ?? []}
-                senderId={membership?.id}
-                SenderIcon={isDepot ? User : Building}
+                messages={solidarityMessaging.messages ?? []}
+                senderId={solidarityMessaging.memberId ?? ""}
+                SenderIcon={solidarityMessaging.isDepot ? User : Building}
               />
               <div ref={bottomRef} />
-            </ScrollArea>
+            </>
           )}
-        {!driverChannel?.messages ||
-          (driverChannel?.messages?.length === 0 && (
-            <ScrollArea className="flex-1 bg-slate-50 shadow-inner"></ScrollArea>
-          ))}
-
+        </ScrollArea>
         <Form {...form}>
           <div className="flex-shrink-0">
             <form
@@ -162,7 +153,6 @@ export const MessageSheet = ({ currentDriver, isDepot, children }: Props) => {
                         {...field}
                       />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}

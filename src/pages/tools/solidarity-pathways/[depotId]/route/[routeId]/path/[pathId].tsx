@@ -35,6 +35,7 @@ const LazyRoutingMap = dynamic(
 
 import { useSearchParams } from "next/navigation";
 import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
+import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 import { useUrlParams } from "~/hooks/use-url-params";
 
 const OptimizedPathPage: FC<IProps> = () => {
@@ -105,6 +106,7 @@ const OptimizedPathPage: FC<IProps> = () => {
     return (
       <>
         <FieldJobSheet />
+        <MessageSheet />
         <RouteLayout>
           {optimizedRoutePlan.isLoading ? (
             <PageLoader />

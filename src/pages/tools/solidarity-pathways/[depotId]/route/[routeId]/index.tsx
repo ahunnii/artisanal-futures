@@ -45,6 +45,7 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
+import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
@@ -157,6 +158,7 @@ const SingleRoutePage = () => {
     <>
       <RouteLayout>
         <DriverVehicleSheet />
+        <MessageSheet />
 
         {routePlans.isLoading && <AbsolutePageLoader />}
 

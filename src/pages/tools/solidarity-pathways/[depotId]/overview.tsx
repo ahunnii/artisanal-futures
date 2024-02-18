@@ -21,6 +21,7 @@ import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-dri
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 import toast from "react-hot-toast";
+import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 import { PathwaysSettingsMenu } from "~/apps/solidarity-routing/components/settings/pathways-settings-menu.wip";
 import { driverVehicleUploadOptions } from "~/apps/solidarity-routing/data/driver-data";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
@@ -101,6 +102,7 @@ const PathwaysDepotOverviewPage = () => {
   return (
     <>
       <DriverVehicleSheet standalone={true} />
+      <MessageSheet />
       <RouteLayout>
         <section className="flex flex-col-reverse  border-2 max-lg:justify-center max-md:h-full md:flex-1 lg:flex-row">
           <Tabs

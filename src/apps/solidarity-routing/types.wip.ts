@@ -490,3 +490,15 @@ export type Coordinates = {
   lat: number;
   lng: number;
 };
+
+export type Channel = Prisma.ChannelGetPayload<{
+  include: {
+    messages: true;
+  };
+}>;
+
+export type Member = Prisma.MemberGetPayload<{
+  include: {
+    profile: true;
+  };
+}>;

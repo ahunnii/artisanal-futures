@@ -14,6 +14,7 @@ import { cn } from "~/utils/styles";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
 import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-route-plan";
 
+import { useSolidarityMessaging } from "../../hooks/use-solidarity-messaging";
 import type { OptimizedStop } from "../../types.wip";
 import { getColor } from "../../utils/generic/color-handling";
 import {
@@ -27,6 +28,7 @@ import RouteBreakdown from "../route-plan-section/route-breakdown";
 
 export const MobileDrawer = () => {
   const optimizedRoutePlan = useOptimizedRoutePlan();
+  const solidarityMessaging = useSolidarityMessaging();
 
   const [open, setOpen] = useState(false);
 
@@ -119,12 +121,18 @@ export const MobileDrawer = () => {
               <MessageCircle /> Send Message to {driver?.driver?.name}
             </Button> */}
 
-                <MessageSheet isDepot={false} currentDriver={driver}>
-                  <Button variant="outline" className="px-3 shadow-none">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Open Messaging
-                  </Button>
-                </MessageSheet>
+                <Button
+                  variant="outline"
+                  className="px-3 shadow-none"
+                  onClick={() => {
+                    solidarityMessaging.messageDepot(
+                      driver?.driver?.email ?? null
+                    );
+                  }}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Open Messaging
+                </Button>
               </div>
 
               <Separator className="my-4" />

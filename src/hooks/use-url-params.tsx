@@ -1,5 +1,6 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 type Param = {
   key: string;
@@ -10,17 +11,26 @@ export const useUrlParams = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [pending, setPending] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pending && pathname) {
+      console.log(pending);
+      void router.replace(`${pathname}?${pending}`);
+      setPending(null);
+    }
+  }, [pathname, pending]);
+
   const updateUrlParams = ({ key, value }: Param) => {
-    console.log("updateUrlParams", key, value);
     const params = new URLSearchParams(searchParams);
-    console.log("params", params);
-    console.log(pathname);
+
     if (value) {
       params.set(`${key}`, `${value}`);
     } else {
       params.delete(`${key}`);
     }
-    void router.replace(`${pathname}?${params.toString()}`);
+    if (!pathname) setPending(`${params.toString()}`);
+    else void router.replace(`${pathname}?${params.toString()}`);
   };
 
   const testUrlParams = ({ key, value }: Param) => {
