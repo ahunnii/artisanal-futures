@@ -49,8 +49,11 @@ import { useUrlParams } from "~/hooks/use-url-params";
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
 
+import type { GetServerSidePropsContext } from "next";
 import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/sheet-driver";
 import { JobClientSheet } from "~/apps/solidarity-routing/components/sheet-job";
+import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
+import { notificationService } from "~/services/notification";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -81,28 +84,27 @@ const SingleRoutePage = () => {
 
   useEffect(() => {
     // Add the search parameter to the URL
-
     if (!getUrlParam("mode"))
       updateUrlParams({
         key: "mode",
         value: "plan",
       });
-  }, []); // Empty dependency array ensures this effect runs only once, similar to componentDidMount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     pusherClient.subscribe("map");
 
     pusherClient.bind("evt::notify-dispatch", (message: string) => {
-      toast.info(message);
+      notificationService.notifyInfo({ message });
     });
 
-    pusherClient.bind("evt::invalidate-stops", (message: string) => {
-      toast.info(message);
+    pusherClient.bind("evt::invalidate-stops", () => {
       void apiContext.routePlan.invalidate();
     });
 
     pusherClient.bind("evt::update-route-status", (message: string) => {
-      toast.info(message);
+      notificationService.notifyInfo({ message });
 
       void apiContext.routePlan.invalidate();
     });
@@ -120,6 +122,7 @@ const SingleRoutePage = () => {
         value: "calculate",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routePlans.optimized]);
 
   const calculateOptimalPaths = () => {
@@ -359,18 +362,7 @@ const SingleRoutePage = () => {
   );
 };
 
-// export function getServerSideProps(ctx: GetServerSidePropsContext) {
-//   const pageMode = ctx.query?.mode;
-
-//   const { query } = ctx;
-//   // Modify the query object to add searchParam
-//   const updatedQuery = { ...query, mode: pageMode ?? "plan" };
-
-//   return {
-//     props: {
-//       query: updatedQuery,
-//     },
-//   };
-// }
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
+  authenticateRoutingServerSide(ctx);
 
 export default SingleRoutePage;

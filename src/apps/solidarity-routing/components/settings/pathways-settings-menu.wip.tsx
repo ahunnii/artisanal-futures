@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Bomb, Building, Car, Map, Truck, User } from "lucide-react";
+import { Bomb, Building, Car, Truck, User } from "lucide-react";
 
 import { useRouter } from "next/router";
 import { useState, type ReactNode } from "react";

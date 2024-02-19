@@ -10,9 +10,13 @@ const onlineDriverHandler = async (
   res: NextApiResponse
 ) => {
   if (req.method === "POST") {
-    const session = await getServerSession(req, res, authOptions);
+    const token = req.cookies?.verifiedDriver;
 
-    if (!session?.user?.id) throw new Error("No user id");
+    if (!token) {
+      const session = await getServerSession(req, res, authOptions);
+
+      if (!session?.user?.id) throw new Error("No user id");
+    }
 
     const { vehicleId } = req.body;
 

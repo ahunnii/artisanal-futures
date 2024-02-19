@@ -34,6 +34,7 @@ import type {
   ClientJobBundle,
   DriverVehicleBundle,
 } from "~/apps/solidarity-routing/types.wip";
+import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import { useUrlParams } from "~/hooks/use-url-params";
 
@@ -172,8 +173,9 @@ const PathwaysDepotOverviewPage = () => {
     </>
   );
 };
-export const getServerSideProps = (ctx: GetServerSidePropsContext) => {
+const validateDate = (ctx: GetServerSidePropsContext) => {
   const { depotId, date, welcome } = ctx.query;
+
   if (!date)
     return {
       redirect: {
@@ -186,9 +188,12 @@ export const getServerSideProps = (ctx: GetServerSidePropsContext) => {
       },
     };
 
-  return {
-    props: {},
-  };
+  // return {
+  //   props: {},
+  // };
 };
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
+  authenticateRoutingServerSide(ctx, false, validateDate);
 
 export default PathwaysDepotOverviewPage;

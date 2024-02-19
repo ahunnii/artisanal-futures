@@ -10,6 +10,7 @@ enum Role {
   USER
   ADMIN
   ARTISAN
+  DRIVER
 }
 
 datasource db {

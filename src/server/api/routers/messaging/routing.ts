@@ -1,11 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { driverVehicleSchema } from "~/apps/solidarity-routing/types.wip";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { pusherServer } from "~/server/soketi/server";
 
 export const solidarityPathwaysMessagingRouter = createTRPCRouter({
@@ -517,8 +513,6 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
           message: "Driver not found",
         });
       }
-
-      const driverProfile = driver.profile;
     }),
 
   sendDriverChannelMessage: protectedProcedure

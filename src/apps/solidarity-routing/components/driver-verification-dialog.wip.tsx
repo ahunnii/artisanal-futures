@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,8 +14,8 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useUrlParams } from "~/hooks/use-url-params";
+import { notificationService } from "~/services/notification";
 import { useSolidarityState } from "../hooks/optimized-data/use-solidarity-state";
-import { generatePassCode } from "../utils/generic/generate-passcode";
 
 export const DriverVerificationDialog = ({
   approval,
@@ -24,33 +24,28 @@ export const DriverVerificationDialog = ({
   approval: boolean;
   setApproval: (approval: boolean) => void;
 }) => {
-  const { depotId, vehicle } = useSolidarityState();
+  const { depotId, driverId } = useSolidarityState();
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const magicRef = useRef<HTMLInputElement>(null);
-  const searchParams = useSearchParams();
+
   const { data: session } = useSession();
 
-  const { updateUrlParams, pathname } = useUrlParams();
+  const { pathname } = useUrlParams();
 
   useEffect(() => {
     if (open && pathname)
       axios
         .get("/api/routing/auth-driver")
         .then((res) => {
-          if (res.data?.magicCode) {
+          if (res.data?.pathId) {
             setApproval(true);
-
-            updateUrlParams({
-              key: "magicCode",
-              value: res.data?.magicCode,
-            });
           }
         })
         .catch((err) => {
           console.error(err);
         });
-  }, [open, pathname]);
+  }, [open, pathname, setApproval]);
 
   useEffect(() => {
     if (!approval) {
@@ -59,35 +54,31 @@ export const DriverVerificationDialog = ({
   }, [session, approval, open]);
 
   const verifyPassCode = () => {
+    console.log({
+      depotId,
+      driverId: driverId,
+      email: inputRef?.current?.value,
+      magicCode: magicRef?.current?.value,
+    });
     axios
       .post("/api/routing/auth-driver", {
         depotId,
-        driverId: vehicle,
+        driverId: driverId,
         email: inputRef?.current?.value,
         magicCode: magicRef?.current?.value,
       })
       .then((res) => {
-        if (res.data?.magicCode) {
+        if (res.status === 200) {
           setApproval(true);
-          updateUrlParams({
-            key: "magicCode",
-            value: res.data?.magicCode,
-          });
         }
       })
       .catch((err) => {
+        notificationService.notifyError({
+          message: "Invalid email or magic code. Please try again",
+          error: err,
+        });
         console.error(err);
       });
-
-    // TODO: Add cookie verifying this page is good
-    const temp = inputRef?.current?.value
-      ? generatePassCode(inputRef.current.value)
-      : "";
-    if (temp === searchParams.get("pc")) {
-      setApproval(true);
-    } else {
-      alert("Invalid passcode");
-    }
   };
 
   return (
@@ -113,12 +104,12 @@ export const DriverVerificationDialog = ({
           </div>
           <div className="z-[1000] grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Magic Link
+              Magic Code
             </Label>
             <Input
-              id="magicLink"
+              id="magicCode"
               ref={magicRef}
-              placeholder="e.g. awesome@test.com"
+              placeholder="e.g. super-secret-123"
               className="col-span-3"
             />
           </div>

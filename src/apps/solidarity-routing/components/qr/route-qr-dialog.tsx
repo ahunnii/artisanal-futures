@@ -28,9 +28,7 @@ export const RouteQRDialog: FC<Props> = ({ pathId }) => {
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const finalizedURL = `/tools/solidarity-pathways/${depotId}/route/${
-    routeId as string
-  }/path/${pathId}`;
+  const finalizedURL = `/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${pathId}`;
 
   return (
     <>

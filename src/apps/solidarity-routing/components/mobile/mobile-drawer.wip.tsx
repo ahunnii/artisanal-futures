@@ -23,7 +23,7 @@ import {
   unixSecondsToStandardTime,
 } from "../../utils/generic/format-utils.wip";
 import { FieldJobSearch } from "../field-job-search.wip";
-import { MessageSheet } from "../messaging/message-sheet";
+
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
 export const MobileDrawer = () => {
@@ -39,8 +39,6 @@ export const MobileDrawer = () => {
   );
   const route = optimizedRoutePlan?.data;
   const [snap, setSnap] = useState<number | string | null>(0.22);
-
-  console.log(driver);
 
   return (
     <>

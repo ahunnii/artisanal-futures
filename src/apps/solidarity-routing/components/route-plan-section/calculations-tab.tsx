@@ -47,7 +47,8 @@ const CalculationsTab = () => {
               Unassigned ({numberOfUnassigned})
             </AccordionTrigger>
             <AccordionContent>
-              {routePlan.unassigned?.length > 0 &&
+              {routePlan.unassigned &&
+                routePlan.unassigned?.length > 0 &&
                 routePlan.unassigned?.map((bundle) => {
                   return (
                     <UnassignedJobCard
@@ -67,7 +68,7 @@ const CalculationsTab = () => {
               Not Started ({numberOfNotStarted})
             </AccordionTrigger>
             <AccordionContent>
-              {routePlan.optimized?.length > 0 && (
+              {routePlan.optimized && routePlan.optimized?.length > 0 && (
                 <>
                   {routePlan.optimized?.map((route) => {
                     if (route.status === "NOT_STARTED")
@@ -87,7 +88,7 @@ const CalculationsTab = () => {
               In Progress ({numberOfInProgress})
             </AccordionTrigger>
             <AccordionContent>
-              {routePlan.optimized?.length > 0 && (
+              {routePlan.optimized && routePlan.optimized?.length > 0 && (
                 <>
                   {routePlan.optimized?.map((route) => {
                     if (route.status === "IN_PROGRESS")
@@ -107,7 +108,7 @@ const CalculationsTab = () => {
               Completed ({numberOfCompleted})
             </AccordionTrigger>
             <AccordionContent>
-              {routePlan.optimized?.length > 0 && (
+              {routePlan.optimized && routePlan.optimized?.length > 0 && (
                 <>
                   {routePlan.optimized?.map((route) => {
                     if (route.status === "COMPLETED")

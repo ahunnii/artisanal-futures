@@ -1,4 +1,4 @@
-import type { Email, RouteEmailData } from "./types";
+import type { RouteEmailData } from "./types";
 
 type SendEmailProps<T> = {
   data: T;

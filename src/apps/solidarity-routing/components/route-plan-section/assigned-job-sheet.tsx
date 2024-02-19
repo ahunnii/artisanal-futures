@@ -98,7 +98,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
               </Button>
 
               <Link
-                href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}`}
+                href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}?driverId=${data.vehicleId}`}
               >
                 <Button className="">View Route</Button>
               </Link>

@@ -1,12 +1,8 @@
-import { useCallback, useEffect } from "react";
-
 import Head from "next/head";
-import { api } from "~/utils/api";
+
 import Navbar from "./navbar";
 
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
-  const apiContext = api.useContext();
-
   return (
     <>
       <Head>

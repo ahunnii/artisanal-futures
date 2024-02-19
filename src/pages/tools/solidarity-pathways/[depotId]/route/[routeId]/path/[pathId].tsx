@@ -6,9 +6,6 @@ import { Beforeunload } from "react-beforeunload";
 import { Button } from "~/components/ui/button";
 import PageLoader from "~/components/ui/page-loader";
 
-import type { RouteData, StepData } from "~/apps/solidarity-routing/types";
-
-import axios from "axios";
 import { useSession } from "next-auth/react";
 import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 import { MobileDrawer } from "~/apps/solidarity-routing/components/mobile/mobile-drawer.wip";
@@ -21,8 +18,7 @@ import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 interface IProps {
-  data: RouteData;
-  steps: StepData[];
+  verifiedDriver: boolean;
 }
 
 const LazyRoutingMap = dynamic(
@@ -33,18 +29,20 @@ const LazyRoutingMap = dynamic(
   }
 );
 
-import { useSearchParams } from "next/navigation";
+import type { GetServerSidePropsContext } from "next";
+
+import axios from "axios";
 import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
 import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
-import { useUrlParams } from "~/hooks/use-url-params";
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
+import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 
-const OptimizedPathPage: FC<IProps> = () => {
+const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const [approval, setApproval] = useState(false);
-  const { updateUrlParams, testUrlParams, pathname } = useUrlParams();
+  const { driverId } = useSolidarityState();
 
-  const [notificationSent, setNotificationSent] = useState(false);
+  const [approval, setApproval] = useState(verifiedDriver);
+
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const driverRoute = useDriverVehicleBundles();
 
@@ -56,46 +54,17 @@ const OptimizedPathPage: FC<IProps> = () => {
     cuidToIndex(optimizedRoutePlan?.data?.vehicleId ?? "")
   );
 
-  // useEffect(() => {
-  //   if (pathname)
-  //     axios
-  //       .get("/api/routing/auth-driver")
-  //       .then((res) => {
-  //         updateUrlParams({
-  //           key: "magicCode",
-  //           value: res.data?.magicCode ?? null,
-  //         });
-  //       })
-  //       .catch((err) => {
-  //         console.error(err);
-  //       });
-  // }, [pathname]);
-
   useEffect(() => {
-    if (!searchParams.get("vehicle") && optimizedRoutePlan?.data?.vehicleId) {
-      updateUrlParams({
-        key: "vehicle",
-        value: optimizedRoutePlan?.data?.vehicleId,
-      });
-    }
-    if (
-      driver?.driver.name &&
-      !notificationSent &&
-      searchParams.get("vehicle")
-    ) {
-      setNotificationSent(true);
-
+    if (approval && driverId)
       axios
         .post("/api/routing/online-driver", {
-          depotId: 1,
-          vehicleId: searchParams.get("vehicle"),
+          vehicleId: driverId,
         })
-        .catch((e) => {
-          console.log(e);
+
+        .catch((err) => {
+          console.error(err);
         });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driver, notificationSent, searchParams]);
+  }, [approval, driverId]);
 
   if (!approval && !session?.user)
     return (
@@ -144,3 +113,6 @@ const OptimizedPathPage: FC<IProps> = () => {
 };
 
 export default OptimizedPathPage;
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
+  authenticateRoutingServerSide(ctx, true);

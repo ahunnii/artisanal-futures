@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import { useDriversStore } from "../../stores/use-drivers-store";
 
 import { useUrlParams } from "~/hooks/use-url-params";
@@ -11,7 +9,7 @@ import { useReadDriver } from "./CRUD/use-read-driver";
 import { useUpdateDriver } from "./CRUD/use-update-driver";
 
 export const useDriverVehicleBundles = () => {
-  const { updateUrlParams, getUrlParam } = useUrlParams();
+  const { updateUrlParams } = useUrlParams();
   const { isUserAllowedToSaveToDepot } = useSolidarityState();
 
   const readDriver = useReadDriver();

@@ -8,7 +8,6 @@ import {
 } from "~/components/ui/map-sheet";
 
 import { Mail, MapPin } from "lucide-react";
-import { useSession } from "next-auth/react";
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
