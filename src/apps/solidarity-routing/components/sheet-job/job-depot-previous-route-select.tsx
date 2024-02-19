@@ -1,5 +1,3 @@
-"use client";
-
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -15,25 +13,27 @@ import {
 } from "~/components/ui/popover";
 
 import { useReadRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-read-route-plans";
+
 import { cn } from "~/utils/styles";
+import { useRoutePlans } from "../../hooks/plans/use-route-plans";
 
 interface IProps {
   date: Date | undefined;
   setDate: SelectSingleEventHandler;
 }
-export function JobDepotDateSelectBtn({ date, setDate }: IProps) {
+export function JobDepotPreviousRouteSelect({ date, setDate }: IProps) {
+  const { allRoutes } = useRoutePlans();
   const [open, setOpen] = React.useState(false);
+  const dateMap = allRoutes.map((route) => route.deliveryAt);
 
   const { currentRoute } = useReadRoutePlans();
 
   // Workaround for overlapping @radix-ui/react-dismissable-layers
   React.useEffect(() => {
-    if (!open) {
-      setTimeout(() => {
-        document.body.style.pointerEvents = "";
-      }, 500);
-    }
-  }, [open]);
+    setTimeout(() => {
+      document.body.style.pointerEvents = "";
+    }, 500);
+  }, []);
 
   const checkIfDateIsValid = (date: Date) => {
     return (
@@ -48,23 +48,27 @@ export function JobDepotDateSelectBtn({ date, setDate }: IProps) {
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
-          type="button"
           className={cn(
-            "w-full justify-start text-left font-normal",
+            "w-full pl-3 text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? format(date, "PPP") : <span>Pick a date</span>}
+          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="z-50 w-auto p-0">
+      <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
           selected={date}
           onSelect={setDate}
-          initialFocus
+          className="rounded-md border"
           disabled={checkIfDateIsValid}
+          modifiers={{ route: dateMap ?? [] }}
+          modifiersClassNames={{
+            route:
+              "text-sky-500 aria-selected:bg-sky-500 aria-selected:text-white",
+          }}
         />
       </PopoverContent>
     </Popover>

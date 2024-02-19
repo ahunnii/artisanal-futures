@@ -1,31 +1,28 @@
 import { useState, type FC } from "react";
 
-import { Home, Mail, Phone, Users } from "lucide-react";
-
 import { Button } from "~/components/ui/button";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "~/components/ui/map-sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import { DriverDepotDataTable } from "~/apps/solidarity-routing/components/drivers-section/driver-depot-data-table";
-import DriverForm from "~/apps/solidarity-routing/components/drivers-section/driver-form";
+import DriverForm from "~/apps/solidarity-routing/components/form-driver-vehicle/driver-form";
 
-import { numberStringToPhoneFormat } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+import {
+  DriverDepotDataTable,
+  DriverSheetDescription,
+} from "~/apps/solidarity-routing/components/sheet-driver";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 
-type Props = {
-  standalone?: boolean;
-};
+type Props = { standalone?: boolean };
+
 export const DriverVehicleSheet: FC<Props> = ({ standalone }) => {
   const { sessionStatus } = useSolidarityState();
   const driverBundles = useDriverVehicleBundles();
@@ -58,15 +55,6 @@ export const DriverVehicleSheet: FC<Props> = ({ standalone }) => {
       open={driverBundles.isSheetOpen}
       onOpenChange={driverBundles.onSheetOpenChange}
     >
-      {/* {!standalone && (
-        <SheetTrigger asChild>
-          <Button variant="outline" className="px-3 shadow-none">
-            <Users className="mr-2 h-4 w-4" />
-            Manage Drivers
-          </Button>
-        </SheetTrigger>
-      )} */}
-
       <SheetContent
         side={"left"}
         className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg "
@@ -137,30 +125,3 @@ export const DriverVehicleSheet: FC<Props> = ({ standalone }) => {
     </Sheet>
   );
 };
-
-interface IDriverSheetDescriptionProps {
-  activeVehicle: DriverVehicleBundle | null;
-}
-
-const DriverSheetDescription = ({
-  activeVehicle,
-}: IDriverSheetDescriptionProps) => (
-  <SheetDescription className="text-center md:text-left">
-    {activeVehicle ? (
-      <span className="flex w-full flex-1 flex-col border-b border-t py-4 text-sm">
-        <p className="flex items-center gap-2 font-light text-muted-foreground ">
-          <Home size={15} /> {activeVehicle.driver.address?.formatted}
-        </p>
-        <p className="flex items-center gap-2 font-light text-muted-foreground ">
-          <Phone size={15} />{" "}
-          {numberStringToPhoneFormat(activeVehicle.driver.phone)}
-        </p>
-        <p className="flex items-center gap-2 font-light text-muted-foreground ">
-          <Mail size={15} /> {activeVehicle.driver.email}
-        </p>
-      </span>
-    ) : (
-      <p>Add drivers to your route plan from existing, or create a new one.</p>
-    )}
-  </SheetDescription>
-);

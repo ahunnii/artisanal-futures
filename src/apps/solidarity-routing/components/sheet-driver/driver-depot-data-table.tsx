@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import {
   flexRender,
   getCoreRowModel,
@@ -12,10 +14,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 
-import * as React from "react";
-
 import { Button } from "~/components/ui/button";
-
 import {
   Table,
   TableBody,
@@ -25,19 +24,24 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
+import {
+  DriverDepotDataTableToolbar,
+  columns,
+} from "~/apps/solidarity-routing/components/sheet-driver";
+
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-import { columns } from "./driver-depot-columns";
-import { DriverDepotDataTableToolbar } from "./driver-depot-data-table-toolbar";
+
+type Props = {
+  data: DriverVehicleBundle[];
+  storeData: DriverVehicleBundle[];
+  setSelectedData: (data: DriverVehicleBundle[]) => void;
+};
 
 export function DriverDepotDataTable({
   storeData,
   data,
   setSelectedData,
-}: {
-  data: DriverVehicleBundle[];
-  storeData: DriverVehicleBundle[];
-  setSelectedData: (data: DriverVehicleBundle[]) => void;
-}) {
+}: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

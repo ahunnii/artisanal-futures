@@ -19,7 +19,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-import type { DriverFormValues } from "../../types.wip";
+import type { DriverFormValues } from "~/apps/solidarity-routing/types.wip";
 
 import { cn } from "~/utils/styles";
 
@@ -178,11 +178,11 @@ export const ShiftDetailsSection: FC<Props> = ({ form }) => {
               <FormDescription>
                 Add a list of breaks that the driver can take. These will be
                 taken at any time during the shift.
-              </FormDescription>{" "}
+              </FormDescription>
               <FormMessage />
             </div>
           </div>
-        </AccordionContent>{" "}
+        </AccordionContent>
       </ScrollArea>
     </AccordionItem>
   );

@@ -1,17 +1,24 @@
-import toast from "react-hot-toast";
+import { notificationService } from "~/services/notification";
+
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
+import { useDriversStore } from "~/apps/solidarity-routing/stores/use-drivers-store";
 
 import { api } from "~/utils/api";
-import { useDriversStore } from "../use-drivers-store";
 
 import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-import { useUrlParams } from "~/hooks/use-url-params";
 
-import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
+type UpdateProps = {
+  bundle: DriverVehicleBundle;
+};
 
+type UpdateWithIdProps = {
+  id: string | undefined;
+} & UpdateProps;
 export const useUpdateDriver = () => {
-  // const routePlan = useRoutePlans();
-
-  const { updateUrlParams } = useUrlParams();
+  const invalidateData = () => {
+    void apiContext.drivers.invalidate();
+    void apiContext.routePlan.invalidate();
+  };
 
   const { isUserAllowedToSaveToDepot, routeId, depotId } = useSolidarityState();
 
@@ -20,86 +27,83 @@ export const useUpdateDriver = () => {
   const apiContext = api.useContext();
 
   const updateDriverDefaults = api.drivers.updateDriverDefaults.useMutation({
-    onSuccess: () => toast.success("Driver(s) successfully created."),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
-    onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
-    },
+    onSuccess: () =>
+      notificationService.notifySuccess({
+        message: "Driver defaults were successfully updated.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "Oops! Something went wrong with updating driver defaults.",
+        error,
+      }),
+
+    onSettled: invalidateData,
   });
 
   const updateVehicleDetails = api.drivers.updateVehicleDetails.useMutation({
-    onSuccess: () => toast.success("Driver(s) successfully created."),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
-    onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
-      updateUrlParams({ key: "regenerate", value: "true" });
-      // if (routePlan.optimized.length > 0) {
-      //   updateUrlParams({ key: "modified", value: "true" });
-      // }
-    },
+    onSuccess: () =>
+      notificationService.notifySuccess({
+        message: "Vehicle details were successfully updated.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "Oops! Something went wrong with updating vehicle details.",
+        error,
+      }),
+
+    onSettled: invalidateData,
   });
 
   const updateDriverDetails = api.drivers.updateDriverDetails.useMutation({
-    onSuccess: () => toast.success("Driver(s) successfully created."),
-    onError: (e: unknown) => {
-      toast.error("Oops! Something went wrong!");
-      console.error(e);
-    },
-    onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
-    },
+    onSuccess: () =>
+      notificationService.notifySuccess({
+        message: "Driver details were successfully updated.",
+      }),
+    onError: (error: unknown) =>
+      notificationService.notifyError({
+        message: "Oops! Something went wrong with updating driver details.",
+        error,
+      }),
+    onSettled: invalidateData,
   });
 
-  const updateRouteVehicle = ({ bundle }: { bundle: DriverVehicleBundle }) => {
-    if (isUserAllowedToSaveToDepot) {
-      updateVehicleDetails.mutate({
-        vehicle: bundle.vehicle,
-        routeId: routeId,
-      });
-    } else {
+  const updateRouteVehicle = ({ bundle }: UpdateProps) => {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
+      return;
     }
+
+    updateVehicleDetails.mutate({
+      vehicle: bundle.vehicle,
+      routeId: routeId,
+    });
   };
 
-  const updateDepotDriverDetails = ({
-    bundle,
-  }: {
-    bundle: DriverVehicleBundle;
-  }) => {
-    if (isUserAllowedToSaveToDepot) {
-      updateDriverDetails.mutate({
-        driverId: bundle.driver.id,
-        driver: bundle.driver,
-      });
-    } else {
+  const updateDepotDriverDetails = ({ bundle }: UpdateProps) => {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
+      return;
     }
+
+    updateDriverDetails.mutate({
+      driverId: bundle.driver.id,
+      driver: bundle.driver,
+    });
   };
 
-  const updateDepotDriverDefaults = (
-    id: string | undefined,
-    bundle: DriverVehicleBundle
-  ) => {
-    if (isUserAllowedToSaveToDepot) {
-      //TODO: Allow for this to create defaults if the driver has none
-      if (!id) throw new Error("No default vehicle id");
-      updateDriverDefaults.mutate({
-        bundle,
-        defaultId: id,
-        depotId: depotId,
-      });
-    } else {
+  const updateDepotDriverDefaults = ({ id, bundle }: UpdateWithIdProps) => {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.updateDriver(bundle.vehicle.id, bundle);
+      return;
     }
+
+    if (!id) throw new Error("No default vehicle id");
+
+    updateDriverDefaults.mutate({
+      bundle,
+      defaultId: id,
+      depotId: depotId,
+    });
   };
 
   return {

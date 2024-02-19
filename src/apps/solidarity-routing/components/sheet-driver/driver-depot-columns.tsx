@@ -1,6 +1,7 @@
+import * as React from "react";
+
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import * as React from "react";
 
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -9,39 +10,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
-import type { ClientJobBundle } from "../../types.wip";
+import {
+  DriverDepotDeleteOption,
+  DriverDepotEditOption,
+} from "~/apps/solidarity-routing/components/sheet-driver";
 
-const DeleteComponent = () =>
-  // { row }: { row: ClientJobBundle }
-  {
-    // const jobs = useClientJobBundles();
+import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
 
-    // const editPost = () => {
-    //   // drivers.deleteFromDepot({
-    //   //   driverId: row.driver.id,
-    //   //   vehicleId: row.vehicle.id,
-    //   // });
-    // };
-
-    return <p className="text-red-500 hover:text-red-400">Delete from Depot</p>;
-  };
-
-const EditComponent = ({ row }: { row: ClientJobBundle }) => {
-  const jobs = useClientJobBundles();
-
-  const editPost = (id: string) => {
-    jobs.edit(id);
-  };
-
-  return <p onClick={() => editPost(row.job.id)}>Edit</p>;
-};
-
-export const columns: ColumnDef<ClientJobBundle>[] = [
+export const columns: ColumnDef<DriverVehicleBundle>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -66,7 +45,7 @@ export const columns: ColumnDef<ClientJobBundle>[] = [
   },
 
   {
-    accessorKey: "client.name",
+    accessorKey: "driver.name",
     header: ({ column }) => {
       return (
         <Button
@@ -79,9 +58,28 @@ export const columns: ColumnDef<ClientJobBundle>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">
-        {row.original?.client?.name ?? "Unsaved Client"}
-      </div>
+      <div className="capitalize">{row.original.driver.name}</div>
+    ),
+  },
+
+  {
+    accessorKey: "driver.type",
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Type
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.driver.type}</div>
     ),
   },
 
@@ -89,7 +87,7 @@ export const columns: ColumnDef<ClientJobBundle>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const job = row.original;
+      const driver = row.original;
 
       return (
         <DropdownMenu>
@@ -101,19 +99,11 @@ export const columns: ColumnDef<ClientJobBundle>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => void navigator.clipboard.writeText(job.job.id)}
-            >
-              Copy ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <EditComponent row={job} />
+              <DriverDepotEditOption row={driver} />
             </DropdownMenuItem>
-
             <DropdownMenuItem>
-              {" "}
-              <DeleteComponent />
+              <DriverDepotDeleteOption row={driver} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,6 +1,6 @@
 import { useMemo, type FC } from "react";
 
-import DepotCard from "~/apps/solidarity-routing/components/shared/depot-card";
+import { DepotCard } from "~/apps/solidarity-routing/components/shared";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 

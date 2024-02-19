@@ -1,17 +1,20 @@
+import { notificationService } from "~/services/notification";
+
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
+
+import { useDriversStore } from "~/apps/solidarity-routing/stores/use-drivers-store";
+
 import { api } from "~/utils/api";
-import { useDriversStore } from "../use-drivers-store";
 
 import { driverVehicleDataForNewLatLng } from "~/apps/solidarity-routing/data/driver-data";
+
 import type {
   Coordinates,
   DriverVehicleBundle,
 } from "~/apps/solidarity-routing/types.wip";
-import { notificationService } from "~/services/notification";
-import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
+import { useSolidarityMessaging } from "../../use-solidarity-messaging";
 
-type TCreateNewDriverProps = {
-  driver: DriverVehicleBundle;
-};
+type TCreateNewDriverProps = { driver: DriverVehicleBundle };
 
 type DriverVehicleBundles = { drivers: DriverVehicleBundle[] };
 
@@ -20,26 +23,19 @@ type TCreateNewDriversProps = {
 } & DriverVehicleBundles;
 
 export const useCreateDriver = () => {
+  const sessionStorageDrivers = useDriversStore((state) => state);
+
   const { isUserAllowedToSaveToDepot, depotId, routeId } = useSolidarityState();
 
-  const sessionStorageDrivers = useDriversStore((state) => state);
+  // const [newDriverIds, setNewDriverIds] = useState<string[]>([]);
+  const { createDriverChannels } = useSolidarityMessaging();
 
   const apiContext = api.useContext();
 
-  const createDriverChannels =
-    api.routeMessaging.createDriverChannels.useMutation({
-      onSuccess: () =>
-        notificationService.notifySuccess({
-          message: "Driver channels has been successfully created.",
-        }),
-
-      onError: (error) =>
-        notificationService.notifyError({
-          message:
-            "Something went wrong with creating the driver channels. Please try again.",
-          error,
-        }),
-    });
+  const invalidateData = () => {
+    void apiContext.drivers.invalidate();
+    void apiContext.routePlan.invalidate();
+  };
 
   const createVehicleBundles = api.drivers.createVehicleBundles.useMutation({
     onSuccess: (data: DriverVehicleBundle[]) => {
@@ -51,10 +47,12 @@ export const useCreateDriver = () => {
         (driver: DriverVehicleBundle) => driver.driver.id
       );
 
+      // if (driverIds) {
       createDriverChannels.mutate({
         depotId: depotId,
         bundles: driverIds,
       });
+      // }
     },
 
     onError: (error: unknown) =>
@@ -62,10 +60,7 @@ export const useCreateDriver = () => {
         message: "There was an issue creating the driver(s). Please try again.",
         error,
       }),
-    onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
-    },
+    onSettled: invalidateData,
   });
 
   const overrideCurrentDepot = api.drivers.setDepotVehicles.useMutation({
@@ -78,10 +73,7 @@ export const useCreateDriver = () => {
         message: "There was an issue setting the driver(s). Please try again.",
         error,
       }),
-    onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
-    },
+    onSettled: invalidateData,
   });
 
   const overrideCurrentRoutes = api.routePlan.setRouteVehicles.useMutation({
@@ -95,8 +87,7 @@ export const useCreateDriver = () => {
         error,
       }),
     onSettled: () => {
-      void apiContext.drivers.invalidate();
-      void apiContext.routePlan.invalidate();
+      invalidateData();
 
       sessionStorageDrivers.setIsDriverSheetOpen(false);
       sessionStorageDrivers.setActiveDriver(null);
@@ -104,68 +95,74 @@ export const useCreateDriver = () => {
   });
 
   const createNewDriver = ({ driver }: TCreateNewDriverProps) => {
-    if (isUserAllowedToSaveToDepot) {
-      createVehicleBundles.mutate({
-        data: [driver],
-        depotId: depotId,
-        routeId: routeId,
-      });
-    } else {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.appendDriver(driver);
+      return;
     }
+
+    createVehicleBundles.mutate({
+      data: [driver],
+      depotId: depotId,
+      routeId: routeId,
+    });
   };
 
   const createNewDrivers = ({
     drivers,
     addToRoute,
   }: TCreateNewDriversProps) => {
-    if (isUserAllowedToSaveToDepot) {
-      createVehicleBundles.mutate({
-        data: drivers,
-        depotId: depotId,
-        routeId: addToRoute ? routeId : undefined,
-      });
-    } else {
+    if (!isUserAllowedToSaveToDepot) {
       drivers.forEach((driver) => {
         sessionStorageDrivers.appendDriver(driver);
       });
+
+      return;
     }
+
+    createVehicleBundles.mutate({
+      data: drivers,
+      depotId: depotId,
+      routeId: addToRoute ? routeId : undefined,
+    });
   };
 
   const createNewDriverByLatLng = ({ lat, lng }: Coordinates) => {
     const driver = driverVehicleDataForNewLatLng(lat, lng);
 
-    if (isUserAllowedToSaveToDepot) {
-      createVehicleBundles.mutate({
-        data: [driver],
-        depotId,
-        routeId: routeId,
-      });
-    } else {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.appendDriver(driver);
+      return;
     }
+
+    createVehicleBundles.mutate({
+      data: [driver],
+      depotId,
+      routeId: routeId,
+    });
   };
 
   const setDepotDrivers = ({ drivers }: DriverVehicleBundles) => {
-    if (isUserAllowedToSaveToDepot) {
-      overrideCurrentDepot.mutate({
-        data: drivers,
-        depotId,
-      });
-    } else {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.setDrivers(drivers);
+      return;
     }
+
+    overrideCurrentDepot.mutate({
+      data: drivers,
+      depotId,
+    });
   };
 
   const setRouteDrivers = ({ drivers }: DriverVehicleBundles) => {
-    if (isUserAllowedToSaveToDepot) {
-      overrideCurrentRoutes.mutate({
-        data: drivers,
-        routeId: routeId,
-      });
-    } else {
+    if (!isUserAllowedToSaveToDepot) {
       sessionStorageDrivers.setDrivers(drivers);
+      return;
     }
+
+    overrideCurrentRoutes.mutate({
+      data: drivers,
+      routeId,
+    });
   };
 
   return {

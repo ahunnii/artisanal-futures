@@ -1,5 +1,5 @@
+import DriverForm from "../form-driver-vehicle/driver-form";
 import { DriverCard } from "./driver-card";
-import DriverForm from "./driver-form";
 
 import DriversTab from "./drivers-tab";
 

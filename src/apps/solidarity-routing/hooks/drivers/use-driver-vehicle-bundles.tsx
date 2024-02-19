@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useDriversStore } from "./use-drivers-store";
+import { useDriversStore } from "../../stores/use-drivers-store";
 
 import { useUrlParams } from "~/hooks/use-url-params";
 
@@ -41,13 +41,19 @@ export const useDriverVehicleBundles = () => {
     else sessionStorageDrivers.setActiveDriver(driver);
   };
 
-  useEffect(() => {
-    const driverId = getUrlParam("driverId");
-    if (driverId) setActiveDriver(driverId);
+  // useEffect(() => {
+  //   const driverId = getUrlParam("driverId");
+  //   if (driverId) setActiveDriver(driverId);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
+  const findDriverByEmail = (email: string | null) => {
+    return (
+      readDriver.routeDrivers.find((driver) => driver.driver.email === email) ??
+      null
+    );
+  };
   return {
     data: readDriver.routeDrivers,
     isDataLoading: readDriver.isLoading,
@@ -122,5 +128,7 @@ export const useDriverVehicleBundles = () => {
 
       sessionStorageDrivers.setIsDriverRoutePanelOpen(true);
     },
+
+    findDriverByEmail,
   };
 };

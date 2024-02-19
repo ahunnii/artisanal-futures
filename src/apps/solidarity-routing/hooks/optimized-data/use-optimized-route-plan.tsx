@@ -4,7 +4,8 @@ import { api } from "~/utils/api";
 import type { MapPoint } from "../../components/map/routing-map";
 import type { ClientJobBundle, OptimizedStop } from "../../types.wip";
 import { cuidToIndex } from "../../utils/generic/format-utils.wip";
-import { useDriverVehicleBundles } from "../drivers/use-driver-vehicle-bundles";
+
+import { useReadDriver } from "../drivers/CRUD/use-read-driver";
 import { useClientJobBundles } from "../jobs/use-client-job-bundles";
 import { useSolidarityState } from "./use-solidarity-state";
 
@@ -26,6 +27,8 @@ type Destination = Map<string, Bundle[]>;
 
 export const useOptimizedRoutePlan = () => {
   const { pathId, routeId } = useSolidarityState();
+  const { getVehicleById } = useReadDriver();
+
   const apiContext = api.useContext();
 
   const updateRoutePathStatus =
@@ -36,13 +39,13 @@ export const useOptimizedRoutePlan = () => {
     });
 
   const getOptimizedData = api.routePlan.getOptimizedData.useQuery(
-    { pathId: pathId as string },
-    { enabled: pathId !== undefined }
+    { pathId },
+    { enabled: !!pathId }
   );
 
   const getRoutePlan = api.routePlan.getRoutePlanById.useQuery(
-    { id: routeId as string },
-    { enabled: routeId !== undefined }
+    { id: routeId },
+    { enabled: !!routeId }
   );
 
   const unassigned = getRoutePlan.data?.jobs?.filter((job) => !job.isOptimized);
@@ -57,11 +60,7 @@ export const useOptimizedRoutePlan = () => {
     ?.filter((job) => job.type === "job" && job.jobId !== null)
     .map((job) => jobBundles.getJobById(job?.jobId ?? "")) as ClientJobBundle[];
 
-  const driverBundles = useDriverVehicleBundles();
-
-  const currentDriver = driverBundles.getVehicleById(
-    getOptimizedData.data?.vehicleId
-  );
+  const currentDriver = getVehicleById(getOptimizedData.data?.vehicleId);
 
   const routeDestinations: Destination = useMemo(() => {
     const destinations = new Map<string, Bundle[]>();

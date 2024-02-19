@@ -23,7 +23,7 @@ export const useClientJobBundles = () => {
 
   const setActiveJob = (id: string | null) => {
     updateUrlParams({
-      key: "stopId",
+      key: "jobId",
       value: id,
     });
 
@@ -41,12 +41,12 @@ export const useClientJobBundles = () => {
     else sessionStorageJobs.setActiveLocation(job);
   };
 
-  useEffect(() => {
-    const stopId = getUrlParam("stopId");
-    if (stopId) setActiveJob(stopId);
+  // useEffect(() => {
+  //   const stopId = getUrlParam("jobId");
+  //   if (stopId) setActiveJob(stopId);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return {
     data: readJob.routeJobs,
@@ -72,8 +72,11 @@ export const useClientJobBundles = () => {
     deleteJob: deleteJob.deleteJobFromRoute,
     deleteClient: deleteJob.deleteClientFromDepot,
 
-    isSheetOpen: sessionStorageJobs.isStopSheetOpen,
     setIsSheetOpen: sessionStorageJobs.setIsStopSheetOpen,
+    sheetState: sessionStorageJobs.jobSheetMode,
+    setSheetState: sessionStorageJobs.setJobSheetMode,
+
+    isSheetOpen: sessionStorageJobs.isStopSheetOpen,
     onSheetOpenChange: (state: boolean) => {
       if (!state) setActiveJob(null);
       sessionStorageJobs.setIsStopSheetOpen(state);
@@ -95,6 +98,18 @@ export const useClientJobBundles = () => {
       if (!id) return;
       setActiveJob(id);
       sessionStorageJobs.setIsFieldJobSheetOpen(true);
+    },
+
+    addPrevious: () => {
+      sessionStorageJobs.setJobSheetMode("add-previous");
+      setActiveJob(null);
+      sessionStorageJobs.setIsStopSheetOpen(true);
+    },
+
+    createNew: () => {
+      sessionStorageJobs.setJobSheetMode("create-new");
+      setActiveJob(null);
+      sessionStorageJobs.setIsStopSheetOpen(true);
     },
   };
 };

@@ -1,41 +1,43 @@
-import { useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uniqueId } from "lodash";
 import { FileCog, Pencil, Trash } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 
 import { Accordion } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Form } from "~/components/ui/form";
 
-import { toast } from "~/components/ui/use-toast";
-
-import { DriverDetailsSection } from "./driver-details.form";
-import { ShiftDetailsSection } from "./shift-details.form";
-import { VehicleDetailsSection } from "./vehicle-details.form";
-
 import {
-  driverFormSchema,
-  type DriverFormValues,
-  type DriverVehicleBundle,
-} from "~/apps/solidarity-routing/types.wip";
+  DriverDetailsSection,
+  ShiftDetailsSection,
+  VehicleDetailsSection,
+} from "~/apps/solidarity-routing/components/form-driver-vehicle";
 
-import type { Coordinates } from "../../types";
-
-import { useSession } from "next-auth/react";
 import { AlertModal } from "~/apps/admin/components/modals/alert-modal";
 
-import { cn } from "~/utils/styles";
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-
-import { formatDriverFormDataToBundle } from "../../utils/driver-vehicle/format-drivers.wip";
+import { formatDriverFormDataToBundle } from "~/apps/solidarity-routing/utils/driver-vehicle/format-drivers.wip";
 import {
   metersToMiles,
   phoneFormatStringToNumber,
   secondsToMinutes,
   unixSecondsToMilitaryTime,
-} from "../../utils/generic/format-utils.wip";
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+import { cn } from "~/utils/styles";
+
+import { driverFormSchema } from "~/apps/solidarity-routing/schemas.wip";
+
+import type {
+  AutoCompleteCoordinates,
+  DriverFormValues,
+  DriverVehicleBundle,
+} from "~/apps/solidarity-routing/types.wip";
+
+import { useCreateDriver } from "../../hooks/drivers/CRUD/use-create-driver";
+import { useDeleteDriver } from "../../hooks/drivers/CRUD/use-delete-driver";
+import { useUpdateDriver } from "../../hooks/drivers/CRUD/use-update-driver";
 
 type TDriverForm = {
   handleOnOpenChange: (data: boolean) => void;
@@ -44,15 +46,16 @@ type TDriverForm = {
 
 const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
   const {
-    updateDriver,
-    updateDepotDriver,
-    create,
-    deleteFromRoute,
-    updateDefaults,
-  } = useDriverVehicleBundles();
-  const [open, setOpen] = useState(false);
+    updateRouteVehicle,
+    updateDepotDriverDetails,
+    updateDepotDriverDefaults,
+  } = useUpdateDriver();
+  const { deleteDriverFromRoute } = useDeleteDriver();
+  const { createNewDriver } = useCreateDriver();
 
+  const [open, setOpen] = useState(false);
   const [editDriver, setEditDriver] = useState(false);
+
   const { status } = useSession();
 
   const [accordionValue, setAccordionValue] = useState(
@@ -73,19 +76,19 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
       formatted: activeDriver?.driver.address.formatted ?? undefined,
       latitude: activeDriver?.driver.address.latitude ?? undefined,
       longitude: activeDriver?.driver.address.longitude ?? undefined,
-    } as Coordinates & { formatted: string },
+    } as AutoCompleteCoordinates & { formatted: string },
 
     startAddress: {
       formatted: activeDriver?.vehicle.startAddress.formatted ?? undefined,
       latitude: activeDriver?.vehicle.startAddress.latitude ?? undefined,
       longitude: activeDriver?.vehicle.startAddress.longitude ?? undefined,
-    } as Coordinates & { formatted: string },
+    } as AutoCompleteCoordinates & { formatted: string },
 
     endAddress: {
       formatted: activeDriver?.vehicle?.endAddress?.formatted ?? undefined,
       latitude: activeDriver?.vehicle?.endAddress?.latitude ?? undefined,
       longitude: activeDriver?.vehicle?.endAddress?.longitude ?? undefined,
-    } as Coordinates & { formatted: string },
+    } as AutoCompleteCoordinates & { formatted: string },
 
     shiftStart: activeDriver?.vehicle.shiftStart
       ? unixSecondsToMilitaryTime(activeDriver?.vehicle.shiftStart)
@@ -116,37 +119,37 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
     defaultValues,
   });
 
+  useEffect(() => {
+    setTimeout(() => {
+      document.body.style.pointerEvents = "";
+    }, 500);
+  }, []);
+
   function onSubmit(data: DriverFormValues) {
     if (activeDriver) {
-      updateDriver({
+      updateRouteVehicle({
         bundle: formatDriverFormDataToBundle(data),
       });
       if (editDriver)
-        updateDepotDriver({
+        updateDepotDriverDetails({
           bundle: formatDriverFormDataToBundle(data),
         });
-    } else create({ driver: formatDriverFormDataToBundle(data) });
-
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    } else createNewDriver({ driver: formatDriverFormDataToBundle(data) });
 
     handleOnOpenChange(false);
   }
 
   const onDelete = () => {
-    deleteFromRoute({ vehicleId: activeDriver?.vehicle.id });
+    deleteDriverFromRoute({ vehicleId: activeDriver?.vehicle.id });
     handleOnOpenChange(false);
   };
 
   const updateDefault = (data: DriverFormValues) => {
     const temp = formatDriverFormDataToBundle(data);
-    updateDefaults(activeDriver?.driver?.defaultVehicleId, temp);
+    updateDepotDriverDefaults({
+      id: activeDriver?.driver?.defaultVehicleId,
+      bundle: temp,
+    });
   };
 
   return (

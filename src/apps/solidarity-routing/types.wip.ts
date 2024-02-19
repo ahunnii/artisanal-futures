@@ -5,6 +5,7 @@ import {
 } from "@prisma/client";
 
 import * as z from "zod";
+import { driverFormSchema } from "./schemas.wip";
 
 export type VersionOneDriverCSV = {
   name: string;
@@ -87,7 +88,7 @@ export const jobSchema = z.object({
     latitude: z.number(),
     longitude: z.number(),
   }),
-  clientId: z.string().optional(),
+  clientId: z.string().optional().nullish(),
 
   serviceTime: z.number(),
   prepTime: z.number(),
@@ -163,79 +164,6 @@ export const driverVehicleSchema = z.object({
 export const clientJobSchema = z.object({
   client: clientSchema.optional(),
   job: jobSchema,
-});
-
-export const driverFormSchema = z.object({
-  id: z.string(),
-  vehicleId: z.string().optional(),
-
-  addressId: z.string().optional(),
-  startAddressId: z.string().optional(),
-  endAddressId: z.string().optional().nullish(),
-
-  type: z.nativeEnum(DBDriverType),
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "Name must not be longer than 30 characters.",
-    }),
-  email: z.string().email(),
-  // phone: z.string().regex(/^\d{3}-\d{3}-\d{4}$/, {
-  //   message: "Phone number must be in the format XXX-XXX-XXXX.",
-  // }),
-  // phone: z.string().regex(/^\d{4}\d{3}\d{4}$/, {
-  //   message: "Phone number must be in the format XXXXXXXXXX.",
-  // }),
-
-  phone: z.string().regex(/^\d{10}$/, {
-    message: "Phone number must be in the format +1 (XXX) XXX-XXXX.",
-  }),
-
-  address: z.object({
-    formatted: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  startAddress: z
-    .object({
-      formatted: z.string().optional(),
-      latitude: z.number().optional(),
-      longitude: z.number().optional(),
-    })
-    .optional()
-    .nullish(),
-  endAddress: z
-    .object({
-      formatted: z.string().optional(),
-      latitude: z.number().optional(),
-      longitude: z.number().optional(),
-    })
-    .optional()
-    .nullable(),
-
-  maxTravelTime: z.coerce.number().min(0),
-  maxTasks: z.coerce.number().min(0),
-  maxDistance: z.coerce.number().min(0),
-
-  breaks: z
-    .array(
-      z.object({
-        id: z.number(),
-        duration: z.coerce.number().min(0),
-      })
-    )
-    .max(3),
-
-  shiftStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: "Invalid time format. Time must be in 24hr HH:MM format.",
-  }),
-  shiftEnd: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: "Invalid time format. Time must be in 24hr  HH:MM format.",
-  }),
-  capacity: z.coerce.number().min(0).optional(),
 });
 
 export const stopFormSchema = z
@@ -489,6 +417,11 @@ export type OptimizedResponseData = {
 export type Coordinates = {
   lat: number;
   lng: number;
+};
+
+export type AutoCompleteCoordinates = {
+  latitude: number;
+  longitude: number;
 };
 
 export type Channel = Prisma.ChannelGetPayload<{

@@ -81,7 +81,7 @@ export const FileUploadModal = <T,>({
         {children}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-5xl">
           <DialogHeader>
             <DialogTitle className="text-2xl capitalize">
               {type as string} Import
@@ -130,14 +130,14 @@ export const FileUploadModal = <T,>({
           )}
           {data?.length > 0 && tableData?.length > 0 && (
             <>
-              <div className="flex  gap-4  ">
-                <div className="flex w-1/3 flex-col ">
+              <div className="flex gap-4 px-4 ">
+                <div className="flex w-1/4 flex-col ">
                   <p className="text-lg font-semibold">Name</p>
                 </div>
-                <div className="flex w-1/3 flex-col ">
+                <div className="flex w-1/4 flex-col ">
                   <p className="text-lg font-semibold">Email</p>
                 </div>
-                <div className="flex w-2/3 flex-col text-left">
+                <div className="flex w-2/4 flex-col ">
                   <p className="text-lg font-semibold">Address</p>
                 </div>
               </div>
@@ -146,15 +146,13 @@ export const FileUploadModal = <T,>({
                 {tableData.map((bundle, idx) => {
                   return (
                     <div className="flex gap-4 p-4 odd:bg-muted" key={idx}>
-                      <div className="flex w-1/3 flex-col">
-                        <p className="capitalize">{bundle.name}</p>
-                      </div>
-                      <div className="flex w-1/3 flex-col">
-                        <p className="capitalize">{bundle?.email ?? ""}</p>
-                      </div>
-                      <div className="flex w-2/3 flex-col">
-                        <p>{bundle.address}</p>
-                      </div>
+                      <p className=" w-1/4 capitalize">{bundle.name}</p>
+
+                      <p className="w-1/4 overflow-hidden text-ellipsis ">
+                        {bundle?.email ?? ""}
+                      </p>
+
+                      <p className=" w-2/4 ">{bundle.address}</p>
                     </div>
                   );
                 })}

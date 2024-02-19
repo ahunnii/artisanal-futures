@@ -11,18 +11,22 @@ export const useSolidarityState = () => {
   const isSandbox = pathname?.includes("sandbox");
   const depotId = params?.depotId as string;
   const routeId = params?.routeId as string;
-  const pathId = params?.pathId ?? undefined;
+  const pathId = params?.pathId as string;
   const driverId = searchParams.get("driverId") ?? undefined;
+  const jobId = searchParams.get("jobId") ?? undefined;
   const optimizedId = searchParams.get("optimizedId") ?? undefined;
   const date = searchParams.get("date") ?? "";
   const formattedDateString = date?.replace(/\+/g, " ");
   const dateObject = new Date(formattedDateString);
   const vehicle = searchParams.get("vehicle") ?? undefined;
 
+  const isFirstTime = searchParams.get("welcome") ?? undefined;
+
   const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
 
   return {
     session,
+    jobId,
     isUserAllowedToSaveToDepot,
     isSandbox,
     depotId,
@@ -33,5 +37,6 @@ export const useSolidarityState = () => {
     vehicle,
     routeDate: date ? dateObject : null,
     sessionStatus: status,
+    isFirstTime,
   };
 };

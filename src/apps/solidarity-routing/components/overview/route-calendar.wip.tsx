@@ -10,6 +10,7 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { useEffect } from "react";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
 import { Button } from "~/components/ui/button";
 import { useMediaQuery } from "~/hooks/use-media-query";
@@ -23,6 +24,12 @@ export const RouteCalendar = ({ date, setDate }: IProps) => {
   const { allRoutes } = useRoutePlans();
   const dateMap = allRoutes.map((route) => route.deliveryAt);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  useEffect(() => {
+    setTimeout(() => {
+      document.body.style.pointerEvents = "";
+    }, 500);
+  }, []);
 
   if (!isDesktop) {
     return (

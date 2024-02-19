@@ -3,7 +3,7 @@ import { availableNotificationProcessors } from "./processors/available";
 
 const selectedNotificationProcessor =
   availableNotificationProcessors[
-    "hotToast" as keyof typeof availableNotificationProcessors
+    "sonnerToast" as keyof typeof availableNotificationProcessors
   ];
 
 export const notificationService = new NotificationService(

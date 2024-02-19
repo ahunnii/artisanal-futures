@@ -1,7 +1,7 @@
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-
 import { useEffect, useMemo, useState, type FC } from "react";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Home, Repeat, Undo } from "lucide-react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 
 import {
@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { Button } from "~/components/ui/button";
 import {
   FormControl,
   FormDescription,
@@ -18,9 +19,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-
-import { Home, Repeat, Undo } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Switch } from "~/components/ui/switch";
 import {
@@ -30,18 +28,16 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 
+import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+import type { DriverFormValues } from "~/apps/solidarity-routing/types.wip";
 import { cn } from "~/utils/styles";
-import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
-import type { DriverFormValues } from "../../types.wip";
 
-import { AutoCompleteDepotBtn } from "../shared/autocomplete-depot-btn";
+import { AutoCompleteDepotBtn } from "~/apps/solidarity-routing/components/shared";
 
-type Props = {
-  form: UseFormReturn<DriverFormValues>;
-};
+type Props = { form: UseFormReturn<DriverFormValues> };
 
 export const VehicleDetailsSection: FC<Props> = ({ form }) => {
-  const driverBundles = useDriverVehicleBundles();
+  const { active: activeDriver } = useDriverVehicleBundles();
 
   const checkForRoundtripAddress =
     form.watch("endAddress.formatted") === "" ||
@@ -148,13 +144,7 @@ export const VehicleDetailsSection: FC<Props> = ({ form }) => {
                 </FormDescription>
               </div>
               <FormControl>
-                <Switch
-                  checked={useDefault}
-                  onCheckedChange={(e: boolean) => {
-                    // enableAnimations(e);
-                    setUseDefault(e);
-                  }}
-                />
+                <Switch checked={useDefault} onCheckedChange={setUseDefault} />
               </FormControl>
             </FormItem>
             <div ref={parent} className="flex flex-col gap-4">
@@ -214,18 +204,18 @@ export const VehicleDetailsSection: FC<Props> = ({ form }) => {
                                   type="button"
                                   onClick={() => {
                                     onChange(
-                                      driverBundles.active?.vehicle.endAddress
-                                        .formatted
+                                      activeDriver?.vehicle?.endAddress
+                                        ?.formatted
                                     );
                                     form.setValue(
                                       "endAddress.latitude",
-                                      driverBundles.active?.vehicle.endAddress
-                                        .latitude
+                                      activeDriver?.vehicle?.endAddress
+                                        ?.latitude
                                     );
                                     form.setValue(
                                       "endAddress.longitude",
-                                      driverBundles.active?.vehicle.endAddress
-                                        .longitude
+                                      activeDriver?.vehicle?.endAddress
+                                        ?.longitude
                                     );
                                   }}
                                 >

@@ -9,7 +9,13 @@ export interface NotificationProcessor {
   }) => void;
 
   notifyInfo: ({ message }: { message: string }) => void;
-  notifyResults: ({ message }: { message: string }) => void;
+  notifyResults: ({
+    message,
+    data,
+  }: {
+    message: string;
+    data: unknown;
+  }) => void;
 }
 
 export class NotificationService {
@@ -27,7 +33,7 @@ export class NotificationService {
     return this.service.notifyInfo({ message });
   };
 
-  notifyResults = ({ message }: { message: string }) => {
-    return this.service.notifyResults({ message });
+  notifyResults = ({ message, data }: { message: string; data: unknown }) => {
+    return this.service.notifyResults({ message, data });
   };
 }

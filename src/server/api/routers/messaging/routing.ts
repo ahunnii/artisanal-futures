@@ -347,6 +347,13 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
   getAllDepotChannels: protectedProcedure
     .input(z.object({ depotId: z.string() }))
     .query(async ({ input, ctx }) => {
+      if (!input.depotId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Depot id is needed",
+        });
+      }
+
       const depotServer = await ctx.prisma.server.findUnique({
         where: {
           inviteCode: `depot-${input.depotId}`,

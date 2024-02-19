@@ -52,10 +52,19 @@ const StopsTab = () => {
                   Import stops from spreadsheet{" "}
                 </Button>
               </FileUploadModal>
-              <Button variant={"outline"} size={"lg"}>
+              <Button
+                variant={"outline"}
+                size={"lg"}
+                onClick={() => jobs.addPrevious()}
+              >
                 Add previous stops & clients
               </Button>
-              <Button variant={"outline"} size={"lg"}>
+
+              <Button
+                variant={"outline"}
+                size={"lg"}
+                onClick={() => jobs.createNew()}
+              >
                 Manually add new stop
               </Button>
             </div>

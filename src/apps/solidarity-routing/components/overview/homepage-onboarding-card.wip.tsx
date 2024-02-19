@@ -15,6 +15,7 @@ import { useMemo, type FC } from "react";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
 
+import { useDepot } from "../../hooks/depot/use-depot";
 import { formatNthDate, isDateToday } from "../../utils/current-date";
 import { HomepageDriverImportCard } from "./homepage-driver-import-card";
 import { HomepageJobImportCard } from "./homepage-job-import-card";
@@ -26,6 +27,8 @@ type Props = {
 
 export const HomePageOnboardingCard: FC<Props> = ({ date, status }) => {
   const { depotId } = useSolidarityState();
+
+  const { currentDepot } = useDepot();
 
   const routePlan = useRoutePlans();
 
@@ -44,7 +47,8 @@ export const HomePageOnboardingCard: FC<Props> = ({ date, status }) => {
           {status === "authenticated" && (
             <>
               <CardDescription>
-                {format(date, "MMMM dd yyyy")} * Depot {depotId}
+                {format(date, "MMMM dd yyyy")} * Depot{" "}
+                {currentDepot?.name ?? depotId}
               </CardDescription>
             </>
           )}

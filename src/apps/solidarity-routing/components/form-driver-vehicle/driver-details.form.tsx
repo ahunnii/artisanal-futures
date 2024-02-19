@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -26,16 +27,15 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-import type { DriverFormValues } from "../../types.wip";
+import { AutoCompleteDepotBtn } from "~/apps/solidarity-routing/components/shared";
+
+import type { DriverFormValues } from "~/apps/solidarity-routing/types.wip";
 
 import { DriverType } from "@prisma/client";
 
 import { FormattedNumericInput } from "~/components/ui/formatted-numeric-input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 
 import { cn } from "~/utils/styles";
-
-import { AutoCompleteDepotBtn } from "../shared/autocomplete-depot-btn";
 
 type Props = {
   form: UseFormReturn<DriverFormValues>;

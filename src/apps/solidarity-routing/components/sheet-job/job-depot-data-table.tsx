@@ -1,6 +1,8 @@
 import {
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -15,7 +17,6 @@ import * as React from "react";
 
 import { Button } from "~/components/ui/button";
 
-import { Input } from "~/components/ui/input";
 import {
   Table,
   TableBody,
@@ -25,18 +26,20 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import type { ClientJobBundle } from "../../types.wip";
-import { columns } from "./job-depot-columns";
+import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 
-export function JobDepotDataTable({
-  storeData,
-  data,
-  setSelectedData,
-}: {
+import {
+  JobDepotDataTableToolbar,
+  columns,
+} from "~/apps/solidarity-routing/components/sheet-job";
+
+type Props = {
   data: ClientJobBundle[];
   storeData: ClientJobBundle[];
   setSelectedData: (data: ClientJobBundle[]) => void;
-}) {
+};
+
+export function JobDepotDataTable({ storeData, data, setSelectedData }: Props) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -53,15 +56,17 @@ export function JobDepotDataTable({
   const table = useReactTable({
     data,
     columns,
-
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
 
     onPaginationChange: (state) => {
       setPageIndex(state);
@@ -92,19 +97,8 @@ export function JobDepotDataTable({
 
   return (
     <>
-      <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Search clients..."
-            value={
-              (table.getColumn("client_name")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("client_name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-lg"
-          />
-        </div>
+      <div className="mt-4 w-full space-y-4">
+        <JobDepotDataTableToolbar table={table} />
         <div className="rounded-md border">
           <Table>
             <TableHeader>

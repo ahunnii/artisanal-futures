@@ -541,10 +541,15 @@ export const driverRouter = createTRPCRouter({
   getDepotDrivers: protectedProcedure
     .input(z.object({ depotId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (!input.depotId) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Depot ID is required",
+        });
+      }
+
       const drivers = await ctx.prisma.driver.findMany({
-        where: {
-          depotId: input.depotId,
-        },
+        where: { depotId: input.depotId },
         include: {
           address: true,
           vehicles: {

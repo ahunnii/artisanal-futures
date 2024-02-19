@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import axios from "axios";
@@ -20,10 +20,7 @@ import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
 
 import { DriversTab } from "~/apps/solidarity-routing/components/drivers-section";
-import {
-  StopSheet,
-  StopsTab,
-} from "~/apps/solidarity-routing/components/stops-section";
+import { StopsTab } from "~/apps/solidarity-routing/components/stops-section";
 
 import {
   Drawer,
@@ -36,24 +33,24 @@ import {
 
 import CalculationsTab from "~/apps/solidarity-routing/components/route-plan-section/calculations-tab";
 
-import { useDriversStore } from "~/apps/solidarity-routing/hooks/drivers/use-drivers-store";
+import { useDriversStore } from "~/apps/solidarity-routing/stores/use-drivers-store";
 
 import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
-import { GetServerSidePropsContext } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
-
-import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
 import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
+
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useUrlParams } from "~/hooks/use-url-params";
-import { prisma } from "~/server/db";
+
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
+
+import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/sheet-driver";
+import { JobClientSheet } from "~/apps/solidarity-routing/components/sheet-job";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -158,6 +155,7 @@ const SingleRoutePage = () => {
     <>
       <RouteLayout>
         <DriverVehicleSheet />
+        <JobClientSheet />
         <MessageSheet />
 
         {routePlans.isLoading && <AbsolutePageLoader />}
@@ -243,7 +241,6 @@ const SingleRoutePage = () => {
                 </TabsContent>
                 <TabsContent value="calculate" asChild>
                   <>
-                    <StopSheet standalone={true} />
                     <CalculationsTab />
                     <div className=" flex h-16 items-center justify-between gap-2 bg-white p-4">
                       <Button
@@ -319,32 +316,9 @@ const SingleRoutePage = () => {
                   <DrawerContent className=" max-h-screen ">
                     <DrawerHeader />
                     <ScrollArea className="mx-auto flex w-full  max-w-sm flex-col">
-                      <StopSheet standalone={true} />
                       <CalculationsTab />
-                      {/* <div className=" flex h-16 items-center justify-between gap-2 bg-white p-4">
-                        <Button
-                          size="icon"
-                          variant={"outline"}
-                          onClick={() => setTabValue("plan")}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          className="flex-1 gap-2"
-                          onClick={massSendRouteEmails}
-                        >
-                          Send to Driver(s) <ArrowRight />
-                        </Button>
-                      </div> */}
                     </ScrollArea>
                     <DrawerFooter>
-                      {/* <Button
-                        className="w-full flex-1 gap-2"
-                        variant={"outline"}
-                        onClick={() => setTabValue("plan")}
-                      >
-                        <Pencil /> Edit Routes
-                      </Button> */}
                       <Button
                         className="w-full flex-1 gap-2"
                         onClick={massSendRouteEmails}

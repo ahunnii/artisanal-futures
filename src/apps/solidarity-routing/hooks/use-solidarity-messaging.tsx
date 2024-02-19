@@ -1,27 +1,22 @@
 import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api";
-import type { DriverVehicleBundle, Member } from "../types.wip";
-import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
+import type { Member } from "../types.wip";
 
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { Channel } from "~/apps/solidarity-routing/types.wip";
+import type { Channel } from "~/apps/solidarity-routing/types.wip";
 import { useUrlParams } from "~/hooks/use-url-params";
-import { useMessageChannelStore } from "./drivers/use-message-store";
+import { useMessageChannelStore } from "../stores/use-message-store";
+
 import { useOptimizedRoutePlan } from "./optimized-data/use-optimized-route-plan";
 import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
 export const useSolidarityMessaging = () => {
-  const { updateUrlParams, getUrlParam } = useUrlParams();
+  const { updateUrlParams } = useUrlParams();
   const { data: session } = useSession();
-  const { depotId, isUserAllowedToSaveToDepot, driverId, vehicle } =
-    useSolidarityState();
-
-  const optimizedRoute = useOptimizedRoutePlan();
-  const { isMessageSheetOpen } = useDriverVehicleBundles();
-  const apiContext = api.useContext();
-
   const sessionMessages = useMessageChannelStore((state) => state);
+  const { depotId, isUserAllowedToSaveToDepot } = useSolidarityState();
+  const { currentDriver } = useOptimizedRoutePlan();
 
   const getDepotChannels = api.routeMessaging.getAllDepotChannels.useQuery(
     { depotId },
@@ -32,6 +27,8 @@ export const useSolidarityMessaging = () => {
     { depotId },
     { enabled: !!depotId }
   );
+
+  const apiContext = api.useContext();
 
   const depotChannels = getDepotChannels.data ?? [];
   const depotMembers = getDepotMembers.data ?? [];
@@ -45,6 +42,21 @@ export const useSolidarityMessaging = () => {
       depotChannels?.find((channel: Channel) => channel.name === email) ?? null
     );
   };
+
+  const createDriverChannels =
+    api.routeMessaging.createDriverChannels.useMutation({
+      onSuccess: () =>
+        notificationService.notifySuccess({
+          message: "Driver channels has been successfully created.",
+        }),
+
+      onError: (error) =>
+        notificationService.notifyError({
+          message:
+            "Something went wrong with creating the driver channels. Please try again.",
+          error,
+        }),
+    });
 
   const setActiveChannelById = (id: string | null) => {
     updateUrlParams({
@@ -102,31 +114,9 @@ export const useSolidarityMessaging = () => {
   // const driverMemberId =() => getDriverDepotMemberById(driverId)?.id;
   const ownerMemberId = getOwnerDepotMemberById()?.id ?? "";
   const driverMemberId = useMemo(() => {
-    if (!optimizedRoute?.currentDriver?.driver?.id) return "";
-    return getDriverDepotMemberById(optimizedRoute?.currentDriver?.driver?.id)
-      ?.id;
-  }, [optimizedRoute?.currentDriver]);
-
-  // const getDepotDriverChannel =
-  //   api.routeMessaging.getDepotDriverChannel.useQuery(
-  //     {
-  //       depotId,
-  //       driverId: currentDriver?.driver.id ?? "",
-  //     },
-  //     { enabled: currentDriver?.driver?.id !== undefined && isMessageSheetOpen }
-  //   );
-
-  // const getChannelMembership = api.routeMessaging.getMember.useQuery(
-  //   {
-  //     depotId,
-  //     driverId: !isDepot ? currentDriver?.driver.id : undefined,
-  //   },
-  //   {
-  //     enabled:
-  //       (!isDepot ? currentDriver?.driver?.id !== undefined : true) &&
-  //       isMessageSheetOpen,
-  //   }
-  // );
+    if (!currentDriver?.driver?.id) return "";
+    return getDriverDepotMemberById(currentDriver?.driver?.id)?.id;
+  }, [currentDriver]);
 
   const createChannelMessage =
     api.routeMessaging.sendDriverChannelMessage.useMutation({
@@ -144,9 +134,6 @@ export const useSolidarityMessaging = () => {
     });
 
   return {
-    // driverChannel: getDepotDriverChannel.data,
-    // membership: getChannelMembership.data,
-    // driverMemberId,
     ownerMemberId,
     memberId: sessionMessages.isDepot ? ownerMemberId : driverMemberId,
     createMessage: createChannelMessage.mutate,
@@ -161,6 +148,9 @@ export const useSolidarityMessaging = () => {
     onMessageSheetOpenChange: (state: boolean) => {
       if (!state) setActiveChannelById(null);
       sessionMessages.setIsDriverMessagePanelOpen(state);
+
+      if (!state) {
+      }
     },
     messageById: (id: string) => {
       setActiveChannelById(id);
@@ -179,10 +169,17 @@ export const useSolidarityMessaging = () => {
       if (email) sessionMessages.setIsDriverMessagePanelOpen(true);
     },
 
+    messageDriverById: (id: string | null) => {
+      sessionMessages.setIsDepot(true);
+      setActiveChannelById(id);
+      if (id) sessionMessages.setIsDriverMessagePanelOpen(true);
+    },
+
     messageDepot: (email: string | null) => {
       sessionMessages.setIsDepot(false);
       setActiveChannelByEmail(email);
       if (email) sessionMessages.setIsDriverMessagePanelOpen(true);
     },
+    createDriverChannels,
   };
 };

@@ -9,14 +9,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-import type { DriverVehicleBundle } from "~/apps/solidarity-routing/types.wip";
-import { DriverDepotDeleteOption } from "./driver-depot-delete-option";
-import { DriverDepotEditOption } from "./driver-depot-edit-option";
+import type { Address } from "@prisma/client";
 
-export const columns: ColumnDef<DriverVehicleBundle>[] = [
+import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
+
+import { JobDepotEditOption } from "~/apps/solidarity-routing/components/sheet-job";
+
+export const columns: ColumnDef<ClientJobBundle>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -41,7 +44,7 @@ export const columns: ColumnDef<DriverVehicleBundle>[] = [
   },
 
   {
-    accessorKey: "driver.name",
+    accessorKey: "client.name",
     header: ({ column }) => {
       return (
         <Button
@@ -54,12 +57,13 @@ export const columns: ColumnDef<DriverVehicleBundle>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.driver.name}</div>
+      <div className="capitalize">
+        {row.original?.client?.name ?? "Unsaved Client"}
+      </div>
     ),
   },
-
   {
-    accessorKey: "driver.type",
+    accessorKey: "job.type",
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
@@ -75,15 +79,39 @@ export const columns: ColumnDef<DriverVehicleBundle>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.driver.type}</div>
+      <div className="capitalize">{row.original.job.type}</div>
     ),
   },
+  {
+    accessorKey: "job.address",
 
+    filterFn: (row, id, value) => {
+      const address: Address = row.getValue(id);
+
+      return address.formatted
+        .toLowerCase()
+        .includes(value.toLowerCase() as string);
+    },
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Address
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original?.job.address.formatted}</div>
+    ),
+  },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const driver = row.original;
+      const job = row.original;
 
       return (
         <DropdownMenu>
@@ -95,11 +123,14 @@ export const columns: ColumnDef<DriverVehicleBundle>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <DriverDepotEditOption row={driver} />
+            <DropdownMenuItem
+              onClick={() => void navigator.clipboard.writeText(job.job.id)}
+            >
+              Copy ID
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <DriverDepotDeleteOption row={driver} />
+              <JobDepotEditOption row={job} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

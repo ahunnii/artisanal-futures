@@ -52,6 +52,7 @@ export const handleDriverSheetUpload: FileUploadHandler<
           return {
             name: driver.driver.name,
             address: driver.driver.address.formatted,
+            email: driver?.driver?.email ?? "",
           };
         }) ?? [];
       callback({ data: revisedDrivers ?? [], tableData });

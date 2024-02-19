@@ -16,7 +16,7 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../shared/file-upload-modal.wip";
 
-import StopSheet from "./stop-sheet";
+import { JobClientSheetBtn } from "../sheet-job/job-client-sheet-btn";
 
 const StopOptionBtn = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +37,7 @@ const StopOptionBtn = () => {
 
   return (
     <div className="z-30 flex w-auto  items-center justify-between rounded-md border bg-white text-secondary-foreground">
-      <StopSheet />
+      <JobClientSheetBtn />
 
       <Separator orientation="vertical" className="h-[20px]" />
       <FileUploadModal<ClientJobBundle>

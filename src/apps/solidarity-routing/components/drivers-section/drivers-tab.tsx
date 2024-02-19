@@ -4,8 +4,7 @@ import { DriverCard } from "~/apps/solidarity-routing/components/drivers-section
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/drivers-section/driver-vehicle-sheet";
-import { DriverVehicleSheetBtn } from "./driver-vehicle-sheet-btn";
+import { DriverVehicleSheetBtn } from "../sheet-driver/driver-vehicle-sheet-btn";
 
 const DriversTab = () => {
   const driverBundles = useDriverVehicleBundles();

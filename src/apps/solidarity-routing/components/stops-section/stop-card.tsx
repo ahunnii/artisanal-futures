@@ -6,18 +6,18 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 type TStopCard = { id: string; name: string; address: string };
 
 const StopCard: FC<TStopCard> = ({ id, name, address }) => {
-  const jobs = useClientJobBundles();
+  const { edit, isActive } = useClientJobBundles();
 
-  const onEdit = () => jobs.edit(id);
+  const onJobEdit = () => edit(id);
 
-  const isActive = useMemo(() => jobs.isActive(id), [jobs, id]);
+  const isJobActive = useMemo(() => isActive(id), [isActive, id]);
 
   return (
     <DepotCard
-      isActive={isActive}
+      isActive={isJobActive}
       title={name ?? "New Stop"}
       subtitle={address}
-      onEdit={onEdit}
+      onEdit={onJobEdit}
     />
   );
 };

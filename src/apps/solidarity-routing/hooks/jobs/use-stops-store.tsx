@@ -7,6 +7,7 @@ import type { ClientJobBundle } from "../../types.wip";
 interface IUseStopsStore {
   locations: ClientJobBundle[];
   activeLocation: ClientJobBundle | null;
+  jobSheetMode: string;
 
   setActiveLocation: (activeLocation: ClientJobBundle | null) => void;
   setActiveLocationById: (activeLocation: string | null) => void;
@@ -23,6 +24,8 @@ interface IUseStopsStore {
 
   isFieldJobSheetOpen: boolean;
   setIsFieldJobSheetOpen: (isOpen: boolean) => void;
+
+  setJobSheetMode: (mode: string) => void;
 }
 
 export const useStopsStore = create<IUseStopsStore>()(
@@ -30,8 +33,10 @@ export const useStopsStore = create<IUseStopsStore>()(
     (set) => ({
       locations: [],
       activeLocation: null,
+      jobSheetMode: "create-new",
 
       setActiveLocation: (activeLocation) => set({ activeLocation }),
+
       setActiveLocationById: (id) =>
         set((state) => ({
           activeLocation:
@@ -63,7 +68,10 @@ export const useStopsStore = create<IUseStopsStore>()(
       isFieldJobSheetOpen: false,
       setIsFieldJobSheetOpen: (isFieldJobSheetOpen) =>
         set({ isFieldJobSheetOpen }),
+
+      setJobSheetMode: (jobSheetMode) => set({ jobSheetMode }),
     }),
+
     {
       name: "stop-storage", // name of item in the storage (must be unique)
       storage: createJSONStorage(() => sessionStorage), // (optional) by default the 'localStorage' is used

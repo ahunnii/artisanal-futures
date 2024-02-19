@@ -15,7 +15,7 @@ export const useUrlParams = () => {
 
   useEffect(() => {
     if (pending && pathname) {
-      console.log(pending);
+      console.log("test1");
       void router.replace(`${pathname}?${pending}`);
       setPending(null);
     }
@@ -25,8 +25,10 @@ export const useUrlParams = () => {
     const params = new URLSearchParams(searchParams);
 
     if (value) {
+      console.log("test3");
       params.set(`${key}`, `${value}`);
     } else {
+      console.log("test2");
       params.delete(`${key}`);
     }
     if (!pathname) setPending(`${params.toString()}`);

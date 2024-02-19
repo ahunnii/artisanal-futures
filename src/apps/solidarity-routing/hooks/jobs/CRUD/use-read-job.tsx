@@ -37,6 +37,11 @@ export const useReadJob = () => {
   const checkIfJobExistsInRoute = (
     id: string | null
   ): ClientJobBundle | null => {
+    if (id == null) {
+      console.log("YEEEEEE");
+      console.log(routeJobs?.find((bundle) => bundle.job.id === id) ?? null);
+    }
+
     return routeJobs?.find((bundle) => bundle.job.id === id) ?? null;
   };
 

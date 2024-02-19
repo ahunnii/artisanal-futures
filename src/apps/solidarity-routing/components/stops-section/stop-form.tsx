@@ -167,12 +167,12 @@ const StopForm: FC<TStopForm> = ({ handleOnOpenChange, activeLocation }) => {
               <div className="flex items-center justify-between gap-3">
                 {status === "authenticated" && (
                   <Button type="submit" className="flex-1" variant={"outline"}>
-                    Save driver to depot
+                    Save stop to depot
                   </Button>
                 )}
 
                 <Button type="submit" className="flex-1">
-                  Add driver
+                  Add stop
                 </Button>
               </div>
             </div>

@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { driverVehicleDataForNewLatLng } from "../../data/driver-data";
-import type { DriverVehicleBundle } from "../../types.wip";
+import { driverVehicleDataForNewLatLng } from "../data/driver-data";
+import type { DriverVehicleBundle } from "../types.wip";
 
 interface useDriversStore {
   drivers: DriverVehicleBundle[];
