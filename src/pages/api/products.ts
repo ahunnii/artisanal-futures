@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
-// import data from "~/json/ecodata.json";
-import type { Product } from "~/types";
+import type { Product } from "~/apps/product/types";
 
 export default async function handler(
   req: NextApiRequest,

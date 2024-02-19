@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-import { ModifyModal } from "~/components/tools/routing/ui/modify-modal";
+import { ShopModal } from "~/apps/admin/components/modals/shop-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -15,7 +14,7 @@ export const ModalProvider = () => {
 
   return (
     <>
-      <ModifyModal />
+      <ShopModal />
     </>
   );
 };

@@ -1,86 +1,67 @@
 import type { Survey } from "@prisma/client";
 
 import type { GetServerSidePropsContext } from "next";
-import type { Session } from "next-auth";
+import type { User } from "next-auth";
 import { type FC } from "react";
 
-import { SurveyForm } from "~/components/profile/survey-form";
+import { SurveyForm } from "~/apps/account/components/survey-form";
 import PageLoader from "~/components/ui/page-loader";
 
-import ProfileLayout from "~/layouts/profile-layout";
+import ProfileLayout from "~/apps/account/profile-layout";
 import { prisma } from "~/server/db";
-import { authenticateSession } from "~/utils/auth";
+
+import { api } from "~/utils/api";
+import { authenticateUserServerSide } from "~/utils/authentication/server";
 
 interface IProps {
   survey: Survey;
 }
-const ProfileSurveyPage: FC<IProps> = ({ survey }) => {
+const ProfileSurveyPage: FC<IProps> = () => {
+  const { data: shop } = api.shops.getCurrentUserShop.useQuery();
+  const { data: survey, isLoading } =
+    api.surveys.getCurrentUserShopSurvey.useQuery({
+      shopId: shop?.id ?? "",
+    });
+
+  if (isLoading)
+    return (
+      <ProfileLayout>
+        <PageLoader />
+      </ProfileLayout>
+    );
+
   return (
     <ProfileLayout>
       <div className="space-y-6">
-        {typeof survey === "undefined" && <PageLoader />}
-
-        {typeof survey === "object" && <SurveyForm initialData={survey} />}
+        {typeof survey !== "undefined" && typeof shop !== "undefined" && (
+          <SurveyForm initialData={survey ?? null} shop={shop!} />
+        )}
       </div>
     </ProfileLayout>
   );
 };
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const session = (await authenticateSession(ctx)) as Session;
 
-  const userId = session?.user?.id;
+const handleSurveyServerSide = async (user: User) => {
+  const userId = user.id;
 
   const shop = await prisma.shop.findFirst({
     where: {
       ownerId: userId,
     },
   });
-  if (!shop) {
+
+  if (!shop)
     return {
       redirect: {
         destination: "/profile/shop",
         permanent: false,
       },
     };
-  }
 
-  const survey = await prisma.survey.findFirst({
-    where: {
-      ownerId: userId,
-    },
-  });
+  return { props: {} };
+};
 
-  if (survey) {
-    return {
-      props: {
-        survey: {
-          ...survey,
-          createdAt: survey.createdAt.toISOString(),
-          updatedAt: survey.updatedAt.toISOString(),
-          processes: survey.processes ?? "",
-          materials: survey.materials ?? "",
-          principles: survey.principles ?? "",
-          description: survey.description ?? "",
-        },
-      },
-    };
-  }
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
+  authenticateUserServerSide(ctx, handleSurveyServerSide);
 
-  const newSurvey = await prisma.survey.create({
-    data: {
-      ownerId: userId,
-      shopId: shop.id,
-    },
-  });
-
-  return {
-    props: {
-      survey: {
-        ...newSurvey,
-        createdAt: newSurvey.createdAt.toISOString(),
-        updatedAt: newSurvey.updatedAt.toISOString(),
-      },
-    },
-  };
-}
 export default ProfileSurveyPage;

@@ -85,3 +85,71 @@ body,
 .moveable-resizable {
   opacity: 0;
 }
+
+.fade-container {
+}
+.fade-pic {
+  -webkit-animation: fade 25s infinite;
+  animation: fade 25s infinite;
+}
+#fade-pic1 {
+  animation-delay: 0s;
+}
+#fade-pic2 {
+  animation-delay: 5s;
+}
+#fade-pic3 {
+  animation-delay: 10s;
+}
+
+#fade-pic4 {
+  animation-delay: 15s;
+}
+#fade-pic5 {
+  animation-delay: 20s;
+}
+@-webkit-keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+body,
+.radix-dialog-content {
+  min-height: 100vh;
+  min-height: stretch;
+  min-height: -webkit-fill-available;
+}
+html {
+  height: stretch;
+  height: -webkit-fill-available;
+}

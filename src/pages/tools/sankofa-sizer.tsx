@@ -1,9 +1,9 @@
 import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
-import BodyPartsUI from "~/components/tools/sankofa-sizer/body-parts-ui";
-import BodyMeasurements from "~/components/tools/sankofa-sizer/measurements-ui";
 
-import VirtualPattern from "~/components/tools/sankofa-sizer/virtual-pattern";
+import BodyPartsUI from "~/apps/sankofa-sizer/components/body-parts-ui";
+import BodyMeasurements from "~/apps/sankofa-sizer/components/measurements-ui";
+import VirtualPattern from "~/apps/sankofa-sizer/components/virtual-pattern";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ToolLayout from "~/layouts/tool-layout";

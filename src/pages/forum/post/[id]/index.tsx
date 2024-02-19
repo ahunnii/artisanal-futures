@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { AuthorWithDate } from "~/components/forum/author-with-date";
-import { Avatar } from "~/components/forum/avatar";
-import { Banner } from "~/components/forum/banner";
+import { AuthorWithDate } from "~/apps/forum/components/author-with-date";
+import { Avatar } from "~/apps/forum/components/avatar";
+import { Banner } from "~/apps/forum/components/banner";
 
-import { ButtonLink } from "~/components/forum/button-link";
+import { ButtonLink } from "~/apps/forum/components/button-link";
 
-import { HtmlView } from "~/components/forum/html-view";
-import { IconButton } from "~/components/forum/icon-button";
+import { HtmlView } from "~/apps/forum/components/html-view";
+import { IconButton } from "~/apps/forum/components/icon-button";
 import {
   DotsIcon,
   EditIcon,
@@ -14,9 +14,9 @@ import {
   EyeIcon,
   MessageIcon,
   TrashIcon,
-} from "~/components/forum/icons";
+} from "~/apps/forum/components/icons";
 
-import { LikeButton } from "~/components/forum/like-button";
+import { LikeButton } from "~/apps/forum/components/like-button";
 
 import {
   Menu,
@@ -24,7 +24,7 @@ import {
   MenuItemButton,
   MenuItems,
   MenuItemsContent,
-} from "~/components/forum/menu";
+} from "~/apps/forum/components/menu";
 
 import { api, type RouterInputs } from "~/utils/api";
 
@@ -34,12 +34,13 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 
-import AddCommentForm from "~/components/forum/post/add-comment-form";
-import Comment from "~/components/forum/post/comment";
-import ConfirmDeleteDialog from "~/components/forum/post/confirm-delete-dialog";
-import ConfirmHideDialog from "~/components/forum/post/confirm-hide-dialog";
-import ConfirmUnhideDialog from "~/components/forum/post/confirm-unhide-dialog";
-import ForumLayout from "~/layouts/forum-layout";
+import AddCommentForm from "~/apps/forum/components/post/add-comment-form";
+import Comment from "~/apps/forum/components/post/comment";
+import ConfirmDeleteDialog from "~/apps/forum/components/post/confirm-delete-dialog";
+import ConfirmHideDialog from "~/apps/forum/components/post/confirm-hide-dialog";
+import ConfirmUnhideDialog from "~/apps/forum/components/post/confirm-unhide-dialog";
+import ForumLayout from "~/apps/forum/forum-layout";
+
 import { authenticateUser } from "~/utils/auth";
 function getPostQueryPathAndInput(id: number): RouterInputs["post"]["detail"] {
   return { id };
@@ -148,7 +149,7 @@ const PostPage = () => {
                 </Banner>
               )}
 
-              <div className="flex items-center justify-between gap-4">
+              <div className="my-6 flex items-center justify-between gap-4 ">
                 <h1 className="text-3xl font-semibold tracking-tighter md:text-4xl">
                   {postQuery.data.title}
                 </h1>
@@ -366,6 +367,8 @@ const PostPage = () => {
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const user = await authenticateUser(ctx);
-  return user;
+  return {
+    props: { user },
+  };
 }
 export default PostPage;

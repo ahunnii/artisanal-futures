@@ -8,14 +8,15 @@ interface IProps extends ImageProps {
 
 const BlurImage: FC<IProps> = ({ src, ...props }) => {
   const [isLoading, setLoading] = useState(true);
-
+  const [imgSrc, setImgSrc] = useState(src);
   return (
     <Image
       {...props}
-      src={src}
-      layout="fill"
-      objectFit="cover"
+      src={imgSrc}
+      fill
+      priority
       alt=""
+      onError={() => setImgSrc("/background-fallback.jpg")}
       className={cn(
         "duration-700 ease-in-out",
         isLoading
@@ -23,6 +24,7 @@ const BlurImage: FC<IProps> = ({ src, ...props }) => {
           : "scale-100 blur-0 grayscale-0"
       )}
       onLoadingComplete={() => setLoading(false)}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     />
   );
 };

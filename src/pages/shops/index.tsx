@@ -1,16 +1,18 @@
 import Head from "next/head";
-import type { FC } from "react";
+import Link from "next/link";
 
 import type { Shop } from "@prisma/client";
+
+import ShopCard from "~/apps/artisan-shops/components/shop-card";
+
 import Body from "~/components/body";
-import ShopCard from "~/components/shops/shop-card";
-import { prisma } from "~/server/db";
+import PageLoader from "~/components/ui/page-loader";
 
-interface IProps {
-  artisans: Shop[];
-}
+import { api } from "~/utils/api";
 
-const ShopsPage: FC<IProps> = ({ artisans }) => {
+const ShopsPage = () => {
+  const { data: shops, isLoading } = api.shops.getAllValidShops.useQuery();
+
   return (
     <>
       <Head>
@@ -19,45 +21,39 @@ const ShopsPage: FC<IProps> = ({ artisans }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Body>
-        <h1 className="text-5xl font-semibold">Shops</h1>
-        <p className="lead mb-3 mt-2 text-2xl text-slate-400">
+        <h1 className="text-4xl font-semibold">Shops</h1>
+        <p className="mb-3 mt-2 text-xl text-muted-foreground">
           Browse our featured artisans&apos; stores
         </p>
-        <div className="flex h-fit w-full flex-col md:flex-row md:flex-wrap">
-          {artisans?.map((artisan: Shop, index: number) => (
-            <div
-              className=" flex basis-full p-4 md:basis-1/2 lg:basis-1/4 "
-              key={index}
+        {isLoading && <PageLoader />}
+
+        {shops?.length === 0 && (
+          <p className="my-auto text-xl text-muted-foreground">
+            Well, this is unfortunate. We don&apos;t have any shops set up at
+            the moment. If you are registered, you can create your shop,{" "}
+            <Link
+              href="/profile/shop"
+              className=" font-semibold text-slate-800  hover:text-slate-800/50"
             >
-              <ShopCard {...artisan} />
-            </div>
-          ))}
-          {artisans?.length === 0 && (
-            <p>
-              There seems to be an issue fetching the shops. Please try again
-              later.
-            </p>
-          )}
-        </div>
+              here
+            </Link>
+            .
+          </p>
+        )}
+        {shops?.length !== 0 && (
+          <div className="flex h-fit w-full flex-col md:flex-row md:flex-wrap">
+            {shops?.map((artisan: Shop) => (
+              <ShopCard
+                {...artisan}
+                className="flex basis-full p-4 md:basis-1/2 lg:basis-1/4 "
+                key={artisan.id}
+              />
+            ))}
+          </div>
+        )}
       </Body>
     </>
   );
-};
-
-export const getServerSideProps = async () => {
-  const shops = await prisma.shop.findMany({
-    where: {
-      shopName: { not: "" },
-      logoPhoto: { not: "" },
-      website: { not: "" },
-    },
-  });
-
-  return {
-    props: {
-      artisans: [...JSON.parse(JSON.stringify(shops))],
-    },
-  };
 };
 
 export default ShopsPage;

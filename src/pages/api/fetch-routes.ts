@@ -25,7 +25,7 @@ async function downloadSupabaseObjects(files: SupabaseFile[]): Promise<any[]> {
         const jsonString = new TextDecoder("utf-8").decode(arrayBuffer);
         const jsonObject = JSON.parse(jsonString);
 
-        results.push(jsonObject);
+        results.push({ ...jsonObject, routeId: file.name.split(".json")[0] });
       }
     } catch (error) {
       console.error("Error downloading file:", error);

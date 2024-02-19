@@ -10,6 +10,7 @@ enum Role {
   USER
   ADMIN
   ARTISAN
+  DRIVER
 }
 
 datasource db {
@@ -45,6 +46,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -53,22 +55,30 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String?      @unique
-  emailVerified DateTime?
-  image         String?
-  title         String?
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
-  likedPosts    LikedPosts[]
-  comments      Comment[]
-  role          Role         @default(USER)
+  id                String       @id @default(cuid())
+  name              String?
+  email             String?      @unique
+  emailVerified     DateTime?
+  image             String?
+  title             String?
+  accounts          Account[]
+  sessions          Session[]
+  posts             Post[]
+  likedPosts        LikedPosts[]
+  comments          Comment[]
+  role              Role         @default(USER)
+  depots            Depot[]
+  messagingProfile  Profile?
+
 }
+
+
+
 
 model VerificationToken {
   identifier String
@@ -100,7 +110,7 @@ model Shop {
   id          String   @id @default(cuid())
   shopName    String
   ownerName   String
-  bio         String?
+  bio         String?   @db.LongText
   description String?
   ownerPhoto  String?
   logoPhoto   String?
@@ -162,135 +172,442 @@ model Comment {
   @@index([postId])
 }
 
-model RouteDepot {
-  id        String     @id @default(cuid())
-  ownerId   String
-  name      String
-  address   String?
-  city      String?
-  state     String?
-  zip       String?
-  country   String?
-  lat       Float?
-  lng       Float?
-  drivers   Driver[]   @relation("DepotToDriver")
-  stops     Stop[]
-  routes    Route[]
-  customers Customer[] @relation("CustomerToDepot")
+
+
+// Solidarity Pathways
+enum RouteStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+  NOT_STARTED
+  FAILED
+  EDIT
+  CREATE
 }
 
-model Driver {
-  id            String      @id @default(cuid())
-  routeDepotId  String
-  routeDepot    RouteDepot  @relation("DepotToDriver", fields: [routeDepotId], references: [id])
-  name          String
-  phone         String?
-  email         String?
-  route         Route?      @relation(fields: [routeId], references: [id])
-  routeId       String?
-  routeData      DriverRouteInfo[]
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }
 
-model TimeWindow {
-  id    String   @id @default(cuid())
-  start DateTime
-  end   DateTime
-
-  Driver DriverRouteInfo[]
-  stop   Stop?    @relation(fields: [stopId], references: [id])
-  stopId String?
+enum DriverType {
+  FULL_TIME
+  PART_TIME
+  TEMP
+  VOLUNTEER
 }
 
-model BreakTimeWindow {
-  id      String   @id @default(cuid())
-  start   DateTime
-  end     DateTime
-  break   Break?   @relation(fields: [breakId], references: [id])
-  breakId String?
+enum JobType {
+  PICKUP
+  DELIVERY
+  PICKUP_AND_DELIVERY
+  SERVICE
+  ADMIN
+  OTHER
 }
 
-model Break {
-  id          String            @id @default(cuid())
-  timeWindows BreakTimeWindow[]
-  duration    Int?
-  driverData      DriverRouteInfo?           @relation(fields: [driverDataId], references: [id])
-  driverDataId    String?
-}
+model Depot {
+  id              String    @id @default(cuid())
+  ownerId         String    @unique //One owner can have one depot
+  name            String?   //Name of the depot
+  magicCode       String   
 
-model Customer {
-  id           String     @id @default(cuid())
-  routeDepotId String
-  routeDepot   RouteDepot @relation("CustomerToDepot", fields: [routeDepotId], references: [id])
-  name         String
-  phone        String?
-  email        String?
-  address      String?
-  city         String?
-  state        String?
-  zip          String?
-  country      String?
-  lat          Float?
-  lng          Float?
-  stop         Stop[]
-}
+ 
+  address         Address? 
 
-model Stop {
-  id               String       @id @default(cuid())
-  routeDepotId     String
-  routeDepot       RouteDepot   @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
-  customerId       String
-  customer         Customer     @relation(fields: [customerId], references: [id])
-  timeWindows      TimeWindow[]
-  dropOffDuration  Int?
-  prepTimeDuration Int?
-  priority         Int?
-  description      String?
-  route            Route?       @relation(fields: [routeId], references: [id])
-  routeId          String?
-}
-
-model OptimizedRoute {
-  id       String   @id @default(cuid())
-  fileName String
-  date     DateTime
-  routeId  String   @unique
-  route    Route    @relation(fields: [routeId], references: [id])
-}
-
-model Route {
-  id               String          @id @default(cuid())
-  routeDepotId     String
-  routeDepot       RouteDepot      @relation(fields: [routeDepotId], references: [id], onDelete: Cascade)
-  date             DateTime
-  stops            Stop[]
-  drivers          Driver[]
-  optimizedRoute   OptimizedRoute? 
-  optimizedRouteId String?
-}
-
-
-model DriverRouteInfo{
-  id           String   @id @default(cuid())
-  driverId     String
-  driver       Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
-
-  address       String?
-  city          String?
-  state         String?
-  zip           String?
-  country       String?
-  lat           Float?
-  lng           Float?
-  maxStops      Int?
-  maxTravelTime Int?
-  breaks        Break[]
-  timeWindowId  String?
-  timeWindow    TimeWindow? @relation(fields: [timeWindowId], references: [id])
-  routeId       String?
-  date          DateTime
+  drivers         Driver[] //All drivers associated with the depot
+  vehicles        Vehicle[] //All vehicles associated with the depot
+  clients         Client[] //All clients associated with the depot
+  jobs            Job[] //All jobs associated with the depot
+  users           User[] //All users associated with the depot
+  routes          Route[] //All routes associated with the depot
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id              String    @id @default(cuid())
+  formatted       String    //This this the full address
+  street          String?
+  additional      String?
+  city            String?
+  state           String?
+  postal_code     String?
+  country         String?
+  latitude        Float
+  longitude       Float
+
+  depotId  String?                @unique  //Main Address of the depot
+  depot    Depot?                 @relation( fields: [depotId], references: [id], onDelete: Cascade) 
+
+  driverId  String?               @unique  //Main Address of the driver
+  driver    Driver?               @relation( fields: [driverId], references: [id], onDelete: Cascade) 
+
+  startVehicleId    String?       @unique
+  startVehicle      Vehicle?      @relation("StartAddressToVehicle", fields: [startVehicleId], references: [id], onDelete: Cascade)
+
+  endVehicleId      String?       @unique
+  endVehicle        Vehicle?      @relation("EndAddressToVehicle", fields: [endVehicleId], references: [id], onDelete:Cascade)
+
+
+  clientId          String?       @unique  //Main Address of the client
+  client            Client?       @relation( fields: [clientId], references: [id], onDelete: Cascade)
+
+  jobId          String?        @unique  //Main Address of the client
+  job            Job?           @relation( fields: [jobId], references: [id], onDelete: Cascade)
+ 
+
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+
+}
+
+model Schedule {
+  id    Int     @id @default(autoincrement())
+  day   WeekDay
+  start String
+  end   String
+  driverId String
+
+
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
   @@index([driverId])
 }
 
+
+
+model Driver {
+  id                String      @id @default(cuid())
+  type              DriverType  @default(FULL_TIME)
+  depotId           String
+  depot             Depot       @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  name              String
+  address           Address? 
+  phone             String
+  email             String
+  schedule          Schedule[]
+  defaultVehicleId  String?
+  vehicles          Vehicle[]
+  profile           Profile?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  @@index([depotId])
+}
+
+model Vehicle {
+  id                String              @id @default(cuid())
+  depotId           String
+  depot             Depot               @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  driverId          String?
+  driver            Driver?             @relation(fields: [driverId], references: [id])
+
+  
+  startAddress      Address?             @relation("StartAddressToVehicle")
+  endAddress        Address?             @relation("EndAddressToVehicle")
+
+  shiftStart        Int                 //Start of shift in unix time
+  shiftEnd          Int                 //Start of shift in unix time
+  capacity          Int?                //Optional: Capacity of the vehicle (i.e. max number of units it can carry )
+  maxTasks          Int?                //Optional: Max number of tasks the vehicle can do in one shift
+  maxTravelTime     Int?                //Optional: Max travel time in seconds
+  maxDistance       Int?                //Optional: Max distance in meters
+  breaks            Break[]
+  notes             String?             //Optional: Any additional notes about the vehicle
+  cargo             String?             //Optional: Any specific nots on its cargo, contents, etc.
+  routeId           String?
+  route             Route?              @relation(fields: [routeId], references: [id])
+  optimizedRouteId  String?
+  optimizedRoute    OptimizedRoutePath? 
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+
+  @@index([driverId])
+  @@index([routeId])
+  @@index([optimizedRouteId])
+  @@index([depotId])
+}
+
+model Break {
+  id             Int      @id @default(autoincrement())
+  start          Int?     //Optional: Start of break in unix time
+  end            Int?     //Optional: End of break in unix time
+  duration       Int
+  vehicleId      String
+  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+
+  @@index([vehicleId])
+}
+
+model Client {
+  id            String    @id @default(cuid())
+  depotId       String
+  depot         Depot     @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  name          String
+
+  address       Address?  
+  phone         String?
+  email         String    @unique  //Unique: Email of the client
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  defaultJobId  String?   //Optional: Default job for the client. Like a go-to order or something
+  jobs          Job[]
+
+
+  @@index([depotId])
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  type            JobType
+  depotId         String
+  depot           Depot     @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  address         Address?
+  clientId        String?
+  client          Client?   @relation(fields: [clientId], references: [id])
+  prepTime        Int       //Preparation time in seconds
+  serviceTime     Int       //Service time in seconds
+  priority        Int       //Priority of the job (1-100)
+  timeWindowStart Int
+  timeWindowEnd   Int
+  routeId         String?
+  route           Route?    @relation(fields: [routeId], references: [id])
+  isOptimized     Boolean   @default(false)
+  notes           String?
+  order           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  optimizedStopId String?
+  optimizedStop   OptimizedStop? 
+
+
+  @@index([clientId])
+  @@index([routeId])
+  @@index([depotId])
+}
+
+
+
+model Route {
+  id              String      @id @default(cuid())
+  depotId         String
+  depot           Depot       @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  jobs            Job[]
+  vehicles        Vehicle[]
+  optimizedRoute  OptimizedRoutePath[]
+  status          RouteStatus @default(EDIT)
+  optimizedData   String?     @db.Text
+  deliveryAt      DateTime
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([depotId])
+}
+
+model OptimizedRoutePath {
+  id            String            @id @default(cuid())
+  routeId       String
+  route         Route             @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  vehicleId     String            @unique
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  stops         OptimizedStop[]
+  distance      Float?
+  startTime     Int?
+  endTime       Int?
+  status        RouteStatus @default(NOT_STARTED)
+  geoJson       String @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@index([routeId])
+}
+
+model OptimizedStop {
+  id              String              @id @default(cuid())
+  routePathId     String
+  jobId           String?             @unique
+  job             Job?                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  routePath       OptimizedRoutePath  @relation(fields: [routePathId], references: [id], onDelete: Cascade)
+  arrival         Int
+  departure       Int
+  duration        Int
+  prep            Int
+  type            String
+  notes           String?
+  order           String?
+  status          RouteStatus
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([routePathId])
+}
+
+
+
+// Simple Messaging 
+
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  GUEST
+}
+
+model Member {
+  id String @id @default(uuid())
+  role MemberRole @default(GUEST)
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+  directMessages DirectMessage[]
+
+  conversationsInitiated Conversation[] @relation("MemberOne")
+  conversationsReceived Conversation[] @relation("MemberTwo")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
+}
+
+model Message {
+  id String @id @default(uuid())
+  content String @db.Text
+
+  fileUrl String? @db.Text
+
+  memberId String
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  channelId String
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  deleted Boolean @default(false)
+  unread Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([channelId])
+  @@index([memberId])
+}
+
+model Conversation {
+  id String @id @default(uuid())
+
+  memberOneId String
+  memberOne Member @relation("MemberOne", fields: [memberOneId], references: [id], onDelete: Cascade)
+
+  memberTwoId String
+  memberTwo Member @relation("MemberTwo", fields: [memberTwoId], references: [id], onDelete: Cascade)
+
+  directMessages DirectMessage[]
+
+  @@index([memberTwoId])
+
+  @@unique([memberOneId, memberTwoId])
+}
+
+enum ChannelType {
+  TEXT
+  AUDIO
+  VIDEO
+}
+
+
+model Profile {
+  id String @id @default(uuid())
+  userId String? @unique
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  driverId String? @unique
+  driver Driver? @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  name String
+  imageUrl String @db.Text
+  email String @unique
+
+  servers Server[]
+  members Member[]
+  channels Channel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Server {
+  id String @id @default(uuid())
+  name String
+  imageUrl String @db.Text
+  inviteCode String @unique
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  members Member[]
+  channels Channel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+}
+
+model Channel {
+  id String @id @default(uuid())
+  name String
+  type ChannelType @default(TEXT)
+
+  profileId String
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
+}
+
+
+model DirectMessage {
+  id String @id @default(uuid())
+  content String @db.Text
+  fileUrl String? @db.Text
+
+  memberId String
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  deleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([conversationId])
+}
+
+// Messaging Use Cases
+// Depot to Driver / Driver to Depot (Group Messaging)
+// Driver to Driver / Artisan to Artisan (Direct Messaging)

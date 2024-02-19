@@ -16,6 +16,10 @@ module.exports = {
       },
     },
     extend: {
+      gridTemplateRows: {
+        layout: "max-content 1fr max-content",
+      },
+
       backgroundImage: {
         femaleForm:
           "url('https://media.githubusercontent.com/media/robinsonkwame/af-parametric-sewing/main/static/model-breasts-standing.jpg')",
@@ -34,6 +38,7 @@ module.exports = {
         "circle-grid": "url('/images/bg-circlegrid.svg')",
         "circle-grid-dark": "url('/images/bg-circlegrid-dark.svg')",
       },
+
       backgroundColor: {
         "forum-primary": "#fff",
         "forum-primary-inverse": "#1a1b21",
@@ -127,10 +132,15 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "fade-hero": {
+          "0%, 20%, 100%": { opacity: 1 },
+          "34%, 88%": { opacity: 0 },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-hero": "fade-hero 12s infinite",
       },
     },
   },
@@ -138,5 +148,6 @@ module.exports = {
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
+    require("tailwindcss-animation-delay"),
   ],
 };

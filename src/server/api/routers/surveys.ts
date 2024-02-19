@@ -3,13 +3,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const surveysRouter = createTRPCRouter({
-  // getAllShops: protectedProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.shop.findMany({
-  //     where: {
-  //       ownerId: ctx.session.user.id,
-  //     },
-  //   });
-  // }),
+  getAllSurveys: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.survey.findMany();
+  }),
 
   getSurvey: protectedProcedure
     .input(z.object({ surveyId: z.string() }))
@@ -28,13 +24,48 @@ export const surveysRouter = createTRPCRouter({
       },
     });
   }),
-  createSurvey: protectedProcedure
+
+  getCurrentUserShopSurvey: protectedProcedure
     .input(z.object({ shopId: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.prisma.survey.findFirst({
+        where: {
+          ownerId: ctx.session.user.id,
+          shopId: input.shopId,
+        },
+      });
+    }),
+  createSurvey: protectedProcedure
+    .input(
+      z.object({
+        shopId: z.string(),
+        processes: z.string().optional(),
+        materials: z.string().optional(),
+        principles: z.string().optional(),
+        description: z.string().optional(),
+        unmoderatedForm: z.boolean().default(false),
+        moderatedForm: z.boolean().default(false),
+        hiddenForm: z.boolean().default(false),
+        privateForm: z.boolean().default(false),
+        supplyChain: z.boolean().default(false),
+        messagingOptIn: z.boolean().default(false),
+      })
+    )
     .mutation(({ ctx, input }) => {
       return ctx.prisma.survey.create({
         data: {
           shopId: input.shopId,
           ownerId: ctx.session.user.id,
+          processes: input.processes,
+          materials: input.materials,
+          principles: input.principles,
+          description: input.description,
+          unmoderatedForm: input.unmoderatedForm,
+          moderatedForm: input.moderatedForm,
+          hiddenForm: input.hiddenForm,
+          privateForm: input.privateForm,
+          supplyChain: input.supplyChain,
+          messagingOptIn: input.messagingOptIn,
         },
       });
     }),

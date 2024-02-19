@@ -9,6 +9,7 @@ import { getProviders, signIn } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
+import { env } from "~/env.mjs";
 
 import AuthLayout from "~/layouts/auth-layout";
 import { authOptions } from "~/server/auth";
@@ -25,14 +26,17 @@ const SignUpPage = ({
     <AuthLayout>
       <div className=" my-auto flex h-full w-full items-center gap-5">
         <div className="justify-left flex w-4/12">
-          {" "}
-          <div className="w-96 rounded bg-white p-4 ">
+          <div className="w-96 rounded-lg border bg-white p-8 shadow">
             {error && (
               <p className="text-center font-semibold text-red-700">{error}</p>
             )}
-            <h1 className="mb-4 text-center text-2xl">
-              Sign Up to Artisanal Futures
+            <h1 className="mb-4 text-center text-3xl font-semibold">
+              Sign Up for Artisanal Futures
             </h1>
+            <p className="text-center text-muted-foreground">
+              Sign into your platform of choice to create an account.
+            </p>
+            <br />
             <div className="flex flex-col gap-y-2">
               {Object.values(providers).map((provider) => {
                 if (provider.name !== "Auth0") {
@@ -65,7 +69,16 @@ const SignUpPage = ({
 
               <div>
                 <Button
-                  onClick={() => void signIn("auth0")}
+                  onClick={() =>
+                    void signIn(
+                      "auth0",
+                      {
+                        callbackUrl:
+                          env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+                      },
+                      { screen_hint: "signup" }
+                    )
+                  }
                   variant={"outline"}
                   className="w-full rounded-full"
                 >
@@ -77,7 +90,7 @@ const SignUpPage = ({
         </div>
         <div className=" flex w-8/12 justify-end  ">
           <Image
-            src="/pancakes.svg"
+            src="/welcome.svg"
             alt="under development"
             width={500}
             height={500}
@@ -98,17 +111,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const isLoggedIn = context.req.cookies.login;
-  console.log(isLoggedIn);
 
-  if (!isLoggedIn) {
-    return { redirect: { destination: "/password-protect" } };
-  }
-  // const isPathPasswordProtect =
-  //   req.nextUrl.pathname.startsWith("/password-protect");
-  // if (isPasswordEnabled && !isLoggedIn && !isPathPasswordProtect) {
-  //   return NextResponse.redirect(new URL("/password-protect", req.url));
-  // }
-  // return NextResponse.next();
+  if (!isLoggedIn) return { redirect: { destination: "/password-protect" } };
 
   const providers = await getProviders();
   const errorMessage: Record<string, string> = {

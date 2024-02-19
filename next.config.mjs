@@ -25,6 +25,7 @@ const config = {
       "avatars.githubusercontent.com",
       "cdn.discordapp.com",
       "lh3.googleusercontent.com",
+      "s.gravatar.com",
     ],
   },
 };

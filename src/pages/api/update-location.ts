@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import Pusher from "pusher";
-import type { RouteData } from "~/components/tools/routing/types";
-import { env } from "~/env.mjs";
 
-const pusher = new Pusher({
-  appId: env.PUSHER_APP_ID,
-  key: env.NEXT_PUBLIC_PUSHER_APP_KEY,
-  secret: env.PUSHER_APP_SECRET,
-  cluster: "us2",
-  useTLS: true,
-});
+import type { RouteData } from "~/apps/solidarity-routing/types";
+
+import { pusherServer } from "~/server/soketi/server";
+
+// const pusher = new Pusher({
+//   appId: env.PUSHER_APP_ID,
+//   key: env.NEXT_PUBLIC_PUSHER_APP_KEY,
+//   secret: env.PUSHER_APP_SECRET,
+//   cluster: "us2",
+//   useTLS: true,
+// });
 
 type UserLocation = {
   userId: string;
@@ -38,7 +39,7 @@ const locationHandling = async (req: NextApiRequest, res: NextApiResponse) => {
       });
 
     // Trigger a Pusher event with the updated locations
-    await pusher.trigger("map", "update-locations", userLocations);
+    await pusherServer.trigger("map", "update-locations", userLocations);
     res.status(200).send("Location updated");
   } else {
     res.status(405).send("Method not allowed");

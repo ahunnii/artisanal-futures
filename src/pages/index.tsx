@@ -1,14 +1,16 @@
-import { Cog, GraduationCap, Store } from "lucide-react";
-
 import Head from "next/head";
-import Link from "next/link";
+import Image from "next/image";
+
 import Body from "~/components/body";
 
-import Hero from "~/components/homepage/hero";
+import {
+  CARD_DATA,
+  EventBulletinBoard,
+  Hero,
+  HomePageCard,
+} from "~/apps/homepage";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-
-export default function Home() {
+const HomePage = () => {
   return (
     <>
       <Head>
@@ -18,63 +20,33 @@ export default function Home() {
       </Head>
       <Body>
         <Hero />
+
         <div className="mt-12 grid grid-cols-1 gap-5 bg-slate-200 p-4 md:grid-cols-3 md:gap-10">
-          <Link href="/shops">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 ">
-                <CardTitle className="text-sm font-medium">
-                  Browse our artisan&apos;s shops and sites
-                </CardTitle>
-                <Store className="h-8 w-8 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Shop our Stores</div>
-              </CardContent>
-            </Card>
-          </Link>
-          <Link
-            href="https://artisanal-futures-forum.vercel.app/"
-            target="_blank"
-          >
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Share your artisanal knowledge with others
-                </CardTitle>
-                <GraduationCap className="h-8  w-8  text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Share Knowledge</div>
-              </CardContent>
-            </Card>
-          </Link>
-          <Link href="/tools">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Use our collection of free tools
-                </CardTitle>
-                <Cog className="h-8  w-8  text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Utilize Free Tools</div>
-              </CardContent>
-            </Card>
-          </Link>
+          {CARD_DATA.map((item, idx) => (
+            <HomePageCard {...item} key={idx} />
+          ))}
         </div>
+
+        <EventBulletinBoard upcomingEvents={[]} />
+
         <div className=" text-center">
           <h2 className="mt-12 text-3xl font-bold">
             Artisanal Technologies for Generative Justice
           </h2>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="img/flowchart.png"
+
+          <Image
+            width={200}
+            height={160}
+            src="/img/flowchart.png"
             alt="Flowchart showing the generative nature of artisanal tech"
-            className="w-full "
+            className="aspect-auto w-full "
             loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
       </Body>
     </>
   );
-}
+};
+
+export default HomePage;
