@@ -54,10 +54,11 @@ export const HomepageRouteCard: FC<Props> = ({
           <div className="flex w-full space-x-2">
             <Badge className="gap-1" variant={"outline"}>
               <Truck className="h-4 w-4" />
-              Vehicles {vehicleLength}
+              <span className="hidden md:flex">Vehicles</span> {vehicleLength}
             </Badge>
             <Badge className="gap-1" variant={"outline"}>
-              <MapPin className="h-4 w-4" /> Jobs {jobLength}
+              <MapPin className="h-4 w-4" />{" "}
+              <span className="hidden md:flex">Jobs</span> {jobLength}
             </Badge>
 
             <Badge className="gap-1" variant={"default"}>
