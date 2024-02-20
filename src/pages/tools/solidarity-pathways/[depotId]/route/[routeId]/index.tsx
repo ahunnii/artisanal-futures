@@ -1,18 +1,17 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import axios from "axios";
+
 import {
   ArrowRight,
   Building,
   Calendar,
-  Eye,
+  Loader2,
   Pencil,
   Send,
 } from "lucide-react";
-import { toast as hotToast } from "react-hot-toast";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
@@ -21,38 +20,28 @@ import { Tabs, TabsContent } from "~/components/ui/tabs";
 import { DriversTab } from "~/apps/solidarity-routing/components/drivers-section";
 import { StopsTab } from "~/apps/solidarity-routing/components/stops-section";
 
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTrigger,
-} from "~/components/ui/drawer";
-
 import CalculationsTab from "~/apps/solidarity-routing/components/route-plan-section/calculations-tab";
 
-import { useDriversStore } from "~/apps/solidarity-routing/stores/use-drivers-store";
-
 import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layout";
-import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
-import { ScrollArea } from "~/components/ui/scroll-area";
+
 import { useUrlParams } from "~/hooks/use-url-params";
 
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
 
 import type { GetServerSidePropsContext } from "next";
+
 import { PlanMobileDrawer } from "~/apps/solidarity-routing/components/mobile/plan-mobile-drawer";
 import { ViewPathsMobileDrawer } from "~/apps/solidarity-routing/components/mobile/view-paths-mobile-drawer";
 import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/sheet-driver";
 import { JobClientSheet } from "~/apps/solidarity-routing/components/sheet-job";
+import { useMassMessage } from "~/apps/solidarity-routing/hooks/use-mass-message";
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 import { notificationService } from "~/services/notification";
 
@@ -112,23 +101,7 @@ const SingleRoutePage = () => {
   const isRouteDataMissing =
     jobBundles.data.length === 0 || driverBundles.data.length === 0;
 
-  const massSendRouteEmails = () => {
-    axios
-      .post("/api/routing/send-route", {
-        emailBundles: routePlans?.emailBundles,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          hotToast.success("Route sent to drivers successfully");
-        } else {
-          hotToast.error("Error sending route to drivers");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        hotToast.error("Error sending route to drivers");
-      });
-  };
+  const { massSendRouteEmails, isLoading } = useMassMessage();
 
   return (
     <>
@@ -236,7 +209,12 @@ const SingleRoutePage = () => {
                         className="flex-1 gap-2"
                         onClick={massSendRouteEmails}
                       >
-                        Send to Driver(s) <Send />
+                        {isLoading ? (
+                          <Loader2 className=" h-5 w-5 animate-spin" />
+                        ) : (
+                          <Send className=" h-5 w-5" />
+                        )}
+                        Send to Driver(s)
                       </Button>
                     </div>
                   </>

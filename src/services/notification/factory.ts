@@ -1,3 +1,5 @@
+import type { PromiseMessage } from "./types";
+
 export interface NotificationProcessor {
   notifySuccess: ({ message }: { message: string }) => void;
   notifyError: ({
@@ -16,6 +18,17 @@ export interface NotificationProcessor {
     message: string;
     data: unknown;
   }) => void;
+
+  notifyPending: (
+    promise: Promise<PromiseMessage>,
+    props: {
+      isLoading?: boolean;
+      error?: unknown;
+      successMessage?: string;
+      loadingMessage?: string;
+      errorMessage?: string;
+    }
+  ) => void;
 }
 
 export class NotificationService {
@@ -35,5 +48,17 @@ export class NotificationService {
 
   notifyResults = ({ message, data }: { message: string; data: unknown }) => {
     return this.service.notifyResults({ message, data });
+  };
+  notifyPending = (
+    promise: Promise<PromiseMessage>,
+    props: {
+      isLoading?: boolean;
+      error?: unknown;
+      successMessage?: string;
+      loadingMessage?: string;
+      errorMessage?: string;
+    }
+  ) => {
+    return this.service.notifyPending(promise, props);
   };
 }

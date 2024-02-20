@@ -11,21 +11,9 @@ import { useDriverVehicleBundles } from "../drivers/use-driver-vehicle-bundles";
 import { useClientJobBundles } from "../jobs/use-client-job-bundles";
 import { useRoutingSolutions } from "./use-routing-solutions";
 
-import * as crypto from "crypto";
+import { generatePassCode } from "../../utils/generic/generate-passcode";
 import { useDepot } from "../depot/use-depot";
 import { useSolidarityState } from "../optimized-data/use-solidarity-state";
-
-function generatePasscode(email: string): string {
-  // Create a SHA-256 hash
-  const hash = crypto.createHash("sha256");
-  // Update the hash with the email
-  hash.update(email);
-  // Get the hashed value as a hexadecimal string
-  const hashedEmail = hash.digest("hex");
-  // Take the first 6 characters of the hashed email
-  const passcode = hashedEmail.substring(0, 6);
-  return passcode;
-}
 
 export const useRoutePlans = () => {
   const { depotId, routeDate, routeId, dateParam } = useSolidarityState();
@@ -72,33 +60,6 @@ export const useRoutePlans = () => {
     },
     onSettled: () => {
       console.log("settled");
-    },
-  });
-
-  const createRoutePlanWithJobs = api.routePlan.createRoutePlan.useMutation({
-    onSuccess: (data) => {
-      toast.success("Route created!");
-    },
-    onError: (error) => {
-      toast.error("There was an error creating the route. Please try again.");
-      console.error(error);
-    },
-    onSettled: () => {
-      console.log("settled");
-    },
-  });
-
-  const createJobBundles = api.jobs.createJobBundles.useMutation({
-    onSuccess: () => {
-      toast.success("Jobs were successfully added to route.");
-    },
-    onError: (e: unknown) => {
-      console.error(e);
-      toast.error("There was an error adding jobs to route.");
-    },
-    onSettled: () => {
-      void apiContext.jobs.invalidate();
-      void apiContext.routePlan.invalidate();
     },
   });
 
@@ -179,8 +140,8 @@ export const useRoutePlans = () => {
         email: route?.vehicle?.driver?.email,
         url: `http://localhost:3000/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${
           route.id
-        }?pc=${generatePasscode(route?.vehicle?.driver?.email ?? "")}`,
-        passcode: generatePasscode(route?.vehicle?.driver?.email ?? ""),
+        }?pc=${generatePassCode(route?.vehicle?.driver?.email ?? "")}`,
+        passcode: generatePassCode(route?.vehicle?.driver?.email ?? ""),
       };
     });
 
