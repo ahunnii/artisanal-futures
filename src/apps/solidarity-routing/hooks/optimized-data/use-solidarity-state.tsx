@@ -20,6 +20,8 @@ export const useSolidarityState = () => {
   const dateObject = new Date(formattedDateString);
   const vehicle = searchParams.get("vehicle") ?? undefined;
 
+  const depotMode = searchParams.get("mode") ?? undefined;
+
   const isFirstTime = searchParams.get("welcome") ?? undefined;
 
   const isUserAllowedToSaveToDepot = session?.user !== null && !isSandbox;
@@ -39,5 +41,6 @@ export const useSolidarityState = () => {
     dateParam: date,
     sessionStatus: status,
     isFirstTime,
+    depotMode,
   };
 };

@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import axios from "axios";
@@ -49,6 +49,8 @@ import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
 
 import type { GetServerSidePropsContext } from "next";
+import { PlanMobileDrawer } from "~/apps/solidarity-routing/components/mobile/plan-mobile-drawer";
+import { ViewPathsMobileDrawer } from "~/apps/solidarity-routing/components/mobile/view-paths-mobile-drawer";
 import { DriverVehicleSheet } from "~/apps/solidarity-routing/components/sheet-driver";
 import { JobClientSheet } from "~/apps/solidarity-routing/components/sheet-job";
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
@@ -76,21 +78,6 @@ const SingleRoutePage = () => {
 
   const apiContext = api.useContext();
 
-  // useEffect(() => {
-  //   void useStopsStore.persist.rehydrate();
-  //   void useDriversStore.persist.rehydrate();
-  // }, []);
-
-  // useEffect(() => {
-  //   // Add the search parameter to the URL
-  //   if (!getUrlParam("mode"))
-  //     updateUrlParams({
-  //       key: "mode",
-  //       value: "plan",
-  //     });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   useEffect(() => {
     pusherClient.subscribe("map");
 
@@ -113,16 +100,6 @@ const SingleRoutePage = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // useEffect(() => {
-  //   if (routePlans.optimized.length > 0) {
-  //     updateUrlParams({
-  //       key: "mode",
-  //       value: "calculate",
-  //     });
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [routePlans.optimized]);
 
   const calculateOptimalPaths = () => {
     updateUrlParams({
@@ -266,85 +243,8 @@ const SingleRoutePage = () => {
                 </TabsContent>
               </Tabs>
               <div className="flex gap-2 p-1 lg:hidden">
-                <Drawer>
-                  <DrawerTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2">
-                      <Pencil /> Edit Routes
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent className=" max-h-screen ">
-                    <DrawerHeader />
-                    <ScrollArea className="mx-auto flex w-full  max-w-sm flex-col">
-                      <DriversTab />
-                      <StopsTab />
-                      <div className=" flex h-16 items-center justify-end bg-white p-4"></div>
-                    </ScrollArea>
-                    <DrawerFooter>
-                      {routePlans.optimized.length === 0 && (
-                        <Button
-                          onClick={calculateOptimalPaths}
-                          className="gap-2"
-                          disabled={isRouteDataMissing}
-                        >
-                          Calculate Routes <ArrowRight />
-                        </Button>
-                      )}
-
-                      {routePlans.optimized.length !== 0 && (
-                        <>
-                          <DrawerClose className="flex-1 gap-2">
-                            <Button variant="outline" className="w-full">
-                              Cancel
-                            </Button>
-                          </DrawerClose>
-                          <Button
-                            onClick={calculateOptimalPaths}
-                            className="flex-1 gap-2"
-                            disabled={isRouteDataMissing}
-                          >
-                            Recalculate Routes <ArrowRight />
-                          </Button>
-                        </>
-                      )}
-                    </DrawerFooter>
-                  </DrawerContent>
-                </Drawer>
-                <Drawer>
-                  <DrawerTrigger asChild>
-                    <Button variant="default" className="w-full  gap-2">
-                      <Eye /> View Routes
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent className=" max-h-screen ">
-                    <DrawerHeader />
-                    <ScrollArea className="mx-auto flex w-full  max-w-sm flex-col">
-                      <CalculationsTab />
-                    </ScrollArea>
-                    <DrawerFooter>
-                      <Button
-                        className="w-full flex-1 gap-2"
-                        onClick={massSendRouteEmails}
-                      >
-                        <Send /> Send to Driver(s)
-                      </Button>
-
-                      {routePlans.optimized.length === 0 && (
-                        <Button
-                          onClick={calculateOptimalPaths}
-                          className="w-full gap-2"
-                          disabled={isRouteDataMissing}
-                        >
-                          Calculate Routes <ArrowRight />
-                        </Button>
-                      )}
-                      <DrawerClose>
-                        <Button variant="outline" className="w-full">
-                          Close
-                        </Button>
-                      </DrawerClose>
-                    </DrawerFooter>
-                  </DrawerContent>
-                </Drawer>
+                <PlanMobileDrawer />
+                <ViewPathsMobileDrawer />
               </div>
               <LazyRoutingMap className="w-full max-md:aspect-square" />
             </section>

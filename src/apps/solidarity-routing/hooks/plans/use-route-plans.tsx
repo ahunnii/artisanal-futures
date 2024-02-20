@@ -54,10 +54,17 @@ export const useRoutePlans = () => {
     }
   );
 
+  const getRoutePlanData = api.routePlan.getRoutePlanById.useQuery(
+    { id: routeId },
+    { enabled: false }
+  );
+
   const createRoutePlan = api.routePlan.createRoutePlan.useMutation({
     onSuccess: (data) => {
       toast.success("Route created!");
-      router.push(`/tools/solidarity-pathways/${depotId}/route/${data.id}`);
+      router.push(
+        `/tools/solidarity-pathways/${depotId}/route/${data.id}?mode=plan`
+      );
     },
     onError: (error) => {
       toast.error("There was an error creating the route. Please try again.");
@@ -210,5 +217,6 @@ export const useRoutePlans = () => {
     routesByDate: getAllRoutesByDate.data ?? [],
     create: createRoutePlan.mutate,
     depot: currentDepot,
+    getRoutePlanData,
   };
 };

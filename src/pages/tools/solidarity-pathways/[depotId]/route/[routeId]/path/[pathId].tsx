@@ -103,8 +103,6 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
                         driver={driver}
                         color={routeColor.background}
                       />
-
-                      <Button>Start route</Button>
                     </>
                   </div>
 

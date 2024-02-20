@@ -4,7 +4,8 @@ import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 import { useStopsStore } from "../use-stops-store";
 
 export const useReadJob = () => {
-  const { depotId, isUserAllowedToSaveToDepot, routeId } = useSolidarityState();
+  const { depotId, isUserAllowedToSaveToDepot, routeId, depotMode } =
+    useSolidarityState();
 
   const sessionStorageJobs = useStopsStore((state) => state);
 
@@ -15,7 +16,13 @@ export const useReadJob = () => {
 
   const getDepotClients = api.jobs.getCurrentDepotClients.useQuery(
     { depotId },
-    { enabled: isUserAllowedToSaveToDepot && !!depotId }
+    {
+      enabled:
+        isUserAllowedToSaveToDepot &&
+        !!depotId &&
+        !!depotMode &&
+        depotMode !== "calculate",
+    }
   );
 
   const routeJobs =
@@ -38,7 +45,6 @@ export const useReadJob = () => {
     id: string | null
   ): ClientJobBundle | null => {
     if (id == null) {
-      console.log("YEEEEEE");
       console.log(routeJobs?.find((bundle) => bundle.job.id === id) ?? null);
     }
 
