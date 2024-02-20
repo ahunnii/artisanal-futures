@@ -13,11 +13,13 @@ import {
 
 import { useMemo } from "react";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
-import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
+
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
 import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 
+import { useCreateJob } from "../../hooks/jobs/CRUD/use-create-job";
+import { useReadJob } from "../../hooks/jobs/CRUD/use-read-job";
 import { formatNthDate, isDateToday } from "../../utils/current-date";
 import { FileUploadModal } from "../shared/file-upload-modal.wip";
 import { HomepageRouteCard } from "./homepage-route-card";
@@ -27,7 +29,8 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
     useSolidarityState();
 
   const routePlan = useRoutePlans();
-  const jobBundles = useClientJobBundles();
+  const { createNewJobs } = useCreateJob();
+  const { routeJobs } = useReadJob();
 
   const dateTitle = useMemo(
     () => (isDateToday(routeDate) ? "Today's" : formatNthDate(routeDate)),
@@ -43,8 +46,8 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
     routePlan.create({ depotId, date: routeDate });
 
   const clientJobImportOptions = clientJobUploadOptions({
-    jobs: jobBundles.data,
-    setJobs: jobBundles.createMany,
+    jobs: routeJobs,
+    setJobs: createNewJobs,
   });
 
   const isUserAuthenticated = !isFirstTime && sessionStatus === "authenticated";
@@ -52,7 +55,7 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
   if (!isUserAuthenticated) return null;
 
   return (
-    <Card className="w-full max-w-xl">
+    <Card className="w-full max-w-md lg:max-w-xl">
       <CardHeader>
         <CardTitle>{dateTitle} Overview</CardTitle>
         <CardDescription>
@@ -81,6 +84,7 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
           </Button>
         </div>
         <h3 className="pt-4 text-lg font-semibold">Routes</h3>
+
         {routePlan.routesByDate?.length === 0 && (
           <p className="text-muted-foreground">No routes found for this date</p>
         )}
@@ -100,8 +104,8 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
               ))}
           </ul>
         )}
-        <div className="mt-10 flex  w-full  flex-col items-center gap-4">
-          <p>
+        <div className="mt-10 flex  w-full  flex-col items-center gap-4 ">
+          <p className="text-base">
             Need help with your spreadsheet formatting? Check out our guide on
             it here, or click here for a sample file.
           </p>
