@@ -37,7 +37,11 @@ export const PathwaysNotifications = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size={"icon"} className="relative">
+        <Button
+          variant="ghost"
+          size={"icon"}
+          className="relative aspect-square"
+        >
           <Bell />{" "}
           {notifications && notifications?.length > 0 && (
             <span className="absolute right-0 top-0 flex h-3 w-3">
@@ -54,46 +58,41 @@ export const PathwaysNotifications = () => {
             <p className="text-sm text-muted-foreground">
               Messages from drivers and other important stuff
             </p>
-          </div>
-          <div className="flex flex-col gap-2">
-            {notifications &&
-              notifications.length > 0 &&
-              notifications.map((notification) => (
-                <Button
-                  className="flex space-x-1"
-                  key={notification.id}
-                  variant={"ghost"}
-                  onClick={() => {
-                    updateMessages({ channelId: notification.id });
-                    driverBundles.setActive(
-                      driverBundles.findDriverByEmail(notification.channel)
-                        ?.vehicle.id ?? null
-                    );
-                    messageDriverById(notification.id);
-                  }}
-                >
-                  <span className="aspect-square h-fit rounded-full bg-slate-100 p-2">
-                    <Car className="h-6 w-6" />
-                  </span>
-                  <div>
-                    <h4 className="text-sm font-semibold">
-                      You have {notification.messages} new messages from{" "}
-                      {notification.channel}
-                    </h4>
-                    {/* <p className="text-xs text-muted-foreground">
-                      3 minutes ago
-                    </p> */}
-                  </div>
-                </Button>
-              ))}
+          </div>{" "}
+        </div>
+        <div className="flex flex-col space-y-4">
+          {notifications &&
+            notifications.length > 0 &&
+            notifications.map((notification) => (
+              <Button
+                className="flex justify-between gap-2"
+                key={notification.id}
+                variant={"ghost"}
+                onClick={() => {
+                  updateMessages({ channelId: notification.id });
+                  driverBundles.setActive(
+                    driverBundles.findDriverByEmail(notification.channel)
+                      ?.vehicle.id ?? null
+                  );
+                  messageDriverById(notification.id);
+                }}
+              >
+                <span className="aspect-square h-fit rounded-full bg-slate-100 p-2 ">
+                  <Car className="h-6 w-6" />
+                </span>
 
-            {!notifications ||
-              (notifications.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  No new notifications
-                </p>
-              ))}
-          </div>
+                <h4 className="text-sm font-semibold">
+                  You have {notification.messages} new messages from{" "}
+                  {notification.channel}
+                </h4>
+              </Button>
+            ))}
+          {!notifications ||
+            (notifications.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                No new notifications
+              </p>
+            ))}
         </div>
       </PopoverContent>
     </Popover>
