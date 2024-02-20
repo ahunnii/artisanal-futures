@@ -43,8 +43,8 @@ const Navbar = () => {
                   <Settings />
                 </Button>
               </PathwaysSettingsMenu>
-              <NavbarActions />
               <PathwaysNotifications />
+              <NavbarActions />
             </div>
           </div>
         </>
