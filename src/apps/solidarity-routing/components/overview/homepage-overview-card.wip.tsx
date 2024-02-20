@@ -18,6 +18,7 @@ import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-da
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
 import type { ClientJobBundle } from "~/apps/solidarity-routing/types.wip";
 
+import { useDepot } from "../../hooks/depot/use-depot";
 import { useCreateJob } from "../../hooks/jobs/CRUD/use-create-job";
 import { useReadJob } from "../../hooks/jobs/CRUD/use-read-job";
 import { formatNthDate, isDateToday } from "../../utils/current-date";
@@ -27,6 +28,8 @@ import { HomepageRouteCard } from "./homepage-route-card";
 export const HomePageOverviewCard = ({}: { date?: Date }) => {
   const { depotId, routeDate, isFirstTime, sessionStatus } =
     useSolidarityState();
+
+  const { currentDepot } = useDepot();
 
   const routePlan = useRoutePlans();
   const { createNewJobs } = useCreateJob();
@@ -51,7 +54,11 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
   });
 
   const isUserAuthenticated = !isFirstTime && sessionStatus === "authenticated";
+  const finalizedRoutes =
+    routePlan.routesByDate?.filter((route) => route.optimizedRoute.length > 0)
+      .length ?? null;
 
+  // route.optimizedRoute.length > 0
   if (!isUserAuthenticated) return null;
 
   return (
@@ -59,8 +66,11 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
       <CardHeader>
         <CardTitle>{dateTitle} Overview</CardTitle>
         <CardDescription>
-          {format(routeDate, "MMMM dd yyyy")} * Depot {depotId} * No finalized
-          routes yet
+          {format(routeDate, "MMMM dd yyyy")} • Depot:{" "}
+          {currentDepot?.name ?? depotId} •{" "}
+          {finalizedRoutes
+            ? `Finalized Routes: ${finalizedRoutes}`
+            : `No finalized routes yet`}
         </CardDescription>
       </CardHeader>
       <CardContent ref={parent}>
