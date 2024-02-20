@@ -14,6 +14,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
         />
         <link rel="icon" href="/favicon.ico" />{" "}
         <link rel="manifest" href="/manifest.json" />{" "}
+        {/* <link rel="apple-touch-icon" href="/apple-touch-icon.png" />  */}
       </Head>
 
       <main className="fixed flex h-full w-full flex-col ">
