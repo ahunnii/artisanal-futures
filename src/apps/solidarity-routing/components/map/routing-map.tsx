@@ -324,13 +324,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
           >
             Add as Stop
           </ContextMenuItem>
-          <ContextMenuItem
+          {/* <ContextMenuItem
             onClick={() =>
               addDriverByLatLng({ lat: latLng?.lat, lng: latLng?.lng })
             }
           >
             Add as Driver
-          </ContextMenuItem>
+          </ContextMenuItem> */}
         </ContextMenuContent>
       )}
     </ContextMenu>
