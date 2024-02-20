@@ -36,6 +36,7 @@ export const useSolidarityState = () => {
     optimizedId,
     vehicle,
     routeDate: date ? dateObject : new Date(),
+    dateParam: date,
     sessionStatus: status,
     isFirstTime,
   };

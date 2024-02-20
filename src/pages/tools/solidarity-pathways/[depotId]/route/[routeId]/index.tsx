@@ -13,7 +13,6 @@ import {
   Send,
 } from "lucide-react";
 import { toast as hotToast } from "react-hot-toast";
-import { toast } from "sonner";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
 import { Button } from "~/components/ui/button";
@@ -77,20 +76,20 @@ const SingleRoutePage = () => {
 
   const apiContext = api.useContext();
 
-  useEffect(() => {
-    void useStopsStore.persist.rehydrate();
-    void useDriversStore.persist.rehydrate();
-  }, []);
+  // useEffect(() => {
+  //   void useStopsStore.persist.rehydrate();
+  //   void useDriversStore.persist.rehydrate();
+  // }, []);
 
-  useEffect(() => {
-    // Add the search parameter to the URL
-    if (!getUrlParam("mode"))
-      updateUrlParams({
-        key: "mode",
-        value: "plan",
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  //   // Add the search parameter to the URL
+  //   if (!getUrlParam("mode"))
+  //     updateUrlParams({
+  //       key: "mode",
+  //       value: "plan",
+  //     });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -115,15 +114,15 @@ const SingleRoutePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (routePlans.optimized.length > 0) {
-      updateUrlParams({
-        key: "mode",
-        value: "calculate",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routePlans.optimized]);
+  // useEffect(() => {
+  //   if (routePlans.optimized.length > 0) {
+  //     updateUrlParams({
+  //       key: "mode",
+  //       value: "calculate",
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [routePlans.optimized]);
 
   const calculateOptimalPaths = () => {
     updateUrlParams({

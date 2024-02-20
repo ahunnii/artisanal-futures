@@ -28,7 +28,7 @@ function generatePasscode(email: string): string {
 }
 
 export const useRoutePlans = () => {
-  const { depotId, routeDate, routeId } = useSolidarityState();
+  const { depotId, routeDate, routeId, dateParam } = useSolidarityState();
   const apiContext = api.useContext();
   const { data: session } = useSession();
 
@@ -191,7 +191,7 @@ export const useRoutePlans = () => {
       depotId,
     },
     {
-      enabled: !!depotId && !!routeDate,
+      enabled: !!depotId && !!dateParam,
     }
   );
 
