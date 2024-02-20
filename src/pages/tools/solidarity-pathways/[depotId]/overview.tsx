@@ -22,6 +22,7 @@ import { CreateRouteButton } from "~/apps/solidarity-routing/components/overview
 
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 
+import { AddNewDataPopover } from "~/apps/solidarity-routing/components/layout/add-new-data-popover";
 import { PathwaySettingsButton } from "~/apps/solidarity-routing/components/overview/pathways-settings-button";
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 import { useMediaQuery } from "~/hooks/use-media-query";
@@ -67,20 +68,9 @@ const PathwaysDepotOverviewPage = () => {
 
             <HomePageOnboardingCard />
             <HomePageOverviewCard />
-
-            <h2>
-              For questions and concerns, please contact us at{" "}
-              <Link href="mailto:help@artisanalfutures.org">
-                <Button
-                  variant={"link"}
-                  className="mx-0 px-0 text-muted-foreground"
-                >
-                  help@artisanalfutures.org
-                </Button>
-              </Link>
-            </h2>
           </div>
-        </section>
+          <AddNewDataPopover />
+        </section>{" "}
       </RouteLayout>
     </>
   );
