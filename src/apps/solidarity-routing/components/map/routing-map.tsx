@@ -149,6 +149,14 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             : "3",
       }));
 
+  const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
+    (stop) => stop.color === "-1"
+  );
+
+  const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
+    (stop) => stop.color !== "-1"
+  );
+
   const routeGeoJsonList = pathId
     ? optimizedRoutePlan.mapData.geometry
     : routePlans.optimized.map((route) => {
@@ -275,10 +283,39 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
                   })}{" "}
               </LeafletLayerGroup>
             </LayersControl.Overlay>
-            <LayersControl.Overlay name="Stops" checked>
+            <LayersControl.Overlay name="Assigned Stops" checked>
               <LeafletLayerGroup>
-                {stopMapPoints?.length > 0 &&
-                  stopMapPoints.map((stop, idx) => (
+                {assignedMapPoints?.length > 0 &&
+                  assignedMapPoints.map((stop, idx) => (
+                    <RouteMarker
+                      key={idx}
+                      variant="stop"
+                      id={stop.id}
+                      position={[stop.lat, stop.lng]}
+                      color={Number(stop.color)}
+                    >
+                      <MapPopup name={stop.name} address={stop.address} />
+                    </RouteMarker>
+                  ))}{" "}
+                {routeGeoJsonList.length > 0 &&
+                  routeGeoJsonList.map((route) => (
+                    <GeoJSON
+                      key={route.id}
+                      data={
+                        formatGeometryString(
+                          route.geoJson,
+                          route.vehicleId
+                        ) as unknown as GeoJsonData
+                      }
+                      style={getStyle}
+                    />
+                  ))}
+              </LeafletLayerGroup>
+            </LayersControl.Overlay>
+            <LayersControl.Overlay name="Unassigned Stops" checked>
+              <LeafletLayerGroup>
+                {unassignedMapPoints?.length > 0 &&
+                  unassignedMapPoints.map((stop, idx) => (
                     <RouteMarker
                       key={idx}
                       variant="stop"
@@ -292,20 +329,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
               </LeafletLayerGroup>
             </LayersControl.Overlay>
           </LayersControl>
-
-          {routeGeoJsonList.length > 0 &&
-            routeGeoJsonList.map((route) => (
-              <GeoJSON
-                key={route.id}
-                data={
-                  formatGeometryString(
-                    route.geoJson,
-                    route.vehicleId
-                  ) as unknown as GeoJsonData
-                }
-                style={getStyle}
-              />
-            ))}
         </MapContainer>
       </ContextMenuTrigger>
 
@@ -314,23 +337,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
           <ContextMenuLabel>
             {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
           </ContextMenuLabel>
-          <ContextMenuItem
-            onClick={() =>
-              addJobByLatLng({
-                lat: latLng?.lat,
-                lng: latLng?.lng,
-              })
-            }
-          >
+          <ContextMenuItem onClick={() => addJobByLatLng({ ...latLng })}>
             Add as Stop
           </ContextMenuItem>
-          {/* <ContextMenuItem
-            onClick={() =>
-              addDriverByLatLng({ lat: latLng?.lat, lng: latLng?.lng })
-            }
-          >
-            Add as Driver
-          </ContextMenuItem> */}
         </ContextMenuContent>
       )}
     </ContextMenu>
