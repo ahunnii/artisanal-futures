@@ -25,8 +25,8 @@ const SignInPage = ({
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <AuthLayout>
-      <div className=" my-auto flex h-full w-full items-center gap-5">
-        <div className="justify-left flex w-4/12">
+      <div className=" my-auto flex h-full w-full items-center gap-5 max-md:flex-col-reverse">
+        <div className="justify-left flex lg:w-4/12">
           {" "}
           <div className="w-96 rounded bg-white p-4 ">
             {error && (
@@ -97,10 +97,10 @@ const SignInPage = ({
             </p>
           </div>
         </div>
-        <div className=" flex w-8/12 justify-end  ">
+        <div className=" flex justify-end px-4  lg:w-8/12">
           <Image
-            src="/pancakes.svg"
-            alt="under development"
+            src="/sign-in.svg"
+            alt="Sign in to Artisanal Futures"
             width={500}
             height={500}
           />
