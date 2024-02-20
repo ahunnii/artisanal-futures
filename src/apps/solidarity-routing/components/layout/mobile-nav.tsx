@@ -33,7 +33,7 @@ export const MobileNav = ({
         <SheetHeader>
           <SheetTitle>
             {" "}
-            <Link href="/" className=" flex items-center gap-x-2">
+            <Link href="/" className=" flex w-fit items-center gap-x-2 ">
               <span className=" flex items-center gap-1">
                 <Image
                   className=" block  h-5 "
@@ -48,14 +48,13 @@ export const MobileNav = ({
           </SheetTitle>
         </SheetHeader>
 
-        <div className="radix-dialog-content flex w-full flex-col">
-          {links && (
-            <MainNav
-              data={links}
-              className="mx-0 flex flex-col items-baseline space-y-8 pt-8"
-            />
-          )}
-        </div>
+        {links && (
+          <MainNav
+            data={links}
+            className="mx-0 flex flex-col items-baseline space-y-8 pt-8"
+          />
+        )}
+
         <Separator className="my-4" />
         <SheetFooter className="flex flex-row justify-center gap-2 ">
           {!sessionData?.user && (
