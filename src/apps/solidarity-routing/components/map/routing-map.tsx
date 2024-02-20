@@ -51,6 +51,7 @@ import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-util
 
 import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
+import { MapViewButton } from "./map-view-button";
 
 interface MapProps {
   className?: string;
@@ -205,49 +206,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
             attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
           />
 
-          <div>
-            <Button
-              size={"icon"}
-              className={cn(
-                "absolute bottom-16 right-3 z-[1000]",
-                !enableTracking && "bottom-3"
-              )}
-              onClick={expandViewToFit}
-            >
-              <Expand />
-            </Button>
-
-            {enableTracking && (
-              <Button
-                className={cn("absolute right-20 top-3 z-[1000]")}
-                onClick={toggleConstantTracking}
-              >
-                {constantTracking ? "Stop" : "Start"} transmitting realtime
-              </Button>
-            )}
-
-            {enableTracking && (
-              <Button
-                className={cn("absolute bottom-3 right-3 z-[1000]")}
-                onClick={flyToCurrentLocation}
-              >
-                Center to Location
-              </Button>
-            )}
-
-            {pathId && (
-              <Button
-                className={cn(
-                  "absolute bottom-3 right-44 z-[1000]",
-                  !enableTracking && "right-16"
-                )}
-                variant={enableTracking ? "secondary" : "default"}
-                onClick={() => setEnableTracking(!enableTracking)}
-              >
-                {enableTracking ? "Stop" : "Start"} Location Services
-              </Button>
-            )}
-          </div>
+          {mapRef.current && <MapViewButton mapRef={mapRef.current} />}
 
           {currentLocation && (
             <RouteMarker
