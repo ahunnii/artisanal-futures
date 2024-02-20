@@ -15,7 +15,6 @@ import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layou
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import Link from "next/link";
 import { ImportDriversButton } from "~/apps/solidarity-routing/components/overview/import-drivers-button";
 
 import { CreateRouteButton } from "~/apps/solidarity-routing/components/overview/create-route-button";

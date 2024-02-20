@@ -103,7 +103,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
             ...b,
             duration: secondsToMinutes(b.duration),
           }))
-        : [],
+        : [{ id: Number(uniqueId()), duration: 30 }],
     maxTravelTime: secondsToMinutes(
       activeDriver?.vehicle?.maxTravelTime ?? 300
     ),
