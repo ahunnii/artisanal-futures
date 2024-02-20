@@ -3,6 +3,7 @@ import type { Address } from "../optimization/types";
 export interface GeocodingProcessor<T> {
   geocodeByAddress(address: string): Promise<Address>;
   fetchDataFromGeoEndpoint(address: string): Promise<T>;
+  fetchPossibleAddresses(address: string): Promise<Address[]>;
 }
 
 export class GeocodingService<T> {
@@ -14,5 +15,9 @@ export class GeocodingService<T> {
 
   async fetchDataFromGeoEndpoint(address: string): Promise<T> {
     return this.geocodingProcessor.fetchDataFromGeoEndpoint(address);
+  }
+
+  async fetchPossibleAddresses(address: string): Promise<Address[]> {
+    return this.geocodingProcessor.fetchPossibleAddresses(address);
   }
 }

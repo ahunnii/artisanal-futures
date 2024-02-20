@@ -10,13 +10,17 @@ type BundleId = string | null | undefined;
 
 type BundleResult = DriverVehicleBundle | null;
 export const useReadDriver = () => {
-  const { depotId, isUserAllowedToSaveToDepot, routeId } = useSolidarityState();
+  const { depotId, isUserAllowedToSaveToDepot, routeId, depotMode } =
+    useSolidarityState();
 
   const sessionStorageDrivers = useDriversStore((state) => state);
 
   const getDepotDrivers = api.drivers.getDepotDrivers.useQuery(
     { depotId },
-    { enabled: isUserAllowedToSaveToDepot && !!depotId }
+    {
+      enabled:
+        isUserAllowedToSaveToDepot && !!depotId && depotMode !== "calculate",
+    }
   );
 
   const getRouteVehicles = api.routePlan.getVehicleBundles.useQuery(

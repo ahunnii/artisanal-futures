@@ -5,6 +5,9 @@ import type { GeocodingProcessor } from "./geocoding-processor";
 const GOOGLE_GEOCODING_ENDPOINT =
   "https://maps.googleapis.com/maps/api/geocode/json";
 
+const GOOGLE_AUTOCOMPLETE_ENDPOINT =
+  "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+
 export const googleGeocodingProcessor: GeocodingProcessor<
   google.maps.GeocoderResult[]
 > = {
@@ -39,5 +42,29 @@ export const googleGeocodingProcessor: GeocodingProcessor<
 
     console.log(geocodedData.data.results);
     return geocodedData.data.results;
+  },
+
+  async fetchPossibleAddresses(address: string): Promise<Address[]> {
+    const autocompleteAddress = `${GOOGLE_AUTOCOMPLETE_ENDPOINT}?input=${encodeURIComponent(
+      address
+    )}&key=${process.env.GOOGLE_API_KEY}`;
+
+    const results = await axios.get(autocompleteAddress);
+
+    console.log(results);
+
+    if (results.status !== 200) {
+      return [];
+    }
+
+    return [];
+    // return results.data.map((geocode) => {
+    //   return {
+    //     id: geocode.place_id,
+    //     latitude: geocode.geometry.location.lat,
+    //     longitude: geocode.geometry.location.lng,
+    //     formatted: geocode.formatted_address,
+    //   };
+    // });
   },
 };

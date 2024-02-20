@@ -18,4 +18,29 @@ export const HotToastNotificationProcessor: NotificationProcessor = {
   notifyResults: ({ message }) => {
     return toast(message);
   },
+
+  notifyPending: (promise, props) => {
+    //create a promise that resolves when isLoading is false
+
+    return void toast.promise(
+      promise,
+      {
+        loading: props.loadingMessage ?? "Loading...",
+        success: (data) => {
+          return data.message ?? props.successMessage ?? "Success!";
+        },
+        error: (data) => {
+          console.error("Notification Error:", data?.error);
+          return (
+            data.message ??
+            props.errorMessage ??
+            "An error has occurred. Please try again later."
+          );
+        },
+      },
+      {
+        position: "top-center",
+      }
+    );
+  },
 };

@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
-import React, { useEffect, useState, type FC } from "react";
+import React, { useEffect, useRef, useState, type FC } from "react";
 
+import type { LatLngExpression, Map as LeafletMap } from "leaflet";
 import { Beforeunload } from "react-beforeunload";
 
 import { Button } from "~/components/ui/button";
@@ -21,6 +22,10 @@ interface IProps {
   verifiedDriver: boolean;
 }
 
+interface MapRef {
+  current: LeafletMap | null;
+}
+
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
   {
@@ -33,11 +38,13 @@ import type { GetServerSidePropsContext } from "next";
 
 import axios from "axios";
 import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
+import { MapViewButton } from "~/apps/solidarity-routing/components/map/map-view-button";
 import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 
 const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
+  const mapRef = useRef<MapRef>(null);
   const { data: session } = useSession();
   const { driverId } = useSolidarityState();
 
@@ -96,10 +103,9 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
                         driver={driver}
                         color={routeColor.background}
                       />
-
-                      <Button>Start route</Button>
                     </>
                   </div>
+
                   <MobileDrawer />
 
                   <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />

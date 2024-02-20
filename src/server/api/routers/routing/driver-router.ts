@@ -247,7 +247,7 @@ export const driverRouter = createTRPCRouter({
             if (driverVehicle.vehicle.endAddress) {
               const routeEndAddress = await ctx.prisma.address.create({
                 data: {
-                  formatted: driverVehicle?.vehicle?.endAddress?.formatted,
+                  formatted: driverVehicle?.vehicle?.endAddress.formatted,
                   latitude: driverVehicle.vehicle.endAddress.latitude,
                   longitude: driverVehicle.vehicle.endAddress.longitude,
                 },

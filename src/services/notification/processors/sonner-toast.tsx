@@ -29,4 +29,24 @@ export const SonnerNotificationProcessor: NotificationProcessor = {
       ),
     });
   },
+
+  notifyPending: (promise, props) => {
+    //create a promise that resolves when isLoading is false
+
+    return toast.promise(promise, {
+      position: "top-center",
+      loading: props.loadingMessage ?? "Loading...",
+      success: (data) => {
+        return data.message ?? props.successMessage ?? "Success!";
+      },
+      error: (data) => {
+        console.error("Notification Error:", data?.error);
+        return (
+          data.message ??
+          props.errorMessage ??
+          "An error has occurred. Please try again later."
+        );
+      },
+    });
+  },
 };

@@ -30,7 +30,7 @@ export const MobileDrawer = () => {
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const solidarityMessaging = useSolidarityMessaging();
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const driverBundles = useDriverVehicleBundles();
 
@@ -43,7 +43,7 @@ export const MobileDrawer = () => {
   return (
     <>
       <div className="flex w-full bg-white lg:hidden">
-        <Button
+        {/* <Button
           size={"lg"}
           variant="ghost"
           className="flex-1"
@@ -55,7 +55,7 @@ export const MobileDrawer = () => {
             {route?.stops?.length} stops •{" "}
             {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </p>
-        </Button>
+        </Button> */}
         <FieldJobSearch isIcon={true} />{" "}
         {/* <Button
           size="icon"
@@ -66,16 +66,34 @@ export const MobileDrawer = () => {
         {/* </Button> */}
       </div>
       <Drawer
-        snapPoints={[0.22, 0.8, 1]}
+        snapPoints={[0.1, 0.22, 0.8, 1]}
         activeSnapPoint={snap}
         setActiveSnapPoint={setSnap}
-        open={open}
-        onOpenChange={setOpen}
+        open={true}
+        dismissible={false}
+        modal={false}
+        // onOpenChange={setOpen}
       >
-        <DrawerContent className="h-screen">
+        <DrawerContent
+          className="h-screen"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <div className="mx-auto w-full max-w-sm">
-            <DrawerHeader className="flex justify-between">
-              <FieldJobSearch isIcon={false} />
+            <DrawerHeader className="flex flex-1 items-center justify-between">
+              {snap === 0.1 ? (
+                <>
+                  <p className="text-sm font-normal text-muted-foreground">
+                    Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
+                    {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
+                    {route?.stops?.length} stops •{" "}
+                    {Math.round(metersToMiles(route?.distance ?? 0))}mi
+                  </p>
+                  <FieldJobSearch isIcon={true} />{" "}
+                </>
+              ) : (
+                <FieldJobSearch isIcon={false} />
+              )}
+              {/* <FieldJobSearch isIcon={false} /> */}
 
               {/* <Button
                 size="icon"
