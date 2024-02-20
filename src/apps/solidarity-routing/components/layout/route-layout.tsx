@@ -13,6 +13,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
           content="width=device-width,height=device-height initial-scale=1"
         />
         <link rel="icon" href="/favicon.ico" />{" "}
+        <link rel="manifest" href="/manifest.json" />{" "}
       </Head>
 
       <main className="fixed flex h-full w-full flex-col ">

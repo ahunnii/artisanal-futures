@@ -19,10 +19,7 @@ export const useReadDriver = () => {
     { depotId },
     {
       enabled:
-        isUserAllowedToSaveToDepot &&
-        !!depotId &&
-        depotMode !== "calculate" &&
-        !!depotMode,
+        isUserAllowedToSaveToDepot && !!depotId && depotMode !== "calculate",
     }
   );
 

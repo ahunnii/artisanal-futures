@@ -533,63 +533,6 @@ export const routePlanRouter = createTRPCRouter({
       });
     }),
 
-  addRouteVehicle: protectedProcedure
-    .input(
-      z.object({
-        routeId: z.string(),
-        vehicle: driverVehicleSchema,
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const route = await ctx.prisma.route.findUnique({
-        where: {
-          id: input.routeId,
-        },
-        include: {
-          vehicles: true,
-        },
-      });
-
-      const vehicle = await ctx.prisma.vehicle.create({
-        data: {
-          driverId: input.vehicle.driver.id,
-          depotId: route!.depotId,
-          startAddress: {
-            create: {
-              formatted: input.vehicle.driver.address.formatted,
-              latitude: input.vehicle.driver.address.latitude,
-              longitude: input.vehicle.driver.address.longitude,
-            },
-          },
-          shiftStart: input.vehicle.vehicle.shiftStart,
-          shiftEnd: input.vehicle.vehicle.shiftEnd,
-
-          capacity: input.vehicle.vehicle.capacity,
-          maxTasks: input.vehicle.vehicle.maxTasks,
-          maxTravelTime: input.vehicle.vehicle.maxTravelTime,
-          maxDistance: input.vehicle.vehicle.maxDistance,
-          breaks: {
-            create: input.vehicle?.vehicle?.breaks?.map((b) => ({
-              duration: b?.duration ?? 1800, //30 minutes in seconds
-              start: b?.start ?? input.vehicle.vehicle.shiftStart,
-              end: b?.end ?? input.vehicle.vehicle.shiftEnd,
-            })),
-          },
-        },
-      });
-
-      return ctx.prisma.route.update({
-        where: {
-          id: input.routeId,
-        },
-        data: {
-          vehicles: {
-            connect: { id: vehicle.id },
-          },
-        },
-      });
-    }),
-
   getVehicleBundles: protectedProcedure
     .input(z.object({ routeId: z.string() }))
     .query(async ({ ctx, input }) => {
