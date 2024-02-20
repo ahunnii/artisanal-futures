@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
@@ -5,7 +6,6 @@ import Router from "next/router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import ToastNotificationProvider from "~/apps/notifications/toast-notification-provider";
-
 import { ModalProvider } from "~/providers/admin/modal-provider";
 
 import "~/styles/globals.css";
@@ -28,6 +28,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <ToastNotificationProvider />
       <ModalProvider />
       <Component {...pageProps} />
+      <SpeedInsights />
     </SessionProvider>
   );
 };

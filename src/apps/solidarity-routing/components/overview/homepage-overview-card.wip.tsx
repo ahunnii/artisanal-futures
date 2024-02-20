@@ -22,14 +22,16 @@ import { formatNthDate, isDateToday } from "../../utils/current-date";
 import { FileUploadModal } from "../shared/file-upload-modal.wip";
 import { HomepageRouteCard } from "./homepage-route-card";
 
-export const HomePageOverviewCard = ({ date }: { date: Date }) => {
-  const { depotId } = useSolidarityState();
+export const HomePageOverviewCard = ({}: { date?: Date }) => {
+  const { depotId, routeDate, isFirstTime, sessionStatus } =
+    useSolidarityState();
+
   const routePlan = useRoutePlans();
   const jobBundles = useClientJobBundles();
 
   const dateTitle = useMemo(
-    () => (isDateToday(date) ? "Today's" : formatNthDate(date)),
-    [date]
+    () => (isDateToday(routeDate) ? "Today's" : formatNthDate(routeDate)),
+    [routeDate]
   );
 
   const baseRouteUrl = `/tools/solidarity-pathways/${depotId}/route/`;
@@ -37,20 +39,25 @@ export const HomePageOverviewCard = ({ date }: { date: Date }) => {
   const [parent] = useAutoAnimate();
   const [another] = useAutoAnimate();
 
-  const manuallyCreateRoute = () => routePlan.create({ depotId, date });
+  const manuallyCreateRoute = () =>
+    routePlan.create({ depotId, date: routeDate });
 
   const clientJobImportOptions = clientJobUploadOptions({
     jobs: jobBundles.data,
     setJobs: jobBundles.createMany,
   });
 
+  const isUserAuthenticated = !isFirstTime && sessionStatus === "authenticated";
+
+  if (!isUserAuthenticated) return null;
+
   return (
     <Card className="w-full max-w-xl">
       <CardHeader>
         <CardTitle>{dateTitle} Overview</CardTitle>
         <CardDescription>
-          {format(date, "MMMM dd yyyy")} * Depot {depotId} * No finalized routes
-          yet
+          {format(routeDate, "MMMM dd yyyy")} * Depot {depotId} * No finalized
+          routes yet
         </CardDescription>
       </CardHeader>
       <CardContent ref={parent}>

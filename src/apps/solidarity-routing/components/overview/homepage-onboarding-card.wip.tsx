@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 
-import { useMemo, type FC } from "react";
+import { useMemo } from "react";
 
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-plans";
@@ -20,49 +20,49 @@ import { formatNthDate, isDateToday } from "../../utils/current-date";
 import { HomepageDriverImportCard } from "./homepage-driver-import-card";
 import { HomepageJobImportCard } from "./homepage-job-import-card";
 
-type Props = {
-  date: Date;
-  status: "authenticated" | "loading" | "unauthenticated";
-};
-
-export const HomePageOnboardingCard: FC<Props> = ({ date, status }) => {
-  const { depotId } = useSolidarityState();
+export const HomePageOnboardingCard = () => {
+  const { depotId, isFirstTime, sessionStatus, routeDate } =
+    useSolidarityState();
 
   const { currentDepot } = useDepot();
 
-  const routePlan = useRoutePlans();
+  const { create: createRoute } = useRoutePlans();
 
-  const manuallyCreateRoute = () => routePlan.create({ depotId, date });
+  const manuallyCreateRoute = () => createRoute({ depotId, date: routeDate });
 
   const dateTitle = useMemo(
-    () => (isDateToday(date) ? "Today's" : formatNthDate(date)),
-    [date]
+    () => (isDateToday(routeDate) ? "Today's" : formatNthDate(routeDate)),
+    [routeDate]
   );
+
+  const isUserOnboarding = isFirstTime ?? sessionStatus === "unauthenticated";
+
+  if (!isUserOnboarding) return null;
   return (
     <>
       <Card className="w-full max-w-xl">
         <CardHeader>
           <CardTitle>{dateTitle} Overview</CardTitle>
 
-          {status === "authenticated" && (
+          {sessionStatus === "authenticated" && (
             <>
               <CardDescription>
-                {format(date, "MMMM dd yyyy")} * Depot{" "}
+                {format(routeDate, "MMMM dd yyyy")} * Depot{" "}
                 {currentDepot?.name ?? depotId}
               </CardDescription>
             </>
           )}
-          {status === "unauthenticated" && (
+          {sessionStatus === "unauthenticated" && (
             <>
               <CardDescription>
-                {format(date, "MMMM dd yyyy")} * Sandbox Mode
+                {format(routeDate, "MMMM dd yyyy")} * Sandbox Mode
               </CardDescription>
             </>
           )}
         </CardHeader>
 
         <CardContent>
-          {status === "unauthenticated" && (
+          {sessionStatus === "unauthenticated" && (
             <p className="mb-6 leading-7 [&:not(:first-child)]:mt-6">
               It looks like you are not logged in. You can still continue to use
               Solidarity Pathways, but all routes and data will be discarded
