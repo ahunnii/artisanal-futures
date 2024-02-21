@@ -5,10 +5,13 @@ import NavbarActions from "~/components/navbar-actions";
 
 import { Settings } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { PathwaysSettingsMenu } from "../settings/pathways-settings-menu.wip";
 import { PathwaysNotifications } from "../ui/pathways-notifications";
 
 const Navbar = () => {
+  const { pathId } = useSolidarityState();
+
   return (
     <>
       <div className="border-b">
@@ -38,11 +41,14 @@ const Navbar = () => {
             </Link>
 
             <div className="ml-auto flex items-center space-x-6">
-              <PathwaysSettingsMenu>
-                <Button variant={"ghost"} aria-label="Settings">
-                  <Settings />
-                </Button>
-              </PathwaysSettingsMenu>
+              {!pathId && (
+                <PathwaysSettingsMenu>
+                  <Button variant={"ghost"} aria-label="Settings">
+                    <Settings />
+                  </Button>
+                </PathwaysSettingsMenu>
+              )}
+
               <PathwaysNotifications />
               <NavbarActions />
             </div>

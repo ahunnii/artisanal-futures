@@ -51,10 +51,13 @@ import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-util
 
 import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
+import { MobileDrawer } from "../mobile/mobile-drawer.wip";
+import { DynamicMapViewButtons } from "./dymamic-map-view-buttons";
 import { MapViewButton } from "./map-view-button";
 
 interface MapProps {
   className?: string;
+  children?: React.ReactNode;
 }
 
 interface MapRef {
@@ -75,275 +78,287 @@ export type MapPoint = {
 
 type CoordMap = Record<string, { lat: number; lng: number }>;
 
-const RoutingMap = forwardRef<MapRef, MapProps>(({ className }, ref) => {
-  const mapRef = useRef<LeafletMap>(null);
+const RoutingMap = forwardRef<MapRef, MapProps>(
+  ({ className, children }, ref) => {
+    const mapRef = useRef<LeafletMap>(null);
 
-  const [enableTracking, setEnableTracking] = useState(false);
+    const [enableTracking, setEnableTracking] = useState(false);
 
-  const params = {
-    mapRef: mapRef.current!,
-    trackingEnabled: true,
-    constantUserTracking: enableTracking,
-  };
-
-  const {
-    expandViewToFit,
-    flyToCurrentLocation,
-    currentLocation,
-    toggleConstantTracking,
-    constantTracking,
-  } = useMap(params);
-  const [latLng, setLatLng] = useState<L.LatLng | null>(null);
-
-  // const activeDrivers = new Map<string, { lat: number; lng: number }>();
-
-  const [activeDrivers, setActiveDrivers] = useState<CoordMap>({});
-
-  const driverBundles = useDriverVehicleBundles();
-  const jobBundles = useClientJobBundles();
-  const routePlans = useRoutePlans();
-
-  // const drivers = bundles?.all;
-  const addDriverByLatLng = driverBundles.createByLatLng;
-  const addJobByLatLng = jobBundles.createByLatLng;
-
-  const { pathId } = useSolidarityState();
-
-  const optimizedRoutePlan = useOptimizedRoutePlan();
-
-  useImperativeHandle(ref, () => ({
-    reactLeafletMap: mapRef.current,
-  }));
-
-  const handleRightClick = (event: MouseEvent) => {
-    if (!mapRef.current) return;
-    setLatLng(mapRef.current.mouseEventToLatLng(event));
-  };
-
-  const stopMapPoints: MapPoint[] = pathId
-    ? optimizedRoutePlan.mapData.jobs
-    : jobBundles.data.map((stop) => ({
-        id: stop.job.id,
-        type: "job",
-        lat: stop.job.address.latitude,
-        lng: stop.job.address.longitude,
-        address: stop.job.address.formatted,
-        name: stop?.client?.name ?? "New Stop",
-        color: !stop.job.isOptimized
-          ? "-1"
-          : `${cuidToIndex(routePlans.findVehicleIdByJobId(stop.job.id))}`,
-      }));
-
-  const driverMapPoints: MapPoint[] = pathId
-    ? optimizedRoutePlan.mapData.driver
-    : driverBundles?.data?.map((driver) => ({
-        id: driver.vehicle.id,
-        type: "vehicle",
-        lat: driver.vehicle.startAddress?.latitude,
-        lng: driver.vehicle.startAddress?.longitude,
-        address: driver.vehicle.startAddress?.formatted ?? "",
-        name: driver?.driver?.name ?? "Driver",
-        color:
-          routePlans.optimized.length > 0
-            ? `${cuidToIndex(driver.vehicle.id)}`
-            : "3",
-      }));
-
-  const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
-    (stop) => stop.color === "-1"
-  );
-
-  const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
-    (stop) => stop.color !== "-1"
-  );
-
-  const routeGeoJsonList = pathId
-    ? optimizedRoutePlan.mapData.geometry
-    : routePlans.optimized.map((route) => {
-        return {
-          id: route.id,
-          geoJson: route.geoJson,
-          vehicleId: route.vehicleId,
-        };
-      });
-
-  useEffect(() => {
-    pusherClient.subscribe("map");
-    pusherClient.bind("evt::update-location", setActiveDriverIcons);
-
-    return () => {
-      pusherClient.unsubscribe("map");
+    const params = {
+      mapRef: mapRef.current!,
+      trackingEnabled: true,
+      constantUserTracking: enableTracking,
     };
-  }, []);
 
-  const setActiveDriverIcons = (obj: {
-    vehicleId: string;
-    latitude: number;
-    longitude: number;
-  }) => {
-    setActiveDrivers((prevCoordMap) => ({
-      ...prevCoordMap,
-      [obj.vehicleId]: {
-        lat: obj.latitude,
-        lng: obj.longitude,
-      },
+    const {
+      expandViewToFit,
+      flyToCurrentLocation,
+      currentLocation,
+      toggleConstantTracking,
+      constantTracking,
+    } = useMap(params);
+    const [latLng, setLatLng] = useState<L.LatLng | null>(null);
+
+    // const activeDrivers = new Map<string, { lat: number; lng: number }>();
+
+    const [activeDrivers, setActiveDrivers] = useState<CoordMap>({});
+
+    const driverBundles = useDriverVehicleBundles();
+    const jobBundles = useClientJobBundles();
+    const routePlans = useRoutePlans();
+
+    // const drivers = bundles?.all;
+    const addDriverByLatLng = driverBundles.createByLatLng;
+    const addJobByLatLng = jobBundles.createByLatLng;
+
+    const { pathId } = useSolidarityState();
+
+    const optimizedRoutePlan = useOptimizedRoutePlan();
+
+    useImperativeHandle(ref, () => ({
+      reactLeafletMap: mapRef.current,
     }));
-  };
 
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        className={cn(className, "z-0 flex w-full flex-col max-lg:grow")}
-        onContextMenu={
-          handleRightClick as unknown as MouseEventHandler<HTMLDivElement>
-        }
-      >
-        {" "}
-        <MapContainer
-          ref={mapRef}
-          center={MAP_DATA.center}
-          zoom={MAP_DATA.zoom}
-          doubleClickZoom={MAP_DATA.doubleClickZoom}
-          maxBounds={MAP_DATA.maxBounds}
-          minZoom={MAP_DATA.minZoom}
-          style={MAP_DATA.style}
-          className={"relative"}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
-          />
+    const handleRightClick = (event: MouseEvent) => {
+      if (!mapRef.current) return;
+      setLatLng(mapRef.current.mouseEventToLatLng(event));
+    };
 
-          {mapRef.current && <MapViewButton mapRef={mapRef.current} />}
+    const stopMapPoints: MapPoint[] = pathId
+      ? optimizedRoutePlan.mapData.jobs
+      : jobBundles.data.map((stop) => ({
+          id: stop.job.id,
+          type: "job",
+          lat: stop.job.address.latitude,
+          lng: stop.job.address.longitude,
+          address: stop.job.address.formatted,
+          name: stop?.client?.name ?? "New Stop",
+          color: !stop.job.isOptimized
+            ? "-1"
+            : `${cuidToIndex(routePlans.findVehicleIdByJobId(stop.job.id))}`,
+        }));
 
-          {currentLocation && (
-            <RouteMarker
-              id={"0"}
-              variant="currentPosition"
-              position={[currentLocation.latitude!, currentLocation.longitude!]}
-              color={3}
+    const driverMapPoints: MapPoint[] = pathId
+      ? optimizedRoutePlan.mapData.driver
+      : driverBundles?.data?.map((driver) => ({
+          id: driver.vehicle.id,
+          type: "vehicle",
+          lat: driver.vehicle.startAddress?.latitude,
+          lng: driver.vehicle.startAddress?.longitude,
+          address: driver.vehicle.startAddress?.formatted ?? "",
+          name: driver?.driver?.name ?? "Driver",
+          color:
+            routePlans.optimized.length > 0
+              ? `${cuidToIndex(driver.vehicle.id)}`
+              : "3",
+        }));
+
+    const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
+      (stop) => stop.color === "-1"
+    );
+
+    const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
+      (stop) => stop.color !== "-1"
+    );
+
+    const routeGeoJsonList = pathId
+      ? optimizedRoutePlan.mapData.geometry
+      : routePlans.optimized.map((route) => {
+          return {
+            id: route.id,
+            geoJson: route.geoJson,
+            vehicleId: route.vehicleId,
+          };
+        });
+
+    useEffect(() => {
+      pusherClient.subscribe("map");
+      pusherClient.bind("evt::update-location", setActiveDriverIcons);
+
+      return () => {
+        pusherClient.unsubscribe("map");
+      };
+    }, []);
+
+    const setActiveDriverIcons = (obj: {
+      vehicleId: string;
+      latitude: number;
+      longitude: number;
+    }) => {
+      setActiveDrivers((prevCoordMap) => ({
+        ...prevCoordMap,
+        [obj.vehicleId]: {
+          lat: obj.latitude,
+          lng: obj.longitude,
+        },
+      }));
+    };
+    const [snap, setSnap] = useState<number | string | null>(0.22);
+    return (
+      <>
+        {mapRef.current && (
+          <DynamicMapViewButtons mapRef={mapRef.current} snap={snap} />
+        )}
+        <MobileDrawer snap={snap} setSnap={setSnap} />
+        <ContextMenu>
+          <ContextMenuTrigger
+            className={cn(className, "z-0 flex w-full flex-col max-lg:grow")}
+            onContextMenu={
+              handleRightClick as unknown as MouseEventHandler<HTMLDivElement>
+            }
+          >
+            {" "}
+            <MapContainer
+              ref={mapRef}
+              center={MAP_DATA.center}
+              zoom={MAP_DATA.zoom}
+              doubleClickZoom={MAP_DATA.doubleClickZoom}
+              maxBounds={MAP_DATA.maxBounds}
+              minZoom={MAP_DATA.minZoom}
+              style={MAP_DATA.style}
+              className={"relative"}
             >
-              Current Location
-              <Circle
-                center={
-                  [
-                    currentLocation.latitude!,
-                    currentLocation.longitude!,
-                  ] as LatLngExpression
-                }
-                radius={currentLocation?.accuracy}
-                color="blue"
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
               />
-            </RouteMarker>
-          )}
 
-          {activeDrivers &&
-            Object.keys(activeDrivers).map((vehicleId) => {
-              const latLng = activeDrivers[vehicleId];
-              const driver = driverBundles.getVehicleById(vehicleId);
-
-              return (
+              {currentLocation && (
                 <RouteMarker
                   id={"0"}
-                  key={vehicleId}
-                  variant="car"
-                  position={[latLng!.lat, latLng!.lng]}
-                  color={cuidToIndex(vehicleId)}
+                  variant="currentPosition"
+                  position={[
+                    currentLocation.latitude!,
+                    currentLocation.longitude!,
+                  ]}
+                  color={3}
                 >
-                  <MapPopup
-                    name={driver?.driver.name ?? "Driver"}
-                    address={driver?.driver?.address?.formatted ?? ""}
+                  Current Location
+                  <Circle
+                    center={
+                      [
+                        currentLocation.latitude!,
+                        currentLocation.longitude!,
+                      ] as LatLngExpression
+                    }
+                    radius={currentLocation?.accuracy}
+                    color="blue"
                   />
                 </RouteMarker>
-              );
-            })}
-          <LayersControl position="topright">
-            <LayersControl.Overlay name="Drivers" checked>
-              <LeafletLayerGroup>
-                {driverMapPoints?.length > 0 &&
-                  driverMapPoints.map((vehicle, idx) => {
-                    const latLng: [number, number] = [vehicle.lat, vehicle.lng];
+              )}
 
-                    const isActive = activeDrivers[vehicle.id];
+              {activeDrivers &&
+                Object.keys(activeDrivers).map((vehicleId) => {
+                  const latLng = activeDrivers[vehicleId];
+                  const driver = driverBundles.getVehicleById(vehicleId);
 
-                    return (
-                      <RouteMarker
-                        key={idx}
-                        variant={isActive ? "depot" : "car"}
-                        id={vehicle.id}
-                        position={latLng}
-                        color={Number(vehicle.color)}
-                      >
-                        <MapPopup
-                          name={vehicle.name}
-                          address={vehicle.address}
+                  return (
+                    <RouteMarker
+                      id={"0"}
+                      key={vehicleId}
+                      variant="car"
+                      position={[latLng!.lat, latLng!.lng]}
+                      color={cuidToIndex(vehicleId)}
+                    >
+                      <MapPopup
+                        name={driver?.driver.name ?? "Driver"}
+                        address={driver?.driver?.address?.formatted ?? ""}
+                      />
+                    </RouteMarker>
+                  );
+                })}
+              <LayersControl position="topright">
+                <LayersControl.Overlay name="Drivers" checked>
+                  <LeafletLayerGroup>
+                    {driverMapPoints?.length > 0 &&
+                      driverMapPoints.map((vehicle, idx) => {
+                        const latLng: [number, number] = [
+                          vehicle.lat,
+                          vehicle.lng,
+                        ];
+
+                        const isActive = activeDrivers[vehicle.id];
+
+                        return (
+                          <RouteMarker
+                            key={idx}
+                            variant={isActive ? "depot" : "car"}
+                            id={vehicle.id}
+                            position={latLng}
+                            color={Number(vehicle.color)}
+                          >
+                            <MapPopup
+                              name={vehicle.name}
+                              address={vehicle.address}
+                            />
+                          </RouteMarker>
+                        );
+                      })}{" "}
+                  </LeafletLayerGroup>
+                </LayersControl.Overlay>
+                <LayersControl.Overlay name="Assigned Stops" checked>
+                  <LeafletLayerGroup>
+                    {assignedMapPoints?.length > 0 &&
+                      assignedMapPoints.map((stop, idx) => (
+                        <RouteMarker
+                          key={idx}
+                          variant="stop"
+                          id={stop.id}
+                          position={[stop.lat, stop.lng]}
+                          color={Number(stop.color)}
+                        >
+                          <MapPopup name={stop.name} address={stop.address} />
+                        </RouteMarker>
+                      ))}{" "}
+                    {routeGeoJsonList.length > 0 &&
+                      routeGeoJsonList.map((route) => (
+                        <GeoJSON
+                          key={route.id}
+                          data={
+                            formatGeometryString(
+                              route.geoJson,
+                              route.vehicleId
+                            ) as unknown as GeoJsonData
+                          }
+                          style={getStyle}
                         />
-                      </RouteMarker>
-                    );
-                  })}{" "}
-              </LeafletLayerGroup>
-            </LayersControl.Overlay>
-            <LayersControl.Overlay name="Assigned Stops" checked>
-              <LeafletLayerGroup>
-                {assignedMapPoints?.length > 0 &&
-                  assignedMapPoints.map((stop, idx) => (
-                    <RouteMarker
-                      key={idx}
-                      variant="stop"
-                      id={stop.id}
-                      position={[stop.lat, stop.lng]}
-                      color={Number(stop.color)}
-                    >
-                      <MapPopup name={stop.name} address={stop.address} />
-                    </RouteMarker>
-                  ))}{" "}
-                {routeGeoJsonList.length > 0 &&
-                  routeGeoJsonList.map((route) => (
-                    <GeoJSON
-                      key={route.id}
-                      data={
-                        formatGeometryString(
-                          route.geoJson,
-                          route.vehicleId
-                        ) as unknown as GeoJsonData
-                      }
-                      style={getStyle}
-                    />
-                  ))}
-              </LeafletLayerGroup>
-            </LayersControl.Overlay>
-            <LayersControl.Overlay name="Unassigned Stops" checked>
-              <LeafletLayerGroup>
-                {unassignedMapPoints?.length > 0 &&
-                  unassignedMapPoints.map((stop, idx) => (
-                    <RouteMarker
-                      key={idx}
-                      variant="stop"
-                      id={stop.id}
-                      position={[stop.lat, stop.lng]}
-                      color={Number(stop.color)}
-                    >
-                      <MapPopup name={stop.name} address={stop.address} />
-                    </RouteMarker>
-                  ))}{" "}
-              </LeafletLayerGroup>
-            </LayersControl.Overlay>
-          </LayersControl>
-        </MapContainer>
-      </ContextMenuTrigger>
+                      ))}
+                  </LeafletLayerGroup>
+                </LayersControl.Overlay>
+                <LayersControl.Overlay name="Unassigned Stops" checked>
+                  <LeafletLayerGroup>
+                    {unassignedMapPoints?.length > 0 &&
+                      unassignedMapPoints.map((stop, idx) => (
+                        <RouteMarker
+                          key={idx}
+                          variant="stop"
+                          id={stop.id}
+                          position={[stop.lat, stop.lng]}
+                          color={Number(stop.color)}
+                        >
+                          <MapPopup name={stop.name} address={stop.address} />
+                        </RouteMarker>
+                      ))}{" "}
+                  </LeafletLayerGroup>
+                </LayersControl.Overlay>
+              </LayersControl>
+            </MapContainer>
+          </ContextMenuTrigger>
 
-      {latLng && (
-        <ContextMenuContent className="z-50">
-          <ContextMenuLabel>
-            {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
-          </ContextMenuLabel>
-          <ContextMenuItem onClick={() => addJobByLatLng({ ...latLng })}>
-            Add as Stop
-          </ContextMenuItem>
-        </ContextMenuContent>
-      )}
-    </ContextMenu>
-  );
-});
+          {latLng && (
+            <ContextMenuContent className="z-50">
+              <ContextMenuLabel>
+                {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
+              </ContextMenuLabel>
+              <ContextMenuItem onClick={() => addJobByLatLng({ ...latLng })}>
+                Add as Stop
+              </ContextMenuItem>
+            </ContextMenuContent>
+          )}
+        </ContextMenu>
+      </>
+    );
+  }
+);
 RoutingMap.displayName = "RoutingMap";
 export default RoutingMap;

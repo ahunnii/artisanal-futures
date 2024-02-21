@@ -103,7 +103,7 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
                     </>
                   </div>
 
-                  <MobileDrawer />
+                  {/* <MobileDrawer /> */}
 
                   <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
                 </section>

@@ -26,7 +26,13 @@ import { FieldJobSearch } from "../field-job-search.wip";
 
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
-export const MobileDrawer = () => {
+export const MobileDrawer = ({
+  snap,
+  setSnap,
+}: {
+  snap: number | string | null;
+  setSnap: (snap: number | string | null) => void;
+}) => {
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const solidarityMessaging = useSolidarityMessaging();
 
@@ -39,7 +45,7 @@ export const MobileDrawer = () => {
   );
 
   const route = optimizedRoutePlan?.data;
-  const [snap, setSnap] = useState<number | string | null>(0.22);
+  // const [snap, setSnap] = useState<number | string | null>(0.22);
 
   return (
     <>
@@ -67,7 +73,7 @@ export const MobileDrawer = () => {
         {/* </Button> */}
       </div>
       <Drawer
-        snapPoints={[0.1, 0.22, 0.8, 1]}
+        snapPoints={[0.1, 0.25, 0.75, 1]}
         activeSnapPoint={snap}
         setActiveSnapPoint={setSnap}
         open={true}
