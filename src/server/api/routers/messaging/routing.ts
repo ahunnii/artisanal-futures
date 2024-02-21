@@ -1,3 +1,4 @@
+import { Prisma, Profile } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -615,7 +616,15 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       })
     )
     .query(async ({ input, ctx }) => {
-      let profile;
+      let profile: Prisma.ProfileGetPayload<{
+        include: {
+          members: {
+            include: {
+              messages: true;
+            };
+          };
+        };
+      }> | null = null;
 
       const vehicle = await ctx.prisma.vehicle.findUnique({
         where: {
@@ -690,7 +699,7 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
 
       const member = await ctx.prisma.member.findFirst({
         where: {
-          profileId: profile.id,
+          profileId: profile?.id,
           serverId: depotServer?.id,
         },
       });
@@ -711,7 +720,7 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
           ),
           channel: server,
           serverId: server.serverId,
-          profileId: profile.id,
+          profileId: profile?.id,
           memberId: member?.id,
           depot: depot?.name ?? `# ${input?.depotId}`,
         };

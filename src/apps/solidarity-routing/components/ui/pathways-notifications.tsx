@@ -74,8 +74,8 @@ export const PathwaysNotifications = () => {
                 variant={"ghost"}
                 onClick={() =>
                   updateMessageThread({
-                    profileId: bundle.profileId,
-                    channelId: bundle.channel.id,
+                    profileId: bundle.profileId!,
+                    channelId: bundle?.channel?.id,
                     name: bundle.channel.name,
                   })
                 }
