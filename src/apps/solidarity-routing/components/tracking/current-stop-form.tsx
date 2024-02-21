@@ -19,13 +19,11 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 import { RouteStatus } from "@prisma/client";
 import Link from "next/link";
-import { toast as hotToast } from "react-hot-toast";
 import { AutoResizeTextArea } from "~/components/ui/auto-resize-textarea";
-
-import { toast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
+import { notificationService } from "~/services/notification";
 import type { OptimizedStop } from "../../types.wip";
 
 const notificationsFormSchema = z.object({
@@ -50,14 +48,18 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
 
   const updateStopStatus = api.routePlan.updateOptimizedStopState.useMutation({
     onSuccess: () => {
-      hotToast.success("Stop status updated.");
+      notificationService.notifySuccess({
+        message: "Stop status was successfully updated.",
+      });
     },
-    onError: (error) => {
-      console.error(error);
+    onError: (error: unknown) => {
+      notificationService.notifyError({
+        message: "There was an issue updating the stop status.",
+        error,
+      });
     },
     onSettled: () => {
       jobBundles.onFieldJobSheetOpen(false);
-
       void apiContext.routePlan.invalidate();
     },
   });
@@ -73,17 +75,7 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
   });
 
   function onSubmit(data: EditStopFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-
     if (initialData) {
-      console.log(data);
       updateStopStatus.mutate({
         state: data.status,
         stopId: initialData.id,

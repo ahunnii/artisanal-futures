@@ -57,7 +57,7 @@ const authDriverHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const cookie = createDriverVerificationCookie({
       passcode: userPasscode,
-      minuteDuration: 5,
+      minuteDuration: 720,
     });
 
     res.setHeader("Set-Cookie", [cookie]);

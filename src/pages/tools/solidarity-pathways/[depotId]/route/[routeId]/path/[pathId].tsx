@@ -150,7 +150,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
     const cookie = createDriverVerificationCookie({
       passcode: passcode,
-      minuteDuration: 5,
+      minuteDuration: 720,
     });
 
     ctx.res.setHeader("Set-Cookie", [cookie]);

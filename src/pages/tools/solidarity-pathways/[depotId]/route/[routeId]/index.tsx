@@ -74,7 +74,8 @@ const SingleRoutePage = () => {
       notificationService.notifyInfo({ message });
     });
 
-    pusherClient.bind("evt::invalidate-stops", () => {
+    pusherClient.bind("evt::invalidate-stops", (message: string) => {
+      notificationService.notifyInfo({ message });
       void apiContext.routePlan.invalidate();
     });
 
