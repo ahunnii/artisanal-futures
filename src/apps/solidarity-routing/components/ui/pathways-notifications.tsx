@@ -47,7 +47,7 @@ export const PathwaysNotifications = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-fit">
         <div className="grid gap-4">
           <div className="space-y-2">
             <h4 className="font-medium leading-none">Notifications</h4>
@@ -56,11 +56,11 @@ export const PathwaysNotifications = () => {
             </p>
           </div>{" "}
         </div>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 py-4">
           {solidarityNotifications.notifications?.length > 0 &&
             solidarityNotifications.notifications.map((notification) => (
               <Button
-                className="flex justify-between gap-2"
+                className="flex justify-between gap-2 text-sm font-semibold"
                 key={notification.id}
                 variant={"ghost"}
                 onClick={() => updateMessageThread({ ...notification })}
@@ -69,10 +69,12 @@ export const PathwaysNotifications = () => {
                   <Car className="h-6 w-6" />
                 </span>
 
-                <h4 className="text-sm font-semibold">
-                  You have {notification.messages} new messages from{" "}
-                  {notification.channel}
-                </h4>
+                <p className="flex flex-col">
+                  <span>
+                    You have {notification.messages} new messages from{" "}
+                  </span>
+                  <span> {notification.channel}</span>
+                </p>
               </Button>
             ))}
           {solidarityNotifications.notifications.length === 0 && (

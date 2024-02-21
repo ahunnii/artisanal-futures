@@ -15,6 +15,7 @@
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
+import { serialize } from "cookie";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { type Session } from "next-auth";
 import superjson from "superjson";
@@ -127,9 +128,18 @@ export const publicProcedure = t.procedure;
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const isAuthed = t.middleware(({ ctx, next }) => {
-  const cookies = ctx.req.cookies;
+  const verifiedDriver = ctx.req.cookies.verifiedDriver;
 
   if (ctx.session?.user) {
+    ctx.res.setHeader("Set-Cookie", [
+      serialize("verifiedDriver", "", {
+        maxAge: -1,
+        path: "/",
+      }),
+    ]);
+
+    // Assume that if it is an authed user, they don't need a verifiedDriver cookie
+
     return next({
       ctx: {
         // infers the `session` as non-nullable
@@ -138,7 +148,7 @@ const isAuthed = t.middleware(({ ctx, next }) => {
     });
   }
 
-  if (cookies.verifiedDriver) {
+  if (verifiedDriver) {
     return next({
       ctx: {
         session: {

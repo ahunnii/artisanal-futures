@@ -1,5 +1,5 @@
 import { serialize } from "cookie";
-import { NextApiRequest, NextApiResponse } from "next";
+
 import { generatePassCode } from "../generic/generate-passcode";
 
 export const generateDriverPassCode = (props: {
@@ -38,9 +38,3 @@ export const createDriverVerificationCookie = (props: {
 
   return cookie;
 };
-// A magic code is generated with the pathId, depot code, and email of the driver.
-
-//So if the code is in the url, verify first, add cookie, then redirect to the page.
-
-//Otherwise, the form on the page needs the email and magic code. It will generate and compare
-//to what is
