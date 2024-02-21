@@ -41,7 +41,7 @@ const Hero = () => {
           <Image
             width={200}
             height={160}
-            src="/img/montage1.png"
+            src="/img/montage1.webp"
             id="fade-pic5"
             alt="Montage of artisans from African Futurist Collective"
             className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
@@ -52,46 +52,46 @@ const Hero = () => {
           <Image
             width={200}
             height={160}
-            src="/img/montage2.png"
+            src="/img/montage2.webp"
             id="fade-pic4"
             alt="Montage of artisans from African Futurist Collective"
             className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
             placeholder="blur"
-            blurDataURL={"/img/montage2.png"}
+            blurDataURL={"/img/montage2.webp"}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
           <Image
             width={200}
             height={160}
-            src="/img/montage3.png"
+            src="/img/montage3.webp"
             id="fade-pic3"
             alt="Montage of artisans from African Futurist Collective"
             className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
             placeholder="blur"
-            blurDataURL={"/img/montage3.png"}
+            blurDataURL={"/img/montage3.webp"}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <Image
             width={200}
             height={160}
-            src="/img/montage4.png"
+            src="/img/montage4.webp"
             id="fade-pic2"
             alt="Montage of artisans from African Futurist Collective"
             className="fade-pic object absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
             placeholder="blur"
-            blurDataURL={"/img/montage4.png"}
+            blurDataURL={"/img/montage4.webp"}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           <Image
             width={200}
             height={160}
-            src="/img/montage5.png"
+            src="/img/montage5.webp"
             id="fade-pic1"
             alt="Montage of artisans from African Futurist Collective"
             className="fade-pic absolute  aspect-auto h-full w-full object-center max-lg:object-cover"
             placeholder="blur"
-            blurDataURL={"/img/montage5.png"}
+            blurDataURL={"/img/montage5.webp"}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
