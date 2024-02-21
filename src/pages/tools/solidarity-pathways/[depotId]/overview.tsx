@@ -15,7 +15,6 @@ import RouteLayout from "~/apps/solidarity-routing/components/layout/route-layou
 
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import Link from "next/link";
 import { ImportDriversButton } from "~/apps/solidarity-routing/components/overview/import-drivers-button";
 
 import { CreateRouteButton } from "~/apps/solidarity-routing/components/overview/create-route-button";
@@ -43,7 +42,7 @@ const PathwaysDepotOverviewPage = () => {
       <DriverVehicleSheet standalone={true} />
 
       <RouteLayout>
-        <section className="flex flex-col-reverse  border-2 max-lg:justify-center max-md:h-full md:flex-1 lg:flex-row">
+        <section className="flex flex-col-reverse  justify-end border-2 max-md:h-full max-md:p-2 md:flex-1 md:justify-center lg:flex-row">
           <section className="flex w-full max-w-sm flex-col gap-4 max-lg:hidden">
             <div className="flex h-full flex-col items-center space-y-4 bg-white px-4 pt-4">
               <CreateRouteButton />

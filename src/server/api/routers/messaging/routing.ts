@@ -1,3 +1,4 @@
+import { Prisma, Profile } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -199,23 +200,12 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
               where: {
                 driverId: bundle,
               },
-              update: {
-                servers: {
-                  connect: {
-                    id: server.id,
-                  },
-                },
-              },
+              update: {},
               create: {
                 email: driver?.email,
                 driverId: driver?.id,
                 name: driver?.name,
                 imageUrl: "",
-                servers: {
-                  connect: {
-                    id: server.id,
-                  },
-                },
               },
               include: {
                 members: true,
@@ -264,6 +254,38 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
 
         return res;
       }
+    }),
+
+  updateDriverChannelByEmail: protectedProcedure
+    .input(
+      z.object({
+        depotId: z.string(),
+        email: z.string(),
+        channelName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const channel = await ctx.prisma.channel.findFirst({
+        where: {
+          name: input.channelName,
+        },
+      });
+
+      if (!channel) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Channel not found",
+        });
+      }
+
+      return ctx.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          name: input.email,
+        },
+      });
     }),
 
   getDepotGeneralChannel: protectedProcedure
@@ -536,6 +558,186 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
 
       return message;
     }),
+  getDriverMessageProfile: protectedProcedure
+    .input(z.object({ vehicleId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const vehicle = await ctx.prisma.vehicle.findUnique({
+        where: {
+          id: input.vehicleId,
+        },
+        include: {
+          driver: true,
+        },
+      });
+
+      if (!vehicle) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "vehicle not found",
+        });
+      }
+
+      const driverProfile = await ctx.prisma.profile.findUnique({
+        where: {
+          driverId: vehicle?.driver?.id,
+        },
+        include: {
+          members: {
+            include: {
+              messages: {
+                include: {
+                  channel: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return driverProfile;
+      // .filter((channel) => {
+      //   // return channel.messages.find((message) => message.unread);
+      // })
+      // .map((channel) => ({
+      //   id: channel.id,
+      //   channel: channel.name,
+      //   messages: channel.messages.filter((message) => message.unread)
+      //     .length,
+      //   depotId: channel.server.name.split("Depot ")[1],
+      //   driverId: driverProfile.driverId,
+      // }))
+    }),
+
+  getUnreadMessagesByChannel: protectedProcedure
+    .input(
+      z.object({
+        vehicleId: z.string().optional(),
+        depotId: z.string().optional(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      let profile: Prisma.ProfileGetPayload<{
+        include: {
+          members: {
+            include: {
+              messages: true;
+            };
+          };
+        };
+      }> | null = null;
+
+      const vehicle = await ctx.prisma.vehicle.findUnique({
+        where: {
+          id: input?.vehicleId ?? "",
+        },
+        include: {
+          driver: true,
+        },
+      });
+
+      const depotServer = await ctx.prisma.server.findUnique({
+        where: {
+          inviteCode: `depot-${input.depotId}`,
+        },
+        include: {
+          channels: {
+            include: {
+              messages: true,
+            },
+          },
+        },
+      });
+
+      if ((!vehicle || !vehicle.driver) && input.vehicleId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Vehicle not found",
+        });
+      }
+
+      if (input.vehicleId) {
+        profile = await ctx.prisma.profile.findUnique({
+          where: {
+            driverId: vehicle?.driver?.id,
+          },
+          include: {
+            members: {
+              include: {
+                messages: true,
+              },
+            },
+          },
+        });
+      } else {
+        profile = await ctx.prisma.profile.findUnique({
+          where: {
+            userId: ctx.session.user.id,
+          },
+          include: {
+            members: {
+              include: {
+                messages: true,
+              },
+            },
+          },
+        });
+      }
+
+      if (!profile) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
+      }
+
+      if (!depotServer) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "depot server not found",
+        });
+      }
+
+      const member = await ctx.prisma.member.findFirst({
+        where: {
+          profileId: profile?.id,
+          serverId: depotServer?.id,
+        },
+      });
+
+      const depot = await ctx.prisma.depot.findUnique({
+        where: {
+          id: input?.depotId,
+        },
+      });
+
+      // get all channels
+      // Check if their
+
+      const channelsByServer = depotServer.channels.flatMap((server) => {
+        return {
+          unreadMessages: server.messages.filter(
+            (message) => message.unread && message.memberId !== member?.id
+          ),
+          channel: server,
+          serverId: server.serverId,
+          profileId: profile?.id,
+          memberId: member?.id,
+          depot: depot?.name ?? `# ${input?.depotId}`,
+        };
+      });
+
+      console.log(channelsByServer);
+
+      return {
+        channelsByServer: channelsByServer.filter(
+          (bundle) => bundle.unreadMessages.length > 0
+        ),
+        totalUnread: channelsByServer.reduce(
+          (acc, curr) => acc + curr.unreadMessages.length,
+          0
+        ),
+      };
+    }),
 
   getMessageProfile: protectedProcedure
     .input(
@@ -598,20 +800,105 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
     .input(
       z.object({
         channelId: z.string(),
+        driverId: z.string().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const messages = await ctx.prisma.message.updateMany({
+      if (input.driverId) {
+        const vehicle = await ctx.prisma.vehicle.findUnique({
+          where: {
+            id: input.driverId,
+          },
+          include: {
+            driver: true,
+          },
+        });
+        if (!vehicle || !vehicle.driver) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Driver not found",
+          });
+        }
+
+        return ctx.prisma.message.updateMany({
+          where: {
+            channelId: input.channelId,
+            unread: true,
+            member: {
+              profile: {
+                NOT: {
+                  driverId: vehicle.driver.id,
+                },
+              },
+            },
+          },
+          data: {
+            unread: false,
+          },
+        });
+      } else {
+        return ctx.prisma.message.updateMany({
+          where: {
+            channelId: input.channelId,
+            unread: true,
+            member: {
+              profile: {
+                NOT: {
+                  userId: ctx.session?.user?.id,
+                },
+              },
+            },
+          },
+          data: {
+            unread: false,
+          },
+        });
+      }
+    }),
+
+  updateOtherMessageReadState: protectedProcedure
+    .input(
+      z.object({
+        channelId: z.string(),
+        profileId: z.string().optional(),
+        memberId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!input.memberId && !input.profileId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Profile id or member id is needed",
+        });
+      }
+      if (input.memberId) {
+        return ctx.prisma.message.updateMany({
+          where: {
+            channelId: input.channelId,
+            unread: true,
+            member: {
+              id: { not: input.memberId },
+            },
+          },
+          data: {
+            unread: false,
+          },
+        });
+      }
+      return ctx.prisma.message.updateMany({
         where: {
           channelId: input.channelId,
           unread: true,
+          member: {
+            profile: {
+              id: { not: input.profileId },
+            },
+          },
         },
         data: {
           unread: false,
         },
       });
-
-      return messages;
     }),
 
   // getDriverChannelMessages: protectedProcedure

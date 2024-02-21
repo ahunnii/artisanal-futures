@@ -63,16 +63,18 @@ export const useCreateJob = () => {
     });
 
   const createNewJobByLatLng = ({ lat, lng }: Coordinates) => {
-    const driver = clientJobDataForNewLatLng(lat, lng);
+    const job = clientJobDataForNewLatLng(lat, lng);
 
     if (isUserAllowedToSaveToDepot) {
       createJobBundles.mutate({
-        bundles: [driver],
+        bundles: [
+          { job: job.job, client: job.client?.email ? job.client : undefined },
+        ],
         depotId: depotId,
         routeId: routeId,
       });
     } else {
-      sessionStorageJobs.appendLocation(driver);
+      sessionStorageJobs.appendLocation(job);
     }
   };
 

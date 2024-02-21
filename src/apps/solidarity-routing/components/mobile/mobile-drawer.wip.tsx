@@ -26,7 +26,13 @@ import { FieldJobSearch } from "../field-job-search.wip";
 
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
-export const MobileDrawer = () => {
+export const MobileDrawer = ({
+  snap,
+  setSnap,
+}: {
+  snap: number | string | null;
+  setSnap: (snap: number | string | null) => void;
+}) => {
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const solidarityMessaging = useSolidarityMessaging();
 
@@ -37,8 +43,9 @@ export const MobileDrawer = () => {
   const driver = driverBundles.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
+
   const route = optimizedRoutePlan?.data;
-  const [snap, setSnap] = useState<number | string | null>(0.22);
+  // const [snap, setSnap] = useState<number | string | null>(0.22);
 
   return (
     <>
@@ -66,7 +73,7 @@ export const MobileDrawer = () => {
         {/* </Button> */}
       </div>
       <Drawer
-        snapPoints={[0.1, 0.22, 0.8, 1]}
+        snapPoints={[0.1, 0.25, 0.75, 1]}
         activeSnapPoint={snap}
         setActiveSnapPoint={setSnap}
         open={true}
@@ -140,10 +147,11 @@ export const MobileDrawer = () => {
                 <Button
                   variant="outline"
                   className="px-3 shadow-none"
+                  disabled={!driver?.driver?.email}
                   onClick={() => {
-                    solidarityMessaging.messageDepot(
-                      driver?.driver?.email ?? null
-                    );
+                    console.log(driver?.driver?.email);
+                    if (!driver?.driver?.email) return;
+                    solidarityMessaging.messageDepot(driver?.driver?.email);
                   }}
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />

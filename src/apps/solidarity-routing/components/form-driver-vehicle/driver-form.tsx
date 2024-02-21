@@ -49,6 +49,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
     updateRouteVehicle,
     updateDepotDriverDetails,
     updateDepotDriverDefaults,
+    updateDriverChannelName,
   } = useUpdateDriver();
   const { deleteDriverFromRoute } = useDeleteDriver();
   const { createNewDriver } = useCreateDriver();
@@ -103,7 +104,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
             ...b,
             duration: secondsToMinutes(b.duration),
           }))
-        : [],
+        : [{ id: Number(uniqueId()), duration: 30 }],
     maxTravelTime: secondsToMinutes(
       activeDriver?.vehicle?.maxTravelTime ?? 300
     ),
@@ -130,10 +131,16 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
       updateRouteVehicle({
         bundle: formatDriverFormDataToBundle(data),
       });
-      if (editDriver)
+      if (editDriver) {
+        const email = activeDriver?.driver?.email;
+        updateDriverChannelName({
+          email: data.email,
+          channelName: email,
+        });
         updateDepotDriverDetails({
           bundle: formatDriverFormDataToBundle(data),
         });
+      }
     } else createNewDriver({ driver: formatDriverFormDataToBundle(data) });
 
     handleOnOpenChange(false);
@@ -146,6 +153,7 @@ const DriverForm: FC<TDriverForm> = ({ handleOnOpenChange, activeDriver }) => {
 
   const updateDefault = (data: DriverFormValues) => {
     const temp = formatDriverFormDataToBundle(data);
+
     updateDepotDriverDefaults({
       id: activeDriver?.driver?.defaultVehicleId,
       bundle: temp,

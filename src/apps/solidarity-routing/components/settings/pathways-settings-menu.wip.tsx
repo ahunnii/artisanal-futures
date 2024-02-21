@@ -1,6 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
-
-import { Bomb, Building, Car, Truck, User } from "lucide-react";
+import { Bomb, Truck, User } from "lucide-react";
 
 import { useRouter } from "next/router";
 import { useState, type ReactNode } from "react";
@@ -26,10 +24,12 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useDepot } from "../../hooks/depot/use-depot";
 import { useDepotModal } from "../../hooks/depot/use-depot-modal.wip";
 import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
+import { AlertModal } from "../layout/alert-modal";
 import { DepotModal } from "./depot-modal";
 
 export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
+
   const router = useRouter();
   const { currentDepot, deleteDepot } = useDepot();
   const apiContext = api.useContext();
@@ -44,19 +44,6 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
     },
     onError: (e) => {
       toast.error("There seems to be an issue with deleting your clients.");
-      console.log(e);
-    },
-    onSettled: () => {
-      void apiContext.jobs.invalidate();
-    },
-  });
-
-  const { mutate: deleteJobs } = api.jobs.deleteAllDepotJobs.useMutation({
-    onSuccess: () => {
-      toast.success("Jobs deleted!");
-    },
-    onError: (e) => {
-      toast.error("There seems to be an issue with deleting your jobs.");
       console.log(e);
     },
     onSettled: () => {
@@ -84,206 +71,110 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-        {/* <Button variant={"ghost"} aria-label="Settings">
-          <Settings />
-        </Button> */}
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Solidarity Pathways Settings</DialogTitle>
-          <DialogDescription>
-            Add and modify your driver data, realtime settings, and more.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent className="w-full max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Solidarity Pathways Settings</DialogTitle>
+            <DialogDescription>
+              Add and modify your driver data, realtime settings, and more.
+            </DialogDescription>
+          </DialogHeader>
 
-        <ScrollArea className="z-50 grid h-96 w-full gap-4">
-          <div className="">
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
-              <div>
-                <h4 className="font-semibold">Data Cache</h4>
-                <p className="text-muted-foreground">
-                  Handles how driver and stop data is cached (i.e. stored for
-                  later use)
-                </p>
+          <ScrollArea className="z-50 grid h-96 w-full">
+            <div className="flex flex-col space-y-4">
+              <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
+                <div>
+                  <h4 className="font-semibold">Data Cache</h4>
+                  <p className="text-muted-foreground">
+                    Handles how driver and stop data is cached (i.e. stored for
+                    later use)
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    sessionStorage.removeItem("stop-storage");
+                    sessionStorage.removeItem("driver-storage");
+                    router.reload();
+                  }}
+                >
+                  Clear Cache
+                </Button>
               </div>
 
-              <Button
-                onClick={() => {
-                  sessionStorage.removeItem("stop-storage");
-                  sessionStorage.removeItem("driver-storage");
-                  router.reload();
-                }}
-              >
-                Clear Cache
-              </Button>
-            </div>
-
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
-              <div>
-                <h4 className="font-semibold">Depot</h4>
-                <p className="text-muted-foreground">
-                  Set your depot defaults for drivers and stops, as well as
-                  allow access to other AF users.
-                </p>
+              <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
+                <div>
+                  <h4 className="font-semibold">Depot</h4>
+                  <p className="text-muted-foreground">
+                    Edit your depot settings and details.
+                  </p>
+                </div>
+                <div className="flex gap-4 max-md:flex-col">
+                  {currentDepot && (
+                    <>
+                      <DepotModal initialData={currentDepot ?? null} />
+                      <Button onClick={() => onOpen()} className="w-full">
+                        Edit Depot
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-4">
-                {currentDepot && (
-                  <>
-                    <DepotModal initialData={currentDepot ?? null} />
-                    <Button onClick={() => onOpen()} className="w-full">
-                      Edit Depot
+
+              <div className="flex w-full flex-col  space-y-8 rounded-md border border-red-500 bg-red-500/5 p-4">
+                <div>
+                  <h4 className="font-semibold">Danger</h4>
+                  <p className="text-muted-foreground">
+                    This literally deletes everything in your depot. I hope you
+                    know what you are doing...
+                  </p>
+                </div>
+
+                <h4 className="font-semibold">Drivers & Clients</h4>
+
+                <div className="flex gap-4 max-md:flex-col">
+                  <AlertModal onContinue={driverBundles.deleteAllDrivers}>
+                    <Button
+                      variant={"destructive"}
+                      className="flex flex-1 items-center gap-2"
+                    >
+                      <Truck className="h-4 w-4" />
+                      Delete Drivers
                     </Button>
-                  </>
-                )}
+                  </AlertModal>
+                  <AlertModal onContinue={() => deleteClients({ depotId })}>
+                    <Button
+                      className="flex flex-1 items-center gap-2"
+                      variant={"destructive"}
+                    >
+                      <User className="h-4 w-4" />
+                      Delete Clients
+                    </Button>
+                  </AlertModal>
+                </div>
 
-                <Button
-                  onClick={deleteCurrentDepot}
-                  className="w-full"
-                  variant={"destructive"}
-                >
-                  <Bomb /> Nuke Depot
-                </Button>
+                <h4 className="font-semibold">Depot</h4>
 
-                <Button
-                  onClick={() => nukeMessaging()}
-                  className="w-full"
-                  variant={"destructive"}
-                >
-                  <Bomb /> Nuke Messaging
-                </Button>
+                <AlertModal onContinue={deleteCurrentDepot}>
+                  <Button
+                    className="flex w-full items-center gap-2"
+                    variant={"destructive"}
+                  >
+                    <Bomb className="h-4 w-4" /> Delete Depot
+                  </Button>
+                </AlertModal>
               </div>
             </div>
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
-              <div>
-                <h4 className="font-semibold">Drivers & Vehicles</h4>
-                <p className="text-muted-foreground">
-                  Decide on what you want to do with your saved drivers and
-                  vehicles.
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <Button
-                  variant={"destructive"}
-                  className="flex flex-1 items-center gap-2"
-                  onClick={driverBundles.deleteAllDrivers}
-                >
-                  <Truck className="h-4 w-4" />
-                  Nuke Drivers
-                </Button>
-
-                <Button
-                  variant={"destructive"}
-                  className="flex flex-1 items-center gap-2"
-                  onClick={driverBundles.deleteAllVehicles}
-                >
-                  <Car className="h-4 w-4" />
-                  Nuke Vehicles
-                </Button>
-                <Button
-                  variant={"destructive"}
-                  className="flex flex-1 items-center gap-2"
-                  onClick={driverBundles.deleteAll}
-                >
-                  <Car className="h-4 w-4" />
-                  Nuke Both
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
-              <div>
-                <h4 className="font-semibold">Vehicles and Jobs</h4>
-                <p className="text-muted-foreground">
-                  These are the profiles associated with your depot.
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <Button
-                  className="flex items-center gap-2"
-                  variant={"destructive"}
-                  onClick={() => {
-                    deleteClients({ depotId });
-                  }}
-                >
-                  <User className="h-4 w-4" />
-                  Nuke Clients
-                </Button>
-
-                <Button
-                  className="flex items-center gap-2"
-                  variant={"destructive"}
-                  onClick={() => {
-                    deleteJobs({ depotId });
-                  }}
-                >
-                  <Building className="h-4 w-4" />
-                  Nuke Jobs
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-border bg-background/50 p-4">
-              <div>
-                <h4 className="font-semibold">Addresses</h4>
-                <p className="text-muted-foreground">
-                  These are the addresses associated with your depot.
-                </p>
-              </div>
-
-              {/* <div className="flex gap-4">
-                <Button
-                  variant={"destructive"}
-                  className="flex items-center gap-2"
-                  onClick={() => {
-                    deleteAddresses({ depotId});
-                  }}
-                >
-                  <Map className="h-4 w-4" />
-                  Nuke Addresses
-                </Button>
-              </div> */}
-            </div>
-
-            <div className="flex w-full flex-col  space-y-8 rounded-md border border-red-500 bg-red-500/5 p-4">
-              <div>
-                <h4 className="font-semibold">Danger</h4>
-                <p className="text-muted-foreground">
-                  This literally deletes everything in your depot. I hope you
-                  know what you are doing...
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <Button
-                  variant={"destructive"}
-                  className="flex w-full items-center gap-2"
-                  onClick={() => {
-                    driverBundles.deleteAll();
-                    deleteClients({ depotId });
-
-                    deleteJobs({ depotId });
-                    // deleteAddresses({ depotId});
-                  }}
-                >
-                  <Bomb className="h-4 w-4" />
-                  Nuke EVERYTHING
-                </Button>
-              </div>
-            </div>
-          </div>
-        </ScrollArea>
-        <DialogFooter>
-          {" "}
-          <DialogClose>
-            <Button>Go back</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ScrollArea>
+          <DialogFooter>
+            <DialogClose>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

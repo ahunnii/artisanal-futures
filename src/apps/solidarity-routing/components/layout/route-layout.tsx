@@ -1,5 +1,6 @@
 import Head from "next/head";
 
+import CookieConsent from "~/components/cookie-banner";
 import Navbar from "./navbar";
 
 const RouteLayout = ({ children }: { children: React.ReactNode }) => {
@@ -14,6 +15,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
         />
         <link rel="icon" href="/favicon.ico" />{" "}
         <link rel="manifest" href="/manifest.json" />{" "}
+        {/* <link rel="apple-touch-icon" href="/apple-touch-icon.png" />  */}
       </Head>
 
       <main className="fixed flex h-full w-full flex-col ">
@@ -21,6 +23,7 @@ const RouteLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="relative flex h-full  flex-col-reverse  bg-slate-50 p-2  max-md:overflow-auto md:flex-row lg:h-[calc(100vh-64px)]">
           {children}
         </div>
+        <CookieConsent />
       </main>
     </>
   );

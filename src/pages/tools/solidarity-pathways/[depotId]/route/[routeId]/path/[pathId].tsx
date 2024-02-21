@@ -1,10 +1,7 @@
 import dynamic from "next/dynamic";
-import React, { useEffect, useRef, useState, type FC } from "react";
-
-import type { LatLngExpression, Map as LeafletMap } from "leaflet";
+import React, { useEffect, useState, type FC } from "react";
 import { Beforeunload } from "react-beforeunload";
 
-import { Button } from "~/components/ui/button";
 import PageLoader from "~/components/ui/page-loader";
 
 import { useSession } from "next-auth/react";
@@ -19,11 +16,7 @@ import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 interface IProps {
-  verifiedDriver: boolean;
-}
-
-interface MapRef {
-  current: LeafletMap | null;
+  verifiedDriver: string | null;
 }
 
 const LazyRoutingMap = dynamic(
@@ -38,17 +31,21 @@ import type { GetServerSidePropsContext } from "next";
 
 import axios from "axios";
 import { DriverVerificationDialog } from "~/apps/solidarity-routing/components/driver-verification-dialog.wip";
-import { MapViewButton } from "~/apps/solidarity-routing/components/map/map-view-button";
+
 import { MessageSheet } from "~/apps/solidarity-routing/components/messaging/message-sheet";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
-import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
+
+import {
+  createDriverVerificationCookie,
+  generateDriverPassCode,
+} from "~/apps/solidarity-routing/utils/server/auth-driver-passcode";
+import { prisma } from "~/server/db";
 
 const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
-  const mapRef = useRef<MapRef>(null);
   const { data: session } = useSession();
   const { driverId } = useSolidarityState();
 
-  const [approval, setApproval] = useState(verifiedDriver);
+  const [approval, setApproval] = useState(verifiedDriver !== null);
 
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const driverRoute = useDriverVehicleBundles();
@@ -106,7 +103,7 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
                     </>
                   </div>
 
-                  <MobileDrawer />
+                  {/* <MobileDrawer /> */}
 
                   <LazyRoutingMap className="max-md:aspect-square lg:w-7/12 xl:w-9/12" />
                 </section>
@@ -120,5 +117,53 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
 
 export default OptimizedPathPage;
 
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
-  authenticateRoutingServerSide(ctx, true);
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const { pc: passcode } = ctx.query;
+
+  const verifiedDriverCookie = ctx.req.cookies.verifiedDriver;
+
+  if (!passcode && !verifiedDriverCookie)
+    return { props: { verifiedDriver: null } };
+
+  try {
+    const driver = await prisma.vehicle.findUnique({
+      where: { id: ctx.query.driverId as string },
+      include: { driver: true },
+    });
+
+    const depot = await prisma.depot.findUnique({
+      where: { id: ctx.query.depotId as string },
+    });
+
+    if (!driver || !depot) throw new Error("Driver or Depot not found");
+
+    const expectedPasscode = generateDriverPassCode({
+      pathId: ctx.query.pathId as string,
+      depotCode: depot.magicCode,
+      email: driver.driver!.email,
+    });
+
+    if (verifiedDriverCookie === expectedPasscode)
+      return { props: { verifiedDriver: verifiedDriverCookie } };
+
+    if (expectedPasscode !== passcode) throw new Error("Invalid Passcode");
+
+    const cookie = createDriverVerificationCookie({
+      passcode: passcode,
+      minuteDuration: 720,
+    });
+
+    ctx.res.setHeader("Set-Cookie", [cookie]);
+
+    return {
+      props: {
+        verifiedDriver: passcode,
+      },
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      props: { verifiedDriver: null },
+    };
+  }
+};

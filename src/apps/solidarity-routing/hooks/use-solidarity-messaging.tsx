@@ -116,6 +116,7 @@ export const useSolidarityMessaging = () => {
   const driverMemberId = useMemo(() => {
     if (!currentDriver?.driver?.id) return "";
     return getDriverDepotMemberById(currentDriver?.driver?.id)?.id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDriver]);
 
   const createChannelMessage =
@@ -171,6 +172,12 @@ export const useSolidarityMessaging = () => {
 
     messageDriverById: (id: string | null) => {
       sessionMessages.setIsDepot(true);
+      setActiveChannelById(id);
+      if (id) sessionMessages.setIsDriverMessagePanelOpen(true);
+    },
+
+    messageDepotById: (id: string | null) => {
+      sessionMessages.setIsDepot(false);
       setActiveChannelById(id);
       if (id) sessionMessages.setIsDriverMessagePanelOpen(true);
     },

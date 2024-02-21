@@ -22,6 +22,7 @@ import { useDepotModal } from "~/apps/solidarity-routing/hooks/depot/use-depot-m
 import { depotFormSchema } from "~/apps/solidarity-routing/schemas.wip";
 import type { DepotValues } from "~/apps/solidarity-routing/types.wip";
 
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useDepot } from "~/apps/solidarity-routing/hooks/depot/use-depot";
 
@@ -33,6 +34,7 @@ type Props = {
 export const DepotModal = ({ initialData }: Props) => {
   const depotModal = useDepotModal();
   const { createDepot, updateDepot } = useDepot();
+  const { data: session } = useSession();
 
   const isLoading = initialData ? updateDepot.isLoading : createDepot.isLoading;
 
@@ -66,6 +68,7 @@ export const DepotModal = ({ initialData }: Props) => {
     else
       createDepot.mutate({
         ...values,
+
         address:
           values.address?.formatted &&
           values.address?.latitude &&

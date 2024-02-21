@@ -24,28 +24,12 @@ export const DriverVerificationDialog = ({
   approval: boolean;
   setApproval: (approval: boolean) => void;
 }) => {
-  const { depotId, driverId } = useSolidarityState();
+  const { depotId, driverId, pathId } = useSolidarityState();
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const magicRef = useRef<HTMLInputElement>(null);
 
   const { data: session } = useSession();
-
-  const { pathname } = useUrlParams();
-
-  useEffect(() => {
-    if (open && pathname)
-      axios
-        .get("/api/routing/auth-driver")
-        .then((res) => {
-          if (res.data?.pathId) {
-            setApproval(true);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-  }, [open, pathname, setApproval]);
 
   useEffect(() => {
     if (!approval) {
@@ -54,18 +38,13 @@ export const DriverVerificationDialog = ({
   }, [session, approval, open]);
 
   const verifyPassCode = () => {
-    console.log({
-      depotId,
-      driverId: driverId,
-      email: inputRef?.current?.value,
-      magicCode: magicRef?.current?.value,
-    });
     axios
       .post("/api/routing/auth-driver", {
         depotId,
         driverId: driverId,
         email: inputRef?.current?.value,
         magicCode: magicRef?.current?.value,
+        pathId,
       })
       .then((res) => {
         if (res.status === 200) {

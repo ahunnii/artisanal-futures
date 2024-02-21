@@ -40,6 +40,21 @@ export const useUpdateDriver = () => {
     onSettled: invalidateData,
   });
 
+  const updateDriverChannel =
+    api.routeMessaging.updateDriverChannelByEmail.useMutation({
+      onSuccess: () =>
+        notificationService.notifySuccess({
+          message: "Driver channel was successfully updated.",
+        }),
+      onError: (error: unknown) =>
+        notificationService.notifyError({
+          message: "Oops! Something went wrong with updating driver channel.",
+          error,
+        }),
+
+      onSettled: invalidateData,
+    });
+
   const updateVehicleDetails = api.drivers.updateVehicleDetails.useMutation({
     onSuccess: () =>
       notificationService.notifySuccess({
@@ -106,9 +121,29 @@ export const useUpdateDriver = () => {
     });
   };
 
+  const updateDriverChannelName = ({
+    email,
+    channelName,
+  }: {
+    email: string;
+    channelName: string;
+  }) => {
+    if (!isUserAllowedToSaveToDepot) {
+      return;
+    }
+
+    updateDriverChannel.mutate({
+      email,
+      channelName,
+      depotId: depotId,
+    });
+  };
+
   return {
     updateRouteVehicle,
     updateDepotDriverDetails,
     updateDepotDriverDefaults,
+    updateDriverChannel,
+    updateDriverChannelName,
   };
 };

@@ -27,6 +27,7 @@ import { AutoResizeTextArea } from "~/components/ui/auto-resize-textarea";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { pusherClient } from "~/server/soketi/client";
 import { api } from "~/utils/api";
+import { useSolidarityNotifications } from "../../hooks/use-solidarity-notifications";
 import { messageSchema } from "../../schemas.wip";
 import { MessagingBody } from "./messaging-body";
 
@@ -36,7 +37,7 @@ export const MessageSheet = () => {
   const solidarityMessaging = useSolidarityMessaging();
   const driverBundles = useDriverVehicleBundles();
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const solidarityNotifications = useSolidarityNotifications();
   const apiContext = api.useContext();
 
   const checkIfMessagingIsValid =
@@ -97,6 +98,16 @@ export const MessageSheet = () => {
     if (bottomRef.current && checkIfMessagingIsValid)
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [solidarityMessaging, checkIfMessagingIsValid]);
+
+  useEffect(() => {
+    if (solidarityMessaging.isMessageSheetOpen) {
+      solidarityNotifications.updateOtherMessageStatus({
+        channelId: solidarityMessaging.active!.id,
+        memberId: solidarityMessaging.memberId,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solidarityMessaging.isMessageSheetOpen]);
 
   const messageThreadName = solidarityMessaging.isDepot
     ? `${driverBundles?.active?.driver?.name}`
