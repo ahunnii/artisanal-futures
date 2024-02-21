@@ -26,17 +26,18 @@ import { FieldJobSearch } from "../field-job-search.wip";
 
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
-export const MobileDrawer = ({
-  snap,
-  setSnap,
-}: {
-  snap: number | string | null;
-  setSnap: (snap: number | string | null) => void;
+export const MobileDrawer = ({}: // snap,
+// setSnap,
+{
+  // snap: number | string | null;
+  // setSnap: (snap: number | string | null) => void;
 }) => {
+  const [snap, setSnap] = useState<number | string | null>(0.25);
+
   const optimizedRoutePlan = useOptimizedRoutePlan();
   const solidarityMessaging = useSolidarityMessaging();
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const driverBundles = useDriverVehicleBundles();
 
@@ -45,12 +46,11 @@ export const MobileDrawer = ({
   );
 
   const route = optimizedRoutePlan?.data;
-  // const [snap, setSnap] = useState<number | string | null>(0.22);
 
   return (
     <>
       <div className="flex w-full bg-white lg:hidden">
-        {/* <Button
+        <Button
           size={"lg"}
           variant="ghost"
           className="flex-1"
@@ -62,7 +62,7 @@ export const MobileDrawer = ({
             {route?.stops?.length} stops •{" "}
             {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </p>
-        </Button> */}
+        </Button>
         <FieldJobSearch isIcon={true} />{" "}
         {/* <Button
           size="icon"
@@ -76,10 +76,10 @@ export const MobileDrawer = ({
         snapPoints={[0.1, 0.25, 0.75, 1]}
         activeSnapPoint={snap}
         setActiveSnapPoint={setSnap}
-        open={true}
-        dismissible={false}
+        open={open}
+        // dismissible={false}
         modal={false}
-        // onOpenChange={setOpen}
+        onOpenChange={setOpen}
       >
         <DrawerContent
           className="h-screen"
