@@ -11,16 +11,17 @@ export const authenticateRoutingServerSide = async (
   allowForDriver?: boolean,
   conditional?: (ctx: GetServerSidePropsContext) => unknown
 ) => {
-  const driverCookie = ctx.req.cookies?.verifiedDriver;
-  if (allowForDriver)
-    return { props: { verifiedDriver: driverCookie !== undefined } };
+  // const driverCookie = ctx.req.cookies?.verifiedDriver;
+  // if (allowForDriver)
+  //   return { props: { verifiedDriver: driverCookie !== undefined } };
 
   const user = await authenticateUser(ctx);
+
+  const query = ctx.query;
 
   if (user?.role === "DRIVER") return redirectIfUnauthorized();
   if (!user) return redirectIfNoSession(ctx.resolvedUrl);
 
-  const query = ctx.query;
   const depot = await prisma.depot.findUnique({
     where: { id: query.depotId as string },
   });

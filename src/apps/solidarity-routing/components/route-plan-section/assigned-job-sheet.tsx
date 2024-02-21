@@ -26,8 +26,11 @@ import type {
 import { getColor } from "~/apps/solidarity-routing/utils/generic/color-handling";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
+import { useDepot } from "../../hooks/depot/use-depot";
 import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 import { useSolidarityMessaging } from "../../hooks/use-solidarity-messaging";
+import { generatePassCode } from "../../utils/generic/generate-passcode";
+import { generateDriverPassCode } from "../../utils/server/auth-driver-passcode";
 
 type Props = {
   data: OptimizedRoutePath;
@@ -35,6 +38,7 @@ type Props = {
 
 export const AssignedJobSheet: FC<Props> = ({ data }) => {
   const [open, setOpen] = useState(false);
+  const { currentDepot } = useDepot();
   const driverBundles = useDriverVehicleBundles();
   const solidarityMessaging = useSolidarityMessaging();
   const { depotId } = useSolidarityState();
@@ -60,6 +64,15 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
     else driverBundles.setActive(data.vehicleId);
     setOpen(state);
   };
+
+  const passcode = driver?.driver?.email
+    ? generateDriverPassCode({
+        pathId: data.id,
+        depotCode: currentDepot!.magicCode,
+        email: driver?.driver.email,
+      })
+    : "";
+
   return (
     <>
       <Sheet onOpenChange={onRouteSheetOpenChange} open={open}>
@@ -75,7 +88,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
         </SheetTrigger>
 
         {data && (
-          <SheetContent className="radix-dialog-content flex w-full  max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg">
+          <SheetContent className="radix-dialog-content flex w-full max-w-full flex-col sm:w-full sm:max-w-full md:max-w-md lg:max-w-lg">
             <SheetHeader className="text-left">
               <AssignedJobHeaderCard {...headerData} className="shadow-none" />
             </SheetHeader>
@@ -98,7 +111,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
               </Button>
 
               <Link
-                href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}?driverId=${data.vehicleId}`}
+                href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}?driverId=${data.vehicleId}&pc=${passcode}`}
                 target="_blank"
               >
                 <Button className="">View Route</Button>

@@ -6,14 +6,17 @@ import { serialize } from "cookie";
 import { authOptions } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { generatePassCode } from "../utils/generic/generate-passcode";
+import {
+  createDriverVerificationCookie,
+  generateDriverPassCode,
+} from "../utils/server/auth-driver-passcode";
 
 const authDriverHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const session = await getServerSession(req, res, authOptions);
 
-    const { depotId, driverId, email, magicCode } = req.body;
+    const { depotId, driverId, email, magicCode, pathId } = req.body;
 
-    console.log(depotId, driverId, email, magicCode);
     const depot = await prisma.depot.findUnique({
       where: { id: depotId },
     });
@@ -37,20 +40,24 @@ const authDriverHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (!vehicle) return res.status(400).send("Driver not found");
 
-    const depotMagicCode = generatePassCode(
-      `${depot?.magicCode + vehicle?.driver?.email}`
-    );
-    const userMagicCode = generatePassCode(`${magicCode + email}`);
+    const expectedPasscode = generateDriverPassCode({
+      pathId: pathId as string,
+      depotCode: depot.magicCode,
+      email: vehicle?.driver!.email,
+    });
 
-    if (depotMagicCode !== userMagicCode)
+    const userPasscode = generateDriverPassCode({
+      pathId: pathId as string,
+      depotCode: magicCode as string,
+      email: email as string,
+    });
+
+    if (expectedPasscode !== userPasscode)
       return res.status(400).send("Invalid magic code");
 
-    const tenMinutes = 60 * 10000;
-
-    const cookie = serialize("verifiedDriver", "true", {
-      path: "/",
-      httpOnly: true,
-      expires: new Date(Date.now() + tenMinutes),
+    const cookie = createDriverVerificationCookie({
+      passcode: userPasscode,
+      minuteDuration: 5,
     });
 
     res.setHeader("Set-Cookie", [cookie]);
