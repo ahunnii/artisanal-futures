@@ -77,6 +77,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PUSHER_APP_KEY: z.string().min(1),
     NEXT_PUBLIC_PUSHER_HOST: z.string().min(1),
     NEXT_PUBLIC_PUSHER_PORT: z.string().optional(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
   },
 
   /**

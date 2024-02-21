@@ -11,14 +11,14 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 
+import { env } from "~/env.mjs";
+
 interface RoutingMagicLinkProps {
   url: string;
   loginCode?: string;
 }
 
-const baseUrl = process.env.NEXTAUTH_URL
-  ? `https://${process.env.NEXTAUTH_URL}`
-  : "";
+const baseUrl = "https://artisanalfutures.org";
 
 export const NewRouteTemplate = ({
   url,
@@ -26,10 +26,12 @@ export const NewRouteTemplate = ({
 }: RoutingMagicLinkProps) => (
   <Html>
     <Head />
-    <Preview>Log in with this magic link</Preview>
+    <Preview>Access new route with magic link</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Login</Heading>
+        <Heading style={h1}>
+          New Route Assignment for Solidarity Pathways
+        </Heading>
         {url && (
           <Link
             href={url}
@@ -40,13 +42,13 @@ export const NewRouteTemplate = ({
               marginBottom: "16px",
             }}
           >
-            {" "}
-            Click here to log in with this magic link
+            Click here to give yourself access to the route with this magic link
           </Link>
         )}
 
         <Text style={{ ...text, marginBottom: "14px" }}>
-          Or, copy and paste this temporary login code:
+          Or, copy and paste this magic code in the route page along with your
+          email:
         </Text>
         <code style={code}>{loginCode}</code>
         <Text
@@ -57,7 +59,8 @@ export const NewRouteTemplate = ({
             marginBottom: "16px",
           }}
         >
-          If you didn&apos;t try to login, you can safely ignore this email.
+          If you weren&apos;t expecting a route assignment, you can safely
+          ignore this email.
         </Text>
         <Text
           style={{
@@ -67,26 +70,25 @@ export const NewRouteTemplate = ({
             marginBottom: "38px",
           }}
         >
-          Hint: You can set a permanent password in Settings & members → My
-          account.
+          Hint: Make sure to use the same email address your depot has for you.
         </Text>
         <Img
-          src={`${baseUrl}/static/notion-logo.png`}
-          width="32"
-          height="32"
-          alt="Notion's Logo"
+          src={`${baseUrl}/img/logo.png`}
+          width="144"
+          height="20"
+          alt="Artisanal Futures Logo"
         />
         <Text style={footer}>
           <Link
-            href="https://notion.so"
+            href="https://artisanalfutures.org"
             target="_blank"
             style={{ ...link, color: "#898989" }}
           >
-            Notion.so
+            Artisanal Futures
           </Link>
-          , the all-in-one-workspace
+          , Shop worker-owned stores, share knowledge and tech.
           <br />
-          for your notes, tasks, wikis, and databases.
+          Participate in the transition to a decolonized circular economy.
         </Text>
       </Container>
     </Body>

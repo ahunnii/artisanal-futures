@@ -1,14 +1,18 @@
 import axios from "axios";
 import { useState } from "react";
+import { env } from "~/env.mjs";
 import { notificationService } from "~/services/notification";
 import type { PromiseMessage } from "~/services/notification/types";
 import { generatePassCode } from "../utils/generic/generate-passcode";
+import { generateDriverPassCode } from "../utils/server/auth-driver-passcode";
+import { useDepot } from "./depot/use-depot";
 import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 import { useRoutePlans } from "./plans/use-route-plans";
 
 export const useMassMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { depotId, routeId } = useSolidarityState();
+  const { depotId, routeId, pathId } = useSolidarityState();
+  const { currentDepot } = useDepot();
   const { getRoutePlanData } = useRoutePlans();
 
   const optimized = getRoutePlanData.data?.optimizedRoute ?? [];
@@ -17,12 +21,16 @@ export const useMassMessage = () => {
     await getRoutePlanData.refetch();
 
     const bundles = optimized.map((route) => {
+      const passcode = generateDriverPassCode({
+        pathId: pathId,
+        depotCode: currentDepot?.magicCode ?? "",
+        email: route?.vehicle?.driver!.email,
+      });
+
       return {
         email: route?.vehicle?.driver?.email,
-        url: `http://localhost:3000/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${
-          route.id
-        }?pc=${generatePassCode(route?.vehicle?.driver?.email ?? "")}`,
-        passcode: generatePassCode(route?.vehicle?.driver?.email ?? ""),
+        url: `${env.NEXT_PUBLIC_APP_URL}/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${route.id}?driverId=${route.vehicleId}&pc=${passcode}`,
+        passcode: currentDepot?.magicCode ?? "",
       };
     });
 
