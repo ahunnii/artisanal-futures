@@ -7,12 +7,11 @@ import { useOptimizedRoutePlan } from "../../hooks/optimized-data/use-optimized-
 
 import * as React from "react";
 
-import { MapPin } from "lucide-react";
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
@@ -26,6 +25,7 @@ import {
   DrawerTitle,
 } from "~/components/ui/drawer";
 
+import { DialogClose } from "@radix-ui/react-dialog";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import { api } from "~/utils/api";
 
@@ -62,15 +62,20 @@ export default function FieldJobSheet() {
               {" "}
               {currentJob?.address.formatted}
             </DialogTitle>
-            <DialogDescription className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              1/3 stops at this location <Badge>{currentJob?.type}</Badge>{" "}
+            <DialogDescription className="flex items-center gap-2 ">
+              {/* <MapPin className="h-4 w-4" /> */}
+              <Badge>{currentJob?.type}</Badge>{" "}
               <Badge>{currentStop?.status}</Badge>
             </DialogDescription>
           </DialogHeader>{" "}
-          <div className=" relative flex-1 overflow-y-scroll  py-2">
-            <Button>Prev</Button> <Button>Next</Button>
+          <div className=" relative flex-1 overflow-y-scroll  py-4">
+            {activeStop && <CurrentStopForm initialData={activeStop} />}
           </div>
+          <DialogFooter>
+            <DialogClose asChild className="pt-2">
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     );
@@ -87,9 +92,9 @@ export default function FieldJobSheet() {
             <DrawerTitle> {currentJob?.address.formatted}</DrawerTitle>
             <DrawerDescription></DrawerDescription>
           </DrawerHeader>
-          <DrawerDescription className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            0/0 stops at this location <Badge>{currentJob?.type}</Badge>{" "}
+          <DrawerDescription className="flex items-center justify-center gap-2">
+            {/* <MapPin className="h-4 w-4" /> */}
+            <Badge>{currentJob?.type}</Badge>{" "}
             <Badge>{currentStop?.status}</Badge>
           </DrawerDescription>
           <div className=" relative flex-1 overflow-y-scroll  py-4">
