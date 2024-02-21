@@ -161,7 +161,7 @@ export const FileUploadModal = <T,>({
           )}
 
           <DialogFooter>
-            <TooltipProvider>
+            {/* <TooltipProvider>
               <Tooltip delayDuration={50}>
                 <TooltipTrigger asChild>
                   <div className="mr-auto flex items-center space-x-2">
@@ -180,7 +180,7 @@ export const FileUploadModal = <T,>({
                   <p>Login to save your progress</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider> */}
 
             <Button
               type="button"
