@@ -76,7 +76,7 @@ export const clientSchema = z.object({
     .optional(),
   email: z.string().email(),
   phone: z.coerce.string().optional(),
-  defaultJobId: z.string().optional(),
+  defaultJobId: z.string().optional().nullish(),
 });
 
 export const jobSchema = z.object({
