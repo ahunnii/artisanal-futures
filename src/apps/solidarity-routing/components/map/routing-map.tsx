@@ -49,6 +49,7 @@ import { useRoutePlans } from "~/apps/solidarity-routing/hooks/plans/use-route-p
 import { formatGeometryString } from "~/apps/solidarity-routing/services/optimization/aws-vroom/utils";
 import { cuidToIndex } from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
+import { useMediaQuery } from "~/hooks/use-media-query";
 import { pusherClient } from "~/server/soketi/client";
 import { cn } from "~/utils/styles";
 import { MobileDrawer } from "../mobile/mobile-drawer.wip";
@@ -193,13 +194,17 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         },
       }));
     };
-    const [snap, setSnap] = useState<number | string | null>(0.22);
+    const [snap, setSnap] = useState<number | string | null>(0.1);
+    const isDesktop = useMediaQuery("(min-width: 1024px)");
     return (
       <>
-        {mapRef.current && (
-          <DynamicMapViewButtons mapRef={mapRef.current} snap={snap} />
+        {mapRef.current && pathId && !isDesktop && (
+          <>
+            <DynamicMapViewButtons mapRef={mapRef.current} snap={snap} />
+            <MobileDrawer snap={snap} setSnap={setSnap} />
+          </>
         )}
-        <MobileDrawer snap={snap} setSnap={setSnap} />
+
         <ContextMenu>
           <ContextMenuTrigger
             className={cn(className, "z-0 flex w-full flex-col max-lg:grow")}
@@ -222,6 +227,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
               />
+
+              {mapRef.current && !pathId && (
+                <MapViewButton mapRef={mapRef.current} />
+              )}
 
               {currentLocation && (
                 <RouteMarker
