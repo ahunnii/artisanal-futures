@@ -24,6 +24,7 @@ import {
 } from "../../utils/generic/format-utils.wip";
 import { FieldJobSearch } from "../field-job-search.wip";
 
+import { useMediaQuery } from "~/hooks/use-media-query";
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
 export const MobileDrawer = ({}: // snap,
@@ -46,6 +47,8 @@ export const MobileDrawer = ({}: // snap,
   );
 
   const route = optimizedRoutePlan?.data;
+
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   return (
     <>
@@ -76,7 +79,7 @@ export const MobileDrawer = ({}: // snap,
         snapPoints={[0.1, 0.25, 0.75, 1]}
         activeSnapPoint={snap}
         setActiveSnapPoint={setSnap}
-        open={open}
+        open={isDesktop ? false : open}
         // dismissible={false}
         modal={false}
         onOpenChange={setOpen}
