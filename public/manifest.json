@@ -1,6 +1,6 @@
 {
-  "name": "PWA App",
-  "short_name": "App",
+  "name": "Artisanal Futures",
+  "short_name": "Artisanal Futures",
   "icons": [
     {
       "src": "windows11/SmallTile.scale-100.png",
