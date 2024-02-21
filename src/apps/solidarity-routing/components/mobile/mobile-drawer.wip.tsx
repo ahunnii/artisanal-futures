@@ -37,6 +37,7 @@ export const MobileDrawer = () => {
   const driver = driverBundles.getVehicleById(
     optimizedRoutePlan?.data?.vehicleId
   );
+
   const route = optimizedRoutePlan?.data;
   const [snap, setSnap] = useState<number | string | null>(0.22);
 
@@ -140,10 +141,11 @@ export const MobileDrawer = () => {
                 <Button
                   variant="outline"
                   className="px-3 shadow-none"
+                  disabled={!driver?.driver?.email}
                   onClick={() => {
-                    solidarityMessaging.messageDepot(
-                      driver?.driver?.email ?? null
-                    );
+                    console.log(driver?.driver?.email);
+                    if (!driver?.driver?.email) return;
+                    solidarityMessaging.messageDepot(driver?.driver?.email);
                   }}
                 >
                   <MessageSquare className="mr-2 h-4 w-4" />

@@ -134,12 +134,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       "The email associated with your selected provider is already in use. Please try another provider or contact us.",
   };
 
-  console.log(context.query.error);
-
   const error = context.query.error
     ? errorMessage[(context.query.error as string) ?? "OAuthCallback"]
     : null;
-  console.log(error);
+
   return {
     props: {
       providers: providers ?? [],

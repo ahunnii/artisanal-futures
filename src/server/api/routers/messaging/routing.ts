@@ -266,6 +266,38 @@ export const solidarityPathwaysMessagingRouter = createTRPCRouter({
       }
     }),
 
+  updateDriverChannelByEmail: protectedProcedure
+    .input(
+      z.object({
+        depotId: z.string(),
+        email: z.string(),
+        channelName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const channel = await ctx.prisma.channel.findFirst({
+        where: {
+          name: input.channelName,
+        },
+      });
+
+      if (!channel) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Channel not found",
+        });
+      }
+
+      return ctx.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          name: input.email,
+        },
+      });
+    }),
+
   getDepotGeneralChannel: protectedProcedure
     .input(z.object({ depotId: z.string() }))
     .query(async ({ input, ctx }) => {

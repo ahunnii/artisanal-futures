@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { useRouter } from "next/router";
 import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api";
@@ -71,7 +72,7 @@ export const useDepot = () => {
   const deleteDepot = api.depots.deleteDepot.useMutation({
     onSuccess: () => {
       notificationService.notifySuccess({ message: "Depot deleted!" });
-      void router.push("/tools/solidarity-pathways/");
+      void redirect("/tools/solidarity-pathways/");
     },
     onError: (error: unknown) =>
       notificationService.notifyError({

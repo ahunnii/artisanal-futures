@@ -129,6 +129,15 @@ export const publicProcedure = t.procedure;
 const isAuthed = t.middleware(({ ctx, next }) => {
   const cookies = ctx.req.cookies;
 
+  if (ctx.session?.user) {
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  }
+
   if (cookies.verifiedDriver) {
     return next({
       ctx: {
@@ -139,6 +148,7 @@ const isAuthed = t.middleware(({ ctx, next }) => {
       },
     });
   }
+
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
