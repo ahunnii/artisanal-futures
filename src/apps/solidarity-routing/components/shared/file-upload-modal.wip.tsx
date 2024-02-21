@@ -75,12 +75,17 @@ export const FileUploadModal = <T,>({
     setOpen(true);
   };
 
+  const onOpenChange = (value: boolean) => {
+    if (!value) handleOnClear();
+    setOpen(value);
+  };
+
   return (
     <>
       <div onClick={() => openDialog()} className="w-full">
         {children}
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-5xl">
           <DialogHeader>
             <DialogTitle className="text-2xl capitalize">
@@ -94,23 +99,34 @@ export const FileUploadModal = <T,>({
             <DialogDescription className="pt-4 font-bold">
               {((type as string) === "client" ||
                 (type as string) === "job") && (
-                <p>
+                <span>
                   Only clients with valid emails will be saved to the depot for
                   future use.{" "}
-                </p>
+                </span>
               )}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid w-full max-w-sm items-center gap-1.5 py-5">
             <Label htmlFor="csvFile">CSV File</Label>
-            <Input
-              id="csvFile"
-              type="file"
-              accept=".csv"
-              ref={inputRef}
-              onChange={handleFileUpload}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="csvFile"
+                type="file"
+                accept=".csv"
+                ref={inputRef}
+                onChange={handleFileUpload}
+              />
+              <Button
+                type="button"
+                onClick={handleOnClear}
+                disabled={isLoading}
+                className="mr-auto"
+                variant="outline"
+              >
+                Clear
+              </Button>
+            </div>
           </div>
 
           {currentData &&
@@ -184,11 +200,13 @@ export const FileUploadModal = <T,>({
 
             <Button
               type="button"
-              onClick={handleOnClear}
+              onClick={() => {
+                onOpenChange(false);
+              }}
               disabled={isLoading}
-              variant="outline"
+              variant="ghost"
             >
-              Clear
+              Cancel
             </Button>
             <Button type="button" onClick={handleOnAccept} disabled={isLoading}>
               {isLoading && (

@@ -198,12 +198,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const isDesktop = useMediaQuery("(min-width: 1024px)");
     return (
       <>
-        {mapRef.current && pathId && !isDesktop && (
+        {/* {mapRef.current && pathId && !isDesktop && (
           <>
             <DynamicMapViewButtons mapRef={mapRef.current} snap={snap} />
             <MobileDrawer snap={snap} setSnap={setSnap} />
           </>
-        )}
+        )} */}
 
         <ContextMenu>
           <ContextMenuTrigger
@@ -228,9 +228,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                 attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
               />
 
-              {mapRef.current && !pathId && (
-                <MapViewButton mapRef={mapRef.current} />
-              )}
+              {mapRef.current && <MapViewButton mapRef={mapRef.current} />}
 
               {currentLocation && (
                 <RouteMarker

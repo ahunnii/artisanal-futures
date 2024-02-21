@@ -1,4 +1,5 @@
 import Container from "~/components/ui/container";
+import CookieConsent from "./cookie-banner";
 import Footer from "./footer";
 import Navbar from "./navbar";
 import { SeoMetadataHead } from "./seo-metadata-head";
@@ -24,6 +25,7 @@ const Body = ({
           <Footer />
         </>
       </main>
+      <CookieConsent />
     </>
   );
 };

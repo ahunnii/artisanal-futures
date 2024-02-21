@@ -169,7 +169,7 @@ export const PathwaysSettingsMenu = ({ children }: { children: ReactNode }) => {
             </div>
           </ScrollArea>
           <DialogFooter>
-            <DialogClose>
+            <DialogClose asChild>
               <Button>Close</Button>
             </DialogClose>
           </DialogFooter>
