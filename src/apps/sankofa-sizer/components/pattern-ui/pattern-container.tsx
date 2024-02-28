@@ -108,6 +108,7 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ imageUrl }) => {
         onDragStop={handleDragStop}
         onResizeStop={handleResizeStop}
         disableDragging={isEditing}
+        
         enableResizing={!isEditing}
         style={{ 
             backgroundImage: `url(${imageUrl})`,
