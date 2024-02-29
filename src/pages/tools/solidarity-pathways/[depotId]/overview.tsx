@@ -43,25 +43,6 @@ const PathwaysDepotOverviewPage = () => {
 
       <RouteLayout>
         <section className="flex flex-col-reverse  justify-end border-2 max-md:h-full max-md:p-2 md:flex-1 md:justify-center lg:flex-row">
-          <section className="flex w-full max-w-sm flex-col gap-4 max-lg:hidden">
-            <div className="flex h-full flex-col items-center space-y-4 bg-white px-4 pt-4">
-              <CreateRouteButton />
-              <RouteCalendar />
-            </div>
-            <div className=" flex flex-col items-start bg-white p-4 text-left">
-              <Button
-                className="mx-0 flex gap-2 px-0 "
-                variant={"link"}
-                onClick={addSingleDriver}
-              >
-                <UserPlus />
-                Add Drivers
-              </Button>
-              <ImportDriversButton />
-
-              <PathwaySettingsButton />
-            </div>
-          </section>
           <div className="relative flex w-full flex-col items-center justify-center space-y-10">
             {!isDesktop && <RouteCalendar />}
 

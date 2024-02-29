@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
 
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
@@ -36,7 +36,7 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
   const { routeJobs } = useReadJob();
 
   const dateTitle = useMemo(
-    () => (isDateToday(routeDate) ? "Today's" : formatNthDate(routeDate)),
+    () => (isDateToday(routeDate) ? "today" : formatNthDate(routeDate)),
     [routeDate]
   );
 
@@ -44,6 +44,13 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
 
   const [parent] = useAutoAnimate();
   const [another] = useAutoAnimate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      manuallyCreateRoute();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const manuallyCreateRoute = () =>
     routePlan.create({ depotId, date: routeDate });
@@ -64,7 +71,7 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
   return (
     <Card className="w-full max-w-md lg:max-w-xl">
       <CardHeader>
-        <CardTitle>{dateTitle} Overview</CardTitle>
+        <CardTitle>Loading map ...</CardTitle>
         <CardDescription>
           {format(routeDate, "MMMM dd yyyy")} • Depot:{" "}
           {currentDepot?.name ?? depotId} •{" "}
@@ -73,54 +80,6 @@ export const HomePageOverviewCard = ({}: { date?: Date }) => {
             : `No finalized routes yet`}
         </CardDescription>
       </CardHeader>
-      <CardContent ref={parent}>
-        <div className="flex w-full  flex-col  items-center gap-4 ">
-          <FileUploadModal<ClientJobBundle> {...clientJobImportOptions}>
-            <Button
-              variant="default"
-              className="flex w-full flex-1 items-center gap-2"
-            >
-              <FilePlus className="h-5 w-5" /> Create a route using a
-              spreadsheet
-            </Button>
-          </FileUploadModal>
-
-          <Button
-            className="w-full  gap-2"
-            variant={"outline"}
-            onClick={manuallyCreateRoute}
-          >
-            <Plus /> Manually create a route
-          </Button>
-        </div>
-        <h3 className="pt-4 text-lg font-semibold">Routes</h3>
-
-        {routePlan.routesByDate?.length === 0 && (
-          <p className="text-muted-foreground">No routes found for this date</p>
-        )}
-
-        {routePlan.routesByDate && (
-          <ul className="mt-4 flex flex-col" ref={another}>
-            {routePlan.routesByDate?.length > 0 &&
-              routePlan.routesByDate?.map((route) => (
-                <HomepageRouteCard
-                  key={route.id}
-                  baseRouteUrl={baseRouteUrl}
-                  routeId={route.id}
-                  optimizedRoutes={route.optimizedRoute}
-                  jobLength={route.jobs.length}
-                  vehicleLength={route.vehicles.length}
-                />
-              ))}
-          </ul>
-        )}
-        <div className="mt-10 flex  w-full  flex-col items-center gap-4 ">
-          <p className="text-base">
-            Need help with your spreadsheet formatting? Check out our guide on
-            it here, or click here for a sample file.
-          </p>
-        </div>
-      </CardContent>
     </Card>
   );
 };
