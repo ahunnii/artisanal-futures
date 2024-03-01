@@ -169,6 +169,20 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       (stop) => stop.color !== "-1"
     );
 
+    const driverMapPoints2: MapPoint[] = driverBundles2?.data?.map((driver) => ({
+          id: driver.vehicle.id,
+          type: "vehicle",
+          lat: driver.vehicle.startAddress?.latitude,
+          lng: driver.vehicle.startAddress?.longitude,
+          address: driver.vehicle.startAddress?.formatted ?? "",
+          name: driver?.driver?.name ?? "Driver",
+          color:
+            routePlans.optimized.length > 0
+              ? `${cuidToIndex(driver.vehicle.id)}`
+              : "3",
+        }));
+
+
     const routeGeoJsonList = pathId
       ? optimizedRoutePlan.mapData.geometry
       : routePlans.optimized.map((route) => {
@@ -369,6 +383,36 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                       ))}{" "}
                   </LeafletLayerGroup>
                 </LayersControl.Overlay>
+                <LayersControl.Overlay name="Divider Road" checked>
+                  <LeafletLayerGroup>
+                    {driverMapPoints2?.length > 0 &&
+                      driverMapPoints2.map((vehicle, idx) => {
+                        const latLng: [number, number] = [
+                          vehicle.lat,
+                          vehicle.lng,
+                        ];
+
+                        const isActive = activeDrivers[vehicle.id];
+
+                        return (
+                          <RouteMarker
+                            key={idx}
+                            variant="depot" // STAND IN for Divider roads
+                            id={vehicle.id}
+                            position={latLng}
+                            color={Number(vehicle.color)}
+                          >
+                            <MapPopup
+                              name={vehicle.name}
+                              address={vehicle.address}
+                              id={vehicle.id}
+                              kind="DRIVER"
+                            />
+                          </RouteMarker>
+                        );
+                      })}{" "}
+                  </LeafletLayerGroup>
+                </LayersControl.Overlay>
               </LayersControl>
             </MapContainer>
           </ContextMenuTrigger>
@@ -393,7 +437,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                 </div>
               </ContextMenuItem>
 
-              <ContextMenuItem onClick={() => addDriverByLatLng({ ...latLng })}>
+              <ContextMenuItem onClick={() => addDriverByLatLng2({ ...latLng })}>
               <div className="flex flex-col items-center justify-center">
                 <div>Add Road Point here</div>
                 <div className="text-gray-500 text-sm">
