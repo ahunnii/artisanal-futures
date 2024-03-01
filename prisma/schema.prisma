@@ -212,6 +212,30 @@ enum JobType {
   OTHER
 }
 
+model Road {
+  id        String      @id @default(cuid())
+  name      String
+  points    RoadPoint[]
+  depotId   String
+  depot     Depot       @relation(fields: [depotId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model RoadPoint {
+  id        String  @id @default(cuid())
+  roadId    String
+  road      Road    @relation(fields: [roadId], references: [id], onDelete: Cascade)
+  latitude  Float
+  longitude Float
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([roadId])
+}
+
+
 model Depot {
   id              String    @id @default(cuid())
   ownerId         String    @unique //One owner can have one depot
@@ -227,7 +251,7 @@ model Depot {
   jobs            Job[] //All jobs associated with the depot
   users           User[] //All users associated with the depot
   routes          Route[] //All routes associated with the depot
-
+  roads           Road[] //  All dividing roads associated with the depot
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

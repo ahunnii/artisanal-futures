@@ -42,6 +42,10 @@ import type { GeoJsonData } from "~/apps/solidarity-routing/types";
 import { MapPopup } from "~/apps/solidarity-routing/components/map/map-popup.wip";
 import { MAP_DATA } from "~/apps/solidarity-routing/data/map-data";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
+
+import { useDriverVehicleBundles2 } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles2";
+
+
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useOptimizedRoutePlan } from "~/apps/solidarity-routing/hooks/optimized-data/use-optimized-route-plan";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
@@ -104,6 +108,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     const [activeDrivers, setActiveDrivers] = useState<CoordMap>({});
 
+    const driverBundles2 = useDriverVehicleBundles2(); 
     const driverBundles = useDriverVehicleBundles();
     const jobBundles = useClientJobBundles();
     const routePlans = useRoutePlans();
@@ -111,6 +116,8 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     // const drivers = bundles?.all;
     const addDriverByLatLng = driverBundles.createByLatLng;
     const addJobByLatLng = jobBundles.createByLatLng;
+    // DECOY for reproducing client code to interact w db
+    const addDriverByLatLng2 = driverBundles2.createByLatLng;    
 
     const { pathId } = useSolidarityState();
 
@@ -385,6 +392,15 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                   </div>
                 </div>
               </ContextMenuItem>
+
+              <ContextMenuItem onClick={() => addDriverByLatLng({ ...latLng })}>
+              <div className="flex flex-col items-center justify-center">
+                <div>Add Road Point here</div>
+                <div className="text-gray-500 text-sm">
+                  ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
+                </div>
+              </div>
+            </ContextMenuItem>
 
           </ContextMenuContent>
           )}

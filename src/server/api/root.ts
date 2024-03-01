@@ -9,6 +9,7 @@ import { productsRouter } from "./routers/products";
 
 import { depotRouter } from "./routers/routing/depot-router";
 import { driverRouter } from "./routers/routing/driver-router";
+import { driverRouter2 } from "./routers/routing/driver-router2";
 
 import { jobRouter } from "./routers/routing/job-router";
 import { routePlanRouter } from "./routers/routing/route-plan";
@@ -33,6 +34,8 @@ export const appRouter = createTRPCRouter({
   comment: commentRouter,
 
   products: productsRouter,
+
+  drivers2: driverRouter2,
 
   drivers: driverRouter,
   depots: depotRouter,
