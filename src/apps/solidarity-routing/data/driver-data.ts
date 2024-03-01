@@ -32,7 +32,7 @@ export const driverVehicleDataForNewLatLng = (
       type: "FULL_TIME",
       id: uniqueId("driver_"),
       name: "New Driver",
-      email: "",
+      email: "default@example.com",
       phone: "",
 
       address: {

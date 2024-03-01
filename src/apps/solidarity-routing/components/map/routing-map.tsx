@@ -270,6 +270,8 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                       <MapPopup
                         name={driver?.driver.name ?? "Driver"}
                         address={driver?.driver?.address?.formatted ?? ""}
+                        id={vehicleId}
+                        kind="DRIVER"
                       />
                     </RouteMarker>
                   );
@@ -297,6 +299,8 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                             <MapPopup
                               name={vehicle.name}
                               address={vehicle.address}
+                              id={vehicle.id}
+                              kind="DRIVER"
                             />
                           </RouteMarker>
                         );
@@ -314,7 +318,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           position={[stop.lat, stop.lng]}
                           color={Number(stop.color)}
                         >
-                          <MapPopup name={stop.name} address={stop.address} />
+                          <MapPopup
+                            name={stop.name}
+                            address={stop.address} 
+                            id={stop.id}
+                            kind="CLIENT"
+                          />
                         </RouteMarker>
                       ))}{" "}
                     {routeGeoJsonList.length > 0 &&
@@ -343,7 +352,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           position={[stop.lat, stop.lng]}
                           color={Number(stop.color)}
                         >
-                          <MapPopup name={stop.name} address={stop.address} />
+                          <MapPopup 
+                            name={stop.name}
+                            address={stop.address}
+                            id={stop.id}
+                            kind="CLIENT"
+                            />
                         </RouteMarker>
                       ))}{" "}
                   </LeafletLayerGroup>
@@ -362,6 +376,16 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                   </div>
                 </div>
               </ContextMenuItem>
+
+              <ContextMenuItem onClick={() => addDriverByLatLng({ ...latLng })}>
+                <div className="flex flex-col items-center justify-center">
+                  <div>Add Driver here</div>
+                  <div className="text-gray-500 text-sm">
+                    ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
+                  </div>
+                </div>
+              </ContextMenuItem>
+
           </ContextMenuContent>
           )}
         </ContextMenu>
