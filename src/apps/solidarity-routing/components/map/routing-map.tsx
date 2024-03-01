@@ -353,14 +353,16 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           </ContextMenuTrigger>
 
           {latLng && (
-            <ContextMenuContent className="z-50">
-              <ContextMenuLabel>
-                {latLng?.lat ?? 0}, {latLng?.lng ?? 0}
-              </ContextMenuLabel>
+            <ContextMenuContent className="z-50 flex justify-center">
               <ContextMenuItem onClick={() => addJobByLatLng({ ...latLng })}>
-                Add as Stop
+                <div className="flex flex-col items-center justify-center">
+                  <div>Add Client here</div>
+                  <div className="text-gray-500 text-sm">
+                    ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
+                  </div>
+                </div>
               </ContextMenuItem>
-            </ContextMenuContent>
+          </ContextMenuContent>
           )}
         </ContextMenu>
       </>
