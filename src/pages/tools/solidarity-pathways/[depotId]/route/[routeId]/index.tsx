@@ -11,7 +11,7 @@ import {
   Loader2,
   Pencil,
   Send,
-  X,
+  PlusCircle,
 } from "lucide-react";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
@@ -46,6 +46,7 @@ import { useMassMessage } from "~/apps/solidarity-routing/hooks/use-mass-message
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 import { notificationService } from "~/services/notification";
 
+
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
   {
@@ -57,6 +58,26 @@ const LazyRoutingMap = dynamic(
  * Page component that allows users to generate routes based on their input.
  */
 const SingleRoutePage = () => {
+
+  const upsertAllClients = async () => {
+    try {
+      const response = await fetch('/api/importClients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ seedName: "deeplyrooted" }),
+      });
+      const data = await response.json();
+      console.log(data.result);
+
+      // Optionally, update your UI based on the response
+
+    } catch (error) {
+      console.error('Failed to add clients:', error);
+    }
+  };
+
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { updateUrlParams, getUrlParam } = useUrlParams();
@@ -116,6 +137,13 @@ const SingleRoutePage = () => {
         <div className="p-1">
           <Button onClick={() => setShowAdvanced(!showAdvanced)} className="bg-black text-white hover:bg-dark-gray">{showAdvanced ? "Close" : "Details"}</Button>
         </div>
+
+        <div className="p-1">
+          <Button onClick={() => upsertAllClients()} className="bg-black text-white hover:bg-dark-gray">
+            <PlusCircle/> Clients  
+          </Button>
+        </div>
+
         {/* Tracking related widgets */}
         <DriverVehicleSheet />
         <JobClientSheet />

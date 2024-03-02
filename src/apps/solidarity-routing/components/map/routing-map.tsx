@@ -169,17 +169,16 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       (stop) => stop.color !== "-1"
     );
 
-    const driverMapPoints2: MapPoint[] = driverBundles2?.data?.map((driver) => ({
-          id: driver.vehicle.id,
-          type: "vehicle",
-          lat: driver.vehicle.startAddress?.latitude,
-          lng: driver.vehicle.startAddress?.longitude,
-          address: driver.vehicle.startAddress?.formatted ?? "",
-          name: driver?.driver?.name ?? "Driver",
-          color:
-            routePlans.optimized.length > 0
-              ? `${cuidToIndex(driver.vehicle.id)}`
-              : "3",
+    const driverMapPoints2: MapPoint[] = driverBundles2?.active?.points?.map((point) => ({
+          id: point.id,
+          type: "vehicle", // should be map ooint
+          lat: point.latitude,
+          lng: point.longitude,
+          address: point.roadId,
+          name: driverBundles2?.active?.points.name,
+          color: driverBundles2?.active?.points?.length > 0
+            ? `${cuidToIndex(driverBundles2?.active?.id)}`
+            : "3",
         }));
 
 
