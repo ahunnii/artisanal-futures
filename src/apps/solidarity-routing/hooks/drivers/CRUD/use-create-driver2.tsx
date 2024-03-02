@@ -2,174 +2,100 @@ import { notificationService } from "~/services/notification";
 
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 
-import { useDriversStore } from "~/apps/solidarity-routing/stores/use-drivers-store";
+import { useRoadsStore } from "~/apps/solidarity-routing/stores/use-roads-store";
+
 
 import { api } from "~/utils/api";
 
-import { driverVehicleDataForNewLatLng } from "~/apps/solidarity-routing/data/driver-data";
+import { roadDataForNewLatLng } from "~/apps/solidarity-routing/data/road-data";
 
 import type {
   Coordinates,
-  DriverVehicleBundle,
+  RoadBundle,
 } from "~/apps/solidarity-routing/types.wip";
-import { useSolidarityMessaging } from "../../use-solidarity-messaging";
 
-type TCreateNewDriverProps = { driver: DriverVehicleBundle };
+type TCreateNewRoadProps = { road: RoadBundle };
 
-type DriverVehicleBundles = { drivers: DriverVehicleBundle[] };
+type RoadBundles = { roads: RoadBundle[] };
 
-type TCreateNewDriversProps = {
+type TCreateNewRoadsProps = {
   addToRoute?: boolean;
-} & DriverVehicleBundles;
+} & RoadBundles;
 
-export const useCreateDriver2 = () => {
-  const sessionStorageDrivers = useDriversStore((state) => state);
+export const useCreateRoads = () => {
+  // Key, we need to make a Road store
+  const sessionStorageRoads = useRoadsStore((state) => state);
 
-  const { isUserAllowedToSaveToDepot, depotId, routeId } = useSolidarityState();
-
-  // const [newDriverIds, setNewDriverIds] = useState<string[]>([]);
-  const { createDriverChannels } = useSolidarityMessaging();
+  const { isUserAllowedToSaveToDepot, depotId } = useSolidarityState();
 
   const apiContext = api.useContext();
 
   const invalidateData = () => {
-    void apiContext.drivers.invalidate();
-    void apiContext.routePlan.invalidate();
+    void apiContext.roads.invalidate();
   };
 
-  const createVehicleBundles = api.drivers.createVehicleBundles.useMutation({
-    onSuccess: (data: DriverVehicleBundle[]) => {
+  const overrideCurrentDepot = api.roads.setDepotRoads.useMutation({
+    onSuccess: () =>
       notificationService.notifySuccess({
-        message: "Driver(s) successfully created.",
-      });
-
-      const driverIds = data.map(
-        (driver: DriverVehicleBundle) => driver.driver.id
-      );
-
-      // if (driverIds) {
-      createDriverChannels.mutate({
-        depotId: depotId,
-        bundles: driverIds,
-      });
-      // }
-    },
-
+        message: "Depot roads were successfully set.",
+      }),
     onError: (error: unknown) =>
       notificationService.notifyError({
-        message: "There was an issue creating the driver(s). Please try again.",
+        message: "There was an issue setting the road(s). Please try again.",
         error,
       }),
     onSettled: invalidateData,
   });
 
-  const overrideCurrentDepot = api.drivers.setDepotVehicles.useMutation({
-    onSuccess: () =>
-      notificationService.notifySuccess({
-        message: "Depot drivers were successfully set.",
-      }),
-    onError: (error: unknown) =>
-      notificationService.notifyError({
-        message: "There was an issue setting the driver(s). Please try again.",
-        error,
-      }),
-    onSettled: invalidateData,
-  });
-
-  const overrideCurrentRoutes = api.routePlan.setRouteVehicles.useMutation({
-    onSuccess: () =>
-      notificationService.notifySuccess({
-        message: "Route drivers were successfully set.",
-      }),
-    onError: (error: unknown) =>
-      notificationService.notifyError({
-        message: "There was an issue setting the driver(s). Please try again.",
-        error,
-      }),
-    onSettled: () => {
-      invalidateData();
-
-      sessionStorageDrivers.setIsDriverSheetOpen(false);
-      sessionStorageDrivers.setActiveDriver(null);
-    },
-  });
-
-  const createNewDriver2 = ({ driver }: TCreateNewDriverProps) => {
+  const createNewRoad = ({ 
+    road 
+  }: TCreateNewRoadProps) => {
     if (!isUserAllowedToSaveToDepot) {
-      sessionStorageDrivers.appendDriver(driver);
+      sessionStorageRoads.appendRoad(road);
       return;
     }
-
-    createVehicleBundles.mutate({
-      data: [driver],
-      depotId: depotId,
-      routeId: routeId,
-    });
   };
-
-  const createNewDrivers = ({
-    drivers,
+  
+  const createNewRoads = ({
+    roads,
     addToRoute,
-  }: TCreateNewDriversProps) => {
+  }: TCreateNewRoadsProps) => {
     if (!isUserAllowedToSaveToDepot) {
-      drivers.forEach((driver) => {
-        sessionStorageDrivers.appendDriver(driver);
+      roads.forEach((road) => {
+        sessionStorageRoads.appendRoad(road);
       });
 
       return;
     }
-
-    createVehicleBundles.mutate({
-      data: drivers,
-      depotId: depotId,
-      routeId: addToRoute ? routeId : undefined,
-    });
   };
 
-  const createNewDriverByLatLng = ({ lat, lng }: Coordinates) => {
-    const driver = driverVehicleDataForNewLatLng(lat, lng);
+  const createNewRoadByLatLng = ({ lat, lng }: Coordinates, depotId: string) => {
+    const road = roadDataForNewLatLng(lat, lng, depotId); // Assuming this function is adapted for RoadBundle
 
     if (!isUserAllowedToSaveToDepot) {
-      sessionStorageDrivers.appendDriver(driver);
+      sessionStorageRoads.appendRoad(road);
       return;
     }
-
-    createVehicleBundles.mutate({
-      data: [driver],
-      depotId,
-      routeId: routeId,
-    });
   };
 
-  const setDepotDrivers = ({ drivers }: DriverVehicleBundles) => {
+  const setDepotRoads = ({ roads, roadId }: RoadBundles & { roadId: string }) => {
     if (!isUserAllowedToSaveToDepot) {
-      sessionStorageDrivers.setDrivers(drivers);
+      sessionStorageRoads.setRoads(roads);
       return;
     }
 
     overrideCurrentDepot.mutate({
-      data: drivers,
-      depotId,
+        roadId: roadId,
+        depotId,
+        roadData: roads.flatMap(road => road.points),
     });
   };
 
-  const setRouteDrivers = ({ drivers }: DriverVehicleBundles) => {
-    if (!isUserAllowedToSaveToDepot) {
-      sessionStorageDrivers.setDrivers(drivers);
-      return;
-    }
-
-    overrideCurrentRoutes.mutate({
-      data: drivers,
-      routeId,
-    });
-  };
 
   return {
-    createNewDriver2,
-    createNewDrivers,
-    createNewDriverByLatLng,
-    setDepotDrivers,
-    setRouteDrivers,
+    createNewRoad,
+    createNewRoads,
+    createNewRoadByLatLng,
+    setDepotRoads,
   };
 };

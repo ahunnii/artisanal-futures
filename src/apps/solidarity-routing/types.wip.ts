@@ -163,7 +163,7 @@ export const driverVehicleSchema = z.object({
 
 
 // actual RoadPoint
-export const driverSchema2 = z.object({
+export const roadPointSchema = z.object({
   id: z.string(),
   roadId: z.string(),
   latitude: z.number(),
@@ -172,18 +172,18 @@ export const driverSchema2 = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 });
-//export type RoadPoint = z.infer<typeof driverSchema2>;
+export type RoadPoint = z.infer<typeof roadPointSchema>;
 
 // actual Road
-export const RoadSchema = z.object({
+export const roadSchema = z.object({
   id: z.string(),
   name: z.string(),
-  points: z.array(driverSchema2),
+  points: z.array(roadPointSchema),
   depotId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
-// export type Road = z.infer<typeof vehicleSchema2>;
+export type Road = z.infer<typeof roadSchema>;
 
 // for Road ; don't need
 export const driverVehicleSchema2 = z.object({
@@ -273,8 +273,7 @@ export type DriverFormValues = z.infer<typeof driverFormSchema>;
 export type DriverVehicleBundle = z.infer<typeof driverVehicleSchema>;
 
 // for Road
-export type DriverVehicleBundle2 = z.infer<typeof driverVehicleSchema>;
-
+export type RoadBundle = z.infer<typeof roadSchema>;
 
 export type ClientJobBundle = z.infer<typeof clientJobSchema>;
 

@@ -1,25 +1,31 @@
-import { useDriversStore } from "../../stores/use-drivers-store";
+import { useRoadsStore } from "../../stores/use-roads-store";
 
 import { useUrlParams } from "~/hooks/use-url-params";
 
 import { useSolidarityState } from "../optimized-data/use-solidarity-state";
-import { useCreateDriver2 } from "./CRUD/use-create-driver2"; // de-structuring
-import { useDeleteDriver } from "./CRUD/use-delete-driver";
-import { useReadDriver } from "./CRUD/use-read-driver";
-import { useUpdateDriver } from "./CRUD/use-update-driver";
+
+import { useCreateRoads } from "./CRUD/use-create-driver2"; // de-structuring
+
+// Shoud use road specific versions
+//
+// WITH THESE WE CAN UNCOMMENT THE REST OF THE FILE
+//
+// import { useDeleteDriver } from "./CRUD/use-delete-driver";
+// import { useReadDriver } from "./CRUD/use-read-driver";
+// import { useUpdateDriver } from "./CRUD/use-update-driver";
 
 export const useDriverVehicleBundles2 = () => {
   const { updateUrlParams } = useUrlParams();
   const { isUserAllowedToSaveToDepot } = useSolidarityState();
 
-  const readDriver = useReadDriver();
+  //const readDriver = useReadDriver();
 
-  const createDriver = useCreateDriver2();
+  const createRoads = useCreateRoads();
 
-  const updateDriver = useUpdateDriver();
-  const deleteDriver = useDeleteDriver();
+  //const updateDriver = useUpdateDriver();
+  //const deleteDriver = useDeleteDriver();
 
-  const sessionStorageDrivers = useDriversStore((state) => state);
+  const sessionStorageRoads = useRoadsStore((state) => state);
 
   const setActiveDriver = (id: string | null) => {
     updateUrlParams({
@@ -27,18 +33,18 @@ export const useDriverVehicleBundles2 = () => {
       value: id,
     });
 
-    const driver = isUserAllowedToSaveToDepot
-      ? readDriver.checkIfDriverExistsInRoute(id)
-      : readDriver.checkIfDriverExistsInStorage(id);
+    // const driver = isUserAllowedToSaveToDepot
+    //   ? readDriver.checkIfDriverExistsInRoute(id)
+    //   : readDriver.checkIfDriverExistsInStorage(id);
 
-    if (!driver) {
-      sessionStorageDrivers.setActiveDriverById(null);
-      return;
-    }
+    // if (!driver) {
+    //   sessionStorageDrivers.setActiveDriverById(null);
+    //   return;
+    // }
 
-    if (!isUserAllowedToSaveToDepot)
-      sessionStorageDrivers.setActiveDriverById(id);
-    else sessionStorageDrivers.setActiveDriver(driver);
+    // if (!isUserAllowedToSaveToDepot)
+    //   sessionStorageDrivers.setActiveDriverById(id);
+    // else sessionStorageDrivers.setActiveDriver(driver);
   };
 
   // useEffect(() => {
@@ -47,67 +53,60 @@ export const useDriverVehicleBundles2 = () => {
 
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
-
-  const findDriverByEmail = (email: string | null) => {
-    return (
-      readDriver.routeDrivers.find((driver) => driver.driver.email === email) ??
-      null
-    );
-  };
   return {
-    data: readDriver.routeDrivers,
-    isDataLoading: readDriver.isLoading,
+    // data: readDriver.routeDrivers,
+    // isDataLoading: readDriver.isLoading,
 
-    active: sessionStorageDrivers.activeDriver,
+    active: sessionStorageRoads.activeRoad,
     setActive: setActiveDriver,
     isActive: (id: string) => {
-      return sessionStorageDrivers.activeDriver?.vehicle.id === id;
+      return sessionStorageRoads.activeRoad?.id === id;
     },
 
-    depot: readDriver.depotDrivers,
+    //depot: readDriver.depotDrivers,
 
-    getVehicleById: readDriver.getVehicleById,
+    //getVehicleById: readDriver.getVehicleById,
 
-    create: createDriver.createNewDriver,
-    createMany: createDriver.createNewDrivers,
-    createByLatLng: createDriver.createNewDriverByLatLng,
+    create: createRoads.createNewRoad,
+    createMany: createRoads.createNewRoads,
+    createByLatLng: createRoads.createNewRoadByLatLng,
 
-    updateDefaults: updateDriver.updateDepotDriverDefaults,
-    updateDepotDriver: updateDriver.updateDepotDriverDetails,
-    updateDriver: updateDriver.updateRouteVehicle,
+    // updateDefaults: updateDriver.updateDepotDriverDefaults,
+    // updateDepotDriver: updateDriver.updateDepotDriverDetails,
+    // updateDriver: updateDriver.updateRouteVehicle,
 
-    deleteFromRoute: deleteDriver.deleteDriverFromRoute,
-    deleteFromDepot: deleteDriver.deleteDriverFromDepot,
+    // deleteFromRoute: deleteDriver.deleteDriverFromRoute,
+    // deleteFromDepot: deleteDriver.deleteDriverFromDepot,
 
-    deleteAllDrivers: deleteDriver.purgeAllDrivers,
-    deleteAllVehicles: deleteDriver.purgeAllVehicles,
-    deleteAll: deleteDriver.purgeAllDriverVehicleBundles,
+    // deleteAllDrivers: deleteDriver.purgeAllDrivers,
+    // deleteAllVehicles: deleteDriver.purgeAllVehicles,
+    // deleteAll: deleteDriver.purgeAllDriverVehicleBundles,
 
     edit: (id: string) => {
       setActiveDriver(id);
-      sessionStorageDrivers.setIsDriverSheetOpen(true);
+      sessionStorageRoads.setIsRoadSheetOpen(true);
     },
 
-    isSheetOpen: sessionStorageDrivers.isDriverSheetOpen,
+    isSheetOpen: sessionStorageRoads.isRoadSheetOpen,
     onSheetOpenChange: (state: boolean) => {
       if (!state) setActiveDriver(null);
-      sessionStorageDrivers.setIsDriverSheetOpen(state);
+      sessionStorageRoads.setIsRoadSheetOpen(state);
     },
 
-    assign: createDriver.setRouteDrivers,
+    assign: createRoads.setDepotRoads,
 
-    isMessageSheetOpen: sessionStorageDrivers.isDriverMessagePanelOpen,
+    isMessageSheetOpen: sessionStorageRoads.isRoadMessagePanelOpen,
     onMessageSheetOpenChange: (state: boolean) => {
       if (!state) setActiveDriver(null);
-      sessionStorageDrivers.setIsDriverMessagePanelOpen(state);
+      sessionStorageRoads.setIsRoadMessagePanelOpen(state);
     },
 
     message: (id: string) => {
       setActiveDriver(id);
-      sessionStorageDrivers.setIsDriverMessagePanelOpen(true);
+      sessionStorageRoads.setIsRoadMessagePanelOpen(true);
     },
 
-    isRouteSheetOpen: sessionStorageDrivers.isDriverRoutePanelOpen,
+    isRouteSheetOpen: sessionStorageRoads.isRoadRoutePanelOpen,
     onRouteSheetOpenChange: (state: boolean) => {
       if (!state) setActiveDriver(null);
       if (!state)
@@ -116,7 +115,7 @@ export const useDriverVehicleBundles2 = () => {
           value: null,
         });
 
-      sessionStorageDrivers.setIsDriverRoutePanelOpen(state);
+        sessionStorageRoads.setIsRoadRoutePanelOpen(state);
     },
 
     route: (id: string, routeId: string) => {
@@ -126,9 +125,7 @@ export const useDriverVehicleBundles2 = () => {
         value: routeId,
       });
 
-      sessionStorageDrivers.setIsDriverRoutePanelOpen(true);
+      sessionStorageRoads.setIsRoadRoutePanelOpen(true);
     },
-
-    findDriverByEmail,
   };
 };

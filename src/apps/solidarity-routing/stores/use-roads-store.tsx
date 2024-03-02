@@ -1,86 +1,100 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { v4 as uuidv4 } from 'uuid';
+import type { RoadBundle } from "../types.wip";
 
-import { driverVehicleDataForNewLatLng } from "../data/driver-data";
-import type { DriverVehicleBundle2 } from "../types.wip";
+interface useRoadsStore {
+  roads: RoadBundle[];
+  selectedRoads: RoadBundle[];
+  activeRoad: RoadBundle | null;
 
-interface useDriversStore {
-  drivers: DriverVehicleBundle2[];
-  selectedDrivers: DriverVehicleBundle2[];
-  activeDriver: DriverVehicleBundle2 | null;
-
-  setActiveDriver: (
-    activeDriverVehicleBundle: DriverVehicleBundle2 | null
+  setActiveRoad: (
+    activeRoadBundle: RoadBundle | null
   ) => void;
-  setActiveDriverById: (activeDriverVehicleBundle2: string | null) => void;
+  setActiveRoadById: (activeRoadBundle2: string | null) => void;
 
-  setDrivers: (driverVehicleBundles: DriverVehicleBundle2[]) => void;
-  setSelectedDrivers: (driverVehicleBundles: DriverVehicleBundle2[]) => void;
-  updateDriver: (id: string, data: Partial<DriverVehicleBundle2>) => void;
+  setRoads: (roadBundles: RoadBundle[]) => void;
+  setSelectedRoads: (roadBundles: RoadBundle[]) => void;
+  updateRoad: (id: string, data: Partial<RoadBundle>) => void;
 
-  removeDriver: (id: string) => void;
-  appendDriver: (driverVehicleBundle: DriverVehicleBundle2) => void;
-  addDriverByLatLng: (lat: number, lng: number) => void;
+  removeRoad: (id: string) => void;
+  appendRoad: (roadBundle: RoadBundle) => void;
+  addRoadByLatLng: (lat: number, lng: number, depotId: string) => void;
 
-  isDriverSheetOpen: boolean;
-  setIsDriverSheetOpen: (isOpen: boolean) => void;
+  isRoadSheetOpen: boolean;
+  setIsRoadSheetOpen: (isOpen: boolean) => void;
 
-  isDriverRoutePanelOpen: boolean;
-  setIsDriverRoutePanelOpen: (isOpen: boolean) => void;
+  isRoadRoutePanelOpen: boolean;
+  setIsRoadRoutePanelOpen: (isOpen: boolean) => void;
 
-  isDriverMessagePanelOpen: boolean;
-  setIsDriverMessagePanelOpen: (isOpen: boolean) => void;
+  isRoadMessagePanelOpen: boolean;
+  setIsRoadMessagePanelOpen: (isOpen: boolean) => void;
 }
 
-export const useDriversStore = create<useDriversStore>()(
+export const useRoadsStore = create<useRoadsStore>()(
   persist(
     (set) => ({
-      drivers: [],
-      selectedDrivers: [],
-      activeDriver: null,
-      setActiveDriver: (activeDriver) => set({ activeDriver }),
-      setActiveDriverById: (id) =>
+      roads: [],
+      selectedRoads: [],
+      activeRoad: null,
+      setActiveRoad: (activeRoad) => set({ activeRoad }),
+      setActiveRoadById: (id) =>
         set((state) => ({
-          activeDriver:
-            state.drivers.find((bundle) => bundle.driver.id === id) ?? null,
+          activeRoad:
+            state.roads.find((bundle) => bundle.id === id) ?? null,
         })),
 
-      setDrivers: (drivers) => set({ drivers }),
-      setSelectedDrivers: (selectedDrivers) => set({ selectedDrivers }),
+      setRoads: (roads) => set({ roads }),
+      setSelectedRoads: (selectedRoads) => set({ selectedRoads }),
 
-      updateDriver: (id, data) =>
+      updateRoad: (id, data) =>
         set((state) => ({
-          drivers: state.drivers.map((bundle) =>
-            bundle.driver.id === id ? { ...bundle, ...data } : bundle
+          roads: state.roads.map((bundle) =>
+            bundle.id === id ? { ...bundle, ...data } : bundle
           ),
         })),
-      removeDriver: (id) =>
+      removeRoad: (id) =>
         set((state) => ({
-          drivers: state.drivers.filter((bundle) => bundle.driver.id !== id),
+          roads: state.roads.filter((bundle) => bundle.id !== id),
         })),
-      appendDriver: (driver) =>
-        set((state) => ({ drivers: [...state.drivers, driver] })),
+      appendRoad: (road) =>
+        set((state) => ({ roads: [...state.roads, road] })),
 
-      addDriverByLatLng: (lat, lng) =>
+      addRoadByLatLng: (lat, lng, depotId) =>
         set((state) => ({
-          drivers: [...state.drivers, driverVehicleDataForNewLatLng(lat, lng)],
+          roads: [...state.roads, {
+            id: uuidv4(),
+            name: "Unnamed Road",
+            points: [{
+              id: uuidv4(),
+              latitude: lat,
+              longitude: lng,
+              order: 0,
+              roadId: "",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            depotId: depotId,
+          }],
         })),
 
-      isDriverSheetOpen: false,
-      setIsDriverSheetOpen: (isDriverSheetOpen) => set({ isDriverSheetOpen }),
+      isRoadSheetOpen: false,
+      setIsRoadSheetOpen: (isRoadSheetOpen) => set({ isRoadSheetOpen }),
 
-      isDriverRoutePanelOpen: false,
-      setIsDriverRoutePanelOpen: (isDriverRoutePanelOpen) =>
-        set({ isDriverRoutePanelOpen }),
+      isRoadRoutePanelOpen: false,
+      setIsRoadRoutePanelOpen: (isRoadRoutePanelOpen) =>
+        set({ isRoadRoutePanelOpen }),
 
-      isDriverMessagePanelOpen: false,
-      setIsDriverMessagePanelOpen: (isDriverMessagePanelOpen) =>
-        set({ isDriverMessagePanelOpen }),
+      isRoadMessagePanelOpen: false,
+      setIsRoadMessagePanelOpen: (isRoadMessagePanelOpen) =>
+        set({ isRoadMessagePanelOpen }),
     }),
     {
       name: "road-storage", // name of item in the storage (must be unique)
       storage: createJSONStorage(() => sessionStorage), // (optional) by default the 'localStorage' is used
-      partialize: (state) => ({ drivers: state.drivers }),
+      partialize: (state) => ({ roads: state.roads }),
       skipHydration: true,
     }
   )
