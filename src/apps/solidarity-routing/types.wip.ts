@@ -46,6 +46,13 @@ export type UploadOptions<T> = {
   currentData?: T[] | null;
 };
 
+export type FetchOptions<T> = {
+  type: keyof T;
+  parseHandler: FileUploadFetch<T>;
+  handleAccept: ({ data, saveToDB }: { data: T[]; saveToDB?: boolean }) => void;
+  currentData?: T[] | null;
+};
+
 type UploadProps<T> = {
   event: React.ChangeEvent<HTMLInputElement>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,7 +65,21 @@ type UploadProps<T> = {
   }) => void;
 };
 
+type FetchProps<T> = {
+  csvData: string;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  callback: ({
+    data,
+    tableData,
+  }: {
+    data: T[];
+    tableData: { name: string; address: string; email?: string }[];
+  }) => void;
+};
+
 export type FileUploadHandler<T> = (props: UploadProps<T>) => void;
+export type FileUploadFetch<T> = (props: FetchProps<T>) => void;
+
 export const driverTypeSchema = z.enum(["DRIVER", "TEMP"]);
 
 export const jobTypeSchema = z.enum(["DELIVERY", "PICKUP"]);

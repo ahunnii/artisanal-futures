@@ -1,9 +1,15 @@
 import { uniqueId } from "lodash";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { clientJobDefaults } from "~/apps/solidarity-routing/data/stop-data";
-import { jobTypeSchema } from "~/apps/solidarity-routing/types.wip";
+import { useEffect, useState, useMemo } from "react";
+
+import { handleClientSheetUpload } from "~/apps/solidarity-routing/utils/client-job/parse-clients.wip"
+import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
+import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip"
+import StopOptionBtn from "~/apps/solidarity-routing/components/stops-section/stop-option-btn.wip"
+//import { FileUploadModal } from "~/apps/solidarity-routing/components/shared/file-upload-modal.wip";
+import { FileFetchModal } from "~/apps/solidarity-routing/components/shared/file-fetch-modal.wip";
+
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
@@ -15,6 +21,7 @@ import {
   Pencil,
   Send,
   PlusCircle,
+  FilePlus2
 } from "lucide-react";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
@@ -62,7 +69,7 @@ const LazyRoutingMap = dynamic(
  */
 const SingleRoutePage = () => {
 
-  const upsertAllClients = async () => {
+  const fetchCsvDataFromApi = async () => {
     try {
       const response = await fetch('/api/importClients', {
         method: 'POST',
@@ -75,50 +82,13 @@ const SingleRoutePage = () => {
 
       console.log(data.result);
 
-      // if (data.result && data.result.length > 0) {
-      //   jobBundles.createMany({
-      //     jobs: data.result.map(client => {
-      //       // Utilize the default job structure without needing lat/lng directly
-      //       const defaultJob = {
-      //         client: {
-      //           id: uniqueId("client_"),
-      //           name: client.referenceToCustomer,
-      //           address: {
-      //             formatted: client.address,
-      //             latitude: client.latitude,
-      //             longitude: client.longitude,
-      //           },
-      //           email: client.email,
-      //           phone: client.phone,
-      //                      },
-      //         job: {
-      //           id: uniqueId("job_"),
-      //           address: {
-      //             formatted: client.address,
-      //             latitude: client.latitude,
-      //             longitude: client.longitude,
-      //           },
-      //           type: jobTypeSchema.parse("DELIVERY"), // Use the default job type from stop-data.ts
-      //           serviceTime: clientJobDefaults.serviceTime,
-      //           prepTime: clientJobDefaults.prepTime,
-      //           priority: clientJobDefaults.priority,
-      //           timeWindowStart: clientJobDefaults.timeWindowStart,
-      //           timeWindowEnd: clientJobDefaults.timeWindowEnd,
-      //           notes: data.deliveryType,
-      //           // Additional fields from the original data
-      //           sourceFile: client.sourceFile,
-      //           sourceSheet: client.sourceSheet,
-      //         }
-      //       };
-      //       return defaultJob;
-      //     })
-      //   });
-      // }
+      return data.result;
 
     } catch (error) {
-      console.error('Failed to add clients:', error);
+      console.error("Error upserting clients:", error);
     }
   };
+
 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -172,6 +142,23 @@ const SingleRoutePage = () => {
 
   const { massSendRouteEmails, isLoading } = useMassMessage();
 
+  const jobs = useClientJobBundles();
+
+  const fileFetchOptions = useMemo(
+    () =>
+      clientJobUploadOptions({
+        jobs: jobs.data,
+        setJobs: jobs.createMany,
+      }),
+    [jobs]
+  );
+
+  const buildManyJobs = () => {
+    const data = fetchCsvDataFromApi()
+
+    console.log("whheee", data)
+  }
+
   return (
     <>
     <RouteLayout>
@@ -181,9 +168,9 @@ const SingleRoutePage = () => {
         </div>
 
         <div className="p-1">
-          <Button onClick={() => upsertAllClients()} className="bg-black text-white hover:bg-dark-gray">
-            <PlusCircle/> Clients  
-          </Button>
+        <Button onClick={() => buildManyJobs()} className="bg-black text-white hover:bg-dark-gray">
+          <PlusCircle /> Client
+        </Button>
         </div>
 
         {/* Tracking related widgets */}
@@ -324,4 +311,3 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) =>
   authenticateRoutingServerSide(ctx);
 
 export default SingleRoutePage;
-
