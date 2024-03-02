@@ -5,11 +5,15 @@ import { useEffect, useState, useMemo } from "react";
 
 import { handleClientSheetUpload } from "~/apps/solidarity-routing/utils/client-job/parse-clients.wip"
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
-import { ClientJobBundle } from "~/apps/solidarity-routing/types.wip"
+import { 
+  militaryTimeToUnixSeconds,
+  minutesToSeconds,
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip"
 import StopOptionBtn from "~/apps/solidarity-routing/components/stops-section/stop-option-btn.wip"
 //import { FileUploadModal } from "~/apps/solidarity-routing/components/shared/file-upload-modal.wip";
 import { FileFetchModal } from "~/apps/solidarity-routing/components/shared/file-fetch-modal.wip";
 
+import { useCreateJob } from '~/apps/solidarity-routing/hooks/jobs/CRUD/use-create-job';
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
@@ -153,9 +157,53 @@ const SingleRoutePage = () => {
     [jobs]
   );
 
+  const makeClientJob = (data) => ({
+    client: {
+      id: data.clientId ?? uniqueId("client_"),
+  
+      email: data.email ?? "",
+      phone: data.phone ?? undefined,
+      name: data.name ?? "",
+      addressId: data.clientAddressId ?? uniqueId("address_"),
+      address: {
+        formatted: data?.clientAddress?.formatted ?? data?.address?.formatted,
+        latitude: data?.clientAddress?.latitude ?? data?.address?.latitude,
+        longitude: data?.clientAddress?.longitude ?? data?.address?.longitude,
+      },
+    },
+    job: {
+      id: data?.id ?? uniqueId("job_"),
+      addressId: data?.addressId ?? uniqueId("address_"),
+      clientId: data?.clientId ?? undefined,
+  
+      address: {
+        formatted: data?.address?.formatted,
+        latitude: data?.address?.latitude,
+        longitude: data?.address?.longitude,
+      },
+  
+      type: data.type,
+      prepTime: minutesToSeconds(data?.prepTime ?? 0),
+      priority: Number(data?.priority ?? 0),
+      serviceTime: minutesToSeconds(data?.serviceTime ?? 0),
+      timeWindowStart: militaryTimeToUnixSeconds(data.timeWindowStart),
+      timeWindowEnd: militaryTimeToUnixSeconds(data.timeWindowEnd),
+  
+      notes: data?.notes ?? "",
+      order: data?.order ?? "",
+    },
+  });
+
   const buildManyJobs = () => {
     const data = fetchCsvDataFromApi()
 
+    const jobs = useClientJobBundles()
+    jobs.create(
+      { 
+        job: makeClientJob(data),
+        addToRoute: true 
+      }
+    );
     console.log("whheee", data)
   }
 
