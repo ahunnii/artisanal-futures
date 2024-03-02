@@ -13,7 +13,9 @@ export const useDriverVehicleBundles2 = () => {
   const { isUserAllowedToSaveToDepot } = useSolidarityState();
 
   const readDriver = useReadDriver();
+
   const createDriver = useCreateDriver2();
+
   const updateDriver = useUpdateDriver();
   const deleteDriver = useDeleteDriver();
 

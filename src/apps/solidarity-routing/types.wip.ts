@@ -161,63 +161,31 @@ export const driverVehicleSchema = z.object({
   vehicle: vehicleSchema,
 });
 
-// for Road
+
+// actual RoadPoint
 export const driverSchema2 = z.object({
   id: z.string(),
-  type: z.nativeEnum(DBDriverType),
-  name: z.string(),
-  addressId: z.string().optional(),
-  address: z.object({
-    formatted: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  email: z.string().email(),
-  phone: z.coerce.string(),
-  defaultVehicleId: z.string().optional(),
+  roadId: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  order: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
+//export type RoadPoint = z.infer<typeof driverSchema2>;
 
-// for Road
-export const vehicleSchema2 = z.object({
+// actual Road
+export const RoadSchema = z.object({
   id: z.string(),
-  type: z.string().optional(),
-
-  startAddressId: z.string().optional(),
-  endAddressId: z.string().optional(),
-
-  startAddress: z.object({
-    formatted: z.string(),
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  endAddress: z
-    .object({
-      formatted: z.string(),
-      latitude: z.number(),
-      longitude: z.number(),
-    })
-    .optional(),
-  capacity: z.number().optional(),
-  maxTasks: z.number().optional(),
-  maxTravelTime: z.number().optional(),
-  maxDistance: z.number().optional(),
-  shiftStart: z.number(),
-  shiftEnd: z.number(),
-  notes: z.string().optional(),
-  cargo: z.string().optional(),
-  breaks: z
-    .array(
-      z.object({
-        id: z.number(),
-        duration: z.number(),
-        start: z.number().optional(),
-        end: z.number().optional(),
-      })
-    )
-    .optional(),
+  name: z.string(),
+  points: z.array(driverSchema2),
+  depotId: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
+// export type Road = z.infer<typeof vehicleSchema2>;
 
-// for Road
+// for Road ; don't need
 export const driverVehicleSchema2 = z.object({
   driver: driverSchema,
   vehicle: vehicleSchema,

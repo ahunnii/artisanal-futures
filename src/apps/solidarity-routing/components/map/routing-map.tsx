@@ -117,7 +117,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const addDriverByLatLng = driverBundles.createByLatLng;
     const addJobByLatLng = jobBundles.createByLatLng;
     // DECOY for reproducing client code to interact w db
-    const addDriverByLatLng2 = driverBundles2.createByLatLng;    
+    const addDriverByLatLng2 = driverBundles2.createByLatLng;
 
     const { pathId } = useSolidarityState();
 
