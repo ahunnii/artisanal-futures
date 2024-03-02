@@ -1,73 +1,70 @@
 import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
-import {v4 as uuidv4} from 'uuid';
 
 async function importClientsFromOneCSV(filePath: string) {
 
     const parentDirName = path.basename(path.dirname(__dirname));
 
-    const results = [];
-  
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(csv(['referenceToCustomer', 'address', 'contactRelated', 'deliveryType', 'deliveryTypeField', 'referenceField', 'addressField', 'contactRelatedField', 'sourceFile', 'sourceSheet']))
-        .on('data', (data) => results.push(data))
-        .on('end', () => {
-          const clients = [];
-          for (const item of results) {
-            // Initialize email and phone as empty strings
-            let email = '';
-            let phone = '';
-    
-            // Regular expression for identifying email and phone
-            const emailRegex = /\S+@\S+\.\S+/;
-            const phoneRegex = /(?:\+?\d{1,3}[\s-]?)?(?:\(\d{3}\)|\d{3})[\s-]?\d{3}[\s-]?\d{4}/; // Adjust regex as needed
-    
-            // Split the contactRelated field by non-email characters, assuming space as a common separator
-            const contactParts = item.contactRelated.split(/\s+/);
-    
-            // Attempt to identify email and phone number
-            contactParts.forEach(part => {
-              if (emailRegex.test(part) && !email) {
-                email = part;
-              } else if (phoneRegex.test(part) && !phone) {
-                phone = part;
-              }
-            });
+    let csvTextBlob = '';
 
-            // Construct client object for each item
-            const client = {
-              id: uuidv4(),
-              referenceToCustomer: item.referenceToCustomer,
-              address: item.address,
-              email: email,
-              phone: phone,
-              deliveryType: item.deliveryType,
-              sourceFile: item.sourceFile,
-              sourceSheet: item.sourceSheet
-            };
-            clients.push(client);
-          }
-          console.log(`Imported clients from ${path.basename(filePath)}`);
-          console.log(clients);
-          resolve(clients); // Resolve the promise with the processed clients
-        })
-        .on('error', reject); // Reject the promise on error
+    return new Promise((resolve, reject) => {
+      fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          csvTextBlob = data;
+          const rows = [];
+          fs.createReadStream(filePath)
+            .pipe(csv())
+            .on('data', (row) => {
+
+              const contactInfo = row["Contact Related"];
+              const emailRegex = /\S+@\S+\.\S+/;
+              const phoneRegex = /(?:\d{1}\s)?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})/;
+              const emailMatch = contactInfo.match(emailRegex);
+              const phoneMatch = contactInfo.match(phoneRegex);
+              const email = emailMatch ? emailMatch[0] : '';
+              var phone = phoneMatch ? `${phoneMatch[1]}-${phoneMatch[2]}-${phoneMatch[3]}` : '';
+              var name = row["Reference to Customer"]
+
+              if (!phone && /^\d{10}$/.test(row["Reference to Customer"].replace(/\D/g, ''))) {
+                phone = row["Reference to Customer"];
+                name = row["Delivery Type"]
+              }
+              
+              rows.push({
+                name: name,
+                address: row.Address,
+                email: email,
+                phone: phone,
+                prep_time: 5,
+                service_time: 5,
+                priority: 1,
+                time_start: "9:00",
+                time_end: "17:00",
+                order: row["Delivery Type"],
+                notes: row["Source file"] + " " + row["Source Sheet"]
+              });
+            })
+            .on('end', () => {
+              const modifiedCsvTextBlob = rows.map(row => Object.values(row).join(',')).join('\n');
+              resolve(modifiedCsvTextBlob);
+            });
+        }
+      });
     });
 }
 
 export async function importClientsFromAllCSV(seedName: string) {
   const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`);
   const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.csv'));
-  const allClients = [];
-
-  for (const file of files) {
-    const clientsFromOneCSV = await importClientsFromOneCSV(path.join(directoryPath, file));
-    if (clientsFromOneCSV) {
-      allClients.push(...clientsFromOneCSV);
-    }
+  
+  if (files.length > 0) {
+    const modifiedCsvTextBlob = await importClientsFromOneCSV(path.join(directoryPath, files[0]));
+    return modifiedCsvTextBlob; // Return the first .csv as a modified text blob
   }
 
-  return allClients; // Return all clients from all CSVs as JSON
+  return null;
 }
+

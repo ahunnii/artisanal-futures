@@ -1,6 +1,9 @@
+import { uniqueId } from "lodash";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { clientJobDefaults } from "~/apps/solidarity-routing/data/stop-data";
+import { jobTypeSchema } from "~/apps/solidarity-routing/types.wip";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
@@ -69,9 +72,48 @@ const SingleRoutePage = () => {
         body: JSON.stringify({ seedName: "deeplyrooted" }),
       });
       const data = await response.json();
+
       console.log(data.result);
 
-      // Optionally, update your UI based on the response
+      // if (data.result && data.result.length > 0) {
+      //   jobBundles.createMany({
+      //     jobs: data.result.map(client => {
+      //       // Utilize the default job structure without needing lat/lng directly
+      //       const defaultJob = {
+      //         client: {
+      //           id: uniqueId("client_"),
+      //           name: client.referenceToCustomer,
+      //           address: {
+      //             formatted: client.address,
+      //             latitude: client.latitude,
+      //             longitude: client.longitude,
+      //           },
+      //           email: client.email,
+      //           phone: client.phone,
+      //                      },
+      //         job: {
+      //           id: uniqueId("job_"),
+      //           address: {
+      //             formatted: client.address,
+      //             latitude: client.latitude,
+      //             longitude: client.longitude,
+      //           },
+      //           type: jobTypeSchema.parse("DELIVERY"), // Use the default job type from stop-data.ts
+      //           serviceTime: clientJobDefaults.serviceTime,
+      //           prepTime: clientJobDefaults.prepTime,
+      //           priority: clientJobDefaults.priority,
+      //           timeWindowStart: clientJobDefaults.timeWindowStart,
+      //           timeWindowEnd: clientJobDefaults.timeWindowEnd,
+      //           notes: data.deliveryType,
+      //           // Additional fields from the original data
+      //           sourceFile: client.sourceFile,
+      //           sourceSheet: client.sourceSheet,
+      //         }
+      //       };
+      //       return defaultJob;
+      //     })
+      //   });
+      // }
 
     } catch (error) {
       console.error('Failed to add clients:', error);
