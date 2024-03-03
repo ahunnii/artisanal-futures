@@ -67,12 +67,12 @@ async function importClientsFromOneCSV(filePath: string) {
             prep_time: 5,
             service_time: 5,
             priority: 1,
-            time_start: "9:00",
+            time_start: "09:00",
             time_end: "17:00",
             lat: cachedData.lat,
             lon: cachedData.lon,
-            order: " ",
-            notes: " "
+            order: row['Delivery Type Field'],
+            notes: "Copied from"+ " " + row['Reference field'] + " " + row['Address field'] + " " + row['Contact Related field'] + " " + row['Source file'] + " " + row['Source Sheet']
           });
         }
       })();

@@ -5,6 +5,11 @@ import { useEffect, useState, useMemo } from "react";
 
 import { handleClientSheetUpload } from "~/apps/solidarity-routing/utils/client-job/parse-clients.wip"
 import { clientJobUploadOptions } from "~/apps/solidarity-routing/data/stop-data";
+
+import {
+  jobTypeSchema,
+} from "~/apps/solidarity-routing/types.wip";
+
 import { 
   militaryTimeToUnixSeconds,
   minutesToSeconds,
@@ -84,7 +89,8 @@ const SingleRoutePage = () => {
       });
       const data = await response.json();
 
-      console.log(data.result);
+      // Got json from api endpoint
+      //console.log(data.result);
 
       return data.result;
 
@@ -146,65 +152,62 @@ const SingleRoutePage = () => {
 
   const { massSendRouteEmails, isLoading } = useMassMessage();
 
-  const jobs = useClientJobBundles();
-
-  const fileFetchOptions = useMemo(
-    () =>
-      clientJobUploadOptions({
-        jobs: jobs.data,
-        setJobs: jobs.createMany,
-      }),
-    [jobs]
-  );
-
-  const makeClientJob = (data) => ({
-    client: {
-      id: data.clientId ?? uniqueId("client_"),
-  
-      email: data.email ?? "",
-      phone: data.phone ?? undefined,
-      name: data.name ?? "",
-      addressId: data.clientAddressId ?? uniqueId("address_"),
-      address: {
-        formatted: data?.clientAddress?.formatted ?? data?.address?.formatted,
-        latitude: data?.clientAddress?.latitude ?? data?.address?.latitude,
-        longitude: data?.clientAddress?.longitude ?? data?.address?.longitude,
+  const makeOneClientJob = (data) => {
+    const clientId = data?.clientId ?? uniqueId("client_");
+    const addressId = data?.clientAddressId ?? uniqueId("address_");
+    const jobId = uniqueId("job_")
+    
+    return {
+      client: {
+        id: clientId,
+        email: data.email ?? "",
+        phone: data.phone ?? undefined,
+        name: data.name ?? "",
+        addressId: addressId,
+        address: {
+          formatted: data?.clientAddress?.formatted ?? data?.address,
+          latitude: data?.clientAddress?.latitude ?? data?.lat,
+          longitude: data?.clientAddress?.longitude ?? data?.lon,
+        },
       },
-    },
-    job: {
-      id: data?.id ?? uniqueId("job_"),
-      addressId: data?.addressId ?? uniqueId("address_"),
-      clientId: data?.clientId ?? undefined,
-  
-      address: {
-        formatted: data?.address?.formatted,
-        latitude: data?.address?.latitude,
-        longitude: data?.address?.longitude,
-      },
-  
-      type: data.type,
-      prepTime: minutesToSeconds(data?.prepTime ?? 0),
-      priority: Number(data?.priority ?? 0),
-      serviceTime: minutesToSeconds(data?.serviceTime ?? 0),
-      timeWindowStart: militaryTimeToUnixSeconds(data.timeWindowStart),
-      timeWindowEnd: militaryTimeToUnixSeconds(data.timeWindowEnd),
-  
-      notes: data?.notes ?? "",
-      order: data?.order ?? "",
-    },
-  });
+      job: {
+        id: jobId,
+        addressId: addressId,
+        clientId: clientId,
 
-  const buildManyJobs = () => {
-    const data = fetchCsvDataFromApi()
+        address: {
+          formatted: data?.clientAddress?.formatted ?? data?.address,
+          latitude: data?.clientAddress?.latitude ?? data?.lat,
+          longitude: data?.clientAddress?.longitude ?? data?.lon,
+        },
 
-    const jobs = useClientJobBundles()
+        type: jobTypeSchema.parse("DELIVERY"),
+        prepTime: minutesToSeconds(data?.prep_time ?? 0),
+        priority: Number(data?.priority ?? 0),
+        serviceTime: minutesToSeconds(data?.serviceTime ?? 0),
+        timeWindowStart: militaryTimeToUnixSeconds(data.time_start),
+        timeWindowEnd: militaryTimeToUnixSeconds(data.time_end),
+        order: data?.order ?? "",
+        notes: data?.notes ?? "",
+      }
+    }
+  };
+
+  const jobs = useClientJobBundles()
+
+  const buildManyJobs = async () => {
+    const data = await fetchCsvDataFromApi()
+
+    const one_job = makeOneClientJob(data[0])
     jobs.create(
       { 
-        job: makeClientJob(data),
+        job: one_job,
         addToRoute: true 
       }
     );
-    console.log("whheee", data)
+    console.log("whheee", data[0])
+    console.log(
+      "made job client", one_job)
   }
 
   return (
