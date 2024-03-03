@@ -156,7 +156,7 @@ const SingleRoutePage = () => {
     const clientId = data?.clientId ?? uniqueId("client_");
     const addressId = data?.clientAddressId ?? uniqueId("address_");
     const jobId = uniqueId("job_")
-    
+
     return {
       client: {
         id: clientId,
@@ -206,6 +206,8 @@ const SingleRoutePage = () => {
           addToRoute: true 
         }
       );
+
+      console.log(one_job.client.name, one_job.job.id)
     });
     console.log("whheee", data)
   }

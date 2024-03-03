@@ -18,6 +18,15 @@ export const MapPopup: FC<IStopProps> = ({ name, address, id, kind }) => {
   const { deleteDriverFromRoute } = useDeleteDriver() // Use the hook to get the deletion function
 
   const handleDelete = () => {
+
+    console.log(
+      'trying to delete ',
+      kind,
+      id,
+      name,
+      address
+    )
+
     if(kind == client){
       deleteJobFromRoute({ id });
     }

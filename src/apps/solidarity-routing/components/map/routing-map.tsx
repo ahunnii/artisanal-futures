@@ -116,8 +116,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     // const drivers = bundles?.all;
     const addDriverByLatLng = driverBundles.createByLatLng;
     const addJobByLatLng = jobBundles.createByLatLng;
-    // DECOY for reproducing client code to interact w db
-    const addDriverByLatLng2 = driverBundles2.createByLatLng;
 
     const { pathId } = useSolidarityState();
 
@@ -168,19 +166,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
       (stop) => stop.color !== "-1"
     );
-
-    const driverMapPoints2: MapPoint[] = driverBundles2?.active?.points?.map((point) => ({
-          id: point.id,
-          type: "vehicle", // should be map ooint
-          lat: point.latitude,
-          lng: point.longitude,
-          address: point.roadId,
-          name: driverBundles2?.active?.points.name,
-          color: driverBundles2?.active?.points?.length > 0
-            ? `${cuidToIndex(driverBundles2?.active?.id)}`
-            : "3",
-        }));
-
 
     const routeGeoJsonList = pathId
       ? optimizedRoutePlan.mapData.geometry
