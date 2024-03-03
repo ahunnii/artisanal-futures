@@ -198,16 +198,16 @@ const SingleRoutePage = () => {
   const buildManyJobs = async () => {
     const data = await fetchCsvDataFromApi()
 
-    const one_job = makeOneClientJob(data[0])
-    jobs.create(
-      { 
-        job: one_job,
-        addToRoute: true 
-      }
-    );
-    console.log("whheee", data[0])
-    console.log(
-      "made job client", one_job)
+    data.forEach(jobData => {
+      const one_job = makeOneClientJob(jobData);
+      jobs.create(
+        { 
+          job: one_job,
+          addToRoute: true 
+        }
+      );
+    });
+    console.log("whheee", data)
   }
 
   return (

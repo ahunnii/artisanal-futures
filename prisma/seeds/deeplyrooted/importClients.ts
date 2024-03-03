@@ -72,7 +72,7 @@ async function importClientsFromOneCSV(filePath: string) {
             lat: cachedData.lat,
             lon: cachedData.lon,
             order: row['Delivery Type Field'],
-            notes: "Copied from"+ " " + row['Reference field'] + " " + row['Address field'] + " " + row['Contact Related field'] + " " + row['Source file'] + " " + row['Source Sheet']
+            notes: "We copied this from"+ " " + row['Reference field'] + " " + row['Address field'] + " " + row['Contact Related field'] + " " + row['Source file'] + " " + row['Source Sheet']
           });
         }
       })();

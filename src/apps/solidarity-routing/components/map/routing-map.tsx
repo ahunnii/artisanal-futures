@@ -382,36 +382,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                       ))}{" "}
                   </LeafletLayerGroup>
                 </LayersControl.Overlay>
-                <LayersControl.Overlay name="Divider Road" checked>
-                  <LeafletLayerGroup>
-                    {driverMapPoints2?.length > 0 &&
-                      driverMapPoints2.map((vehicle, idx) => {
-                        const latLng: [number, number] = [
-                          vehicle.lat,
-                          vehicle.lng,
-                        ];
-
-                        const isActive = activeDrivers[vehicle.id];
-
-                        return (
-                          <RouteMarker
-                            key={idx}
-                            variant="depot" // STAND IN for Divider roads
-                            id={vehicle.id}
-                            position={latLng}
-                            color={Number(vehicle.color)}
-                          >
-                            <MapPopup
-                              name={vehicle.name}
-                              address={vehicle.address}
-                              id={vehicle.id}
-                              kind="DRIVER"
-                            />
-                          </RouteMarker>
-                        );
-                      })}{" "}
-                  </LeafletLayerGroup>
-                </LayersControl.Overlay>
               </LayersControl>
             </MapContainer>
           </ContextMenuTrigger>
@@ -435,15 +405,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                   </div>
                 </div>
               </ContextMenuItem>
-
-              <ContextMenuItem onClick={() => addDriverByLatLng2({ ...latLng })}>
-              <div className="flex flex-col items-center justify-center">
-                <div>Add Road Point here</div>
-                <div className="text-gray-500 text-sm">
-                  ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
-                </div>
-              </div>
-            </ContextMenuItem>
 
           </ContextMenuContent>
           )}
