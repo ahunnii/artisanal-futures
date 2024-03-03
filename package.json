@@ -82,6 +82,7 @@
     "leaflet": "^1.9.4",
     "leaflet-contextmenu": "^1.4.0",
     "leaflet-geosearch": "^3.8.0",
+    "leaflet-lasso": "^2.2.13",
     "lodash": "^4.17.21",
     "lucide-react": "^0.268.0",
     "luxon": "^3.4.3",

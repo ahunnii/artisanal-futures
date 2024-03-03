@@ -8,6 +8,19 @@ import {
 } from "react";
 
 import type L from "leaflet";
+
+//import "leaflet-lasso"
+interface LassoControlOptionsData  {
+  title?: string;
+}
+
+interface LassoHandlerOptions {
+  polygon?: L.PolylineOptions,
+  intersect?: boolean;
+}
+type LassoControlOptions = L.ControlOptions & LassoControlOptionsData & LassoHandlerOptions;
+
+
 import type { LatLngExpression, Map as LeafletMap } from "leaflet";
 import { Expand } from "lucide-react";
 import {
@@ -185,6 +198,58 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         pusherClient.unsubscribe("map");
       };
     }, []);
+
+    useEffect(() => {
+      if (mapRef.current) {
+        // Dynamically import Lasso control to work with Leaflet imported as a type
+        import('leaflet-lasso').then(() => {
+          if (!mapRef.current) return;
+
+          L.control.lasso().addTo(mapRef.current);
+        
+          // Listen for lasso.finished event to get selected layers
+          mapRef.current.on('lasso.finished', (event) => {
+            const selectedLayers = event.layers;
+
+            // Clear previous selections
+            mapRef.current.eachLayer((layer) => {
+              if (layer instanceof L.Marker) {
+                // Recreate the default icon using HTML
+                const defaultIcon = L.divIcon({
+                  html: layer.options.icon.options.html.replace(/background-color: [^;]+;/, 'background-color: #0000003a;'),
+                  className: 'default-marker', // You might need to adjust this
+                });
+                layer.setIcon(defaultIcon);
+              }
+            });
+
+            selectedLayers.forEach((layer) => {
+              // Assuming each layer is a marker created by RouteMarker
+              const { address, id, kind, name } = layer.options.children.props.children.props;
+              console.log({ address, id, kind, name });
+
+              // Change icon fill color to light blue
+              if (layer instanceof L.Marker) {
+                console.log(layer)
+
+                // Recreate the icon with new styling for selection
+                const selectedIcon = L.divIcon({
+                  html: layer.options.icon.options.html.replace(/background-color: [^;]+;/, 'background-color: light-blue;'),
+                  className: 'selected-marker', // You might need to adjust this
+                });
+                layer.setIcon(selectedIcon);
+              }
+            });
+          });
+        }).catch(error => console.error("Failed to load leaflet-lasso", error));
+      }
+      // Cleanup
+      return () => {
+        if (mapRef.current) {
+          mapRef.current.off('lasso.finished');
+        }
+      };
+    }, [mapRef.current]);
 
     const setActiveDriverIcons = (obj: {
       vehicleId: string;
