@@ -26,11 +26,20 @@ interface IUseStopsStore {
   setIsFieldJobSheetOpen: (isOpen: boolean) => void;
 
   setJobSheetMode: (mode: string) => void;
+
+  // Lasso related selections
+  selectedJobIds: string[];
+  setSelectedJobIds: (ids: string[]) => void;  
 }
 
 export const useStopsStore = create<IUseStopsStore>()(
   persist(
     (set) => ({
+      selectedJobIds: [],
+      // Lasso related seelctions
+      setSelectedJobIds: (ids) => set({ selectedJobIds: ids }),
+
+      // OG
       locations: [],
       activeLocation: null,
       jobSheetMode: "create-new",

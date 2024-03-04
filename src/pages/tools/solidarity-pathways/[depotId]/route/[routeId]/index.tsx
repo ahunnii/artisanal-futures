@@ -57,6 +57,8 @@ import { useMassMessage } from "~/apps/solidarity-routing/hooks/use-mass-message
 import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/authenticate-user";
 import { notificationService } from "~/services/notification";
 
+// Route among lasso selections
+import { useStopsStore } from '~/apps/solidarity-routing/hooks/jobs/use-stops-store'
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -91,6 +93,9 @@ const SingleRoutePage = () => {
     }
   };
 
+  const { selectedJobIds } = useStopsStore((state) => ({
+    selectedJobIds: state.selectedJobIds,
+  }));
 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -106,6 +111,19 @@ const SingleRoutePage = () => {
   const routePlans = useRoutePlans();
 
   const apiContext = api.useContext();
+
+  const updateLayerBg = (layer) => {
+    console.log(layer)
+
+    const existingIconOptions = layer.options.icon.options;
+    const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
+    const newIcon = L.divIcon({
+      ...existingIconOptions, // Spread existing options to preserve them
+      html: newHtml, // Override the html property with the modified string
+    });
+    layer.setIcon(newIcon);
+  }
+
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -136,7 +154,7 @@ const SingleRoutePage = () => {
       key: "mode",
       value: "calculate",
     });
-    void routePlans.calculate();
+    void routePlans.calculate(selectedJobIds);
   };
 
   const isRouteDataMissing =

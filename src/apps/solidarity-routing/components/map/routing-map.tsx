@@ -18,7 +18,6 @@ interface LassoHandlerOptions {
   polygon?: L.PolylineOptions,
   intersect?: boolean;
 }
-type LassoControlOptions = L.ControlOptions & LassoControlOptionsData & LassoHandlerOptions;
 
 
 import type { LatLngExpression, Map as LeafletMap } from "leaflet";
@@ -70,6 +69,10 @@ import { MobileDrawer } from "../mobile/mobile-drawer.wip";
 import { DynamicMapViewButtons } from "./dymamic-map-view-buttons";
 import { MapViewButton } from "./map-view-button";
 
+// Add lasso selections to the route store
+import { useStopsStore } from '~/apps/solidarity-routing/hooks/jobs/use-stops-store'
+
+
 interface MapProps {
   className?: string;
   children?: React.ReactNode;
@@ -99,6 +102,11 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const mapRef = useRef<LeafletMap>(null);
 
     const [enableTracking, setEnableTracking] = useState(false);
+
+    const { setSelectedJobIds, selectedJobIds } = useStopsStore((state) => ({
+      setSelectedJobIds: state.setSelectedJobIds,
+      selectedJobIds: state.selectedJobIds,
+    }));
 
     const params = {
       mapRef: mapRef.current!,
@@ -196,8 +204,8 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       };
     }, []);
 
+    // LASSO Effects
     const LIGHTBLUE = "#0000003a";
-    const [selectedJobIds, setSelectedJobIds] = useState<string[]>([]);
     useEffect(() => {
       if (mapRef.current) {
         import('leaflet-lasso').then(() => {
@@ -207,31 +215,21 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on('lasso.finished', (event) => {
-            const selectedLayers = event.layers;
             const tempSelectedJobIds: string[] = [];
 
-            // We use a side-effect of leaflet + Soldiarity Routing code
-            //  where if the map is redrawn, the pop up revert to their default
-            //  background color
-            //
-            // We really shouldn't be depending on side effects but don't have time to
-            // continue to refactor and make the app more organized
-            //
-            // The upshot is that on lasso.finished (or a lasso click) that contain no
-            // markers, all marker background's are reset
-
-            selectedLayers.forEach((layer) => {
+            event.layers.forEach((layer) => {
               const { address, id, kind, name } = layer.options.children.props.children.props;
-              console.log({ address, id, kind, name });
-
-              if (layer instanceof L.Marker && layer.options.icon) {
-                tempSelectedJobIds.push(id); // we let a useEffect on selectedJobIds do the coloring
-              }
+              console.log(
+                id,
+                address, 
+                kind, 
+                name
+              );
+              tempSelectedJobIds.push(id)
             });
-
-            setSelectedJobIds(tempSelectedJobIds);
+            setSelectedJobIds(tempSelectedJobIds)
           });
-        }).catch(error => console.error("Failed to load leaflet-lasso", error));
+        });
       }
       // Cleanup
       return () => {
@@ -239,33 +237,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           mapRef.current.off('lasso.finished');
         }
       };
-    }, [mapRef.current, showAdvanced]);
-
-
-    useEffect(() => {// we color the known jobId
-        console.log(selectedJobIds, '... are jobId')
-        if(mapRef.current){
-          mapRef.current.eachLayer((layer) => {
-            if (layer instanceof L.Marker && 
-                layer.options.icon && 
-                selectedJobIds.includes(layer.options.children.props.children.props?.id
-            )) {
-              // Extract the existing icon options
-              const existingIconOptions = layer.options.icon.options;
-              // Modify the HTML string to change the background color
-              const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
-              // Create a new icon with the modified HTML and existing options
-              const newIcon = L.divIcon({
-                ...existingIconOptions, // Spread existing options to preserve them
-                html: newHtml, // Override the html property with the modified string
-              });
-              // Set the new icon to the layer
-              layer.setIcon(newIcon);
-            }
-          });
-        }
-
-    }, [mapRef.current, showAdvanced, selectedJobIds]);// uses showAdvanced as a toggle
+    }, [mapRef.current]);
 
     const setActiveDriverIcons = (obj: {
       vehicleId: string;
@@ -429,14 +401,17 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                 </LayersControl.Overlay>
                 <LayersControl.Overlay name="Unassigned Stops" checked>
                   <LeafletLayerGroup>
-                    {unassignedMapPoints?.length > 0 &&
+                    {
+                    unassignedMapPoints?.length > 0 &&
                       unassignedMapPoints.map((stop, idx) => (
+                        
                         <RouteMarker
                           key={idx}
                           variant="stop"
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
-                          color={Number(stop.color)}
+                          // we're hashing "ADD8E6" to a color value I don't really care rn even tho we want it that color and transparent
+                          color={selectedJobIds.includes(stop.id) ? "#ADD8E6" : Number(stop.color)}
                         >
                           <MapPopup 
                             name={stop.name}

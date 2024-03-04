@@ -86,10 +86,22 @@ export const useRoutePlans = () => {
     },
   });
 
-  const calculateRoutes = async () => {
-    const jobs = optimizationService.formatClientData(jobBundles.data);
+  const calculateRoutes = async (selectedJobIds?: string[]) => {
+    const jobs_bundles = optimizationService.formatClientData(jobBundles.data);
     const vehicles = optimizationService.formatDriverData(driverBundles.data);
 
+    var jobs = jobs_bundles;
+    // Filter jobs if selectedJobIds is provided and not empty
+    if (selectedJobIds && selectedJobIds.length > 0) {
+      console.log(jobs_bundles, "job bundles")
+      console.log(selectedJobIds, "< the selected jobs")
+      jobs = jobs_bundles.filter(job => selectedJobIds.includes(job.description));
+    }
+    else{
+      console.log("LENGTH IS ODDLY ZERO")
+    }
+
+    console.log(jobs, "these are the jobs")
     const params = {
       jobs,
       vehicles,
