@@ -76,6 +76,7 @@ import { MapViewButton } from "./map-view-button";
 interface MapProps {
   className?: string;
   children?: React.ReactNode;
+  showAdvanced: boolean;
 }
 
 interface MapRef {
@@ -97,7 +98,7 @@ export type MapPoint = {
 type CoordMap = Record<string, { lat: number; lng: number }>;
 
 const RoutingMap = forwardRef<MapRef, MapProps>(
-  ({ className, children }, ref) => {
+  ({ className, children, showAdvanced}, ref) => {
     const mapRef = useRef<LeafletMap>(null);
 
     const [enableTracking, setEnableTracking] = useState(false);
@@ -121,7 +122,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     const [activeDrivers, setActiveDrivers] = useState<CoordMap>({});
 
-    const driverBundles2 = useDriverVehicleBundles2(); 
     const driverBundles = useDriverVehicleBundles();
     const jobBundles = useClientJobBundles();
     const routePlans = useRoutePlans();
@@ -202,56 +202,61 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const LIGHTBLUE = "#0000003a";
     useEffect(() => {
       if (mapRef.current) {
-        // Dynamically import Lasso control to work with Leaflet imported as a type
         import('leaflet-lasso').then(() => {
           if (!mapRef.current) return;
 
           L.control.lasso().addTo(mapRef.current);
-        
+
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on('lasso.finished', (event) => {
             const selectedLayers = event.layers;
 
-            // Clear previous selections
-            mapRef.current.eachLayer((layer) => {
-              if (layer instanceof L.Marker && layer.options.icon) {
-                // Extract the existing icon options
-                const existingIconOptions = layer.options.icon.options;              
-                const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, `background-color: ${LIGHTBLUE};`);
-              
-                const newIcon = L.divIcon({
-                  ...existingIconOptions,
-                  html: newHtml,
-                });
-                layer.setIcon(newIcon);
-              }
-            });
+            console.log(showAdvanced, '... can track state here')
 
-            selectedLayers.forEach((layer) => {
-              // Assuming each layer is a marker created by RouteMarker
-              const { address, id, kind, name } = layer.options.children.props.children.props;
-              console.log({ address, id, kind, name });
+            if(!showAdvanced){
+              // Clear previous selections
+              console.log(showAdvanced, '... about to clear')
+              mapRef.current.eachLayer((layer) => {
+                if (layer instanceof L.Marker && layer.options.icon) {
+                  // Extract the existing icon options
+                  const existingIconOptions = layer.options.icon.options;              
+                  const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, `background-color: ${LIGHTBLUE};`);
+                
+                  const newIcon = L.divIcon({
+                    ...existingIconOptions,
+                    html: newHtml,
+                  });
+                  layer.setIcon(newIcon);
+                }
+              });
 
-              // Change icon fill color to light blue
-              if (layer instanceof L.Marker && layer.options.icon) {
+              selectedLayers.forEach((layer) => {
+                // Assuming each layer is a marker created by RouteMarker
+                const { address, id, kind, name } = layer.options.children.props.children.props;
+                console.log({ address, id, kind, name });
 
-                console.log(layer)
-                // Extract the existing icon options
-                const existingIconOptions = layer.options.icon.options;
-              
-                // Modify the HTML string to change the background color
-                const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
-              
-                // Create a new icon with the modified HTML and existing options
-                const newIcon = L.divIcon({
-                  ...existingIconOptions, // Spread existing options to preserve them
-                  html: newHtml, // Override the html property with the modified string
-                });
-              
-                // Set the new icon to the layer
-                layer.setIcon(newIcon);
-              }
-            });
+                // Change icon fill color to light blue
+                if (layer instanceof L.Marker && layer.options.icon) {
+
+                  console.log(layer)
+                  // Extract the existing icon options
+                  const existingIconOptions = layer.options.icon.options;
+                
+                  // Modify the HTML string to change the background color
+                  const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
+                
+                  // Create a new icon with the modified HTML and existing options
+                  const newIcon = L.divIcon({
+                    ...existingIconOptions, // Spread existing options to preserve them
+                    html: newHtml, // Override the html property with the modified string
+                  });
+                
+                  // Set the new icon to the layer
+                  layer.setIcon(newIcon);
+
+                }
+              });
+            } // end showAdvanced
           });
         }).catch(error => console.error("Failed to load leaflet-lasso", error));
       }
@@ -261,7 +266,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           mapRef.current.off('lasso.finished');
         }
       };
-    }, [mapRef.current]);
+    }, [mapRef.current, showAdvanced]);
 
     const setActiveDriverIcons = (obj: {
       vehicleId: string;
