@@ -56,9 +56,6 @@ import { MapPopup } from "~/apps/solidarity-routing/components/map/map-popup.wip
 import { MAP_DATA } from "~/apps/solidarity-routing/data/map-data";
 import { useDriverVehicleBundles } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles";
 
-import { useDriverVehicleBundles2 } from "~/apps/solidarity-routing/hooks/drivers/use-driver-vehicle-bundles2";
-
-
 import { useClientJobBundles } from "~/apps/solidarity-routing/hooks/jobs/use-client-job-bundles";
 import { useOptimizedRoutePlan } from "~/apps/solidarity-routing/hooks/optimized-data/use-optimized-route-plan";
 import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
@@ -200,6 +197,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     }, []);
 
     const LIGHTBLUE = "#0000003a";
+    const [selectedJobIds, setSelectedJobIds] = useState<string[]>([]);
     useEffect(() => {
       if (mapRef.current) {
         import('leaflet-lasso').then(() => {
@@ -210,53 +208,28 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on('lasso.finished', (event) => {
             const selectedLayers = event.layers;
+            const tempSelectedJobIds: string[] = [];
 
-            console.log(showAdvanced, '... can track state here')
+            // We use a side-effect of leaflet + Soldiarity Routing code
+            //  where if the map is redrawn, the pop up revert to their default
+            //  background color
+            //
+            // We really shouldn't be depending on side effects but don't have time to
+            // continue to refactor and make the app more organized
+            //
+            // The upshot is that on lasso.finished (or a lasso click) that contain no
+            // markers, all marker background's are reset
 
-            if(!showAdvanced){
-              // Clear previous selections
-              console.log(showAdvanced, '... about to clear')
-              mapRef.current.eachLayer((layer) => {
-                if (layer instanceof L.Marker && layer.options.icon) {
-                  // Extract the existing icon options
-                  const existingIconOptions = layer.options.icon.options;              
-                  const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, `background-color: ${LIGHTBLUE};`);
-                
-                  const newIcon = L.divIcon({
-                    ...existingIconOptions,
-                    html: newHtml,
-                  });
-                  layer.setIcon(newIcon);
-                }
-              });
+            selectedLayers.forEach((layer) => {
+              const { address, id, kind, name } = layer.options.children.props.children.props;
+              console.log({ address, id, kind, name });
 
-              selectedLayers.forEach((layer) => {
-                // Assuming each layer is a marker created by RouteMarker
-                const { address, id, kind, name } = layer.options.children.props.children.props;
-                console.log({ address, id, kind, name });
+              if (layer instanceof L.Marker && layer.options.icon) {
+                tempSelectedJobIds.push(id); // we let a useEffect on selectedJobIds do the coloring
+              }
+            });
 
-                // Change icon fill color to light blue
-                if (layer instanceof L.Marker && layer.options.icon) {
-
-                  console.log(layer)
-                  // Extract the existing icon options
-                  const existingIconOptions = layer.options.icon.options;
-                
-                  // Modify the HTML string to change the background color
-                  const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
-                
-                  // Create a new icon with the modified HTML and existing options
-                  const newIcon = L.divIcon({
-                    ...existingIconOptions, // Spread existing options to preserve them
-                    html: newHtml, // Override the html property with the modified string
-                  });
-                
-                  // Set the new icon to the layer
-                  layer.setIcon(newIcon);
-
-                }
-              });
-            } // end showAdvanced
+            setSelectedJobIds(tempSelectedJobIds);
           });
         }).catch(error => console.error("Failed to load leaflet-lasso", error));
       }
@@ -267,6 +240,32 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         }
       };
     }, [mapRef.current, showAdvanced]);
+
+
+    useEffect(() => {// we color the known jobId
+        console.log(selectedJobIds, '... are jobId')
+        if(mapRef.current){
+          mapRef.current.eachLayer((layer) => {
+            if (layer instanceof L.Marker && 
+                layer.options.icon && 
+                selectedJobIds.includes(layer.options.children.props.children.props?.id
+            )) {
+              // Extract the existing icon options
+              const existingIconOptions = layer.options.icon.options;
+              // Modify the HTML string to change the background color
+              const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
+              // Create a new icon with the modified HTML and existing options
+              const newIcon = L.divIcon({
+                ...existingIconOptions, // Spread existing options to preserve them
+                html: newHtml, // Override the html property with the modified string
+              });
+              // Set the new icon to the layer
+              layer.setIcon(newIcon);
+            }
+          });
+        }
+
+    }, [mapRef.current, showAdvanced, selectedJobIds]);// uses showAdvanced as a toggle
 
     const setActiveDriverIcons = (obj: {
       vehicleId: string;

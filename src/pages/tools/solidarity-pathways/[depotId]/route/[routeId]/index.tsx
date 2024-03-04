@@ -22,7 +22,7 @@ import {
   Pencil,
   Send,
   PlusCircle,
-  FilePlus2
+  Rocket
 } from "lucide-react";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
@@ -218,6 +218,11 @@ const SingleRoutePage = () => {
         </Button>
         </div>
 
+        <div className="p-1">
+        <Button onClick={() => calculateOptimalPaths()} className="bg-black text-white hover:bg-dark-gray">
+          <Rocket /> Route
+        </Button>
+        </div>
         {/* Tracking related widgets */}
         <DriverVehicleSheet />
         <JobClientSheet />
