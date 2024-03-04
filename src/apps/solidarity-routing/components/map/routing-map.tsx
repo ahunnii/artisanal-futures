@@ -199,6 +199,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       };
     }, []);
 
+    const LIGHTBLUE = "#0000003a";
     useEffect(() => {
       if (mapRef.current) {
         // Dynamically import Lasso control to work with Leaflet imported as a type
@@ -213,13 +214,16 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
             // Clear previous selections
             mapRef.current.eachLayer((layer) => {
-              if (layer instanceof L.Marker) {
-                // Recreate the default icon using HTML
-                const defaultIcon = L.divIcon({
-                  html: layer.options.icon.options.html.replace(/background-color: [^;]+;/, 'background-color: #0000003a;'),
-                  className: 'default-marker', // You might need to adjust this
+              if (layer instanceof L.Marker && layer.options.icon) {
+                // Extract the existing icon options
+                const existingIconOptions = layer.options.icon.options;              
+                const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, `background-color: ${LIGHTBLUE};`);
+              
+                const newIcon = L.divIcon({
+                  ...existingIconOptions,
+                  html: newHtml,
                 });
-                layer.setIcon(defaultIcon);
+                layer.setIcon(newIcon);
               }
             });
 
@@ -229,15 +233,23 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               console.log({ address, id, kind, name });
 
               // Change icon fill color to light blue
-              if (layer instanceof L.Marker) {
-                console.log(layer)
+              if (layer instanceof L.Marker && layer.options.icon) {
 
-                // Recreate the icon with new styling for selection
-                const selectedIcon = L.divIcon({
-                  html: layer.options.icon.options.html.replace(/background-color: [^;]+;/, 'background-color: light-blue;'),
-                  className: 'selected-marker', // You might need to adjust this
+                console.log(layer)
+                // Extract the existing icon options
+                const existingIconOptions = layer.options.icon.options;
+              
+                // Modify the HTML string to change the background color
+                const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
+              
+                // Create a new icon with the modified HTML and existing options
+                const newIcon = L.divIcon({
+                  ...existingIconOptions, // Spread existing options to preserve them
+                  html: newHtml, // Override the html property with the modified string
                 });
-                layer.setIcon(selectedIcon);
+              
+                // Set the new icon to the layer
+                layer.setIcon(newIcon);
               }
             });
           });
