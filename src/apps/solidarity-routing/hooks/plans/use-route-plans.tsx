@@ -91,17 +91,16 @@ export const useRoutePlans = () => {
     const vehicles = optimizationService.formatDriverData(driverBundles.data);
 
     var jobs = jobs_bundles;
-    // Filter jobs if selectedJobIds is provided and not empty
-    if (selectedJobIds && selectedJobIds.length > 0) {
-      console.log(jobs_bundles, "job bundles")
-      console.log(selectedJobIds, "< the selected jobs")
-      jobs = jobs_bundles.filter(job => selectedJobIds.includes(job.description));
-    }
-    else{
-      console.log("LENGTH IS ODDLY ZERO")
+
+    if (jobs.length === 0 || vehicles.length === 0) {
+      return;
     }
 
-    console.log(jobs, "these are the jobs")
+    // Filter jobs if selectedJobIds is provided and not empty
+    if (selectedJobIds && selectedJobIds.length > 0) {
+      jobs = jobs_bundles.filter(job => selectedJobIds.includes(job.description));
+    }
+
     const params = {
       jobs,
       vehicles,

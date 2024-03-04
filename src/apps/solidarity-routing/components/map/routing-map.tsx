@@ -178,11 +178,11 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         }));
 
     const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color === "-1"
+      (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
     );
 
     const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color !== "-1"
+      (stop) => stop.color !== "-1" && selectedJobIds.includes(stop.id)
     );
 
     const routeGeoJsonList = pathId

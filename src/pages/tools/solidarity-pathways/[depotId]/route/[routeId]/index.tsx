@@ -22,7 +22,8 @@ import {
   Pencil,
   Send,
   PlusCircle,
-  Rocket
+  Rocket,
+  PencilIcon
 } from "lucide-react";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
@@ -226,20 +227,24 @@ const SingleRoutePage = () => {
     <>
     <RouteLayout>
 
-        <div className="p-1">
-          <Button onClick={() => setShowAdvanced(!showAdvanced)} className="bg-black text-white hover:bg-dark-gray">{showAdvanced ? "Close" : "Details"}</Button>
-        </div>
+        <div className="flex flex-col">
+          <div className="p-1">
+            <Button onClick={() => setShowAdvanced(!showAdvanced)} className="bg-black text-white hover:bg-dark-gray">
+            <PencilIcon />  {showAdvanced ? "Close" : "Details"}
+            </Button>
+          </div>
 
-        <div className="p-1">
-        <Button onClick={() => buildManyJobs()} className="bg-black text-white hover:bg-dark-gray">
-          <PlusCircle /> Client
-        </Button>
-        </div>
+          <div className="p-1">
+            <Button onClick={() => buildManyJobs()} className="bg-black text-white hover:bg-dark-gray">
+              <PlusCircle /> Clients
+            </Button>
+          </div>
 
-        <div className="p-1">
-        <Button onClick={() => calculateOptimalPaths()} className="bg-black text-white hover:bg-dark-gray">
-          <Rocket /> Route
-        </Button>
+          <div className="p-1">
+            <Button onClick={() => calculateOptimalPaths()} className="bg-black text-white hover:bg-dark-gray">
+              <Rocket /> Route
+            </Button>
+          </div>
         </div>
         {/* Tracking related widgets */}
         <DriverVehicleSheet />
