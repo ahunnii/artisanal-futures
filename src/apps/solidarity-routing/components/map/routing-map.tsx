@@ -217,6 +217,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on('lasso.finished', (event) => {
+            if (assignedMapPoints.length > 0){
+              console.log("Can't lasso after establishing a route!")
+              return
+            } // lasso'ing after assignment screws up route logic; need to wipe route first
             const tempSelectedJobIds: string[] = [];
 
             event.layers.forEach((layer) => {
@@ -258,23 +262,22 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     // Stop Color | wasSelected   | Marker Assignment
     // --------------------------------------------
-    //    -1      |       F       |    Default Transparent
-    //    -1      |       T       |    Default Green Transparent
-    //
+    //      TODO fill in this chart??
     // * Stop Color -1 means the stop hasn't been assigned to a route, the 
     // default state.
 
     const assignAnIcon = (stop, stopColor, wasSelected, id) => {
-      // Row 1 - Default Transparent
+      // Case Unlassoed and we tried to route but couldn't (?)
       if(stopColor === "-1" && wasSelected === false){
         return StopIcon("#FF10106a", '-')
       }
 
+      // Case Lasso'ed and unrouted --> drivers can't reach those customers
       if(stopColor === "-1" && wasSelected === true){
         return StopIcon("#90F4005a", '+')
       }
 
-      // Case Unlassed & Unrouted
+      // Case Unlassoed & Unrouted
       if(stopColor !== "-1" && wasSelected === false){
         return StopIcon("#0000003a", '')
       }
