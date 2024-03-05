@@ -43,7 +43,7 @@ import {
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 
-import RouteMarker from "~/apps/solidarity-routing/components/map/route-marker";
+import RouteMarker, { StopIcon, PositionIcon } from "~/apps/solidarity-routing/components/map/route-marker";
 
 import { getStyle } from "~/apps/solidarity-routing/utils/generic/color-handling";
 
@@ -96,6 +96,7 @@ export type MapPoint = {
 };
 
 type CoordMap = Record<string, { lat: number; lng: number }>;
+
 
 const RoutingMap = forwardRef<MapRef, MapProps>(
   ({ className, children, showAdvanced}, ref) => {
@@ -177,6 +178,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               : "3",
         }));
 
+
     const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
       (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
     );
@@ -218,7 +220,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
             const tempSelectedJobIds: string[] = [];
 
             event.layers.forEach((layer) => {
-              const { address, id, kind, name } = layer.options.children.props.children.props;
+              const { address, id, kind, name } = layer.options?.children.props.children.props;
               console.log(
                 id,
                 address, 
@@ -252,6 +254,37 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         },
       }));
     };
+
+
+    // Stop Color | wasSelected   | Marker Assignment
+    // --------------------------------------------
+    //    -1      |       F       |    Default Transparent
+    //    -1      |       T       |    Default Green Transparent
+    //
+    // * Stop Color -1 means the stop hasn't been assigned to a route, the 
+    // default state.
+
+    const assignAnIcon = (stop, stopColor, wasSelected, id) => {
+      // Row 1 - Default Transparent
+      if(stopColor === "-1" && wasSelected === false){
+        return StopIcon("#FF10106a", '-')
+      }
+
+      if(stopColor === "-1" && wasSelected === true){
+        return StopIcon("#90F4005a", '+')
+      }
+
+      // Case Unlassed & Unrouted
+      if(stopColor !== "-1" && wasSelected === false){
+        return StopIcon("#0000003a", '')
+      }
+
+      return StopIcon(
+          "#000000",
+          'ERROR COLORING THIS STOP!'
+          )
+      }
+
     const [snap, setSnap] = useState<number | string | null>(0.1);
     const isDesktop = useMediaQuery("(min-width: 1024px)");
     return (
@@ -375,6 +408,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
                           color={Number(stop.color)}
+                          // LET DEFAULT color assign icon!
                         >
                           <MapPopup
                             name={stop.name}
@@ -404,14 +438,20 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                     {
                     unassignedMapPoints?.length > 0 &&
                       unassignedMapPoints.map((stop, idx) => (
-                        
                         <RouteMarker
                           key={idx}
                           variant="stop"
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
-                          // we're hashing "ADD8E6" to a color value I don't really care rn even tho we want it that color and transparent
-                          color={selectedJobIds.includes(stop.id) ? "#ADD8E6" : Number(stop.color)}
+                          color={Number(stop.color)}
+                          useThisIconInstead={
+                            assignAnIcon(
+                              stop,
+                              stop.color,
+                              selectedJobIds.includes(stop.id),
+                              ""
+                            )
+                          }
                         >
                           <MapPopup 
                             name={stop.name}

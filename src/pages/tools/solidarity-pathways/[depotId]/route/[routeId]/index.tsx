@@ -113,18 +113,6 @@ const SingleRoutePage = () => {
 
   const apiContext = api.useContext();
 
-  const updateLayerBg = (layer) => {
-    console.log(layer)
-
-    const existingIconOptions = layer.options.icon.options;
-    const newHtml = existingIconOptions.html.replace(/background-color: [^;]+;/, 'background-color: #ADD8E6;');
-    const newIcon = L.divIcon({
-      ...existingIconOptions, // Spread existing options to preserve them
-      html: newHtml, // Override the html property with the modified string
-    });
-    layer.setIcon(newIcon);
-  }
-
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -220,7 +208,6 @@ const SingleRoutePage = () => {
 
       console.log(one_job.client.name, one_job.job.id)
     });
-    console.log("whheee", data)
   }
 
   return (

@@ -1,4 +1,4 @@
-import { divIcon } from "leaflet";
+import { DivIcon, divIcon } from "leaflet";
 import { Building, Truck } from "lucide-react";
 
 import { useMemo, type FC } from "react";
@@ -16,6 +16,7 @@ interface IProps extends MarkerProps {
   stopId?: number;
   data?: Stop | Driver | RouteData;
   onClick?: () => void;
+  useThisIconInstead?: DivIcon
 }
 
 export const TruckIcon = (color: string) => {
@@ -99,6 +100,7 @@ const RouteMarker: FC<IProps> = ({
   stopId,
   children,
   onClick,
+  useThisIconInstead
 }) => {
   const calculatedColor = useMemo(() => {
     if (color == -1)
@@ -110,14 +112,23 @@ const RouteMarker: FC<IProps> = ({
     return getColor(color);
   }, [color]);
 
-  const icon =
-    variant === "stop"
-      ? StopIcon(calculatedColor.fill!, stopId!)
-      : variant === "currentPosition"
-      ? PositionIcon()
-      : variant === "depot"
-      ? DepotIcon(calculatedColor.text!)
-      : TruckIcon(calculatedColor.text!);
+  // Determine the icon based on the variant if useThisIcon is not provided
+  const icon = useMemo(() => {
+    if (useThisIconInstead) {
+      return useThisIconInstead;
+    } else {
+      switch (variant) {
+        case "stop":
+          return StopIcon(calculatedColor.fill!, stopId!);
+        case "currentPosition":
+          return PositionIcon();
+        case "depot":
+          return DepotIcon(calculatedColor.text!);
+        default:
+          return TruckIcon(calculatedColor.text!);
+      }
+    }
+  }, [variant, calculatedColor, stopId, useThisIconInstead]);
 
   return (
     <Marker
@@ -133,5 +144,4 @@ const RouteMarker: FC<IProps> = ({
     </Marker>
   );
 };
-
 export default RouteMarker;
