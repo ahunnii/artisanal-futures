@@ -88,6 +88,15 @@ async function importClientsFromOneCSV(filePath: string) {
   return rows; // Return the collected rows after processing all CSV data
 }
 
+function runDockerScript() {
+  // Replace 'your_docker_image' with your actual Docker image name
+  // and adjust the command as necessary
+  execSync('docker run your_docker_image');
+
+  // process .csv file
+}
+
+
 export async function importClientsFromAllCSV(seedName: string) {
   const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`);
   const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.csv'));
