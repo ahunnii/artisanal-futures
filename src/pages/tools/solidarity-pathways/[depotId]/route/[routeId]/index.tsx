@@ -80,7 +80,7 @@ const SingleRoutePage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ seedName: "deeplyrooted" }),
+        body: JSON.stringify({ seedName: routePlans.depot?.magicCode }),
       });
       const data = await response.json();
 

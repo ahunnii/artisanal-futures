@@ -273,11 +273,6 @@ function saveGeocodeCache(force = false) {
 }
 
 export async function importClientsFromAllCSV(seedName: string) {
-  console.log(
-    "***** inside importClientsFromAllCSV!",
-    "CAN WE SEE ME?"
-  )
-
   const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`); // __dirname; // FOR TS DEBUG
   const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.csv')); // FOR TS DEBUG ?fs.readdirSync(directoryPath);
 
