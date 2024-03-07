@@ -4,6 +4,7 @@ import { importClientsFromAllCSV } from '../../../prisma/seeds/deeplyrooted/impo
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
     try {
+      console.log('>>>> ', "in importClients handler", __dirname)
       // Call your function to import clients from CSV
       const seedName = req.body.seedName;
       // Assuming the function needs a file path as an argument

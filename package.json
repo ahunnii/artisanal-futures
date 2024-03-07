@@ -1,7 +1,6 @@
 {
   "name": "artisanal-futures",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -60,6 +59,7 @@
     "@vercel/speed-insights": "^1.0.10",
     "axios": "^1.4.0",
     "babel-polyfill": "^6.26.0",
+    "bottleneck": "^2.19.5",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^1.40.0",
     "clsx": "^2.0.0",

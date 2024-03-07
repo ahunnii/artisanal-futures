@@ -1,12 +1,11 @@
+import Bottleneck from "bottleneck";
 import axios from "axios";
 import csv from 'csv-parser';
 import { parse } from 'csv-parse/sync';
 import fs from 'fs';
-import * as path from 'path';
-import { execSync } from 'child_process';
-
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import path from 'path';
+// import { fileURLToPath } from 'url'; // For TS DEBUG
+// import { dirname } from 'path'; // For TS DEBUG
 
 // // For TS DEBUG
 // //
@@ -53,7 +52,19 @@ function importClientsFromPackList(filePath: string): Customer[] {
 
   const csvBlocks = constructCsvBlocks(fileContent);
 
-  return parseCsvBlocks(csvBlocks);
+  const customers = parseCsvBlocks(csvBlocks);
+
+  customers.forEach(async customer => {
+    await geocodeAddress(customer.address).then(cachedData => {
+      if (cachedData) {
+        customer.lat = cachedData.lat;
+        customer.lon = cachedData.lon;
+        customer.address = cachedData.full_address;
+      }
+    });
+  });
+
+  return customers;
 }
 
 const delimiter = ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
@@ -144,6 +155,7 @@ function parseCsvBlocks(csvBlocks: string[]): Customer[] {
       }
     }
 
+    customer.address = limitedGeocodeAddress(customer.address + " Detroit, MI ")
     customers.push(customer);
   }
 
@@ -176,50 +188,25 @@ async function importClientsFromConsolidatedCSV(filePath: string) {
         }
 
         const geocode_this_address = `${row.Address} Detroit, MI`;
-        if (!geocodeCache[geocode_this_address]) {
-          const endpointEncodedAddress = `${GOOGLE_GEOCODING_ENDPOINT}?address=${encodeURIComponent(
-                   geocode_this_address
-          )}&key=${process.env.GOOGLE_API_KEY}`;
-          
-          try {
-            const results = await axios.get(endpointEncodedAddress);
-            
-            if (results.status === 200) {
-              let data = results.data.results[0];
-              geocodeCache[geocode_this_address] = {
-                full_address: data.formatted_address,
-                lat: data.geometry.location.lat,
-                lon: data.geometry.location.lng
-              };
-              newGeocodesCount++;
-              if (newGeocodesCount >= 10) {
-                saveGeocodeCache(); // Save the cache to disk
-                newGeocodesCount = 0; // Reset the counter
-              }
-            }
-          } catch (error) {
-            console.error('Failed to geocode address:', geocode_this_address, error);
+        await limitedGeocodeAddress(geocode_this_address).then(cachedData => {
+          if (cachedData) {
+            rows.push({
+              name: name,
+              address: cachedData.full_address,
+              email: email,
+              phone: phone,
+              prep_time: 5,
+              service_time: 5,
+              priority: 1,
+              time_start: "09:00",
+              time_end: "17:00",
+              lat: cachedData.lat,
+              lon: cachedData.lon,
+              order: row['Delivery Type Field'],
+              notes: "We copied this from" + " " + row['Reference field'] + " " + row['Address field'] + " " + row['Contact Related field'] + " " + row['Source file'] + " " + row['Source Sheet']
+            });
           }
-        }
-
-        const cachedData = geocodeCache[geocode_this_address];
-        if (cachedData) {
-          rows.push({
-            name: name,
-            address: cachedData.full_address,
-            email: email,
-            phone: phone,
-            prep_time: 5,
-            service_time: 5,
-            priority: 1,
-            time_start: "09:00",
-            time_end: "17:00",
-            lat: cachedData.lat,
-            lon: cachedData.lon,
-            order: row['Delivery Type Field'],
-            notes: "We copied this from"+ " " + row['Reference field'] + " " + row['Address field'] + " " + row['Contact Related field'] + " " + row['Source file'] + " " + row['Source Sheet']
-          });
-        }
+        });
       })();
       promises.push(promise);
     }).on('end', () => {
@@ -233,6 +220,43 @@ async function importClientsFromConsolidatedCSV(filePath: string) {
   });
 
   return rows;
+}
+
+// Initialize the rate limiter with 1 request per 25 milliseconds
+const limiter = new Bottleneck({
+  maxConcurrent: 1, // Allows only 1 request to be executing at any time
+  minTime: 25, // Time between launches to ensure only 1 request per 25 ms
+});
+const limitedGeocodeAddress = limiter.wrap(geocodeAddress);
+async function geocodeAddress(address: string) {
+  const geocode_this_address = `${address} Detroit, MI`;
+  if (!geocodeCache[geocode_this_address]) {
+    const endpointEncodedAddress = `${GOOGLE_GEOCODING_ENDPOINT}?address=${encodeURIComponent(
+             geocode_this_address
+    )}&key=${process.env.GOOGLE_API_KEY}`;
+    
+    try {
+      const results = await axios.get(endpointEncodedAddress);
+      
+      if (results.status === 200) {
+        let data = results.data.results[0];
+        geocodeCache[geocode_this_address] = {
+          full_address: data.formatted_address,
+          lat: data.geometry.location.lat,
+          lon: data.geometry.location.lng
+        };
+        newGeocodesCount++;
+        if (newGeocodesCount >= 10) {
+          saveGeocodeCache(); // Save the cache to disk
+          newGeocodesCount = 0; // Reset the counter
+        }
+      }
+    } catch (error) {
+      console.error('Failed to geocode address:', geocode_this_address, error);
+    }
+  }
+
+  return geocodeCache[geocode_this_address];
 }
 
 function saveGeocodeCache(force = false) {
@@ -249,9 +273,13 @@ function saveGeocodeCache(force = false) {
 }
 
 export async function importClientsFromAllCSV(seedName: string) {
-  const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`); // __dirname; // FOR TS DEBUG
+  console.log(
+    "***** inside importClientsFromAllCSV!",
+    "CAN WE SEE ME?"
+  )
 
-  const files = fs.readdirSync(directoryPath); // fs.readdirSync(__dirname); // FOR TS DEBUG
+  const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`); // __dirname; // FOR TS DEBUG
+  const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.csv')); // FOR TS DEBUG ?fs.readdirSync(directoryPath);
 
   const consolidatedFiles = files.filter(file => file.includes('Consolidated') && file.endsWith('.csv'));
   const packListFiles = files.filter(file => file.includes('packlist') && file.endsWith('.csv'));
@@ -274,7 +302,7 @@ export async function importClientsFromAllCSV(seedName: string) {
   return clients;
 }
 
-
+// // FOR TS DEBUG
 // // Main function to detect command line execution and call importClientsFromAllCSV
 // async function main() {
 //   const seedName = 'deeplyrooted';
