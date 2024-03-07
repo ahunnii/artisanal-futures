@@ -8,14 +8,14 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// For TS DEBUG
-//
-// need to export GOOGLE_API_KEY FIRST, then uncomment other
-// For TS DEBUG dir paths (Next js runs from a different place)
-// 
-// and then run within this seed directory 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);  
+// // For TS DEBUG
+// //
+// // need to export GOOGLE_API_KEY FIRST, then uncomment other
+// // For TS DEBUG dir paths (Next js runs from a different place)
+// // 
+// // and then run within this seed directory 
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);  
 
 const GOOGLE_GEOCODING_ENDPOINT =
   "https://maps.googleapis.com/maps/api/geocode/json";
@@ -31,7 +31,6 @@ try {
 } catch (error) {
   console.error('Failed to load geocode cache from disk:', error);
 }
-// importClientsFromPackList
 
 interface Customer {
   name: string;
@@ -52,9 +51,7 @@ interface Customer {
 function importClientsFromPackList(filePath: string): Customer[] {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  console.log(" ... looking at ", filePath)
   const csvBlocks = constructCsvBlocks(fileContent);
-  console.log(csvBlocks.length, csvBlocks[1])
 
   return parseCsvBlocks(csvBlocks);
 }
@@ -252,9 +249,9 @@ function saveGeocodeCache(force = false) {
 }
 
 export async function importClientsFromAllCSV(seedName: string) {
-  const directoryPath = __dirname; // path.join(__dirname, `../../../../prisma/seeds/${seedName}`); FOR TS DEBUG
+  const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`); // __dirname; // FOR TS DEBUG
 
-  const files = fs.readdirSync(__dirname); // fs.readdirSync(directoryPath); FOR TS DEBUG
+  const files = fs.readdirSync(directoryPath); // fs.readdirSync(__dirname); // FOR TS DEBUG
 
   const consolidatedFiles = files.filter(file => file.includes('Consolidated') && file.endsWith('.csv'));
   const packListFiles = files.filter(file => file.includes('packlist') && file.endsWith('.csv'));
@@ -262,8 +259,8 @@ export async function importClientsFromAllCSV(seedName: string) {
   let clients = [];
   if (consolidatedFiles.length > 0) {
     for (const file of consolidatedFiles) {
-      //const result = await importClientsFromConsolidatedCSV(path.join(directoryPath, file));
-      //clients = clients.concat(result);
+      const result = await importClientsFromConsolidatedCSV(path.join(directoryPath, file));
+      clients = clients.concat(result);
     }
   }
 
@@ -278,11 +275,11 @@ export async function importClientsFromAllCSV(seedName: string) {
 }
 
 
-// Main function to detect command line execution and call importClientsFromAllCSV
-async function main() {
-  const seedName = 'deeplyrooted';
-  const results = await importClientsFromAllCSV(seedName);
-  console.log(results, "< results");
-}
+// // Main function to detect command line execution and call importClientsFromAllCSV
+// async function main() {
+//   const seedName = 'deeplyrooted';
+//   const results = await importClientsFromAllCSV(seedName);
+//   console.log(results, "< results");
+// }
 
-main();
+// main();
