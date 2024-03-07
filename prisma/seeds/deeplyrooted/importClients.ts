@@ -1,23 +1,168 @@
 import axios from "axios";
 import csv from 'csv-parser';
+import { parse } from 'csv-parse/sync';
 import fs from 'fs';
-import path from 'path';
+import * as path from 'path';
+import { execSync } from 'child_process';
 
-// Unclear why pulling from google-processor wipes endpoint address
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// For TS DEBUG
+//
+// need to export GOOGLE_API_KEY FIRST, then uncomment other
+// For TS DEBUG dir paths (Next js runs from a different place)
+// 
+// and then run within this seed directory 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);  
+
 const GOOGLE_GEOCODING_ENDPOINT =
   "https://maps.googleapis.com/maps/api/geocode/json";
 
-// Initialize a cache for memoization
-const geocodeCache = {};
+let geocodeCache = {};
+const geocodeCacheFilePath = path.join(__dirname, 'geocodeCache.json');
+let newGeocodesCount = 0;
 
-async function importClientsFromOneCSV(filePath: string) {
-  const rows = []; // Initialize rows array to collect client data
+try {
+  if (fs.existsSync(geocodeCacheFilePath)) {
+    geocodeCache = JSON.parse(fs.readFileSync(geocodeCacheFilePath, 'utf8'));
+  }
+} catch (error) {
+  console.error('Failed to load geocode cache from disk:', error);
+}
+// importClientsFromPackList
+
+interface Customer {
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+  prep_time: number;
+  service_time: number;
+  priority: number;
+  time_start: string;
+  time_end: string;
+  lat: number;
+  lon: number;
+  order: string;
+  notes: string;
+}
+
+function importClientsFromPackList(filePath: string): Customer[] {
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+  console.log(" ... looking at ", filePath)
+  const csvBlocks = constructCsvBlocks(fileContent);
+  console.log(csvBlocks.length, csvBlocks[1])
+
+  return parseCsvBlocks(csvBlocks);
+}
+
+const delimiter = ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+  // Add delimiter to the start of the file content if not already present
+function constructCsvBlocks(fileContent: string): string[] {
+  if (!fileContent.startsWith(delimiter)) {
+    fileContent = delimiter + '\n' + fileContent;
+  }
+
+  // This regex is used to match each customer block in the file content. 
+  // It looks for the delimiter, followed by any character or newline lazily (*) until it finds the line starting with 'Grand Total'.
+  const regex = new RegExp(`(?=${delimiter})(.|\\n)*?^Grand Total.*\\n`, 'gm');
+  const matches = fileContent.match(regex);
+
+  if (matches) {
+    // For each match, remove the delimiter line if it's alone on a line and trim trailing commas and whitespace.
+    return matches.map(match => match.replace(new RegExp(`^${delimiter}$`, 'gm'), '') // Remove the delimiter if it's alone on a line.
+                                    .replace(/,+$/gm, '') // Remove trailing commas.
+                                    .trim()); // Trim leading and trailing whitespace.
+  }
+
+  return [];
+}
+
+function parseCsvBlocks(csvBlocks: string[]): Customer[] {
+  const customers: Customer[] = [];
+  const csvHeader = ',Order,Date,Order Status,Payment Status,Payment Method,Product,Vendor,Internal Product ID,# of Items,Quantity,Package Name,Product Subtotal,Product Sales Tax,Order Discount,Store Credit Applied,Fulfillment Fee,Fulfillment Tax,Total,Fulfillment Date,Fulfillment Type,Fulfillment Name,Fulfillment Address,Order Placed Time,Order Note,Backoffice Product Tags,Fulfillment Street Address,Fulfillment City,Fulfillment State,Fulfillment ZIP Code,Fulfillment Country,Payment Fee,Payment Fee Amount,Payment Fee Tax';
+
+  for (const block of csvBlocks) {
+    const rows = block.trim().split('\n');
+    let nameRow = rows[0].trim();
+    if ((nameRow.match(/,/g) || []).length > 5) {
+      const match = nameRow.match(/,(\d+),/);
+      nameRow = match ? match[1] : nameRow;
+    }
+    const contactRowRegex = {
+      phone: /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/,
+      email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
+    };
+    const contactRows = rows.slice(1, 3).map(row => row.trim());
+    const phoneRow = contactRows.find(row => contactRowRegex.phone.test(row)) || '';
+    const emailRow = contactRows.find(row => contactRowRegex.email.test(row)) || '';
+    const headerRow = rows.find(row => row.startsWith(',Order,Date,Order Status,'));
+    const headerRowIndex = rows.findIndex(row => row.startsWith(',Order,Date,Order Status,'));
+    const dataRows = parse(
+      rows.slice(headerRowIndex + 1).join('\n'), {
+      columns: csvHeader.split(','),
+      skip_empty_lines: true,
+      trim: true,
+    });
+
+    const customer: Customer = {
+      name: nameRow,
+      address: '',
+      email: emailRow,
+      phone: phoneRow,
+      prep_time: 5,
+      service_time: 5,
+      priority: 1,
+      time_start: '09:00',
+      time_end: '17:00',
+      lat: 0, // Placeholder value, should be filled from geoCode cachedData lookup
+      lon: 0, // Placeholder value, should be filled from geoCode cachedData lookup
+      order: '',
+      notes: ''
+    };
+
+    for (const row of dataRows) {
+      const orderStatus = row['Order Status'];
+      const paymentStatus = row['Payment Status'];
+      const paymentMethod = row['Payment Method'];
+      const product = row['Product'];
+      const fulfillmentType = row['Fulfillment Type'];
+      const fulfillmentName = row['Fulfillment Name'];
+      const fulfillmentAddress = row['Fulfillment Address'];
+      const orderNote = row['Order Note'];
+
+      if (orderStatus && paymentStatus && product) {
+        customer.order += customer.order ? ` | Status: ${orderStatus}, Payment Status: ${paymentStatus}, Product: ${product}` : `Status: ${orderStatus}, Payment Status: ${paymentStatus}, Product: ${product}`;
+      }
+
+      if (fulfillmentType && fulfillmentName) {
+        customer.notes += customer.notes ? ` | Order Note: ${orderNote}, Payment Method: ${paymentMethod}, type: ${fulfillmentType}, Fulfillment Name: ${fulfillmentName}` : `Order Note: ${orderNote}, Payment Method: ${paymentMethod}, type: ${fulfillmentType}, Fulfillment Name: ${fulfillmentName}`;
+      }
+
+      if (fulfillmentAddress && customer.address !== fulfillmentAddress) {
+        customer.address += customer.address ? ` | ${fulfillmentAddress}` : fulfillmentAddress;
+      }
+    }
+
+    customers.push(customer);
+  }
+
+  return customers;
+}
+
+async function importClientsFromConsolidatedCSV(filePath: string) {
+  const rows = [];
   const stream = fs.createReadStream(filePath).pipe(csv());
-  const promises = []; // Collect promises for asynchronous operations
+  const promises = [];
+
+  console.log('... in from consolidated!')
 
   await new Promise<void>((resolve, reject) => {
+    
     stream.on('data', (row) => {
-      // Wrap the asynchronous part in a function to call it immediately
       const promise = (async () => {
         const contactInfo = row["Contact Related"];
         const emailRegex = /\S+@\S+\.\S+/;
@@ -33,7 +178,6 @@ async function importClientsFromOneCSV(filePath: string) {
           name = row["Delivery Type"]
         }
 
-        // should probably memo this
         const geocode_this_address = `${row.Address} Detroit, MI`;
         if (!geocodeCache[geocode_this_address]) {
           const endpointEncodedAddress = `${GOOGLE_GEOCODING_ENDPOINT}?address=${encodeURIComponent(
@@ -50,6 +194,11 @@ async function importClientsFromOneCSV(filePath: string) {
                 lat: data.geometry.location.lat,
                 lon: data.geometry.location.lng
               };
+              newGeocodesCount++;
+              if (newGeocodesCount >= 10) {
+                saveGeocodeCache(); // Save the cache to disk
+                newGeocodesCount = 0; // Reset the counter
+              }
             }
           } catch (error) {
             console.error('Failed to geocode address:', geocode_this_address, error);
@@ -58,7 +207,6 @@ async function importClientsFromOneCSV(filePath: string) {
 
         const cachedData = geocodeCache[geocode_this_address];
         if (cachedData) {
-          // Push client data to rows array
           rows.push({
             name: name,
             address: cachedData.full_address,
@@ -76,39 +224,65 @@ async function importClientsFromOneCSV(filePath: string) {
           });
         }
       })();
-
-      promises.push(promise); // Collect each promise
+      promises.push(promise);
     }).on('end', () => {
-      Promise.all(promises).then(() => resolve()).catch(reject); // Wait for all promises
+      Promise.all(promises).then(() => {
+        saveGeocodeCache(true); // Ensure the cache is saved at the end, regardless of count
+        resolve();
+      }).catch(reject);
     }).on('error', (error) => {
       reject(error);
     });
   });
 
-  return rows; // Return the collected rows after processing all CSV data
+  return rows;
 }
 
-function runDockerScript() {
-  // Replace 'your_docker_image' with your actual Docker image name
-  // and adjust the command as necessary
-  execSync('docker run your_docker_image');
+function saveGeocodeCache(force = false) {
+  console.log('... in geocodecache')
 
-  // process .csv file
+  if (newGeocodesCount >= 10 || force) {
+    try {
+      fs.writeFileSync(geocodeCacheFilePath, JSON.stringify(geocodeCache, null, 2), 'utf8');
+      console.log('Geocode cache saved to disk.');
+    } catch (error) {
+      console.error('Failed to save geocode cache to disk:', error);
+    }
+  }
 }
-
 
 export async function importClientsFromAllCSV(seedName: string) {
-  const directoryPath = path.join(__dirname, `../../../../prisma/seeds/${seedName}`);
-  const files = fs.readdirSync(directoryPath).filter(file => file.endsWith('.csv'));
-  
-  if (files.length > 0) {
-    const clients = await importClientsFromOneCSV(
-      path.join(directoryPath, files[0])
-    );
+  const directoryPath = __dirname; // path.join(__dirname, `../../../../prisma/seeds/${seedName}`); FOR TS DEBUG
 
-    return clients
+  const files = fs.readdirSync(__dirname); // fs.readdirSync(directoryPath); FOR TS DEBUG
+
+  const consolidatedFiles = files.filter(file => file.includes('Consolidated') && file.endsWith('.csv'));
+  const packListFiles = files.filter(file => file.includes('packlist') && file.endsWith('.csv'));
+  
+  let clients = [];
+  if (consolidatedFiles.length > 0) {
+    for (const file of consolidatedFiles) {
+      //const result = await importClientsFromConsolidatedCSV(path.join(directoryPath, file));
+      //clients = clients.concat(result);
+    }
   }
 
-  return null;
+  if (packListFiles.length > 0) {
+    for (const file of packListFiles) {
+      const result = importClientsFromPackList(path.join(directoryPath, file));
+      clients = clients.concat(result)
+    }
+  }
+
+  return clients;
 }
 
+
+// Main function to detect command line execution and call importClientsFromAllCSV
+async function main() {
+  const seedName = 'deeplyrooted';
+  const results = await importClientsFromAllCSV(seedName);
+  console.log(results, "< results");
+}
+
+main();
