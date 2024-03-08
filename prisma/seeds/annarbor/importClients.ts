@@ -88,22 +88,22 @@ function saveGeocodeCache(force = false) {
 
 export async function importClientsFromAllCSV(seedName: string) {
     const demoStopInformation = [
-        {
-            name: "Argus Farm Stop",
-            address: "1226 Packard St, Ann Arbor, MI 48104",
-            email: "dev@null.com",
-            phone: "(734) 997-5448",
-            order: "Drop off egg cartons, pick up local food",
-            notes: "Say hi to the owners"
-        },
-        {
-            name: "Malletts Creek Branch",
-            address: "3090 E Eisenhower Pkwy, Ann Arbor, MI 48108",
-            email: "ask@aadl.org",
-            phone: "(734) 327-4200",
-            order: "Pick up gardening book",
-            notes: ""
-        },
+        // {
+        //     name: "Argus Farm Stop",
+        //     address: "1226 Packard St, Ann Arbor, MI 48104",
+        //     email: "dev@null.com",
+        //     phone: "(734) 997-5448",
+        //     order: "Drop off egg cartons, pick up local food",
+        //     notes: "Say hi to the owners"
+        // },
+        // {
+        //     name: "Malletts Creek Branch",
+        //     address: "3090 E Eisenhower Pkwy, Ann Arbor, MI 48108",
+        //     email: "ask@aadl.org",
+        //     phone: "(734) 327-4200",
+        //     order: "Pick up gardening book",
+        //     notes: ""
+        // },
         {
             name: "Mariah Jones",
             address: "3144 Asher Road, Ann Arbor, MI 48104",
@@ -118,6 +118,8 @@ export async function importClientsFromAllCSV(seedName: string) {
 
     for (const stopInfo of demoStopInformation) {
         const geocodedData = await limitedGeocodeAddress(stopInfo.address);
+
+        console.log(stopInfo.name, geocodedData)
         const client: Customer = {
             name: stopInfo.name,
             address: geocodedData.full_address || stopInfo.address,

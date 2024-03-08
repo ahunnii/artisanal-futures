@@ -13,9 +13,11 @@ export default async function handler(req: any, res: any) {
       switch (seedName) {
         case "deeplyrooted":
           importClientsFromAllCSV = deeplyRootedClients;
+          console.log("pulling from Detroit")
           break;
         case "annarbor":
           importClientsFromAllCSV = annArborClients;
+          console.log("pull from ann arbor")
           break;
         default:
           throw new Error(`Unknown Depot magic code name ${seedName}! Can not automatically import clients!`);
