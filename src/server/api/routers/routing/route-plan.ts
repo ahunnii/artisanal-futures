@@ -171,7 +171,7 @@ export const routePlanRouter = createTRPCRouter({
         },
       });
 
-      await pusherServer.trigger("map", `evt::invalidate-stops`, {});
+      await pusherServer.trigger("map", `evt::invalidate-stops`, "");
       await pusherServer.trigger(
         "map",
         `evt::update-route-status`,
