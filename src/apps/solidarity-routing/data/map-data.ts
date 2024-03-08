@@ -1,7 +1,7 @@
 import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
 
 export const MAP_DATA = {
-  center: [42.33085782908872, -83.05011192993956] as LatLngExpression,
+  center: [42.258755, -83.697082] as LatLngExpression,
   zoom: 13,
   doubleClickZoom: false,
   maxBounds: [
