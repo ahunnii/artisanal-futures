@@ -1,5 +1,6 @@
 // pages/api/importClients.js
-import { importClientsFromAllCSV } from '../../../prisma/seeds/deeplyrooted/importClients';
+import { importClientsFromAllCSV as deeplyRootedClients } from '../../../prisma/seeds/deeplyrooted/importClients';
+import { importClientsFromAllCSV as annArborClients } from '../../../prisma/seeds/annarbor/importClients';
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
@@ -8,6 +9,17 @@ export default async function handler(req: any, res: any) {
       // Call your function to import clients from CSV
       const seedName = req.body.seedName;
       // Assuming the function needs a file path as an argument
+      let importClientsFromAllCSV;
+      switch (seedName) {
+        case "deeplyrooted":
+          importClientsFromAllCSV = deeplyRootedClients;
+          break;
+        case "annarbor":
+          importClientsFromAllCSV = annArborClients;
+          break;
+        default:
+          throw new Error(`Unknown Depot magic code name ${seedName}! Can not automatically import clients!`);
+      }
       const importResult = await importClientsFromAllCSV(seedName);
       res.status(200).json(
         {
