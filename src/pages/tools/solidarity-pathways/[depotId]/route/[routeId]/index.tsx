@@ -1,16 +1,14 @@
 import { uniqueId } from "lodash";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { jobTypeSchema } from "~/apps/solidarity-routing/types.wip";
 
 import {
-  jobTypeSchema,
-} from "~/apps/solidarity-routing/types.wip";
-
-import { 
   militaryTimeToUnixSeconds,
   minutesToSeconds,
-} from "~/apps/solidarity-routing/utils/generic/format-utils.wip"
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 
@@ -20,10 +18,10 @@ import {
   Calendar,
   Loader2,
   Pencil,
-  Send,
+  PencilIcon,
   PlusCircle,
   Rocket,
-  PencilIcon
+  Send,
 } from "lucide-react";
 
 import { AbsolutePageLoader } from "~/components/absolute-page-loader";
@@ -59,7 +57,7 @@ import { authenticateRoutingServerSide } from "~/apps/solidarity-routing/utils/a
 import { notificationService } from "~/services/notification";
 
 // Route among lasso selections
-import { useStopsStore } from '~/apps/solidarity-routing/hooks/jobs/use-stops-store'
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -72,13 +70,12 @@ const LazyRoutingMap = dynamic(
  * Page component that allows users to generate routes based on their input.
  */
 const SingleRoutePage = () => {
-
   const fetchCsvDataFromApi = async () => {
     try {
-      const response = await fetch('/api/importClients', {
-        method: 'POST',
+      const response = await fetch("/api/importClients", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ seedName: routePlans.depot?.magicCode }),
       });
@@ -88,7 +85,6 @@ const SingleRoutePage = () => {
       //console.log(data.result);
 
       return data.result;
-
     } catch (error) {
       console.error("Error upserting clients:", error);
     }
@@ -112,7 +108,6 @@ const SingleRoutePage = () => {
   const routePlans = useRoutePlans();
 
   const apiContext = api.useContext();
-
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -154,7 +149,7 @@ const SingleRoutePage = () => {
   const makeOneClientJob = (data) => {
     const clientId = data?.clientId ?? uniqueId("client_");
     const addressId = data?.clientAddressId ?? uniqueId("address_");
-    const jobId = uniqueId("job_")
+    const jobId = uniqueId("job_");
 
     return {
       client: {
@@ -188,47 +183,53 @@ const SingleRoutePage = () => {
         timeWindowEnd: militaryTimeToUnixSeconds(data.time_end),
         order: data?.order ?? "",
         notes: data?.notes ?? "",
-      }
-    }
+      },
+    };
   };
 
-  const jobs = useClientJobBundles()
+  const jobs = useClientJobBundles();
 
   const buildManyJobs = async () => {
-    const data = await fetchCsvDataFromApi()
+    const data = await fetchCsvDataFromApi();
 
-    data.forEach(jobData => {
+    data?.forEach((jobData) => {
       const one_job = makeOneClientJob(jobData);
-      jobs.create(
-        { 
-          job: one_job,
-          addToRoute: true 
-        }
-      );
+      jobs.create({
+        job: one_job,
+        addToRoute: true,
+      });
 
-      console.log(one_job.client.name, one_job.job.id)
+      console.log(one_job.client.name, one_job.job.id);
     });
-  }
+  };
 
   return (
     <>
-    <RouteLayout>
-
+      <RouteLayout>
         <div className="flex flex-col">
           <div className="p-1">
-            <Button onClick={() => setShowAdvanced(!showAdvanced)} className="bg-black text-white hover:bg-dark-gray">
-            <PencilIcon />  {showAdvanced ? "Close" : "Details"}
+            <Button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="hover:bg-dark-gray bg-black text-white"
+            >
+              <PencilIcon /> {showAdvanced ? "Close" : "Details"}
             </Button>
           </div>
 
           <div className="p-1">
-            <Button onClick={() => buildManyJobs()} className="bg-black text-white hover:bg-dark-gray">
+            <Button
+              onClick={() => buildManyJobs()}
+              className="hover:bg-dark-gray bg-black text-white"
+            >
               <PlusCircle /> Clients
             </Button>
           </div>
 
           <div className="p-1">
-            <Button onClick={() => calculateOptimalPaths()} className="bg-black text-white hover:bg-dark-gray">
+            <Button
+              onClick={() => calculateOptimalPaths()}
+              className="hover:bg-dark-gray bg-black text-white"
+            >
               <Rocket /> Route
             </Button>
           </div>
@@ -238,131 +239,136 @@ const SingleRoutePage = () => {
         <JobClientSheet />
         <MessageSheet />
 
-      {routePlans.isLoading && <AbsolutePageLoader />}
+        {routePlans.isLoading && <AbsolutePageLoader />}
 
-      {!routePlans.isLoading &&
-        routePlans.data &&
-        routePlans.optimized &&
-        getUrlParam("mode") && (
-          <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
-            <Tabs
-              value={getUrlParam("mode") ?? "plan"}
-              onValueChange={(e) => {
-                updateUrlParams({ key: "mode", value: e });
-              }}
-              ref={parent}
-              className={`flex w-full max-w-sm flex-col gap-4 max-lg:hidden max-lg:h-4/6 ${!showAdvanced ? 'hidden' : ''}`}
-            >
-              <div className="flex items-center gap-1 px-4 pt-4 text-sm">
-                <Link
-                  href={`/tools/solidarity-pathways/${routePlans.data.depotId}/overview`}
-                  className="flex gap-1"
-                >
-                  <Building className="h-4 w-4" /> Depot{" "}
-                  <span className="max-w-28 truncate text-ellipsis ">
-                    {routePlans.depot?.name ?? routePlans.depot?.id}
-                  </span>{" "}
-                  /{" "}
-                </Link>
-                <Link
-                  href={`/tools/solidarity-pathways/${
-                    routePlans.data.depotId
-                  }/overview?date=${routePlans.data.deliveryAt
-                    .toDateString()
-                    .split(" ")
-                    .join("+")}`}
-                  className="flex gap-1"
-                >
-                  <Calendar className="h-4 w-4" />
-                  {routePlans.data?.deliveryAt.toDateString()}{" "}
-                </Link>
-              </div>
+        {!routePlans.isLoading &&
+          routePlans.data &&
+          routePlans.optimized &&
+          getUrlParam("mode") && (
+            <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
+              <Tabs
+                value={getUrlParam("mode") ?? "plan"}
+                onValueChange={(e) => {
+                  updateUrlParams({ key: "mode", value: e });
+                }}
+                ref={parent}
+                className={`flex w-full max-w-sm flex-col gap-4 max-lg:hidden max-lg:h-4/6 ${
+                  !showAdvanced ? "hidden" : ""
+                }`}
+              >
+                <div className="flex items-center gap-1 px-4 pt-4 text-sm">
+                  <Link
+                    href={`/tools/solidarity-pathways/${routePlans.data.depotId}/overview`}
+                    className="flex gap-1"
+                  >
+                    <Building className="h-4 w-4" /> Depot{" "}
+                    <span className="max-w-28 truncate text-ellipsis ">
+                      {routePlans.depot?.name ?? routePlans.depot?.id}
+                    </span>{" "}
+                    /{" "}
+                  </Link>
+                  <Link
+                    href={`/tools/solidarity-pathways/${
+                      routePlans.data.depotId
+                    }/overview?date=${routePlans.data.deliveryAt
+                      .toDateString()
+                      .split(" ")
+                      .join("+")}`}
+                    className="flex gap-1"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    {routePlans.data?.deliveryAt.toDateString()}{" "}
+                  </Link>
+                </div>
 
-              <TabsContent value="plan" asChild>
-                <>
-                  <DriversTab />
-                  <StopsTab />
-                  <div className=" flex h-16 items-center justify-end gap-2 bg-white p-4">
-                    {routePlans.optimized.length === 0 && (
-                      <Button
-                        onClick={calculateOptimalPaths}
-                        className="gap-2"
-                        disabled={isRouteDataMissing}
-                      >
-                        Calculate Routes <ArrowRight />
-                      </Button>
-                    )}
-
-                    {routePlans.optimized.length !== 0 && (
-                      <>
-                        <Button
-                          variant={"outline"}
-                          onClick={() =>
-                            updateUrlParams({
-                              key: "mode",
-                              value: "calculate",
-                            })
-                          }
-                          className="gap-2"
-                        >
-                          Cancel
-                        </Button>
+                <TabsContent value="plan" asChild>
+                  <>
+                    <DriversTab />
+                    <StopsTab />
+                    <div className=" flex h-16 items-center justify-end gap-2 bg-white p-4">
+                      {routePlans.optimized.length === 0 && (
                         <Button
                           onClick={calculateOptimalPaths}
-                          className="flex-1 gap-2"
+                          className="gap-2"
                           disabled={isRouteDataMissing}
                         >
-                          Recalculate Routes <ArrowRight />
+                          Calculate Routes <ArrowRight />
                         </Button>
-                      </>
-                    )}
-                  </div>
-                </>
-              </TabsContent>
-              <TabsContent value="calculate" asChild>
-                <>
-                  <CalculationsTab />
-                  <div className=" flex h-16 items-center justify-between gap-2 bg-white p-4">
-                    <Button
-                      // size="icon"
-                      variant={"outline"}
-                      className=" gap-2"
-                      onClick={() =>
-                        updateUrlParams({ key: "mode", value: "plan" })
-                      }
-                    >
-                      <Pencil /> Edit Routes
-                    </Button>
-                    <Button
-                      className="flex-1 gap-2"
-                      onClick={massSendRouteEmails}
-                    >
-                      {isLoading ? (
-                        <Loader2 className=" h-5 w-5 animate-spin" />
-                      ) : (
-                        <Send className=" h-5 w-5" />
                       )}
-                      Send to Driver(s)
-                    </Button>
-                  </div>
-                </>
-              </TabsContent>
-            </Tabs>
-            <div className="flex gap-2 p-1 lg:hidden">
-              <PlanMobileDrawer />
-              <ViewPathsMobileDrawer />
-            </div>
-            <LazyRoutingMap showAdvanced={showAdvanced} className="w-full max-md:aspect-square" />
-          </section>
-        )}
 
-      {!routePlans.isLoading && !routePlans.data && (
-        <p className="mx-auto my-auto text-center text-2xl font-semibold text-muted-foreground">
-          There seems to an issue when trying to fetch your routing plan.
-          Please refresh the page and try again.
-        </p>
-      )}
-    </RouteLayout>
+                      {routePlans.optimized.length !== 0 && (
+                        <>
+                          <Button
+                            variant={"outline"}
+                            onClick={() =>
+                              updateUrlParams({
+                                key: "mode",
+                                value: "calculate",
+                              })
+                            }
+                            className="gap-2"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={calculateOptimalPaths}
+                            className="flex-1 gap-2"
+                            disabled={isRouteDataMissing}
+                          >
+                            Recalculate Routes <ArrowRight />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                </TabsContent>
+                <TabsContent value="calculate" asChild>
+                  <>
+                    <CalculationsTab />
+                    <div className=" flex h-16 items-center justify-between gap-2 bg-white p-4">
+                      <Button
+                        // size="icon"
+                        variant={"outline"}
+                        className=" gap-2"
+                        onClick={() =>
+                          updateUrlParams({ key: "mode", value: "plan" })
+                        }
+                      >
+                        <Pencil /> Edit Routes
+                      </Button>
+                      <Button
+                        className="flex-1 gap-2"
+                        onClick={massSendRouteEmails}
+                      >
+                        {isLoading ? (
+                          <Loader2 className=" h-5 w-5 animate-spin" />
+                        ) : (
+                          <Send className=" h-5 w-5" />
+                        )}
+                        Send to Driver(s)
+                      </Button>
+                    </div>
+                  </>
+                </TabsContent>
+              </Tabs>
+              <div className="flex gap-2 p-1 lg:hidden">
+                <PlanMobileDrawer />
+                <ViewPathsMobileDrawer />
+              </div>
+              <LazyRoutingMap
+                showAdvanced={showAdvanced}
+                className="w-full max-md:aspect-square"
+              />
+            </section>
+          )}
+
+        {!routePlans.isLoading && !routePlans.data && (
+          <p className="mx-auto my-auto text-center text-2xl font-semibold text-muted-foreground">
+            There seems to an issue when trying to fetch your routing plan.
+            Please refresh the page and try again.
+          </p>
+        )}
+      </RouteLayout>
     </>
   );
 };
