@@ -26,7 +26,9 @@ const withNextPWA = withPWA({
 
 const config = {
   reactStrictMode: true,
-  ignoreBuildErrors: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
