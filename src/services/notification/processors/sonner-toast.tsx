@@ -11,9 +11,9 @@ export const SonnerNotificationProcessor: NotificationProcessor = {
 
   notifyError: ({ error, message }) => {
     console.error("Notification Error:", error);
-    return toast.error(message, {
-      position: "top-center",
-    });
+    // return toast.error(message, {
+    //   position: "top-center",
+    // });
   },
 
   notifyInfo: ({ message }) => {

@@ -116,13 +116,16 @@ const SingleRoutePage = () => {
       notificationService.notifyInfo({ message });
     });
 
-    pusherClient.bind("evt::invalidate-stops", (message: string) => {
-      notificationService.notifyInfo({ message });
+    pusherClient.bind("evt::invalidate-stops", (message: string | null) => {
+      if (message !== null && message !== "")
+        notificationService.notifyInfo({ message });
       void apiContext.routePlan.invalidate();
     });
 
-    pusherClient.bind("evt::update-route-status", (message: string) => {
-      notificationService.notifyInfo({ message });
+    pusherClient.bind("evt::update-route-status", (message: unknown) => {
+      notificationService.notifyInfo({
+        message: JSON.stringify(message) ?? "Route has been updated",
+      });
 
       void apiContext.routePlan.invalidate();
     });
@@ -199,7 +202,11 @@ const SingleRoutePage = () => {
         addToRoute: true,
       });
 
-      console.log("**** buildManyJobs ...", one_job.client.name, one_job.job.id);
+      console.log(
+        "**** buildManyJobs ...",
+        one_job.client.name,
+        one_job.job.id
+      );
     });
   };
 

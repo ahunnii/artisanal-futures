@@ -89,7 +89,6 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
       <Form {...form}>
         <form
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
-          onChange={() => console.log(form.formState.errors)}
           className="space-y-8 px-4"
         >
           <FormField
@@ -166,7 +165,9 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
                 "No client associated with this stop"}
             </p>
 
-            <p>Order Details: {initialData?.order ?? "No details given"}</p>
+            <p>
+              Order Details: {initialData?.job?.order ?? "No details given"}
+            </p>
 
             <p>Notes: {initialData?.notes ?? "No notes found"}</p>
           </FormItem>
