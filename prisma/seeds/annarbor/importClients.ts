@@ -91,7 +91,7 @@ export async function importClientsFromAllCSV(seedName: string) {
         {
             name: "Argus Farm Stop",
             address: "1226 Packard St, Ann Arbor, MI 48104",
-            email: "dev@null.com",
+            email: "dev1@null.com",
             phone: "(734) 997-5448",
             order: "Drop off egg cartons, pick up local food",
             notes: "Say hi to the owners"
@@ -107,7 +107,7 @@ export async function importClientsFromAllCSV(seedName: string) {
         {
             name: "Mariah Jones",
             address: "3144 Asher Road, Ann Arbor, MI 48104",
-            email: "dev@null.com",
+            email: "dev2@null.com",
             phone: "(313) 240-5678",
             order: "Drop off gardening book, local food from Argus",
             notes: "Last time they mentioned planting tomatoes"
