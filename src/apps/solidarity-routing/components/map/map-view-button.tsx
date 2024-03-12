@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "react";
 
 import type { Map as LeafletMap } from "leaflet";
 import { Expand, Locate } from "lucide-react";
@@ -30,14 +30,10 @@ interface MapRef {
   reactLeafletMap: LeafletMap | null;
 }
 
-// export const MapViewButton = forwardRef<MapRef>(({}, ref) => {
 export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
   const [enableTracking, setEnableTracking] = useState(false);
   const [toggleLocationBtn, setToggleLocationBtn] = useState(false);
-
-  // useImperativeHandle(ref, () => ({
-  //   reactLeafletMap: mapRef,
-  // }));
+  const [isSimulating, setIsSimulating] = useState(false);
 
   const params = {
     mapRef,
@@ -51,68 +47,67 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
     currentLocation,
     toggleConstantTracking,
     constantTracking,
+    simulateMovementAlongRoute,
+    stopSimulation
   } = useMap(params);
 
   const { pathId } = useSolidarityState();
 
+  useEffect(() => {
+    let lastPosition = { lat: null, lng: null };
+    const checkDriverMovement = () => {
+      if (currentLocation && lastPosition.lat && lastPosition.lng) {
+        const distance = Math.sqrt(
+          Math.pow(currentLocation.lat - lastPosition.lat, 2) +
+          Math.pow(currentLocation.lng - lastPosition.lng, 2)
+        );
+        if (distance > 0.002) { // approximately 2 meters difference
+          flyToCurrentLocation();
+        }
+      }
+      lastPosition = { ...currentLocation };
+    };
+
+    const movementInterval = setInterval(checkDriverMovement, 1000); // check every second
+
+    return () => clearInterval(movementInterval);
+  }, [currentLocation, flyToCurrentLocation]);
+
   return (
     <div>
-      {/* //Create a toggle button that switches between expandViewToFit and flyToCurrentLocation  */}
-
-      <Button
-        size={"icon"}
-        className={cn(
-          "absolute bottom-16 right-3 z-[1000]",
-          !enableTracking && "bottom-3"
-        )}
-        onClick={() => {
-          if (enableTracking) {
-            toggleLocationBtn ? flyToCurrentLocation() : expandViewToFit();
-            setToggleLocationBtn(!toggleLocationBtn);
-            return;
-          }
-          expandViewToFit();
-        }}
-      >
-        {enableTracking && toggleLocationBtn ? (
-          <Locate size={24} />
-        ) : (
-          <Expand size={24} />
-        )}
-      </Button>
-
-      {enableTracking && (
-        <Button
-          className={cn("absolute right-20 top-3 z-[1000]")}
-          onClick={toggleConstantTracking}
-        >
-          {constantTracking ? "Stop" : "Start"} transmitting realtime
-        </Button>
-      )}
-
-      {enableTracking && (
-        <Button
-          className={cn("absolute bottom-3 right-3 z-[1000]")}
-          onClick={flyToCurrentLocation}
-        >
-          Center to Location
-        </Button>
-      )}
-
       {pathId && (
         <Button
           className={cn(
-            "absolute bottom-3 right-44 z-[1000]",
+            "absolute top-3 right-44 z-[1000]",
             !enableTracking && "right-16"
           )}
           variant={enableTracking ? "secondary" : "default"}
-          onClick={() => setEnableTracking(!enableTracking)}
+          onClick={() => {
+            setEnableTracking(!enableTracking);
+            toggleConstantTracking(); // Start or stop transmitting location
+          }}
         >
           {enableTracking ? "Stop" : "Start"} Location Services
         </Button>
       )}
+
+      <Button
+        className={
+          cn("absolute top-16 right-44 z-[1000]", 
+          isSimulating && "bg-red-500")
+        }
+        onClick={() => {
+          if (isSimulating) {
+            setIsSimulating(false);
+            stopSimulation()
+          } else {
+            setIsSimulating(true);
+            simulateMovementAlongRoute();
+          }
+        }}
+      >
+        {isSimulating ? "Stop Simulation" : "Start Simulation"}
+      </Button>
     </div>
   );
-  // });
 };
-// MapViewButton.displayName = "MapViewButton";

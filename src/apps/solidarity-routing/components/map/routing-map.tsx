@@ -97,6 +97,7 @@ export type MapPoint = {
 
 type CoordMap = Record<string, { lat: number; lng: number }>;
 
+const isDriverFromURL = window.location.href.includes("driverId");
 
 const RoutingMap = forwardRef<MapRef, MapProps>(
   ({ className, children, showAdvanced}, ref) => {
@@ -209,7 +210,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     // LASSO Effects
     const LIGHTBLUE = "#0000003a";
     useEffect(() => {
-      if (mapRef.current) {
+      if (mapRef.current && !isDriverFromURL) {
         import('leaflet-lasso').then(() => {
           if (!mapRef.current) return;
 
@@ -317,8 +318,22 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               style={MAP_DATA.style}
               className={"relative"}
             >
+              {/*
+                see:
+
+                # Toner paper
+                https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png
+
+                # Water color
+                https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg
+
+                # Humantarian
+                https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png
+
+                default: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+              */}
               <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
                 attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
               />
 

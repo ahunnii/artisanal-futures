@@ -1,5 +1,5 @@
 import L, { type LatLngExpression, type Map } from "leaflet";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import type { Coordinates } from "~/apps/solidarity-routing/types";
 
 import axios from "axios";
@@ -26,6 +26,7 @@ const useMap = ({
   constantUserTracking = false,
 }: TUseMapProps) => {
   const [initial, setInitial] = useState(true);
+  const [alertTriggered, setAlertTriggered] = useState(false);
 
   const [constantTracking, setConstantTracking] = useState(false);
 
@@ -46,16 +47,27 @@ const useMap = ({
         currentLocation.longitude === 0
       )
         return;
-      console.log(currentLocation);
+
       getCurrentLocation(setCurrentLocation);
-      if (pathId && currentLocation)
+      if (pathId && currentLocation.latitude && currentLocation.longitude)
         void axios.post("/api/routing/update-user-location", {
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
           pathId: pathId,
         });
+
+        if ('error' in currentLocation && currentLocation.error && !alertTriggered) {
+          //alert(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`);
+          console.log(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`)
+          setAlertTriggered(true);
+        }
+        else{
+          console.log(
+            currentLocation
+          )
+        }
     },
-    status === "active" ? 1000 : 5000
+    status === "active" ? 1500 : 10000 // was 1000
   );
 
   const [currentLocation, setCurrentLocation] = useState<
@@ -63,7 +75,7 @@ const useMap = ({
   >({
     latitude: 0,
     longitude: 0,
-    accuracy: 0,
+    accuracy: 0
   });
 
   const flyTo = useCallback(
@@ -141,6 +153,61 @@ const useMap = ({
     }
   }, [expandViewToFit, mapRef, driverBundles.data, jobs.data, initial]);
 
+  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const simulateMovementAlongRoute = useCallback(() => {
+    if (simulationIntervalRef.current) return () => {}; // Return a no-op function if the interval is already running
+
+    if (pathId && currentLocation.latitude && currentLocation.longitude) {
+      const stops = optimizedRoutePlan.mapCoordinates.jobs.concat(optimizedRoutePlan.mapCoordinates.driver);
+      let currentStopIndex = 0;
+      simulationIntervalRef.current = setInterval(() => {
+        if (currentStopIndex < stops.length) {
+          const currentStop = stops[currentStopIndex];
+          const distanceToStop = L.latLng(currentLocation.latitude, currentLocation.longitude).distanceTo(L.latLng(currentStop[0], currentStop[1]));
+          if (distanceToStop < 50) { // Assuming 50 meters as "near"
+            setTimeout(() => {
+              currentStopIndex++;
+            }, 30000); // Pause for 30 seconds
+          } else {
+            const angle = Math.atan2(currentStop[1] - currentLocation.longitude, currentStop[0] - currentLocation.latitude);
+            setCurrentLocation(prevLocation => ({
+              ...prevLocation,
+              latitude: prevLocation.latitude + Math.cos(angle) * 0.0001, // Roughly 20 mph in lat change
+              longitude: prevLocation.longitude + Math.sin(angle) * 0.0001, // Roughly 20 mph in lng change
+            }));
+          }
+        } else {
+          clearInterval(simulationIntervalRef.current);
+          simulationIntervalRef.current = null;
+        }
+      }, 500);
+
+      // Return a function to clear the interval, aligning with useEffect cleanup pattern
+      return () => {
+        if (simulationIntervalRef.current) {
+          clearInterval(simulationIntervalRef.current);
+          simulationIntervalRef.current = null;
+        }
+      };
+    }
+
+    // Return a no-op function if no simulation is started
+    return () => {};
+  }, [pathId, currentLocation, optimizedRoutePlan]);
+
+  const stopSimulation = useCallback(() => {
+    if (simulationIntervalRef.current) {
+      clearInterval(simulationIntervalRef.current);
+      simulationIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const clearSimulation = simulateMovementAlongRoute();
+    return () => clearSimulation();
+  }, [simulateMovementAlongRoute]);
+
   return {
     expandViewToFit,
     flyTo,
@@ -148,6 +215,8 @@ const useMap = ({
     flyToCurrentLocation,
     toggleConstantTracking,
     constantTracking,
+    simulateMovementAlongRoute,
+    stopSimulation,
   };
 };
 
