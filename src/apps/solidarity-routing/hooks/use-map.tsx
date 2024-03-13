@@ -66,49 +66,59 @@ const useMap = ({
         clearInterval(locationUpdateIntervalRef.current);
       }
       locationUpdateIntervalRef.current = setInterval(() => {
-
-
         let useThisLatitude = 0
         let useThisLongitude = 0
         let useThisAccuracy = 0
         // Use simulateMovementAlongRoute if simulating GPS, otherwise use getCurrentLocation
         if (isSimulatingGPS) {
-          //simulateMovementAlongRoute();
-          //currentCoordinateIndexRef.current = (currentCoordinateIndexRef.current + 1) % matchedPlanLatLng.current.length;
           currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
-
-          console.log(
-            'match geom', matchedGeoJson, '\n',
-            'match pla', matchedPlanLatLng, matchedPlanLatLng.current.length, '\n',
-            'currentCoordinateIndexRef ', currentCoordinateIndexRef,
-            ' new lat lon', matchedPlanLatLng.current[currentCoordinateIndexRef]
-          )
 
           useThisLatitude = matchedPlanLatLng.current[currentCoordinateIndexRef][1]
           useThisLongitude = matchedPlanLatLng.current[currentCoordinateIndexRef][0]
           useThisAccuracy = 1
 
+          // const nextStopIndex = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
+          // const nextStop = matchedPlanLatLng.current[nextStopIndex];
+          // const nextStopLatitude = nextStop[1];
+          // const nextStopLongitude = nextStop[0];
+
+          // const distanceToNextStop = calculateDistance(
+          //   useThisLatitude,
+          //   useThisLongitude,
+          //   nextStopLatitude,
+          //   nextStopLongitude,
+          // );
+
+          // // If the driver has started moving away from the next stop, fetch the next one
+          // if (distanceToNextStop > previousDistanceToNextStop) {
+          //   currentCoordinateIndexRef = nextStopIndex; // Update to the next stop
+          //   previousDistanceToNextStop = Number.MAX_VALUE; // Reset for the next calculation
+          // } else {
+          //   previousDistanceToNextStop = distanceToNextStop; // Update the distance for the next iteration
+          // }
+
+          // if (false) {
+          //   currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
+          // } else {
+          //   // Simulate a brief stop at the next stop by not incrementing the index
+          //   setTimeout(() => {
+          //     currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
+          //   }, 5000); // Wait for 5 seconds before moving to the next coordinate
+          // }
+
         } else {
           getCurrentLocation(setCurrentLocation);
-
           useThisLatitude = currentLocation.latitude
           useThisLongitude = currentLocation.longitude
           useThisAccuracy = currentLocation.accuracy
         }
 
-        // todo:  if we loc 0,0 then redo the call?
-
-
-        console.log(
-          '  \t current location is ', currentLocation
-        )
-
         if (pathId && 
             currentLocation.latitude && 
             currentLocation.longitude){
               void axios.post("/api/routing/update-user-location", {
-                latitude: useThisLatitude, //currentLocation.latitude,
-                longitude: useThisLongitude, //currentLocation.longitude,
+                latitude: useThisLatitude,
+                longitude: useThisLongitude,
                 pathId: pathId,
               });
             }
@@ -123,7 +133,7 @@ const useMap = ({
           console.log('current location', currentLocation)
         }        
 
-      }, 1500); // Adjust based on your needs
+      }, 500); // Adjust based on your needs
     }
 
     return () => {
