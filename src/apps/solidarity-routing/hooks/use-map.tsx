@@ -30,6 +30,7 @@ const useMap = ({
   const [alertTriggered, setAlertTriggered] = useState(false);
 
   const [constantTracking, setConstantTracking] = useState(false);
+  const [isSimulatingGPS, setIsSimulatingGPS] = useState(false); // New state variable for GPS simulation tracking
 
   const [status, setStatus] = useState<"idle" | "active">("idle");
 
@@ -43,14 +44,19 @@ const useMap = ({
   const urlParams = new URLSearchParams(window.location.search);
   const driverId = urlParams.get('driverId');
 
-  const vehicleId = driverId; // does the url param driverId equal driverId!?
+  const vehicleId = driverId;
+  const matchedGeoJson = optimizedRoutePlan.mapData.geometry.find(
+    geo => geo.vehicleId === vehicleId
+  )?.geoJson;
 
-  const matchedPlanLatLng = formatGeometryString(
-    optimizedRoutePlan.mapData.geometry.find(
-      geo => geo.vehicleId === vehicleId)?.geoJson,
-    vehicleId
-  );
+  const matchedPlanLatLng = useRef([]);
 
+  if (matchedGeoJson) {
+    const geoJson = formatGeometryString(matchedGeoJson, vehicleId);
+    matchedPlanLatLng.current = geoJson.coordinates;
+  } else {
+    console.error(`Error: No matching plan found for vehicleId: ${vehicleId}`);
+  }
   const locationUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -59,7 +65,12 @@ const useMap = ({
         clearInterval(locationUpdateIntervalRef.current);
       }
       locationUpdateIntervalRef.current = setInterval(() => {
-        getCurrentLocation(setCurrentLocation);
+        // Use simulateMovementAlongRoute if simulating GPS, otherwise use getCurrentLocation
+        if (isSimulatingGPS) {
+          simulateMovementAlongRoute(matchedPlanLatLng);
+        } else {
+          getCurrentLocation(setCurrentLocation);
+        }
 
         if (pathId && 
             currentLocation.latitude && 
@@ -71,20 +82,14 @@ const useMap = ({
               });
             }
 
-        // There's an edge case that I can't quite reproduce in testing where
-        // we get Error: Timer expired, and somehow the currentLocation is overwritten w
-        // data from the timer
         if ('error' in currentLocation && 
             currentLocation.error && 
             !alertTriggered){
-              //alert(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`);
-              console.log(`ErrorX: ${currentLocation.message} (Code: ${currentLocation.code})`)
+              console.log(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`)
               setAlertTriggered(true);
         }
         else{
-          console.log(
-            'current location', currentLocation
-          )
+          console.log('current location', currentLocation)
         }        
 
       }, 1500); // Adjust based on your needs
@@ -95,7 +100,7 @@ const useMap = ({
         clearInterval(locationUpdateIntervalRef.current);
       }
     };
-  }, [constantUserTracking]);
+  }, [constantUserTracking, isSimulatingGPS, matchedPlanLatLng]); // Add isSimulatingGPS to the dependency array
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -106,40 +111,41 @@ const useMap = ({
   });
 
   const currentCoordinateIndexRef = useRef(0);
-  const incrementCurrentCoordinateIndex = () => {
-    currentCoordinateIndexRef.current += 1;
-  };
-  const getCurrentCoordinateIndex = () => currentCoordinateIndexRef.current;
-  const simulationStartedRef = useRef<NodeJS.Timeout | null>(null);
+  const originalGetCurrentLocation = useRef<typeof getCurrentLocation | null>(null);
 
-  const simulateMovementAlongRoute = useCallback(() => {
-    if (simulationStartedRef.current) {
-      // If the simulation has already started, don't start it again
-      console.log("Simulation already in progress!")
-      return;
-    }
+  const simulateMovementAlongRoute = (matchedPlanLatLng) => {
+    setIsSimulatingGPS(true); // Set isSimulatingGPS to true when simulation starts
+        const index = currentCoordinateIndexRef.current;
+
+        // Ensure matchedPlanLatLng is an array before proceeding
+        if (!Array.isArray(matchedPlanLatLng)) {
+          console.error("matchedPlanLatLng is undefined or not an array");
+          return;
+        }        
+        if(matchedPlanLatLng.length > 0){
+          const coordinates = matchedPlanLatLng[index];
+          if (!coordinates) {
+            console.error("No coordinates found for index", index);
+            return;
+          }
   
-    simulationStartedRef.current = setInterval(() => {
-      incrementCurrentCoordinateIndex();
-      console.log('Current Coordinate Index:', getCurrentCoordinateIndex());
-    }, 1000);
-  }, []);
+          currentCoordinateIndexRef.current = (index + 1) % matchedPlanLatLng.length;
   
+          return {
+            latitude: coordinates.lat,
+            longitude: coordinates.lng,
+            accuracy: 1, // Mock accuracy
+          };
+        }
+        else{
+          console.log(
+            "matchePlanLatLng not matched yet!"
+          )
+        }
+  }
+
   const stopSimulation = useCallback(() => {
-    if (simulationStartedRef.current) {
-      clearInterval(simulationStartedRef.current);
-      simulationStartedRef.current = null;
-    }
-  }, []);
-  
-  useEffect(() => {
-    return () => {
-      // Clean up the interval when the component unmounts
-      if (simulationStartedRef.current) {
-        clearInterval(simulationStartedRef.current);
-        simulationStartedRef.current = null;
-      }
-    };
+    setIsSimulatingGPS(false); // Set isSimulatingGPS to false when simulation stops
   }, []);
 
 
