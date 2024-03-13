@@ -1,5 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from "react";
 
+import axios from "axios";
+
 import type { Map as LeafletMap } from "leaflet";
 import { Expand, Locate } from "lucide-react";
 
@@ -99,10 +101,16 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
         onClick={() => {
           if (isSimulating) {
             setIsSimulating(false);
-            stopSimulation()
+            //stopSimulation()
           } else {
             setIsSimulating(true);
-            simulateMovementAlongRoute();
+            //simulateMovementAlongRoute();
+
+          axios.get(`/api/routing/route-coordinates?pathId=${pathId}`)
+            .then(response => {
+              console.log('Route Coordinates:', response.data);
+            })
+            .catch(error => console.error('Fetching route coordinates failed:', error));
           }
         }}
       >

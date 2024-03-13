@@ -21,7 +21,6 @@ type TUseMapProps = {
 
 const useMap = ({
   mapRef,
-
   driverEnabled = false,
   constantUserTracking = false,
 }: TUseMapProps) => {
@@ -38,6 +37,45 @@ const useMap = ({
   const { pathId } = useSolidarityState();
 
   const optimizedRoutePlan = useOptimizedRoutePlan();
+
+
+/*
+  Need function that use
+
+      const optimizedRoutePlan = useOptimizedRoutePlan();
+
+    gets driver id or id from or with, get's their 
+    from 
+      https://nextjs.org/docs/app/api-reference/functions/use-search-params
+
+    then w driverId as vehicleId? (or is vehicleId in the url?)
+
+    then we can creep along it
+
+    const routeGeoJsonList = pathId
+      ? optimizedRoutePlan.mapData.geometry
+      : routePlans.optimized.map((route) => {
+          return {
+            id: route.id,
+            geoJson: route.geoJson,
+            vehicleId: route.vehicleId,
+          };
+        });
+
+    ?optimizedRoutePlan.mapData.driver
+  OR?
+
+    const routeGeoJsonList = pathId
+      ? optimizedRoutePlan.mapData.geometry
+      : routePlans.optimized.map((route) => {
+          return {
+            id: route.id,
+            geoJson: route.geoJson,
+            vehicleId: route.vehicleId,
+          };
+        });    
+
+*/
 
   useInterval(
     () => {
