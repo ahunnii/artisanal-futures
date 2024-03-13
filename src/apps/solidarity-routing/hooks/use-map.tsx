@@ -4,6 +4,8 @@ import type { Coordinates } from "~/apps/solidarity-routing/types";
 
 import axios from "axios";
 
+import { formatGeometryString } from "~/apps/solidarity-routing/services/optimization/aws-vroom/utils";
+
 import { getCurrentLocation } from "~/apps/solidarity-routing/utils/get-current-location";
 import useInterval from "~/hooks/use-interval";
 import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
@@ -38,44 +40,16 @@ const useMap = ({
 
   const optimizedRoutePlan = useOptimizedRoutePlan();
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const driverId = urlParams.get('driverId');
 
-/*
-  Need function that use
+  const vehicleId = driverId; // does the url param driverId equal driverId!?
 
-      const optimizedRoutePlan = useOptimizedRoutePlan();
-
-    gets driver id or id from or with, get's their 
-    from 
-      https://nextjs.org/docs/app/api-reference/functions/use-search-params
-
-    then w driverId as vehicleId? (or is vehicleId in the url?)
-
-    then we can creep along it
-
-    const routeGeoJsonList = pathId
-      ? optimizedRoutePlan.mapData.geometry
-      : routePlans.optimized.map((route) => {
-          return {
-            id: route.id,
-            geoJson: route.geoJson,
-            vehicleId: route.vehicleId,
-          };
-        });
-
-    ?optimizedRoutePlan.mapData.driver
-  OR?
-
-    const routeGeoJsonList = pathId
-      ? optimizedRoutePlan.mapData.geometry
-      : routePlans.optimized.map((route) => {
-          return {
-            id: route.id,
-            geoJson: route.geoJson,
-            vehicleId: route.vehicleId,
-          };
-        });    
-
-*/
+  const matchedPlanLatLng = formatGeometryString(
+    optimizedRoutePlan.mapData.geometry.find(
+      geo => geo.vehicleId === vehicleId)?.geoJson,
+    vehicleId
+  );
 
   useInterval(
     () => {
@@ -115,6 +89,36 @@ const useMap = ({
     longitude: 0,
     accuracy: 0
   });
+
+
+  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentCoordinateIndex, setCurrentCoordinateIndex] = useState(0);
+
+  const simulateMovementAlongRoute = useCallback(() => {
+    if (!simulationIntervalRef.current) {
+      simulationIntervalRef.current = setInterval(() => {
+        console.log(currentCoordinateIndex);
+        setCurrentCoordinateIndex(currentCoordinateIndex + 1);
+      }, 1000); // Adjust the interval as needed
+    }
+  }, [currentCoordinateIndex]);
+
+  const stopSimulation = useCallback(() => {
+    if (simulationIntervalRef.current) {
+      clearInterval(simulationIntervalRef.current);
+      simulationIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current);
+      }
+    };
+  }, []);
+
+
 
   const flyTo = useCallback(
     (coordinates: Coordinates, zoom: number) => {
@@ -190,61 +194,6 @@ const useMap = ({
       setInitial(false);
     }
   }, [expandViewToFit, mapRef, driverBundles.data, jobs.data, initial]);
-
-  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const simulateMovementAlongRoute = useCallback(() => {
-    if (simulationIntervalRef.current) return () => {}; // Return a no-op function if the interval is already running
-
-    if (pathId && currentLocation.latitude && currentLocation.longitude) {
-      const stops = optimizedRoutePlan.mapCoordinates.jobs.concat(optimizedRoutePlan.mapCoordinates.driver);
-      let currentStopIndex = 0;
-      simulationIntervalRef.current = setInterval(() => {
-        if (currentStopIndex < stops.length) {
-          const currentStop = stops[currentStopIndex];
-          const distanceToStop = L.latLng(currentLocation.latitude, currentLocation.longitude).distanceTo(L.latLng(currentStop[0], currentStop[1]));
-          if (distanceToStop < 50) { // Assuming 50 meters as "near"
-            setTimeout(() => {
-              currentStopIndex++;
-            }, 30000); // Pause for 30 seconds
-          } else {
-            const angle = Math.atan2(currentStop[1] - currentLocation.longitude, currentStop[0] - currentLocation.latitude);
-            setCurrentLocation(prevLocation => ({
-              ...prevLocation,
-              latitude: prevLocation.latitude + Math.cos(angle) * 0.0001, // Roughly 20 mph in lat change
-              longitude: prevLocation.longitude + Math.sin(angle) * 0.0001, // Roughly 20 mph in lng change
-            }));
-          }
-        } else {
-          clearInterval(simulationIntervalRef.current);
-          simulationIntervalRef.current = null;
-        }
-      }, 500);
-
-      // Return a function to clear the interval, aligning with useEffect cleanup pattern
-      return () => {
-        if (simulationIntervalRef.current) {
-          clearInterval(simulationIntervalRef.current);
-          simulationIntervalRef.current = null;
-        }
-      };
-    }
-
-    // Return a no-op function if no simulation is started
-    return () => {};
-  }, [pathId, currentLocation, optimizedRoutePlan]);
-
-  const stopSimulation = useCallback(() => {
-    if (simulationIntervalRef.current) {
-      clearInterval(simulationIntervalRef.current);
-      simulationIntervalRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    const clearSimulation = simulateMovementAlongRoute();
-    return () => clearSimulation();
-  }, [simulateMovementAlongRoute]);
 
   return {
     expandViewToFit,

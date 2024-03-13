@@ -99,18 +99,13 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
           isSimulating && "bg-red-500")
         }
         onClick={() => {
+          //routeGeoJsonList
           if (isSimulating) {
             setIsSimulating(false);
-            //stopSimulation()
+            stopSimulation()
           } else {
             setIsSimulating(true);
-            //simulateMovementAlongRoute();
-
-          axios.get(`/api/routing/route-coordinates?pathId=${pathId}`)
-            .then(response => {
-              console.log('Route Coordinates:', response.data);
-            })
-            .catch(error => console.error('Fetching route coordinates failed:', error));
+            simulateMovementAlongRoute();
           }
         }}
       >
