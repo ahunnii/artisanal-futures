@@ -49,6 +49,7 @@ const useMap = ({
     geo => geo.vehicleId === vehicleId
   )?.geoJson;
 
+  let currentCoordinateIndexRef = 0
   const matchedPlanLatLng = useRef([]);
 
   if (matchedGeoJson) {
@@ -65,19 +66,49 @@ const useMap = ({
         clearInterval(locationUpdateIntervalRef.current);
       }
       locationUpdateIntervalRef.current = setInterval(() => {
+
+
+        let useThisLatitude = 0
+        let useThisLongitude = 0
+        let useThisAccuracy = 0
         // Use simulateMovementAlongRoute if simulating GPS, otherwise use getCurrentLocation
         if (isSimulatingGPS) {
-          simulateMovementAlongRoute(matchedPlanLatLng);
+          //simulateMovementAlongRoute();
+          //currentCoordinateIndexRef.current = (currentCoordinateIndexRef.current + 1) % matchedPlanLatLng.current.length;
+          currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
+
+          console.log(
+            'match geom', matchedGeoJson, '\n',
+            'match pla', matchedPlanLatLng, matchedPlanLatLng.current.length, '\n',
+            'currentCoordinateIndexRef ', currentCoordinateIndexRef,
+            ' new lat lon', matchedPlanLatLng.current[currentCoordinateIndexRef]
+          )
+
+          useThisLatitude = matchedPlanLatLng.current[currentCoordinateIndexRef][1]
+          useThisLongitude = matchedPlanLatLng.current[currentCoordinateIndexRef][0]
+          useThisAccuracy = 1
+
         } else {
           getCurrentLocation(setCurrentLocation);
+
+          useThisLatitude = currentLocation.latitude
+          useThisLongitude = currentLocation.longitude
+          useThisAccuracy = currentLocation.accuracy
         }
+
+        // todo:  if we loc 0,0 then redo the call?
+
+
+        console.log(
+          '  \t current location is ', currentLocation
+        )
 
         if (pathId && 
             currentLocation.latitude && 
             currentLocation.longitude){
               void axios.post("/api/routing/update-user-location", {
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude,
+                latitude: useThisLatitude, //currentLocation.latitude,
+                longitude: useThisLongitude, //currentLocation.longitude,
                 pathId: pathId,
               });
             }
@@ -110,38 +141,8 @@ const useMap = ({
     accuracy: 0
   });
 
-  const currentCoordinateIndexRef = useRef(0);
-  const originalGetCurrentLocation = useRef<typeof getCurrentLocation | null>(null);
-
-  const simulateMovementAlongRoute = (matchedPlanLatLng) => {
+  const simulateMovementAlongRoute = () => {
     setIsSimulatingGPS(true); // Set isSimulatingGPS to true when simulation starts
-        const index = currentCoordinateIndexRef.current;
-
-        // Ensure matchedPlanLatLng is an array before proceeding
-        if (!Array.isArray(matchedPlanLatLng)) {
-          console.error("matchedPlanLatLng is undefined or not an array");
-          return;
-        }        
-        if(matchedPlanLatLng.length > 0){
-          const coordinates = matchedPlanLatLng[index];
-          if (!coordinates) {
-            console.error("No coordinates found for index", index);
-            return;
-          }
-  
-          currentCoordinateIndexRef.current = (index + 1) % matchedPlanLatLng.length;
-  
-          return {
-            latitude: coordinates.lat,
-            longitude: coordinates.lng,
-            accuracy: 1, // Mock accuracy
-          };
-        }
-        else{
-          console.log(
-            "matchePlanLatLng not matched yet!"
-          )
-        }
   }
 
   const stopSimulation = useCallback(() => {
@@ -168,6 +169,8 @@ const useMap = ({
   };
 
   const toggleConstantTracking = () => {
+    // thre's abug where you have to press twice to make this "go"
+    // should we remove the currentLocation check ?
     if (pathId && currentLocation.latitude && currentLocation.longitude) {
       setStatus((status) => (status === "active" ? "idle" : "active"));
       setConstantTracking(!constantTracking);
