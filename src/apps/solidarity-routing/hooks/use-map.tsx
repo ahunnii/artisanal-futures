@@ -51,36 +51,51 @@ const useMap = ({
     vehicleId
   );
 
-  useInterval(
-    () => {
-      if (
-        !constantUserTracking &&
-        currentLocation.latitude === 0 &&
-        currentLocation.longitude === 0
-      )
-        return;
+  const locationUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-      getCurrentLocation(setCurrentLocation);
-      if (pathId && currentLocation.latitude && currentLocation.longitude)
-        void axios.post("/api/routing/update-user-location", {
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-          pathId: pathId,
-        });
+  useEffect(() => {
+    if (constantUserTracking) {
+      if (locationUpdateIntervalRef.current) {
+        clearInterval(locationUpdateIntervalRef.current);
+      }
+      locationUpdateIntervalRef.current = setInterval(() => {
+        getCurrentLocation(setCurrentLocation);
 
-        if ('error' in currentLocation && currentLocation.error && !alertTriggered) {
-          //alert(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`);
-          console.log(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`)
-          setAlertTriggered(true);
+        if (pathId && 
+            currentLocation.latitude && 
+            currentLocation.longitude){
+              void axios.post("/api/routing/update-user-location", {
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+                pathId: pathId,
+              });
+            }
+
+        // There's an edge case that I can't quite reproduce in testing where
+        // we get Error: Timer expired, and somehow the currentLocation is overwritten w
+        // data from the timer
+        if ('error' in currentLocation && 
+            currentLocation.error && 
+            !alertTriggered){
+              //alert(`Error: ${currentLocation.message} (Code: ${currentLocation.code})`);
+              console.log(`ErrorX: ${currentLocation.message} (Code: ${currentLocation.code})`)
+              setAlertTriggered(true);
         }
         else{
           console.log(
-            currentLocation
+            'current location', currentLocation
           )
-        }
-    },
-    status === "active" ? 1500 : 10000 // was 1000
-  );
+        }        
+
+      }, 1500); // Adjust based on your needs
+    }
+
+    return () => {
+      if (locationUpdateIntervalRef.current) {
+        clearInterval(locationUpdateIntervalRef.current);
+      }
+    };
+  }, [constantUserTracking]);
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -90,34 +105,42 @@ const useMap = ({
     accuracy: 0
   });
 
-
-  const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [currentCoordinateIndex, setCurrentCoordinateIndex] = useState(0);
+  const currentCoordinateIndexRef = useRef(0);
+  const incrementCurrentCoordinateIndex = () => {
+    currentCoordinateIndexRef.current += 1;
+  };
+  const getCurrentCoordinateIndex = () => currentCoordinateIndexRef.current;
+  const simulationStartedRef = useRef<NodeJS.Timeout | null>(null);
 
   const simulateMovementAlongRoute = useCallback(() => {
-    if (!simulationIntervalRef.current) {
-      simulationIntervalRef.current = setInterval(() => {
-        console.log(currentCoordinateIndex);
-        setCurrentCoordinateIndex(currentCoordinateIndex + 1);
-      }, 1000); // Adjust the interval as needed
+    if (simulationStartedRef.current) {
+      // If the simulation has already started, don't start it again
+      console.log("Simulation already in progress!")
+      return;
     }
-  }, [currentCoordinateIndex]);
-
+  
+    simulationStartedRef.current = setInterval(() => {
+      incrementCurrentCoordinateIndex();
+      console.log('Current Coordinate Index:', getCurrentCoordinateIndex());
+    }, 1000);
+  }, []);
+  
   const stopSimulation = useCallback(() => {
-    if (simulationIntervalRef.current) {
-      clearInterval(simulationIntervalRef.current);
-      simulationIntervalRef.current = null;
+    if (simulationStartedRef.current) {
+      clearInterval(simulationStartedRef.current);
+      simulationStartedRef.current = null;
     }
   }, []);
-
+  
   useEffect(() => {
     return () => {
-      if (simulationIntervalRef.current) {
-        clearInterval(simulationIntervalRef.current);
+      // Clean up the interval when the component unmounts
+      if (simulationStartedRef.current) {
+        clearInterval(simulationStartedRef.current);
+        simulationStartedRef.current = null;
       }
     };
   }, []);
-
 
 
   const flyTo = useCallback(
