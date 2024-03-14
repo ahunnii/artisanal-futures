@@ -1,5 +1,21 @@
+// export const getCurrentLocation = (
+//   success: (result: GeolocationCoordinates | { error: true; message: string }) => void
+// ) => {
+//   if (!navigator.geolocation) {
+//     console.log("Your browser doesn't support the geolocation feature!");
+//     return;
+//   }
+
+//   navigator.geolocation.getCurrentPosition(
+//     (position) => success(position.coords),
+//     (error) => success({ error: true, message: error.message }),
+//     { enableHighAccuracy: true }
+//   );
+// };
+
 export const getCurrentLocation = (
-  success: (result: GeolocationCoordinates | { error: true; message: string }) => void
+  success: (result: GeolocationCoordinates ) => void,
+  setLocationMessage: React.Dispatch<React.SetStateAction<{ error: boolean; message: string }>>
 ) => {
   if (!navigator.geolocation) {
     console.log("Your browser doesn't support the geolocation feature!");
@@ -7,8 +23,47 @@ export const getCurrentLocation = (
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => success(position.coords),
-    (error) => success({ error: true, message: error.message }),
-    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      if (latitude === 0 && longitude === 0) {
+        success(position.coords);
+        setLocationMessage({
+          error: true,
+          message: '0 lat, 0 lng location (cause: unable to retrieve accurate location)'
+        })
+      } else {
+        success(position.coords);
+        setLocationMessage({
+          error: false,
+          message: "success"
+        })
+      }
+    },
+    (error) => {
+      let errorMessage = 'Unknown error';
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = 'Location permission denied';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = 'Location information unavailable';
+          break;
+        case error.TIMEOUT:
+          errorMessage = 'Location request timed out';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      // Use old GPS position
+      setLocationMessage({
+        error: true,
+        message: errorMessage
+      })
+    },
+    { 
+      enableHighAccuracy: false,
+      maximumAge: 0,
+      timeout: 2000
+    }
   );
 };

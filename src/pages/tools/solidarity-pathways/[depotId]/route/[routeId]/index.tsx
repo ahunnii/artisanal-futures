@@ -210,6 +210,32 @@ const SingleRoutePage = () => {
     });
   };
 
+
+  // IF driver we need to track 
+  //
+  // useEffect(() => {
+  //   let lastPosition = { lat: null, lng: null };
+  //   const checkDriverMovement = () => {
+
+  //     console.log("in these parts, checking location")
+  //     if (currentLocation && lastPosition.lat && lastPosition.lng) {
+  //       const distance = Math.sqrt(
+  //         Math.pow(currentLocation.lat - lastPosition.lat, 2) +
+  //         Math.pow(currentLocation.lng - lastPosition.lng, 2)
+  //       );
+  //       if (distance > 0.002) { // approximately 2 meters difference
+  //         flyToCurrentLocation();
+  //       }
+  //     }
+  //     lastPosition = { ...currentLocation };
+  //   };
+
+  //   const movementInterval = setInterval(checkDriverMovement, 1000); // check every second
+
+  //   return () => clearInterval(movementInterval);
+  // }, [currentLocation, flyToCurrentLocation]);
+
+
   return (
     <>
       <RouteLayout>
