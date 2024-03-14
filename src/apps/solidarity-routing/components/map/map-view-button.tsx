@@ -61,7 +61,7 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
     const intervalId = setInterval(() => {
       const message = exportLocationServiceMessage()
       setButtonMessage(message);
-      console.log('\n\t... set something', message)
+      console.log('\n\t... Geolocation message: ', message)
     }, 1000);
 
     return () => clearInterval(intervalId);

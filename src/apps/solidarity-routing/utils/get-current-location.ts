@@ -1,18 +1,3 @@
-// export const getCurrentLocation = (
-//   success: (result: GeolocationCoordinates | { error: true; message: string }) => void
-// ) => {
-//   if (!navigator.geolocation) {
-//     console.log("Your browser doesn't support the geolocation feature!");
-//     return;
-//   }
-
-//   navigator.geolocation.getCurrentPosition(
-//     (position) => success(position.coords),
-//     (error) => success({ error: true, message: error.message }),
-//     { enableHighAccuracy: true }
-//   );
-// };
-
 export const getCurrentLocation = (
   success: (result: GeolocationCoordinates ) => void,
   setLocationMessage: React.Dispatch<React.SetStateAction<{ error: boolean; message: string }>>
@@ -61,7 +46,7 @@ export const getCurrentLocation = (
       })
     },
     { 
-      enableHighAccuracy: false,
+      enableHighAccuracy: true,
       maximumAge: 0,
       timeout: 2000
     }

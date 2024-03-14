@@ -104,8 +104,8 @@ const useMap = ({
         if(locationMessage.error){
           console.log(
             "\n",
-            currentLocation, "< error!",
-            locationMessage
+            currentLocation, "< last geolocation",
+            locationMessage, "< error!"
           )
 
           return
