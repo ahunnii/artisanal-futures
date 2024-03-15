@@ -1,5 +1,12 @@
 import { RouteStatus } from "@prisma/client";
-import { Check, MessageSquare } from "lucide-react";
+import { 
+  Check, 
+  MessageSquare,
+  LocateOffIcon,
+  LocateFixedIcon,
+  LocateIcon,
+  MapPinIcon
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -82,18 +89,18 @@ export const MobileDrawer = ({}: // snap,
   // Exporting a message for @map-view-button to display the Location Services state
   const exportLocationServiceMessage = () => {
     if (!constantTracking) {
-      return "Start Location Services";
+      return "GPS";
     } 
     if (locationMessage.message.includes("initial")) {
-      return "Starting Location Services";
+      return "🏁 GPS";
     } else if (locationMessage.message.includes("timed out")) {
-      return "Getting Location";
+      return "GPS 👀 ";
     } else if (locationMessage.message.includes("success")) {
       if (!locationMessage.error && !hasPriorSuccess) {
         setHasPriorSuccess(true);
-        return "Found Location";
+        return "GPS 🤷🏾 ";
       } else if (!locationMessage.error && hasPriorSuccess) {
-        return "Stop Location Services";
+        return "GPS 👍🏾";
       }
     } else {
       return "Locating GPS...";
@@ -105,8 +112,8 @@ export const MobileDrawer = ({}: // snap,
       <div className="flex w-full bg-white lg:hidden">
       <Button
           className={cn(
-            exportLocationServiceMessage().includes("Stop") && "bg-red-300",
-            exportLocationServiceMessage().includes("Get") && "animate-pulse"
+            locationMessage.error && "bg-red-300",
+            locationMessage.message.includes("timed") && "animate-pulse"
           )}
           variant={constantTracking ? "secondary" : "default"}
           onClick={() => {
@@ -130,13 +137,13 @@ export const MobileDrawer = ({}: // snap,
           </p>
 
         </Button>
-        <FieldJobSearch isIcon={true} />{" "}
+        {/* <FieldJobSearch isIcon={true} />{" "} */}
 
         <Button
           className=""
           onClick={toggleFlyToTimer}
         >
-        <Locate size={16} /> {flyToDriver ? 'Stop Centering' : 'Center Map'}
+        {flyToDriver ? <LocateFixedIcon/> : <LocateOffIcon />}
       </Button>
 
 
