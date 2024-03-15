@@ -13,6 +13,8 @@ import { useClientJobBundles } from "./jobs/use-client-job-bundles";
 import { useOptimizedRoutePlan } from "./optimized-data/use-optimized-route-plan";
 import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
+import { useMapStore } from '~/apps/solidarity-routing/stores/use-map-store';  
+
 type TUseMapProps = {
   mapRef: Map;
   currentLocation?: Partial<GeolocationCoordinates>;
@@ -29,10 +31,19 @@ const useMap = ({
   const [initial, setInitial] = useState(true);
   const [alertTriggered, setAlertTriggered] = useState(false);
 
-  const [flyToDriver, setFlyToDriver] = useState(true);
-
-  const [constantTracking, setConstantTracking] = useState(true);
+  //const [flyToDriver, setFlyToDriver] = useState(true);
+  //const [constantTracking, setConstantTracking] = useState(true);
   const [isSimulatingGPS, setIsSimulatingGPS] = useState(false);
+
+  const { 
+    flyToDriver,
+    setFlyToDriver,
+    constantTracking,
+    setConstantTracking,
+    locationMessage,
+    setLocationMessage
+  } = useMapStore();
+  
 
   const [status, setStatus] = useState<"idle" | "active">("idle");
 
@@ -70,12 +81,13 @@ const useMap = ({
     accuracy: 0
   });
 
-  const [locationMessage, setLocationMessage] = useState<
-    { error: boolean, message: string }
-  >({
-    error: true,
-    message: '[initial run]' // we need some time to warm up i guess
-  });
+  // const [locationMessage, setLocationMessage] = useState<
+  //   { error: boolean, message: string }
+  // >({
+  //   error: true,
+  //   message: '[initial run]' // we need some time to warm up i guess
+  // });
+
 
   useEffect(() => {
 

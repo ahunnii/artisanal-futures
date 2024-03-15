@@ -71,36 +71,11 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
   const toggleFlyToTimer = () => {
     setFlyToDriver(prev => !prev)
   };
-
-  // const flyToIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // useEffect(() => {
-  //   if (flyToTimerActive) {
-  //     if (flyToIntervalRef.current) {
-  //       clearInterval(flyToIntervalRef.current);
-  //     }
-  //     flyToIntervalRef.current = setInterval(() => {
-  //       const currentZoom = mapRef.getZoom();
-  //       flyToCurrentLocation(currentZoom);
-  //     }, 2500);
-  //   } else {
-  //     if (flyToIntervalRef.current) {
-  //       clearInterval(flyToIntervalRef.current);
-  //       flyToIntervalRef.current = null;
-  //     }
-  //   }
-
-  //   return () => {
-  //     if (flyToIntervalRef.current) {
-  //       clearInterval(flyToIntervalRef.current);
-  //     }
-  //   };
-  // }, [flyToTimerActive, mapRef, flyToCurrentLocation]);
   
   return (
     <div>
       
-      {pathId && (
+      {/* {pathId && (
         <Button
           className={cn(
             "absolute top-3 right-44 z-[1000]",
@@ -115,15 +90,14 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
         >
           {buttonMessage}
         </Button>
-      )}
+      )} */}
 
       <Button
         className={
-          cn("absolute top-16 right-44 z-[1000]", 
+          cn("absolute bottom-10  z-[1000]", 
           isSimulating && "bg-red-500")
         }
         onClick={() => {
-          //routeGeoJsonList
           if (isSimulating) {
             setIsSimulating(false);
             stopSimulation()
@@ -136,12 +110,12 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
         {isSimulating ? "Stop Demo" : "Start Demo"}
       </Button>
 
-      <Button
+      {/* <Button
         className="absolute top-3 right-16 z-[1000]"
         onClick={toggleFlyToTimer}
       >
         <Locate size={16} /> {flyToDriver ? 'Stop Centering' : 'Center Map'}
-      </Button>
+      </Button> */}
 
 
     </div>

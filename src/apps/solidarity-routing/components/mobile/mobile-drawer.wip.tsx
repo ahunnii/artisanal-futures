@@ -1,6 +1,6 @@
 import { RouteStatus } from "@prisma/client";
 import { Check, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Drawer,
@@ -9,6 +9,7 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "~/components/ui/drawer";
+
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/utils/styles";
 import { useDriverVehicleBundles } from "../../hooks/drivers/use-driver-vehicle-bundles";
@@ -41,11 +42,16 @@ export const MobileDrawer = ({}: // snap,
     setFlyToDriver, 
     constantTracking, 
     setConstantTracking,
-    locationMessage
+    locationMessage // use-map.tsx uses setLocationMessage
   } = useMapStore();
+
   const toggleFlyToTimer = () => {
     console.log("Should be changing the button text!")
     setFlyToDriver(!flyToDriver)
+  };
+
+  const toggleConstantTracking = () => {
+    setConstantTracking(!constantTracking)
   };
 
   const [snap, setSnap] = useState<number | string | null>(0.25);
@@ -65,21 +71,49 @@ export const MobileDrawer = ({}: // snap,
 
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
+  const [hasPriorSuccess, setHasPriorSuccess] = useState(false);
+
+  useEffect(() => {
+    if (locationMessage.message === "success" && !locationMessage.error) {
+      setHasPriorSuccess(true);
+    }
+  }, [locationMessage]);
+
+  // Exporting a message for @map-view-button to display the Location Services state
+  const exportLocationServiceMessage = () => {
+    if (!constantTracking) {
+      return "Start Location Services";
+    } 
+    if (locationMessage.message.includes("initial")) {
+      return "Starting Location Services";
+    } else if (locationMessage.message.includes("timed out")) {
+      return "Getting Location";
+    } else if (locationMessage.message.includes("success")) {
+      if (!locationMessage.error && !hasPriorSuccess) {
+        setHasPriorSuccess(true);
+        return "Found Location";
+      } else if (!locationMessage.error && hasPriorSuccess) {
+        return "Stop Location Services";
+      }
+    } else {
+      return "Locating GPS...";
+    }
+  };
+
   return (
     <>
       <div className="flex w-full bg-white lg:hidden">
       <Button
           className={cn(
-            "",
-            locationMessage('').includes("Stop") && "bg-red-300",
-            locationMessage('').includes("Get") && "animate-pulse"
+            exportLocationServiceMessage().includes("Stop") && "bg-red-300",
+            exportLocationServiceMessage().includes("Get") && "animate-pulse"
           )}
           variant={constantTracking ? "secondary" : "default"}
           onClick={() => {
-            setConstantTracking(!constantTracking)
+            toggleConstantTracking()
           }}
         >
-          {locationMessage('')}
+          {exportLocationServiceMessage()}
         </Button>
 
         <Button
@@ -97,13 +131,6 @@ export const MobileDrawer = ({}: // snap,
 
         </Button>
         <FieldJobSearch isIcon={true} />{" "}
-        {/* <Button
-          size="icon"
-          variant={"ghost"}
-          className="font-normal text-muted-foreground "
-        >
-          <MoreVertical className="h-4 w-4" /> */}
-        {/* </Button> */}
 
         <Button
           className=""
