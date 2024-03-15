@@ -29,6 +29,8 @@ const useMap = ({
   const [initial, setInitial] = useState(true);
   const [alertTriggered, setAlertTriggered] = useState(false);
 
+  const [flyToDriver, setFlyToDriver] = useState(true);
+
   const [constantTracking, setConstantTracking] = useState(true);
   const [isSimulatingGPS, setIsSimulatingGPS] = useState(false);
 
@@ -49,7 +51,7 @@ const useMap = ({
     geo => geo.vehicleId === vehicleId
   )?.geoJson;
 
-  let currentCoordinateIndexRef = 0
+  const currentCoordinateIndexRef = useRef(0);
   const matchedPlanLatLng = useRef([]);
 
   if (matchedGeoJson) {
@@ -67,6 +69,7 @@ const useMap = ({
     longitude: 0,
     accuracy: 0
   });
+
   const [locationMessage, setLocationMessage] = useState<
     { error: boolean, message: string }
   >({
@@ -75,6 +78,7 @@ const useMap = ({
   });
 
   useEffect(() => {
+
     if (constantUserTracking) {
       if (locationUpdateIntervalRef.current) {
         clearInterval(locationUpdateIntervalRef.current);
@@ -84,15 +88,25 @@ const useMap = ({
         let useThisLongitude = 0
         let useThisAccuracy = 0
 
-        if (isSimulatingGPS) {
-          currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % matchedPlanLatLng.current.length;
+        if (isSimulatingGPS && matchedPlanLatLng.current.length > 0) {
+          //currentCoordinateIndexRef = (currentCoordinateIndexRef + 1) % 
+          currentCoordinateIndexRef.current = (currentCoordinateIndexRef.current + 1) % matchedPlanLatLng.current.length;
 
-          useThisLatitude = currentLocation.latmatchedPlanLatLng.current[currentCoordinateIndexRef][1]
-          useThisLongitude = matchedPlanLatLng.current[currentCoordinateIndexRef][0]
+          matchedPlanLatLng.current.length;
+
+          useThisLatitude = matchedPlanLatLng.current[currentCoordinateIndexRef.current][1]
+          useThisLongitude = matchedPlanLatLng.current[currentCoordinateIndexRef.current][0]
           useThisAccuracy = 1
 
           locationMessage.error = false
           locationMessage.message = "success"
+
+          console.log(
+            currentCoordinateIndexRef.current,
+            useThisLatitude,
+            "update from simlulation",
+            matchedPlanLatLng.current.length
+          )
 
         } else {
           getCurrentLocation(
@@ -101,28 +115,48 @@ const useMap = ({
           );
         }
 
-        if(locationMessage.error){
-          console.log(
-            "\n",
-            currentLocation, "< last geolocation",
-            locationMessage, "< error!"
-          )
+        // if(locationMessage.error){
+        //   console.log(
+        //     "\n",
+        //     "\n\t",currentLocation, "< last geolocation",
+        //     "\n\t",locationMessage, "< error!"
+        //   )
+        //   return
+        // }
 
-          return
+        if(!isSimulatingGPS){
+          useThisLatitude = currentLocation.latitude
+          useThisLongitude = currentLocation.longitude
+          useThisAccuracy = currentLocation.accuracy
+        }
+        else{
+          // update currentLocation so that other features can use it
+          setCurrentLocation({
+            latitude: useThisLatitude,
+            longitude: useThisLongitude,
+            accuracy: useThisAccuracy
+          })
+          console.log(
+            "I think i'm overwriting w original values?",
+            useThisLatitude, useThisLongitude,
+            currentLocation.latitude, currentLocation.longitude,
+            currentCoordinateIndexRef.current, "< current index"
+            )
         }
 
-        useThisLatitude = currentLocation.latitude
-        useThisLongitude = currentLocation.longitude
-        useThisAccuracy = currentLocation.accuracy
+        if(flyToDriver){
+          const currentZoom = mapRef.getZoom();
+          flyToCurrentLocation(currentZoom)
+        }
 
-        if (pathId && !locationMessage.error){
+        if (pathId &&  !locationMessage.error){
               void axios.post("/api/routing/update-user-location", {
                 latitude: useThisLatitude,
                 longitude: useThisLongitude,
                 pathId: pathId,
               });
             }
-      }, 5000); // Adjust based on your needs
+      }, 2500); // Adjust based on your needs
     }
 
     return () => {
@@ -155,17 +189,16 @@ const useMap = ({
     [mapRef]
   );
 
-  const flyToCurrentLocation = () => {
+  const flyToCurrentLocation = (zoom: number = 15) => {
     if (currentLocation)
       flyTo(
         {
           latitude: currentLocation.latitude!,
           longitude: currentLocation.longitude!,
         },
-        15
+        zoom
       );
   };
-
   const toggleConstantTracking = () => {
     if (pathId && currentLocation.latitude && currentLocation.longitude) {
       setStatus((status) => (status === "active" ? "idle" : "active"));
@@ -229,10 +262,6 @@ const useMap = ({
 
   // Exporting a message for @map-view-button to display the Location Services state
   const exportLocationServiceMessage = () => {
-
-    console.log(
-      "\t \n location msg", locationMessage.message, constantTracking
-    )
     if (!constantTracking) {
       return "Start Location Services";
     } 
@@ -254,7 +283,8 @@ const useMap = ({
 
   return {
     expandViewToFit,
-    flyTo,
+    flyToDriver,
+    setFlyToDriver,
     currentLocation,
     flyToCurrentLocation,
     toggleConstantTracking,

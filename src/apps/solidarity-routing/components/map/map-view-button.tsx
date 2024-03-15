@@ -47,6 +47,8 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
   const {
     expandViewToFit,
     flyToCurrentLocation,
+    setFlyToDriver,
+    flyToDriver,
     currentLocation,
     toggleConstantTracking,
     constantTracking,
@@ -61,12 +63,40 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
     const intervalId = setInterval(() => {
       const message = exportLocationServiceMessage()
       setButtonMessage(message);
-      console.log('\n\t... Geolocation message: ', message)
     }, 1000);
 
     return () => clearInterval(intervalId);
   }, [exportLocationServiceMessage]);
 
+  const toggleFlyToTimer = () => {
+    setFlyToDriver(prev => !prev)
+  };
+
+  // const flyToIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // useEffect(() => {
+  //   if (flyToTimerActive) {
+  //     if (flyToIntervalRef.current) {
+  //       clearInterval(flyToIntervalRef.current);
+  //     }
+  //     flyToIntervalRef.current = setInterval(() => {
+  //       const currentZoom = mapRef.getZoom();
+  //       flyToCurrentLocation(currentZoom);
+  //     }, 2500);
+  //   } else {
+  //     if (flyToIntervalRef.current) {
+  //       clearInterval(flyToIntervalRef.current);
+  //       flyToIntervalRef.current = null;
+  //     }
+  //   }
+
+  //   return () => {
+  //     if (flyToIntervalRef.current) {
+  //       clearInterval(flyToIntervalRef.current);
+  //     }
+  //   };
+  // }, [flyToTimerActive, mapRef, flyToCurrentLocation]);
+  
   return (
     <div>
       
@@ -86,7 +116,34 @@ export const MapViewButton = ({ mapRef }: { mapRef: LeafletMap }) => {
           {buttonMessage}
         </Button>
       )}
-      {/* Other button code remains unchanged */}
+
+      <Button
+        className={
+          cn("absolute top-16 right-44 z-[1000]", 
+          isSimulating && "bg-red-500")
+        }
+        onClick={() => {
+          //routeGeoJsonList
+          if (isSimulating) {
+            setIsSimulating(false);
+            stopSimulation()
+          } else {
+            setIsSimulating(true);
+            simulateMovementAlongRoute();
+          }
+        }}
+      >
+        {isSimulating ? "Stop Demo" : "Start Demo"}
+      </Button>
+
+      <Button
+        className="absolute top-3 right-16 z-[1000]"
+        onClick={toggleFlyToTimer}
+      >
+        <Locate size={16} /> {flyToDriver ? 'Stop Centering' : 'Center Map'}
+      </Button>
+
+
     </div>
   );
 };
