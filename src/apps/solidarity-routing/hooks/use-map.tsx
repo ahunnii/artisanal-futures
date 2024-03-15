@@ -115,15 +115,6 @@ const useMap = ({
           );
         }
 
-        // if(locationMessage.error){
-        //   console.log(
-        //     "\n",
-        //     "\n\t",currentLocation, "< last geolocation",
-        //     "\n\t",locationMessage, "< error!"
-        //   )
-        //   return
-        // }
-
         if(!isSimulatingGPS){
           useThisLatitude = currentLocation.latitude
           useThisLongitude = currentLocation.longitude
@@ -144,9 +135,18 @@ const useMap = ({
             )
         }
 
-        if(flyToDriver){
+        if(flyToDriver && useThisLatitude){
+          // locationMessage.error seems to be lagged
           const currentZoom = mapRef.getZoom();
           flyToCurrentLocation(currentZoom)
+
+          console.log(
+            "currentZoom ", currentZoom,
+            "currentLocatin ", currentLocation,
+            "!locationMessage.error ", !locationMessage.error
+
+          )
+
         }
 
         if (pathId &&  !locationMessage.error){
@@ -189,7 +189,7 @@ const useMap = ({
     [mapRef]
   );
 
-  const flyToCurrentLocation = (zoom: number = 15) => {
+  const flyToCurrentLocation = (zoom: number = 8) => {
     if (currentLocation)
       flyTo(
         {

@@ -86,7 +86,8 @@ const OptimizedPathPage: FC<IProps> = ({ verifiedDriver }) => {
           ) : (
             <>
               {optimizedRoutePlan.data && (
-                <section className="flex flex-1  flex-col-reverse border-2 max-md:h-full lg:flex-row">
+                // flex-col-reverse was the original layout
+                <section className="flex flex-1  flex-col border-2 max-md:h-full lg:flex-row">
                   <div className="flex w-full flex-col gap-4 max-lg:hidden max-lg:h-4/6 lg:w-5/12 xl:w-3/12">
                     <>
                       <Beforeunload
