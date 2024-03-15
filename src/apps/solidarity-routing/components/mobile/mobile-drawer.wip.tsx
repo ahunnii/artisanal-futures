@@ -27,12 +27,27 @@ import { FieldJobSearch } from "../field-job-search.wip";
 import { useMediaQuery } from "~/hooks/use-media-query";
 import RouteBreakdown from "../route-plan-section/route-breakdown";
 
+import { Expand, Locate } from "lucide-react";
+import { useMapStore } from '~/apps/solidarity-routing/stores/use-map-store';
+
 export const MobileDrawer = ({}: // snap,
 // setSnap,
 {
   // snap: number | string | null;
   // setSnap: (snap: number | string | null) => void;
 }) => {
+  const { 
+    flyToDriver, 
+    setFlyToDriver, 
+    constantTracking, 
+    setConstantTracking,
+    locationMessage
+  } = useMapStore();
+  const toggleFlyToTimer = () => {
+    console.log("Should be changing the button text!")
+    setFlyToDriver(!flyToDriver)
+  };
+
   const [snap, setSnap] = useState<number | string | null>(0.25);
 
   const optimizedRoutePlan = useOptimizedRoutePlan();
@@ -53,6 +68,20 @@ export const MobileDrawer = ({}: // snap,
   return (
     <>
       <div className="flex w-full bg-white lg:hidden">
+      <Button
+          className={cn(
+            "",
+            locationMessage('').includes("Stop") && "bg-red-300",
+            locationMessage('').includes("Get") && "animate-pulse"
+          )}
+          variant={constantTracking ? "secondary" : "default"}
+          onClick={() => {
+            setConstantTracking(!constantTracking)
+          }}
+        >
+          {locationMessage('')}
+        </Button>
+
         <Button
           size={"lg"}
           variant="ghost"
@@ -65,6 +94,7 @@ export const MobileDrawer = ({}: // snap,
             {route?.stops?.length} stops •{" "}
             {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </p>
+
         </Button>
         <FieldJobSearch isIcon={true} />{" "}
         {/* <Button
@@ -74,6 +104,15 @@ export const MobileDrawer = ({}: // snap,
         >
           <MoreVertical className="h-4 w-4" /> */}
         {/* </Button> */}
+
+        <Button
+          className=""
+          onClick={toggleFlyToTimer}
+        >
+        <Locate size={16} /> {flyToDriver ? 'Stop Centering' : 'Center Map'}
+      </Button>
+
+
       </div>
       <Drawer
         snapPoints={[0.1, 0.25, 0.75, 1]}
@@ -138,6 +177,8 @@ export const MobileDrawer = ({}: // snap,
                   <Car />
                   Load vehicle
                 </Button> */}
+
+
                 {/* 
 <Button
               className="flex flex-1 gap-2"

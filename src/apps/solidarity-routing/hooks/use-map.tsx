@@ -140,12 +140,11 @@ const useMap = ({
           const currentZoom = mapRef.getZoom();
           flyToCurrentLocation(currentZoom)
 
-          console.log(
-            "currentZoom ", currentZoom,
-            "currentLocatin ", currentLocation,
-            "!locationMessage.error ", !locationMessage.error
-
-          )
+          // console.log(
+          //   "currentZoom ", currentZoom,
+          //   "currentLocatin ", currentLocation,
+          //   "!locationMessage.error ", !locationMessage.error
+          // )
 
         }
 
