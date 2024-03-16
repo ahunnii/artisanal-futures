@@ -24,6 +24,7 @@ import * as z from "zod";
 
 import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 
+import { notificationService } from "~/services/notification";
 import { api } from "~/utils/api"; // ?
 
 import { Separator } from "~/components/ui/separator";
@@ -46,6 +47,15 @@ import RouteBreakdown from "../route-plan-section/route-breakdown";
 
 import { Expand, Locate } from "lucide-react";
 import { useMapStore } from '~/apps/solidarity-routing/stores/use-map-store';
+
+const notificationsFormSchema = z.object({
+  status: z.nativeEnum(RouteStatus, {
+    required_error: "You need to select a notification type.",
+  }),
+  deliveryNotes: z.string().optional(),
+});
+
+export type EditStopFormValues = z.infer<typeof notificationsFormSchema>;
 
 export const MobileDrawer = ({}: // snap,
 // setSnap,
@@ -85,6 +95,24 @@ export const MobileDrawer = ({}: // snap,
 
 
   const apiContext = api.useContext();
+
+  const updateStopStatus = api.routePlan.updateOptimizedStopState.useMutation({
+    onSuccess: () => {
+      notificationService.notifySuccess({
+        message: "Stop status was successfully updated.",
+      });
+    },
+    onError: (error: unknown) => {
+      notificationService.notifyError({
+        message: "There was an issue updating the stop status.",
+        error,
+      });
+    },
+    onSettled: () => {
+      jobBundles.onFieldJobSheetOpen(false);
+      void apiContext.routePlan.invalidate();
+    },
+  });
 
   const routeId = window.location.pathname.split("/routeId/")[1];
   const { data: routePlan } = useOptimizedRoutePlan(routeId);
@@ -156,19 +184,43 @@ export const MobileDrawer = ({}: // snap,
 
   const [selectedButton, setSelectedButton] = useState<{[key: number]: 'complete' | 'failed'}>({});
 
+  const onSubmit = (status: 'COMPLETED' | 'FAILED', activeStop: OptimizedStop) => {
+    const data: Partial<EditStopFormValues> = {
+      status: status,
+      deliveryNotes: activeStop?.notes ?? undefined,
+    };
+  
+    if (activeStop) {
+      updateStopStatus.mutate({
+        state: status,
+        stopId: activeStop.id,
+        notes: data.deliveryNotes,
+      });
+    }
+  };
+
   const renderCarouselContent = () => {
     const activeStop = routePlan?.stops[carouselIndex];
   
     const handleStopUpdate = (status: 'COMPLETED' | 'FAILED') => {
       if (activeStop?.jobId) {
-        // Assuming you have a function to update the stop status
-        // This could be a call to an API or a local state update
         console.log(`Updating stop ${activeStop.jobId} to ${status}`);
-        // Example: updateStopStatus(activeStop.jobId, status);
+        // Find the job related to the activeStop
+        const job = jobsForRoute.find(job => job.id === activeStop.jobId);
+        if (job) {
+          // Assuming onSubmit can accept an object with both job and activeStop information
+          onSubmit(status, { ...activeStop, job });
+        } else {
+          console.error("Job not found for activeStop", activeStop);
+          // Handle the case where the job is not found
+        }
       }
       // Update the selectedButton state for the current stop
       setSelectedButton(prevState => ({ ...prevState, [carouselIndex]: status === 'COMPLETED' ? 'complete' : 'failed' }));
-    };
+
+      setTimeout(() => nextStop(), 1000);
+  };
+
   
     return (
       <>
@@ -182,13 +234,13 @@ export const MobileDrawer = ({}: // snap,
               style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
               onClick={() => handleStopUpdate('COMPLETED')}
             >
-              Complete
+              complete
             </button>
             <button
               style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
               onClick={() => handleStopUpdate('FAILED')}
             >
-              Failed
+              failed
             </button>
           </div>
         )}
