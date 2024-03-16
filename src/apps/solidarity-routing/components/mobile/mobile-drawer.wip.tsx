@@ -5,7 +5,8 @@ import {
   LocateOffIcon,
   LocateFixedIcon,
   LocateIcon,
-  MapPinIcon
+  MapPinIcon,
+  MapIcon
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
@@ -16,6 +17,14 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "~/components/ui/drawer";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
+
+import { api } from "~/utils/api"; // ?
 
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/utils/styles";
@@ -74,7 +83,20 @@ export const MobileDrawer = ({}: // snap,
     optimizedRoutePlan?.data?.vehicleId
   );
 
-  const route = optimizedRoutePlan?.data;
+
+  const apiContext = api.useContext();
+
+  const routeId = window.location.pathname.split("/routeId/")[1];
+  const { data: routePlan } = useOptimizedRoutePlan(routeId);
+
+  const jobBundles = useClientJobBundles();
+
+  const jobsForRoute = routePlan?.stops.map(stop => {
+    const jobBundle = jobBundles.data.find(jobBundle => jobBundle.job.id === stop.jobId);
+    return jobBundle ? jobBundle.job : undefined;
+  }).filter(job => job !== undefined);
+
+
 
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
@@ -107,28 +129,195 @@ export const MobileDrawer = ({}: // snap,
     }
   };
 
+  
+  // routePlan?.stops?.forEach((stop, index) => {
+  //   console.log(`Stop ${index + 1}:`, stop);
+  // });
+
+  const [carouselIndex, setCarouselIndex] = useState(0); // To track the current index of the carousel
+
+  const currentJob = jobBundles.active?.job;
+
+  // Assuming `route?.stops` is an array of stops for the route
+  const route = optimizedRoutePlan?.data;  
+  const totalStops = route?.stops?.length ?? 0; // Total number of stops
+
+  // Function to move to the next stop
+  const nextStop = () => {
+    if (carouselIndex < totalStops) { // Check to prevent going beyond the last stop
+      setCarouselIndex((carouselIndex + 1) % totalStops);
+    }
+  };
+
+  // Function to move to the previous stop
+  const prevStop = () => {
+    setCarouselIndex((carouselIndex - 1 + totalStops) % totalStops);
+  };
+
+  const [selectedButton, setSelectedButton] = useState<{[key: number]: 'complete' | 'failed'}>({});
+
+  const renderCarouselContent = () => {
+    const activeStop = routePlan?.stops[carouselIndex];
+  
+    const handleStopUpdate = (status: 'COMPLETED' | 'FAILED') => {
+      if (activeStop?.jobId) {
+        // Assuming you have a function to update the stop status
+        // This could be a call to an API or a local state update
+        console.log(`Updating stop ${activeStop.jobId} to ${status}`);
+        // Example: updateStopStatus(activeStop.jobId, status);
+      }
+      // Update the selectedButton state for the current stop
+      setSelectedButton(prevState => ({ ...prevState, [carouselIndex]: status === 'COMPLETED' ? 'complete' : 'failed' }));
+    };
+  
+    return (
+      <>
+        {activeStop?.type === 'Break' ? (
+          <div>
+            <button onClick={() => handleStopUpdate('COMPLETED')}>Complete Break</button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
+              onClick={() => handleStopUpdate('COMPLETED')}
+            >
+              Complete
+            </button>
+            <button
+              style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
+              onClick={() => handleStopUpdate('FAILED')}
+            >
+              Failed
+            </button>
+          </div>
+        )}
+      </>
+    );
+  };  
+
+  // const renderCarouselContent = () => {
+  //   const activeStop = routePlan?.stops[carouselIndex]
+
+  //   if (activeStop?.jobId) {
+  //     const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
+  //   }
+
+  //   if (carouselIndex === totalStops) {
+  //     return <p>Stop the route</p>;
+  //   } else {
+  //     const currentStop = route?.stops[carouselIndex];
+  //     return (
+  //       <>
+  //         <div>
+  //           <button>Complete</button><br/>
+  //           <button>Failed</button>
+  //         </div>
+  //       </>
+  //     );
+  //   }
+  // };
+
+  const renderStopAddress = () => {
+    const activeStop = routePlan?.stops[carouselIndex]
+
+    let stopAddress = "Address not available";
+    if (activeStop?.jobId) {
+      const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
+      if (job) {
+        stopAddress = job.address.formatted.split(',')[0] ?? "Address not available";
+      }
+    }
+    else {
+      stopAddress = activeStop?.type ?? "Stop type not available";
+    }
+
+    return (
+      <div>
+        {stopAddress}
+      </div>
+    )
+  }
+
   return (
     <>
-      <div className="flex w-full bg-white lg:hidden">
-      <Button
-          className={cn(
-            locationMessage.error && "bg-red-300",
-            locationMessage.message.includes("timed") && "animate-pulse"
-          )}
-          variant={constantTracking ? "secondary" : "default"}
-          onClick={() => {
-            toggleConstantTracking()
-          }}
-        >
-          {exportLocationServiceMessage()}
-        </Button>
+    {/*className="flex w-full bg-white lg:hidden"*/}
 
-        <Button
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div style={{ width: '48%', textAlign: 'left' }}>
+              <Button
+              className={cn(
+                locationMessage.error && "bg-red-150",
+                locationMessage.message.includes("timed") && "animate-pulse"
+              )}
+              variant={constantTracking ? "secondary" : "default"}
+              onClick={() => {
+                toggleConstantTracking()
+              }}
+            >
+              {exportLocationServiceMessage()}
+            </Button>
+          </div>
+
+
+          <div style={{ width: '48%', textAlign: 'center' }}>
+            {renderStopAddress()}
+          </div>
+
+
+          <div style={{ width: '48%', textAlign: 'right' }}>
+            <Button
+              className=""
+              onClick={toggleFlyToTimer}
+            >
+            {flyToDriver ? <LocateFixedIcon/> : <LocateOffIcon />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Carousel */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ width: '10%', textAlign: 'center'}}>
+            <Button
+              size={"lg"}
+              variant="ghost"
+              className="flex-1"
+            >
+              <div onClick={prevStop}>&lt;</div> {/* Button to move to the previous stop */}
+            </Button>
+          </div>
+          <div style={{ width: '25%', textAlign: 'center'}}>
+            {renderCarouselContent()} {/* Display the current carousel content */}
+          </div>
+          <div style={{ width: '10%', textAlign: 'center'}}>
+            <Button
+              size={"lg"}
+              variant="ghost"
+              className="flex-1"
+            >
+              <div onClick={nextStop}>&gt;</div> {/* Button to move to the next stop */}
+            </Button>
+          </div>
+          <div style={{ width: '15%', textAlign: 'center'}}>
+            <button>
+              <MapIcon/>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full bg-white lg:hidden"> 
+
+
+
+        {/* <Button
           size={"lg"}
           variant="ghost"
           className="flex-1"
           onClick={() => setOpen(true)}
         >
+ 
           <p className="text-sm font-normal text-muted-foreground">
             Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
             {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
@@ -136,15 +325,10 @@ export const MobileDrawer = ({}: // snap,
             {Math.round(metersToMiles(route?.distance ?? 0))}mi
           </p>
 
-        </Button>
+        </Button> */}
+
         {/* <FieldJobSearch isIcon={true} />{" "} */}
 
-        <Button
-          className=""
-          onClick={toggleFlyToTimer}
-        >
-        {flyToDriver ? <LocateFixedIcon/> : <LocateOffIcon />}
-      </Button>
 
 
       </div>
@@ -162,6 +346,8 @@ export const MobileDrawer = ({}: // snap,
           onInteractOutside={(e) => e.preventDefault()}
         >
           <div className="mx-auto w-full max-w-sm">
+
+
             <DrawerHeader className="flex flex-1 items-center justify-between">
               {snap === 0.1 ? (
                 <>
@@ -172,6 +358,7 @@ export const MobileDrawer = ({}: // snap,
                     {Math.round(metersToMiles(route?.distance ?? 0))}mi
                   </p>
                   <FieldJobSearch isIcon={true} />{" "}
+
                 </>
               ) : (
                 <FieldJobSearch isIcon={false} />
