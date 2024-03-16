@@ -184,7 +184,7 @@ export const MobileDrawer = ({}: // snap,
 
   const [selectedButton, setSelectedButton] = useState<{[key: number]: 'complete' | 'failed'}>({});
 
-  const onSubmit = (status: 'COMPLETED' | 'FAILED', activeStop: OptimizedStop) => {
+  const onSubmit = (status: 'COMPLETED' | 'FAILED' | 'PENDING', activeStop: OptimizedStop) => {
     const data: Partial<EditStopFormValues> = {
       status: status,
       deliveryNotes: activeStop?.notes ?? undefined,
@@ -224,11 +224,11 @@ export const MobileDrawer = ({}: // snap,
   
     return (
       <>
-        {activeStop?.type === 'Break' ? (
+        {activeStop?.type === 'break' ? (
           <div>
-            <button onClick={() => handleStopUpdate('COMPLETED')}>Complete Break</button>
+            <button onClick={() => handleStopUpdate('COMPLETED')}>Finished Break</button>
           </div>
-        ) : (
+        ) : activeStop?.type !== 'end' ? (
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
@@ -243,53 +243,60 @@ export const MobileDrawer = ({}: // snap,
               failed
             </button>
           </div>
-        )}
+        ) : null}
       </>
     );
   };  
 
-  // const renderCarouselContent = () => {
-  //   const activeStop = routePlan?.stops[carouselIndex]
-
-  //   if (activeStop?.jobId) {
-  //     const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
-  //   }
-
-  //   if (carouselIndex === totalStops) {
-  //     return <p>Stop the route</p>;
-  //   } else {
-  //     const currentStop = route?.stops[carouselIndex];
-  //     return (
-  //       <>
-  //         <div>
-  //           <button>Complete</button><br/>
-  //           <button>Failed</button>
-  //         </div>
-  //       </>
-  //     );
-  //   }
-  // };
-
   const renderStopAddress = () => {
-    const activeStop = routePlan?.stops[carouselIndex]
-
-    let stopAddress = "Address not available";
+    const activeStop = routePlan?.stops[carouselIndex];
+  
+    let stopDetails = <div>Address not available</div>;
     if (activeStop?.jobId) {
       const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
       if (job) {
-        stopAddress = job.address.formatted.split(',')[0] ?? "Address not available";
+        const clientName = job.client?.name;
+        const address = job.address.formatted.split(',')[0] ?? "Address not available";
+        stopDetails = clientName ? (
+          <>
+            <div style={{ fontSize: 'larger' }}>{clientName}</div>
+            <div style={{ fontSize: 'smaller' }}>{address}</div>
+          </>
+        ) : (
+          <div>{address}</div>
+        );
       }
+    } else {
+      stopDetails = <div>{activeStop?.type ?? "Stop type not available"}</div>;
     }
-    else {
-      stopAddress = activeStop?.type ?? "Stop type not available";
-    }
-
+  
     return (
       <div>
-        {stopAddress}
+        {stopDetails}
       </div>
-    )
+    );
   }
+
+  // const renderStopAddress = () => {
+  //   const activeStop = routePlan?.stops[carouselIndex]
+
+  //   let stopAddress = "Address not available";
+  //   if (activeStop?.jobId) {
+  //     const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
+  //     if (job) {
+  //       stopAddress = job.address.formatted.split(',')[0] ?? "Address not available";
+  //     }
+  //   }
+  //   else {
+  //     stopAddress = activeStop?.type ?? "Stop type not available";
+  //   }
+
+  //   return (
+  //     <div>
+  //       {stopAddress}
+  //     </div>
+  //   )
+  // }
 
   return (
     <>
