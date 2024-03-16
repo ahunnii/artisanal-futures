@@ -69,7 +69,7 @@ const useMap = ({
     const geoJson = formatGeometryString(matchedGeoJson, vehicleId);
     matchedPlanLatLng.current = geoJson.coordinates;
   } else {
-    console.error(`Error: No matching plan found for vehicleId: ${vehicleId}`);
+    if(driverId) console.error(`Error: No matching plan found for vehicleId: ${vehicleId}`);
   }
   const locationUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -90,6 +90,8 @@ const useMap = ({
 
 
   useEffect(() => {
+
+    if (!driverId){return} // if this is a distributor we don't need to run this logic at all
 
     if (constantUserTracking) {
       if (locationUpdateIntervalRef.current) {

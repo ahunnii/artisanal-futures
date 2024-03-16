@@ -44,6 +44,7 @@ import {
 } from "~/components/ui/context-menu";
 
 import RouteMarker, { StopIcon, PositionIcon } from "~/apps/solidarity-routing/components/map/route-marker";
+import { useDepot } from '~/apps/solidarity-routing/hooks/depot/use-depot';
 
 import { getStyle } from "~/apps/solidarity-routing/utils/generic/color-handling";
 
@@ -289,6 +290,12 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           )
       }
 
+    const { currentDepot } = useDepot();
+    let useThisCenter = MAP_DATA.center;
+    if (currentDepot?.address?.latitude && currentDepot?.address?.longitude) {
+      useThisCenter = [currentDepot.address.latitude, currentDepot.address.longitude];
+    }
+
     const [snap, setSnap] = useState<number | string | null>(0.1);
     const isDesktop = useMediaQuery("(min-width: 1024px)");
     return (
@@ -310,7 +317,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
             {" "}
             <MapContainer
               ref={mapRef}
-              center={MAP_DATA.center}
+              center= {useThisCenter}//{MAP_DATA.center} // {useThisCenter}//
               zoom={MAP_DATA.zoom}
               doubleClickZoom={MAP_DATA.doubleClickZoom}
               maxBounds={MAP_DATA.maxBounds}
