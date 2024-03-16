@@ -36,7 +36,7 @@ export const useCreateJob = () => {
     },
     onError: (e: unknown) => {
       console.error(e);
-      toast.error("There was an error adding jobs to route.");
+      //toast.error("There was an error adding jobs to route.");
     },
     onSettled: () => {
       void apiContext.jobs.invalidate();

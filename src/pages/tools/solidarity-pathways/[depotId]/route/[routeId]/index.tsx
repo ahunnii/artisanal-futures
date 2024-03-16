@@ -90,10 +90,6 @@ const SingleRoutePage = () => {
     }
   };
 
-  const { selectedJobIds } = useStopsStore((state) => ({
-    selectedJobIds: state.selectedJobIds,
-  }));
-
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { updateUrlParams, getUrlParam } = useUrlParams();
@@ -192,6 +188,11 @@ const SingleRoutePage = () => {
 
   const jobs = useClientJobBundles();
 
+  const { setSelectedJobIds, selectedJobIds } = useStopsStore((state) => ({
+    setSelectedJobIds: state.setSelectedJobIds,
+    selectedJobIds: state.selectedJobIds,
+  }));
+
   const buildManyJobs = async () => {
     const data = await fetchCsvDataFromApi();
 
@@ -235,6 +236,15 @@ const SingleRoutePage = () => {
   //   return () => clearInterval(movementInterval);
   // }, [currentLocation, flyToCurrentLocation]);
 
+
+  const editRouteCallback = () => {
+    updateUrlParams({
+      key: "mode",
+      value: "calculate",
+    })
+
+    setSelectedJobIds([]) // reset them
+  }
 
   return (
     <>
@@ -333,12 +343,7 @@ const SingleRoutePage = () => {
                         <>
                           <Button
                             variant={"outline"}
-                            onClick={() =>
-                              updateUrlParams({
-                                key: "mode",
-                                value: "calculate",
-                              })
-                            }
+                            onClick={() => editRouteCallback()}
                             className="gap-2"
                           >
                             Cancel

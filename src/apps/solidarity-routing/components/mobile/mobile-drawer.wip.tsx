@@ -224,26 +224,62 @@ export const MobileDrawer = ({}: // snap,
   
     return (
       <>
-        {activeStop?.type === 'break' ? (
-          <div>
-            <button onClick={() => handleStopUpdate('COMPLETED')}>Finished Break</button>
-          </div>
-        ) : activeStop?.type !== 'end' ? (
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
-              onClick={() => handleStopUpdate('COMPLETED')}
-            >
-              complete
-            </button>
-            <button
-              style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
-              onClick={() => handleStopUpdate('FAILED')}
-            >
-              failed
-            </button>
-          </div>
-        ) : null}
+{activeStop?.type === 'break' ? (
+  <div>
+    <button onClick={() => handleStopUpdate('COMPLETED')}>Finished Break</button>
+  </div>
+) : activeStop?.type === 'start' ? (
+  <div>
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        if (optimizedRoutePlan?.data?.id) {
+          optimizedRoutePlan.updateRoutePathStatus({
+            pathId: optimizedRoutePlan.data.id,
+            state: RouteStatus.IN_PROGRESS,
+          });
+        }
+      }}
+      style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+    >
+      Start route
+    </a>
+  </div>
+) : activeStop?.type === 'end' ? (
+  <div>
+    <a
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        if (optimizedRoutePlan?.data?.id) {
+          optimizedRoutePlan.updateRoutePathStatus({
+            pathId: optimizedRoutePlan.data.id,
+            state: RouteStatus.COMPLETED,
+          });
+        }
+      }}
+      style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+    >
+      Complete route
+    </a>
+  </div>
+) : activeStop?.type !== 'end' ? (
+  <div style={{ display: 'flex', gap: '10px' }}>
+    <button
+      style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
+      onClick={() => handleStopUpdate('COMPLETED')}
+    >
+      complete
+    </button>
+    <button
+      style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
+      onClick={() => handleStopUpdate('FAILED')}
+    >
+      failed
+    </button>
+  </div>
+) : null}
       </>
     );
   };  
