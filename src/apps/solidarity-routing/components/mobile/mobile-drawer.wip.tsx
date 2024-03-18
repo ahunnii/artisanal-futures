@@ -6,7 +6,12 @@ import {
   LocateFixedIcon,
   LocateIcon,
   MapPinIcon,
-  MapIcon
+  MapIcon,
+  ChevronFirstIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CheckIcon,
+  XIcon
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
@@ -225,27 +230,59 @@ export const MobileDrawer = ({}: // snap,
     return (
       <>
 {activeStop?.type === 'break' ? (
+  
   <div>
-    <button onClick={() => handleStopUpdate('COMPLETED')}>Finished Break</button>
+    <span className="text-sm font-medium text-gray-700 text-center w-full">
+      <button onClick={() => handleStopUpdate('COMPLETED')}>Take a Break</button>
+    </span>
   </div>
+
 ) : activeStop?.type === 'start' ? (
-  <div>
-    <a
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        if (optimizedRoutePlan?.data?.id) {
-          optimizedRoutePlan.updateRoutePathStatus({
-            pathId: optimizedRoutePlan.data.id,
-            state: RouteStatus.IN_PROGRESS,
-          });
-        }
-      }}
-      style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+
+  <div className="flex flex-1 justify-center">
+    <Button 
+      size={"lg"}
+      variant="ghost"
+      className="w-full"
     >
-      Start route
-    </a>
+      <span className="text-sm font-medium text-gray-700 text-center w-full">
+       <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (optimizedRoutePlan?.data?.id) {
+              optimizedRoutePlan.updateRoutePathStatus({
+                pathId: optimizedRoutePlan.data.id,
+                state: RouteStatus.IN_PROGRESS,
+              });
+            }
+          }}
+        >
+        Start Driving
+        </a>
+      </span>
+    </Button>
   </div>
+
+
+  // <div>
+  //   <a
+  //     href="#"
+  //     onClick={(e) => {
+  //       e.preventDefault();
+  //       if (optimizedRoutePlan?.data?.id) {
+  //         optimizedRoutePlan.updateRoutePathStatus({
+  //           pathId: optimizedRoutePlan.data.id,
+  //           state: RouteStatus.IN_PROGRESS,
+  //         });
+  //       }
+  //     }}
+  //     style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+  //   >
+  //     Start route
+  //   </a>
+  // </div>
+
 ) : activeStop?.type === 'end' ? (
   <div>
     <a
@@ -264,21 +301,62 @@ export const MobileDrawer = ({}: // snap,
       Complete route
     </a>
   </div>
-) : activeStop?.type !== 'end' ? (
-  <div style={{ display: 'flex', gap: '10px' }}>
-    <button
+) : activeStop?.type !== 'end' ? ( // a typical stop
+
+  <div className="flex flex-1 justify-center">
+    <Button 
+      size={"lg"}
+      variant="ghost"
+      className="border border-gray-300"
       style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
       onClick={() => handleStopUpdate('COMPLETED')}
     >
-      complete
-    </button>
-    <button
+      <span className="text-sm font-medium text-gray-700 text-center w-full">
+       <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (optimizedRoutePlan?.data?.id) {
+              optimizedRoutePlan.updateRoutePathStatus({
+                pathId: optimizedRoutePlan.data.id,
+                state: RouteStatus.COMPLETED,
+              });
+            }
+          }}
+        >
+        Dropped Off
+        </a>
+      </span>
+    </Button>
+
+    <Button 
+      size={"lg"}
+      variant="ghost"
+      className="border border-gray-200"
       style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
-      onClick={() => handleStopUpdate('FAILED')}
+      onClick={() => handleStopUpdate('FAILED')}      
     >
-      failed
-    </button>
+      <span className="text-sm font-medium text-gray-500 text-center w-full">
+       <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (optimizedRoutePlan?.data?.id) {
+              optimizedRoutePlan.updateRoutePathStatus({
+                pathId: optimizedRoutePlan.data.id,
+                state: RouteStatus.FAILED,
+              });
+            }
+          }}
+        >
+        Had an Issue
+        </a>
+      </span>
+    </Button>
+
   </div>
+
+
 ) : null}
       </>
     );
@@ -303,7 +381,11 @@ export const MobileDrawer = ({}: // snap,
         );
       }
     } else {
-      stopDetails = <div>{activeStop?.type ?? "Stop type not available"}</div>;
+      //stopDetails = <div>{activeStop?.type ?? "Stop type not available"}</div>;
+      // I think we can let the renderCarouselContent handle
+      // non stop related actions, like Start, Break, and End. Otherwise
+      // we're kidn of duplicating information?
+      stopDetails = ''; 
     }
   
     return (
@@ -340,7 +422,7 @@ export const MobileDrawer = ({}: // snap,
 
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <div style={{ width: '48%', textAlign: 'left' }}>
+          <div style={{ width: '10%', textAlign: 'left' }}>
               <Button
               className={cn(
                 locationMessage.error && "bg-red-150",
@@ -356,12 +438,12 @@ export const MobileDrawer = ({}: // snap,
           </div>
 
 
-          <div style={{ width: '48%', textAlign: 'center' }}>
+          <div style={{ flex: 1, textAlign: 'center' }}>
             {renderStopAddress()}
           </div>
 
 
-          <div style={{ width: '48%', textAlign: 'right' }}>
+          <div style={{ width: '10%', textAlign: 'right' }}>
             <Button
               className=""
               onClick={toggleFlyToTimer}
@@ -372,18 +454,22 @@ export const MobileDrawer = ({}: // snap,
         </div>
 
         {/* Carousel */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
           <div style={{ width: '10%', textAlign: 'center'}}>
             <Button
               size={"lg"}
               variant="ghost"
               className="flex-1"
             >
-              <div onClick={prevStop}>&lt;</div> {/* Button to move to the previous stop */}
+              <ChevronLeftIcon
+                onClick={prevStop}
+                className="h-6 w-6 text-gray-600"
+              />
             </Button>
           </div>
-          <div style={{ width: '25%', textAlign: 'center'}}>
-            {renderCarouselContent()} {/* Display the current carousel content */}
+
+          <div style={{ flex: 1, textAlign: 'center'}}>
+            {renderCarouselContent()}
           </div>
           <div style={{ width: '10%', textAlign: 'center'}}>
             <Button
@@ -391,10 +477,13 @@ export const MobileDrawer = ({}: // snap,
               variant="ghost"
               className="flex-1"
             >
-              <div onClick={nextStop}>&gt;</div> {/* Button to move to the next stop */}
+              <ChevronRightIcon
+                onClick={nextStop}
+                className="h-6 w-6 text-gray-600"
+              />
             </Button>
           </div>
-          <div style={{ width: '15%', textAlign: 'center'}}>
+          <div style={{ width: '10%', textAlign: 'center'}}>
             <button>
               <MapIcon/>
             </button>

@@ -149,7 +149,7 @@ const useMap = ({
             )
         }
 
-        if(flyToDriver && useThisLatitude){
+        if(flyToDriver && useThisLatitude && currentLocation?.latitude){
           // locationMessage.error seems to be lagged
           const currentZoom = mapRef.getZoom();
           flyToCurrentLocation(currentZoom)
@@ -162,7 +162,7 @@ const useMap = ({
 
         }
 
-        if (pathId &&  useThisLatitude && !locationMessage.error){
+        if (pathId &&  useThisLatitude && !locationMessage.error && constantTracking){
               void axios.post("/api/routing/update-user-location", {
                 latitude: useThisLatitude,
                 longitude: useThisLongitude,
