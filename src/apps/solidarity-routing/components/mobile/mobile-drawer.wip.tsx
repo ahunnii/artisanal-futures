@@ -312,20 +312,7 @@ export const MobileDrawer = ({}: // snap,
       onClick={() => handleStopUpdate('COMPLETED')}
     >
       <span className="text-sm font-medium text-gray-700 text-center w-full">
-       <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            if (optimizedRoutePlan?.data?.id) {
-              optimizedRoutePlan.updateRoutePathStatus({
-                pathId: optimizedRoutePlan.data.id,
-                state: RouteStatus.COMPLETED,
-              });
-            }
-          }}
-        >
         Dropped Off
-        </a>
       </span>
     </Button>
 
@@ -337,20 +324,7 @@ export const MobileDrawer = ({}: // snap,
       onClick={() => handleStopUpdate('FAILED')}      
     >
       <span className="text-sm font-medium text-gray-500 text-center w-full">
-       <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            if (optimizedRoutePlan?.data?.id) {
-              optimizedRoutePlan.updateRoutePathStatus({
-                pathId: optimizedRoutePlan.data.id,
-                state: RouteStatus.FAILED,
-              });
-            }
-          }}
-        >
         Had an Issue
-        </a>
       </span>
     </Button>
 
