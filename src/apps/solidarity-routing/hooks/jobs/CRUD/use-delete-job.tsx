@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import toast from "react-hot-toast";
 
+import { useSolidarityState } from "../../optimized-data/use-solidarity-state";
 import { useStopsStore } from "../use-stops-store";
 
 export const useDeleteJob = () => {
@@ -19,7 +20,20 @@ export const useDeleteJob = () => {
 
   const isUserAllowedToSaveToDepot = (session?.user ?? null) && !isSandbox;
 
+  const { routeId } = useSolidarityState();
+
   const deleteFromRoute = api.jobs.deleteJob.useMutation({
+    onSuccess: () => toast.success("Job successfully removed from route."),
+    onError: (e: unknown) => {
+      toast.error("Oops! Something went wrong!");
+      console.error(e);
+    },
+    onSettled: () => {
+      void apiContext.drivers.invalidate();
+      void apiContext.routePlan.invalidate();
+    },
+  });
+  const deleteOnlyFromRoute = api.jobs.deleteJobFromRoute.useMutation({
     onSuccess: () => toast.success("Job successfully removed from route."),
     onError: (e: unknown) => {
       toast.error("Oops! Something went wrong!");
@@ -67,8 +81,25 @@ export const useDeleteJob = () => {
     }
   };
 
+  const deleteJobsFromRoute = ({ jobs }: { jobs: string[] }) => {
+    if (isUserAllowedToSaveToDepot) {
+      jobs.forEach((job) => {
+        deleteOnlyFromRoute.mutate({
+          jobId: job,
+          routeId,
+        });
+      });
+    } else {
+      const temp = sessionStorageJobs.locations.filter(
+        (loc) => !jobs.includes(loc.job.id)
+      );
+      sessionStorageJobs.setLocations(temp);
+    }
+  };
+
   return {
     deleteClientFromDepot,
     deleteJobFromRoute,
+    deleteJobsFromRoute,
   };
 };

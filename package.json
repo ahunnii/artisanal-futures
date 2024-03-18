@@ -183,6 +183,10 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.4"
   },
+  "overrides": {
+    "@radix-ui/react-dismissable-layer": "^1.0.5",
+    "@radix-ui/react-focus-scope": "^1.0.4"
+  },
   "ct3aMetadata": {
     "initVersion": "7.18.0"
   }
