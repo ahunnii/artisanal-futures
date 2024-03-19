@@ -104,7 +104,7 @@ const CurrentStopForm: FC<TProps> = ({ initialData }) => {
                     target="_blank"
                     className="h-full"
                   >
-                    {" "}
+                    {" "}-
                     <Button
                       type="button"
                       className=" py-auto my-auto flex h-full flex-col justify-center bg-blue-600 text-white hover:bg-blue-600/75"
