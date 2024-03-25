@@ -14,6 +14,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 import {
   ArrowRight,
+  Bomb,
   Building,
   Calendar,
   Loader2,
@@ -58,6 +59,7 @@ import { notificationService } from "~/services/notification";
 
 // Route among lasso selections
 import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
+import { useSolidarityState } from "~/apps/solidarity-routing/hooks/optimized-data/use-solidarity-state";
 
 const LazyRoutingMap = dynamic(
   () => import("~/apps/solidarity-routing/components/map/routing-map"),
@@ -90,6 +92,27 @@ const SingleRoutePage = () => {
     }
   };
 
+  const apiContext = api.useContext();
+
+  const clearOptimizedStops =
+    api.routePlan.clearOptimizedStopsFromRoute.useMutation({
+      onSuccess: () => {
+        notificationService.notifySuccess({
+          message: "Optimized stops have been cleared",
+        });
+      },
+      onError: (error) => {
+        notificationService.notifyError({
+          message: error?.message ?? "An error occurred",
+          error,
+        });
+      },
+
+      onSettled: () => {
+        void apiContext.routePlan.invalidate();
+      },
+    });
+
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { updateUrlParams, getUrlParam } = useUrlParams();
@@ -103,7 +126,7 @@ const SingleRoutePage = () => {
   const jobBundles = useClientJobBundles();
   const routePlans = useRoutePlans();
 
-  const apiContext = api.useContext();
+  const { routeId } = useSolidarityState();
 
   useEffect(() => {
     pusherClient.subscribe("map");
@@ -113,6 +136,12 @@ const SingleRoutePage = () => {
     });
 
     pusherClient.bind("evt::invalidate-stops", (message: string | null) => {
+      if (message !== null && message !== "")
+        notificationService.notifyInfo({ message });
+      void apiContext.routePlan.invalidate();
+    });
+
+    pusherClient.bind("evt::invalidate-route", (message: string | null) => {
       if (message !== null && message !== "")
         notificationService.notifyInfo({ message });
       void apiContext.routePlan.invalidate();
@@ -211,8 +240,7 @@ const SingleRoutePage = () => {
     });
   };
 
-
-  // IF driver we need to track 
+  // IF driver we need to track
   //
   // useEffect(() => {
   //   let lastPosition = { lat: null, lng: null };
@@ -236,22 +264,19 @@ const SingleRoutePage = () => {
   //   return () => clearInterval(movementInterval);
   // }, [currentLocation, flyToCurrentLocation]);
 
-
   const editRouteCallback = () => {
     const routeId = window.location.pathname.split("/routeId/")[1];
-    routePlans.clearRoute.mutate(
-      {routeId: routeId || ''}
-    )
+    routePlans.clearRoute.mutate({ routeId: routeId || "" });
     //void apiContext.routePlan.invalidate();
-    setSelectedJobIds([]) // reset them
+    setSelectedJobIds([]); // reset them
 
-    console.log("need to start clearing things here")
+    console.log("need to start clearing things here");
 
     updateUrlParams({
       key: "mode",
       value: "plan",
-    })
-  }
+    });
+  };
 
   return (
     <>
@@ -283,6 +308,21 @@ const SingleRoutePage = () => {
               <Rocket /> Route
             </Button>
           </div>
+
+          {routePlans.optimized && routePlans.optimized.length > 0 && (
+            <div className="p-1">
+              <Button
+                onClick={() =>
+                  clearOptimizedStops.mutate({
+                    routeId,
+                  })
+                }
+                className="hover:bg-dark-gray bg-black text-white"
+              >
+                <Bomb /> Clear Optimized
+              </Button>
+            </div>
+          )}
         </div>
         {/* Tracking related widgets */}
         <DriverVehicleSheet />

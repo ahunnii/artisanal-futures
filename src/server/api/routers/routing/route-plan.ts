@@ -26,6 +26,22 @@ export const routePlanRouter = createTRPCRouter({
       });
     }),
 
+  clearOptimizedStopsFromRoute: protectedProcedure
+    .input(z.object({ routeId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          optimizedRoute: {
+            deleteMany: {},
+          },
+          optimizedData: null,
+        },
+      });
+    }),
+
   setOptimizedDataWithVroom: protectedProcedure
     .input(
       z.object({
@@ -367,8 +383,8 @@ export const routePlanRouter = createTRPCRouter({
 
   clearRoute: protectedProcedure
     .input(
-      z.object({ 
-        routeId: z.string() 
+      z.object({
+        routeId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -399,7 +415,7 @@ export const routePlanRouter = createTRPCRouter({
         `evt::invalidate-stops`
       );
 
-      console.log("i should've cleared the route!!")
+      console.log("i should've cleared the route!!");
 
       // Return some result or confirmation
       return {
