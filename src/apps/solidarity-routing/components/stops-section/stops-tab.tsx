@@ -12,7 +12,7 @@ import { useClientJobBundles } from "../../hooks/jobs/use-client-job-bundles";
 import type { ClientJobBundle } from "../../types.wip";
 import { FileUploadModal } from "../shared/file-upload-modal.wip";
 
-import { StopFilterBtn } from "./stop-filter-btn";
+import { CommandSearchJobs } from "./command-search-jobs";
 import StopOptionBtn from "./stop-option-btn.wip";
 
 const StopsTab = () => {
@@ -40,7 +40,7 @@ const StopsTab = () => {
 
           {jobs.data?.length !== 0 && <StopOptionBtn />}
         </div>
-        <StopFilterBtn />
+        <CommandSearchJobs />
         {jobs.data?.length === 0 && (
           <>
             <p className="text-sm text-muted-foreground">

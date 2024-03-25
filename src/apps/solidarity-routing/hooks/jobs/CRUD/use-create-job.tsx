@@ -44,6 +44,20 @@ export const useCreateJob = () => {
     },
   });
 
+  const duplicateJobsToRoute = api.jobs.duplicateJobsToRoute.useMutation({
+    onSuccess: () => {
+      toast.success("Jobs were successfully added to route.");
+    },
+    onError: (e: unknown) => {
+      console.error(e);
+      //toast.error("There was an error adding jobs to route.");
+    },
+    onSettled: () => {
+      void apiContext.jobs.invalidate();
+      void apiContext.routePlan.invalidate();
+    },
+  });
+
   const createRouteWithJobBundles =
     api.jobs.createRouteFromJobBundles.useMutation({
       onSuccess: (data) => {
@@ -123,10 +137,24 @@ export const useCreateJob = () => {
     }
   };
 
+  const duplicateJobIdsToRoute = ({ jobs }: { jobs: string[] }) => {
+    const doesRouteExist = routeId !== undefined;
+
+    if (isUserAllowedToSaveToDepot) {
+      if (doesRouteExist)
+        duplicateJobsToRoute.mutate({
+          bundleIds: jobs,
+          depotId,
+          routeId,
+        });
+    }
+  };
+
   return {
     createNewJob,
     createNewJobs,
     createNewJobByLatLng,
     createRouteWithJobBundles,
+    duplicateJobIdsToRoute,
   };
 };
