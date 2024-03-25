@@ -49,7 +49,7 @@ const Navbar = () => {
                 </PathwaysSettingsMenu>
               )}
 
-              <PathwaysNotifications />
+              {/* <PathwaysNotifications /> */}
               <NavbarActions />
             </div>
           </div>
