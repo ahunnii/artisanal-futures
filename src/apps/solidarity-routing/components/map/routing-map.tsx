@@ -199,9 +199,17 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           };
         });
 
+    const handleClearRoute = () => {
+      console.log(
+        "here, we'd do some things!!!"
+      )
+    }
+
     useEffect(() => {
       pusherClient.subscribe("map");
       pusherClient.bind("evt::update-location", setActiveDriverIcons);
+
+      pusherClient.bind("evt::clear-route", handleClearRoute);
 
       return () => {
         pusherClient.unsubscribe("map");

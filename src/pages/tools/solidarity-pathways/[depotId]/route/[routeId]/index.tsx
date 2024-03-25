@@ -238,12 +238,14 @@ const SingleRoutePage = () => {
 
 
   const editRouteCallback = () => {
+    setSelectedJobIds([]) // reset them
+
+    console.log("need to start clearing things here")
+
     updateUrlParams({
       key: "mode",
-      value: "calculate",
+      value: "plan",
     })
-
-    setSelectedJobIds([]) // reset them
   }
 
   return (
@@ -368,9 +370,10 @@ const SingleRoutePage = () => {
                         // size="icon"
                         variant={"outline"}
                         className=" gap-2"
-                        onClick={() =>
-                          updateUrlParams({ key: "mode", value: "plan" })
-                        }
+                        // onClick={() =>
+                        //   updateUrlParams({ key: "mode", value: "plan" })
+                        // }
+                        onClick={editRouteCallback}
                       >
                         <Pencil /> Edit Routes
                       </Button>

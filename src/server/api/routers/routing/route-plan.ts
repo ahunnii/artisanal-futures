@@ -365,6 +365,45 @@ export const routePlanRouter = createTRPCRouter({
       });
     }),
 
+  clearRoute: protectedProcedure
+    .input(z.object({ routeId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Delete optimized stops associated with the route
+      await ctx.prisma.optimizedStop.deleteMany({
+        where: {
+          routePath: {
+            routeId: input.routeId,
+          },
+        },
+      });
+
+      // Optionally, if you also need to clear or reset other data related to the route, add those operations here
+      // For example, resetting the optimizedData field in the route
+      await ctx.prisma.route.update({
+        where: {
+          id: input.routeId,
+        },
+        data: {
+          optimizedData: null,
+        },
+      });
+
+      // Notify UI
+      await pusherServer.trigger(
+        "map",
+        `evt::clear-route`,
+        { routeId: input.routeId }
+      );
+
+      console.log("i should've cleared the route!!")
+
+      // Return some result or confirmation
+      return {
+        success: true,
+        message: `Route ${input.routeId} has been cleared.`,
+      };
+    }),
+
   createRoutePlan: protectedProcedure
     .input(
       z.object({

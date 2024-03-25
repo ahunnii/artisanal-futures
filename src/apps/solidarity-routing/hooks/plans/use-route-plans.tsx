@@ -174,6 +174,10 @@ export const useRoutePlans = () => {
     }
   );
 
+  const clearRoute = api.routePlan.clearRoute.useMutation(
+    { routeId: route.id }
+  ) 
+
   return {
     data: getRoutePlanById.data ?? null,
     isLoading: getRoutePlanById.isLoading,
@@ -190,5 +194,6 @@ export const useRoutePlans = () => {
     create: createRoutePlan.mutate,
     depot: currentDepot,
     getRoutePlanData,
+    clearRoute
   };
 };
