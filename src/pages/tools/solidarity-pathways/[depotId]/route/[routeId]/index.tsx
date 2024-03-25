@@ -238,6 +238,11 @@ const SingleRoutePage = () => {
 
 
   const editRouteCallback = () => {
+    const routeId = window.location.pathname.split("/routeId/")[1];
+    routePlans.clearRoute.mutate(
+      {routeId: routeId || ''}
+    )
+    //void apiContext.routePlan.invalidate();
     setSelectedJobIds([]) // reset them
 
     console.log("need to start clearing things here")

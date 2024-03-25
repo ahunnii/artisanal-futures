@@ -203,12 +203,15 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       console.log(
         "here, we'd do some things!!!"
       )
+
+      //routeGeoJsonList = []
+
+
     }
 
     useEffect(() => {
       pusherClient.subscribe("map");
-      pusherClient.bind("evt::update-location", setActiveDriverIcons);
-
+      // pusherClient.bind("evt::update-location", handleClearRoute);
       pusherClient.bind("evt::clear-route", handleClearRoute);
 
       return () => {

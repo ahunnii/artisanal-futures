@@ -174,9 +174,7 @@ export const useRoutePlans = () => {
     }
   );
 
-  const clearRoute = api.routePlan.clearRoute.useMutation(
-    { routeId: route.id }
-  ) 
+  const clearRoute = api.routePlan.clearRoute.useMutation();
 
   return {
     data: getRoutePlanById.data ?? null,
