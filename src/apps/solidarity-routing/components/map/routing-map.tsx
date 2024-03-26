@@ -2,6 +2,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
   type MouseEventHandler,
@@ -152,19 +153,21 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       setLatLng(mapRef.current.mouseEventToLatLng(event));
     };
 
-    const stopMapPoints: MapPoint[] = pathId
-      ? optimizedRoutePlan.mapData.jobs
-      : jobBundles.data.map((stop) => ({
-          id: stop.job.id,
-          type: "job",
-          lat: stop.job.address.latitude,
-          lng: stop.job.address.longitude,
-          address: stop.job.address.formatted,
-          name: stop?.client?.name ?? "New Stop",
-          color: !stop.job.isOptimized
-            ? "-1"
-            : `${cuidToIndex(routePlans.findVehicleIdByJobId(stop.job.id))}`,
-        }));
+    const stopMapPoints: MapPoint[] = useMemo(() => {
+      return pathId
+        ? optimizedRoutePlan.mapData.jobs
+        : jobBundles.data.map((stop) => ({
+            id: stop.job.id,
+            type: "job",
+            lat: stop.job.address.latitude,
+            lng: stop.job.address.longitude,
+            address: stop.job.address.formatted,
+            name: stop?.client?.name ?? "New Stop",
+            color: !stop.job.isOptimized
+              ? "-1"
+              : `${cuidToIndex(routePlans.findVehicleIdByJobId(stop.job.id))}`,
+          }));
+    }, [jobBundles.data, optimizedRoutePlan.mapData.jobs, pathId, routePlans]);
 
     const driverMapPoints: MapPoint[] = pathId
       ? optimizedRoutePlan.mapData.driver
@@ -182,14 +185,22 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         }));
 
     let unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
+      (stop) => stop.color === "-1" && !selectedJobIds.includes(stop.id)
     );
 
     let assignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color !== "-1" && selectedJobIds.includes(stop.id)
+      (stop) => stop.color !== "-1" || selectedJobIds.includes(stop.id)
     );
 
-    const [routeGeoJsonList, setRouteGeoJsonList] = useState([]);
+    const routeGeoJsonList = pathId
+      ? optimizedRoutePlan.mapData.geometry
+      : routePlans.optimized.map((route) => {
+          return {
+            id: route.id,
+            geoJson: route.geoJson,
+            vehicleId: route.vehicleId,
+          };
+        });
 
     const handleClearRoute = () => {
       stopMapPoints.forEach((stop) => {
@@ -200,7 +211,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       });
 
       setSelectedJobIds([]);
-      setRouteGeoJsonList([]);
+
+      assignedMapPoints = [];
+      // setRouteGeoJsonList([]);
       assignedMapPoints = [];
       unassignedMapPoints = [...stopMapPoints];
 
@@ -256,9 +269,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       if (mapRef.current && !isDriverFromURL) {
         import("leaflet-lasso").then(() => {
           if (!mapRef.current) return;
-    
+
           L.control.lasso().addTo(mapRef.current);
-    
+
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on("lasso.finished", (event) => {
             if (assignedMapPoints.length > 0) {
@@ -268,18 +281,18 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
             if (event.layers.length === 0) {
               setSelectedJobIds([]);
-              console.log("wiped all dis")
+              console.log("wiped all dis");
               return;
             }
 
             const tempSelectedJobIds: string[] = [];
-    
+
             event.layers.forEach((layer) => {
               const { id } = layer.options?.children.props.children.props;
               tempSelectedJobIds.push(id);
             });
-    
-            console.log("\t have selected things")
+
+            console.log("\t have selected things");
 
             // Set intersection logic
             const updatedSelectedJobIds = selectedJobIds.reduce((acc, id) => {
@@ -289,18 +302,16 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               }
               return acc;
             }, []);
-            console.log("\t filtered out existing ids")
+            console.log("\t filtered out existing ids");
 
-            
             // Add new ids that were not already selected
             tempSelectedJobIds.forEach((id) => {
               if (!selectedJobIds.includes(id)) {
                 updatedSelectedJobIds.push(id);
               }
             });
-            console.log("\t about to set with new ids")
+            console.log("\t about to set with new ids");
 
-    
             setSelectedJobIds(updatedSelectedJobIds);
           });
         });

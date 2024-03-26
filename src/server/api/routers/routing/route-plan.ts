@@ -29,7 +29,7 @@ export const routePlanRouter = createTRPCRouter({
   clearOptimizedStopsFromRoute: protectedProcedure
     .input(z.object({ routeId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.route.update({
+      const route = await ctx.prisma.route.update({
         where: {
           id: input.routeId,
         },
@@ -40,6 +40,17 @@ export const routePlanRouter = createTRPCRouter({
           optimizedData: null,
         },
       });
+
+      const jobs = await ctx.prisma.job.updateMany({
+        where: {
+          routeId: input.routeId,
+        },
+        data: {
+          isOptimized: false,
+        },
+      });
+
+      return route;
     }),
 
   setOptimizedDataWithVroom: protectedProcedure
