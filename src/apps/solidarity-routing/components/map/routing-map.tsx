@@ -274,10 +274,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on("lasso.finished", (event) => {
-            if (assignedMapPoints.length > 0) {
-              console.log("Can't lasso after establishing a route!");
-              return;
-            }
+            // if (assignedMapPoints.length > 0) {
+            //   console.log("Can't lasso after establishing a route!");
+            //   return;
+            // }
 
             if (event.layers.length === 0) {
               setSelectedJobIds([]);
