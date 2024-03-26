@@ -10,15 +10,14 @@ import {
 import type L from "leaflet";
 
 //import "leaflet-lasso"
-interface LassoControlOptionsData  {
+interface LassoControlOptionsData {
   title?: string;
 }
 
 interface LassoHandlerOptions {
-  polygon?: L.PolylineOptions,
+  polygon?: L.PolylineOptions;
   intersect?: boolean;
 }
-
 
 import type { LatLngExpression, Map as LeafletMap } from "leaflet";
 import { Expand } from "lucide-react";
@@ -43,8 +42,11 @@ import {
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 
-import RouteMarker, { StopIcon, PositionIcon } from "~/apps/solidarity-routing/components/map/route-marker";
-import { useDepot } from '~/apps/solidarity-routing/hooks/depot/use-depot';
+import RouteMarker, {
+  PositionIcon,
+  StopIcon,
+} from "~/apps/solidarity-routing/components/map/route-marker";
+import { useDepot } from "~/apps/solidarity-routing/hooks/depot/use-depot";
 
 import { getStyle } from "~/apps/solidarity-routing/utils/generic/color-handling";
 
@@ -71,8 +73,7 @@ import { DynamicMapViewButtons } from "./dymamic-map-view-buttons";
 import { MapViewButton } from "./map-view-button";
 
 // Add lasso selections to the route store
-import { useStopsStore } from '~/apps/solidarity-routing/hooks/jobs/use-stops-store'
-
+import { useStopsStore } from "~/apps/solidarity-routing/hooks/jobs/use-stops-store";
 
 interface MapProps {
   className?: string;
@@ -101,7 +102,7 @@ type CoordMap = Record<string, { lat: number; lng: number }>;
 const isDriverFromURL = window.location.href.includes("driverId");
 
 const RoutingMap = forwardRef<MapRef, MapProps>(
-  ({ className, children, showAdvanced}, ref) => {
+  ({ className, children, showAdvanced }, ref) => {
     const mapRef = useRef<LeafletMap>(null);
 
     const [enableTracking, setEnableTracking] = useState(false);
@@ -180,7 +181,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               : "3",
         }));
 
-
     let unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
       (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
     );
@@ -192,10 +192,10 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const [routeGeoJsonList, setRouteGeoJsonList] = useState([]);
 
     const handleClearRoute = () => {
-      stopMapPoints.forEach(stop => {
+      stopMapPoints.forEach((stop) => {
         if (selectedJobIds.includes(stop.id)) {
           stop.color = "-1";
-          console.log("changed  color!")
+          console.log("changed  color!");
         }
       });
 
@@ -204,16 +204,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       assignedMapPoints = [];
       unassignedMapPoints = [...stopMapPoints];
 
-      console.log(
-        "\n\t XOXOXOXO",
-        routeGeoJsonList,
-        selectedJobIds
-        
-      )
+      console.log("\n\t XOXOXOXO", routeGeoJsonList, selectedJobIds);
       //routeGeoJsonList = []
-
-
-    }
+    };
 
     useEffect(() => {
       pusherClient.subscribe("map");
@@ -228,37 +221,33 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     const LIGHTBLUE = "#0000003a";
     useEffect(() => {
       if (mapRef.current && !isDriverFromURL) {
-        import('leaflet-lasso').then(() => {
+        import("leaflet-lasso").then(() => {
           if (!mapRef.current) return;
 
           L.control.lasso().addTo(mapRef.current);
 
           // Listen for lasso.finished event to get selected layers
-          mapRef.current.on('lasso.finished', (event) => {
-            if (assignedMapPoints.length > 0){
-              console.log("Can't lasso after establishing a route!")
-              return
+          mapRef.current.on("lasso.finished", (event) => {
+            if (assignedMapPoints.length > 0) {
+              console.log("Can't lasso after establishing a route!");
+              return;
             } // lasso'ing after assignment screws up route logic; need to wipe route first
             const tempSelectedJobIds: string[] = [];
 
             event.layers.forEach((layer) => {
-              const { address, id, kind, name } = layer.options?.children.props.children.props;
-              console.log(
-                id,
-                address, 
-                kind, 
-                name
-              );
-              tempSelectedJobIds.push(id)
+              const { address, id, kind, name } =
+                layer.options?.children.props.children.props;
+              console.log(id, address, kind, name);
+              tempSelectedJobIds.push(id);
             });
-            setSelectedJobIds(tempSelectedJobIds)
+            setSelectedJobIds(tempSelectedJobIds);
           });
         });
       }
       // Cleanup
       return () => {
         if (mapRef.current) {
-          mapRef.current.off('lasso.finished');
+          mapRef.current.off("lasso.finished");
         }
       };
     }, [mapRef.current]);
@@ -277,39 +266,38 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       }));
     };
 
-
     // Stop Color | wasSelected   | Marker Assignment
     // --------------------------------------------
     //      TODO fill in this chart??
-    // * Stop Color -1 means the stop hasn't been assigned to a route, the 
+    // * Stop Color -1 means the stop hasn't been assigned to a route, the
     // default state.
 
     const assignAnIcon = (stop, stopColor, wasSelected, id) => {
       // Case Unlassoed and we tried to route but couldn't (?)
-      if(stopColor === "-1" && wasSelected === false){
-        return StopIcon("#FF10106a", '-')
+      if (stopColor === "-1" && wasSelected === false) {
+        return StopIcon("#FF10106a", "-");
       }
 
       // Case Lasso'ed and unrouted --> drivers can't reach those customers
-      if(stopColor === "-1" && wasSelected === true){
-        return StopIcon("#90F4005a", '+')
+      if (stopColor === "-1" && wasSelected === true) {
+        return StopIcon("#90F4005a", "+");
       }
 
       // Case Unlassoed & Unrouted
-      if(stopColor !== "-1" && wasSelected === false){
-        return StopIcon("#0000003a", '')
+      if (stopColor !== "-1" && wasSelected === false) {
+        return StopIcon("#0000003a", "");
       }
 
-      return StopIcon(
-          "#000000",
-          'ERROR COLORING THIS STOP!'
-          )
-      }
+      return StopIcon("#000000", "ERROR COLORING THIS STOP!");
+    };
 
     const { currentDepot } = useDepot();
     let useThisCenter = MAP_DATA.center;
     if (currentDepot?.address?.latitude && currentDepot?.address?.longitude) {
-      useThisCenter = [currentDepot.address.latitude, currentDepot.address.longitude];
+      useThisCenter = [
+        currentDepot.address.latitude,
+        currentDepot.address.longitude,
+      ];
     }
 
     const [snap, setSnap] = useState<number | string | null>(0.1);
@@ -333,7 +321,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
             {" "}
             <MapContainer
               ref={mapRef}
-              center= {useThisCenter}//{MAP_DATA.center} // {useThisCenter}//
+              center={useThisCenter} //{MAP_DATA.center} // {useThisCenter}//
               zoom={MAP_DATA.zoom}
               doubleClickZoom={MAP_DATA.doubleClickZoom}
               maxBounds={MAP_DATA.maxBounds}
@@ -355,9 +343,14 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
                 default: https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
               */}
+              {/* 
               <TileLayer
-                url="https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+                url="http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
                 attribution='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+              /> */}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
 
               {mapRef.current && <MapViewButton mapRef={mapRef.current} />}
@@ -453,7 +446,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                         >
                           <MapPopup
                             name={stop.name}
-                            address={stop.address} 
+                            address={stop.address}
                             id={stop.id}
                             kind="CLIENT"
                           />
@@ -476,8 +469,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                 </LayersControl.Overlay>
                 <LayersControl.Overlay name="Unassigned Stops" checked>
                   <LeafletLayerGroup>
-                    {
-                    unassignedMapPoints?.length > 0 &&
+                    {unassignedMapPoints?.length > 0 &&
                       unassignedMapPoints.map((stop, idx) => (
                         <RouteMarker
                           key={idx}
@@ -485,21 +477,19 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
                           color={Number(stop.color)}
-                          useThisIconInstead={
-                            assignAnIcon(
-                              stop,
-                              stop.color,
-                              selectedJobIds.includes(stop.id),
-                              ""
-                            )
-                          }
+                          useThisIconInstead={assignAnIcon(
+                            stop,
+                            stop.color,
+                            selectedJobIds.includes(stop.id),
+                            ""
+                          )}
                         >
-                          <MapPopup 
+                          <MapPopup
                             name={stop.name}
                             address={stop.address}
                             id={stop.id}
                             kind="CLIENT"
-                            />
+                          />
                         </RouteMarker>
                       ))}{" "}
                   </LeafletLayerGroup>
@@ -513,8 +503,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               <ContextMenuItem onClick={() => addJobByLatLng({ ...latLng })}>
                 <div className="flex flex-col items-center justify-center">
                   <div>Add Client here</div>
-                  <div className="text-gray-500 text-sm">
-                    ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
+                  <div className="text-sm text-gray-500">
+                    ({latLng?.lat.toFixed(2) ?? 0},{" "}
+                    {latLng?.lng.toFixed(2) ?? 0})
                   </div>
                 </div>
               </ContextMenuItem>
@@ -522,13 +513,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
               <ContextMenuItem onClick={() => addDriverByLatLng({ ...latLng })}>
                 <div className="flex flex-col items-center justify-center">
                   <div>Add Driver here</div>
-                  <div className="text-gray-500 text-sm">
-                    ({latLng?.lat.toFixed(2) ?? 0}, {latLng?.lng.toFixed(2) ?? 0})
+                  <div className="text-sm text-gray-500">
+                    ({latLng?.lat.toFixed(2) ?? 0},{" "}
+                    {latLng?.lng.toFixed(2) ?? 0})
                   </div>
                 </div>
               </ContextMenuItem>
-
-          </ContextMenuContent>
+            </ContextMenuContent>
           )}
         </ContextMenu>
       </>

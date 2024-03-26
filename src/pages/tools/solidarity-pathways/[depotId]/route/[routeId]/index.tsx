@@ -1,7 +1,7 @@
 import { uniqueId } from "lodash";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { jobTypeSchema } from "~/apps/solidarity-routing/types.wip";
 
@@ -14,7 +14,6 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 import {
   ArrowRight,
-  Bomb,
   Building,
   Calendar,
   Loader2,
@@ -169,6 +168,7 @@ const SingleRoutePage = () => {
     void routePlans.calculate(selectedJobIds);
   };
 
+  const [loadingImportClient, setLoadingImportClient] = useState(false);
   const isRouteDataMissing =
     jobBundles.data.length === 0 || driverBundles.data.length === 0;
 
@@ -223,6 +223,7 @@ const SingleRoutePage = () => {
   }));
 
   const buildManyJobs = async () => {
+    setLoadingImportClient(true);
     const data = await fetchCsvDataFromApi();
 
     data?.forEach((jobData) => {
@@ -269,7 +270,7 @@ const SingleRoutePage = () => {
 
     clearOptimizedStops.mutate({
       routeId,
-    })
+    });
 
     // routePlans.clearRoute.mutate({ routeId: routeId || "" });
     //void apiContext.routePlan.invalidate();
@@ -298,10 +299,20 @@ const SingleRoutePage = () => {
 
           <div className="p-1">
             <Button
-              onClick={() => buildManyJobs()}
+              onClick={() =>
+                void buildManyJobs().finally(() =>
+                  setLoadingImportClient(false)
+                )
+              }
+              disabled={loadingImportClient}
               className="hover:bg-dark-gray bg-black text-white"
             >
-              <PlusCircle /> Clients
+              {loadingImportClient ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <PlusCircle />
+              )}
+              Clients
             </Button>
           </div>
 
