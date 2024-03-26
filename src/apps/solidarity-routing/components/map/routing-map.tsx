@@ -270,7 +270,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         import("leaflet-lasso").then(() => {
           if (!mapRef.current) return;
 
-          L.control.lasso().addTo(mapRef.current);
+          if (!document.querySelector('.leaflet-control-lasso')) {
+            L.control.lasso().addTo(mapRef.current);
+            console.log("added lasso once!")
+          }
+          else{
+            console.log("prevented lass from being added twice")
+          }
 
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on("lasso.finished", (event) => {
@@ -278,7 +284,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
             //   console.log("Can't lasso after establishing a route!");
             //   return;
             // }
-
             if (event.layers.length === 0) {
               setSelectedJobIds([]);
               console.log("wiped all dis");
