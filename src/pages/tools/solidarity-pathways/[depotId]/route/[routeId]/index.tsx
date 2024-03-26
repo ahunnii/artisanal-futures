@@ -265,8 +265,13 @@ const SingleRoutePage = () => {
   // }, [currentLocation, flyToCurrentLocation]);
 
   const editRouteCallback = () => {
-    const routeId = window.location.pathname.split("/routeId/")[1];
-    routePlans.clearRoute.mutate({ routeId: routeId || "" });
+    const routeId = window.location.pathname.split("/route/")[1];
+
+    clearOptimizedStops.mutate({
+      routeId,
+    })
+
+    // routePlans.clearRoute.mutate({ routeId: routeId || "" });
     //void apiContext.routePlan.invalidate();
     setSelectedJobIds([]); // reset them
 
@@ -309,7 +314,7 @@ const SingleRoutePage = () => {
             </Button>
           </div>
 
-          {routePlans.optimized && routePlans.optimized.length > 0 && (
+          {/* {routePlans.optimized && routePlans.optimized.length > 0 && (
             <div className="p-1">
               <Button
                 onClick={() =>
@@ -322,7 +327,7 @@ const SingleRoutePage = () => {
                 <Bomb /> Clear Optimized
               </Button>
             </div>
-          )}
+          )} */}
         </div>
         {/* Tracking related widgets */}
         <DriverVehicleSheet />

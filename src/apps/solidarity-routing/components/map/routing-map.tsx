@@ -181,29 +181,35 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         }));
 
 
-    const unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
+    let unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
       (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
     );
 
-    const assignedMapPoints: MapPoint[] = stopMapPoints.filter(
+    let assignedMapPoints: MapPoint[] = stopMapPoints.filter(
       (stop) => stop.color !== "-1" && selectedJobIds.includes(stop.id)
     );
 
-    const routeGeoJsonList = pathId
-      ? optimizedRoutePlan.mapData.geometry
-      : routePlans.optimized.map((route) => {
-          return {
-            id: route.id,
-            geoJson: route.geoJson,
-            vehicleId: route.vehicleId,
-          };
-        });
+    const [routeGeoJsonList, setRouteGeoJsonList] = useState([]);
 
     const handleClearRoute = () => {
-      console.log(
-        "here, we'd do some things!!!"
-      )
+      stopMapPoints.forEach(stop => {
+        if (selectedJobIds.includes(stop.id)) {
+          stop.color = "-1";
+          console.log("changed  color!")
+        }
+      });
 
+      setSelectedJobIds([]);
+      setRouteGeoJsonList([]);
+      assignedMapPoints = [];
+      unassignedMapPoints = [...stopMapPoints];
+
+      console.log(
+        "\n\t XOXOXOXO",
+        routeGeoJsonList,
+        selectedJobIds
+        
+      )
       //routeGeoJsonList = []
 
 
@@ -211,7 +217,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     useEffect(() => {
       pusherClient.subscribe("map");
-      // pusherClient.bind("evt::update-location", handleClearRoute);
       pusherClient.bind("evt::clear-route", handleClearRoute);
 
       return () => {
