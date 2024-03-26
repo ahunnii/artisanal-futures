@@ -219,28 +219,89 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     // LASSO Effects
     const LIGHTBLUE = "#0000003a";
+    // useEffect(() => {
+    //   if (mapRef.current && !isDriverFromURL) {
+    //     import("leaflet-lasso").then(() => {
+    //       if (!mapRef.current) return;
+
+    //       L.control.lasso().addTo(mapRef.current);
+
+    //       // Listen for lasso.finished event to get selected layers
+    //       mapRef.current.on("lasso.finished", (event) => {
+    //         if (assignedMapPoints.length > 0) {
+    //           console.log("Can't lasso after establishing a route!");
+    //           return;
+    //         } // lasso'ing after assignment screws up route logic; need to wipe route first
+    //         const tempSelectedJobIds: string[] = [];
+
+    //         event.layers.forEach((layer) => {
+    //           const { address, id, kind, name } =
+    //             layer.options?.children.props.children.props;
+    //           console.log(id, address, kind, name);
+    //           tempSelectedJobIds.push(id);
+    //         });
+    //         setSelectedJobIds(tempSelectedJobIds);
+    //       });
+    //     });
+    //   }
+    //   // Cleanup
+    //   return () => {
+    //     if (mapRef.current) {
+    //       mapRef.current.off("lasso.finished");
+    //     }
+    //   };
+    // }, [mapRef.current]);
+
     useEffect(() => {
       if (mapRef.current && !isDriverFromURL) {
         import("leaflet-lasso").then(() => {
           if (!mapRef.current) return;
-
+    
           L.control.lasso().addTo(mapRef.current);
-
+    
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on("lasso.finished", (event) => {
             if (assignedMapPoints.length > 0) {
               console.log("Can't lasso after establishing a route!");
               return;
-            } // lasso'ing after assignment screws up route logic; need to wipe route first
-            const tempSelectedJobIds: string[] = [];
+            }
 
+            if (event.layers.length === 0) {
+              setSelectedJobIds([]);
+              console.log("wiped all dis")
+              return;
+            }
+
+            const tempSelectedJobIds: string[] = [];
+    
             event.layers.forEach((layer) => {
-              const { address, id, kind, name } =
-                layer.options?.children.props.children.props;
-              console.log(id, address, kind, name);
+              const { id } = layer.options?.children.props.children.props;
               tempSelectedJobIds.push(id);
             });
-            setSelectedJobIds(tempSelectedJobIds);
+    
+            console.log("\t have selected things")
+
+            // Set intersection logic
+            const updatedSelectedJobIds = selectedJobIds.reduce((acc, id) => {
+              // If id is in tempSelectedJobIds, remove it (toggle off), otherwise keep it
+              if (!tempSelectedJobIds.includes(id)) {
+                acc.push(id);
+              }
+              return acc;
+            }, []);
+            console.log("\t filtered out existing ids")
+
+            
+            // Add new ids that were not already selected
+            tempSelectedJobIds.forEach((id) => {
+              if (!selectedJobIds.includes(id)) {
+                updatedSelectedJobIds.push(id);
+              }
+            });
+            console.log("\t about to set with new ids")
+
+    
+            setSelectedJobIds(updatedSelectedJobIds);
           });
         });
       }
@@ -250,7 +311,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           mapRef.current.off("lasso.finished");
         }
       };
-    }, [mapRef.current]);
+    }, [mapRef.current, selectedJobIds, assignedMapPoints.length]);
 
     const setActiveDriverIcons = (obj: {
       vehicleId: string;
