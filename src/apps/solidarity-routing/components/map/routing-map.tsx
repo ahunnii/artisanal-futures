@@ -185,11 +185,11 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         }));
 
     let unassignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color === "-1" && !selectedJobIds.includes(stop.id)
+      (stop) => stop.color === "-1" || !selectedJobIds.includes(stop.id)
     );
 
     let assignedMapPoints: MapPoint[] = stopMapPoints.filter(
-      (stop) => stop.color !== "-1" || selectedJobIds.includes(stop.id)
+      (stop) => stop.color !== "-1" && selectedJobIds.includes(stop.id)
     );
 
     const routeGeoJsonList = pathId
@@ -270,12 +270,11 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         import("leaflet-lasso").then(() => {
           if (!mapRef.current) return;
 
-          if (!document.querySelector('.leaflet-control-lasso')) {
+          if (!document.querySelector(".leaflet-control-lasso")) {
             L.control.lasso().addTo(mapRef.current);
-            console.log("added lasso once!")
-          }
-          else{
-            console.log("prevented lass from being added twice")
+            console.log("added lasso once!");
+          } else {
+            console.log("prevented lass from being added twice");
           }
 
           // Listen for lasso.finished event to get selected layers
