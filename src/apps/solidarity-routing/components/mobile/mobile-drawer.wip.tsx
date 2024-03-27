@@ -11,7 +11,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CheckIcon,
-  XIcon
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  XIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
@@ -155,7 +157,7 @@ export const MobileDrawer = ({}: // snap,
         setHasPriorSuccess(true);
         return "GPS 🤷🏾 ";
       } else if (!locationMessage.error && hasPriorSuccess) {
-        return "GPS 👍🏾";
+        return "GPS 📡";
       }
     } else {
       return "Locating GPS...";
@@ -206,26 +208,33 @@ export const MobileDrawer = ({}: // snap,
 
   const renderCarouselContent = () => {
     const activeStop = routePlan?.stops[carouselIndex];
-  
     const handleStopUpdate = (status: 'COMPLETED' | 'FAILED') => {
       if (activeStop?.jobId) {
         console.log(`Updating stop ${activeStop.jobId} to ${status}`);
         // Find the job related to the activeStop
         const job = jobsForRoute.find(job => job.id === activeStop.jobId);
         if (job) {
-          // Assuming onSubmit can accept an object with both job and activeStop information
-          onSubmit(status, { ...activeStop, job });
+          // Check if the current status is the same as the new status
+          const currentStatus = selectedButton[carouselIndex];
+          const newStatus = status === 'COMPLETED' ? 'complete' : 'failed';
+          if (currentStatus === newStatus) {
+            // If the status is the same as its prevState, set status to PENDING
+            onSubmit('PENDING', { ...activeStop, job });
+            setSelectedButton(prevState => ({ ...prevState, [carouselIndex]: 'pending' }));
+          } else {
+            // If the status is different, proceed with the update
+            onSubmit(status, { ...activeStop, job });
+            // Update the selectedButton state for the current stop
+            setSelectedButton(prevState => ({ ...prevState, [carouselIndex]: newStatus }));
+          }
         } else {
           console.error("Job not found for activeStop", activeStop);
           // Handle the case where the job is not found
         }
       }
-      // Update the selectedButton state for the current stop
-      setSelectedButton(prevState => ({ ...prevState, [carouselIndex]: status === 'COMPLETED' ? 'complete' : 'failed' }));
-
+    
       setTimeout(() => nextStop(), 1000);
-  };
-
+    };  
   
     return (
       <>
@@ -265,23 +274,6 @@ export const MobileDrawer = ({}: // snap,
   </div>
 
 
-  // <div>
-  //   <a
-  //     href="#"
-  //     onClick={(e) => {
-  //       e.preventDefault();
-  //       if (optimizedRoutePlan?.data?.id) {
-  //         optimizedRoutePlan.updateRoutePathStatus({
-  //           pathId: optimizedRoutePlan.data.id,
-  //           state: RouteStatus.IN_PROGRESS,
-  //         });
-  //       }
-  //     }}
-  //     style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
-  //   >
-  //     Start route
-  //   </a>
-  // </div>
 
 ) : activeStop?.type === 'end' ? (
   <div>
@@ -311,9 +303,7 @@ export const MobileDrawer = ({}: // snap,
       style={{ backgroundColor: selectedButton[carouselIndex] === 'complete' ? 'lightgreen' : 'initial' }}
       onClick={() => handleStopUpdate('COMPLETED')}
     >
-      <span className="text-sm font-medium text-gray-700 text-center w-full">
-        Dropped Off
-      </span>
+      <ThumbsUpIcon />
     </Button>
 
     <Button 
@@ -323,9 +313,7 @@ export const MobileDrawer = ({}: // snap,
       style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
       onClick={() => handleStopUpdate('FAILED')}      
     >
-      <span className="text-sm font-medium text-gray-500 text-center w-full">
-        Had an Issue
-      </span>
+      <ThumbsDownIcon />
     </Button>
 
   </div>
@@ -336,6 +324,39 @@ export const MobileDrawer = ({}: // snap,
     );
   };  
 
+  // const renderStopAddress = () => {
+  //   const activeStop = routePlan?.stops[carouselIndex];
+  
+  //   let stopDetails = <div>Address not available</div>;
+  //   if (activeStop?.jobId) {
+  //     const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
+  //     if (job) {
+  //       const clientName = job.client?.name;
+  //       const address = job.address.formatted.split(',')[0] ?? "Address not available";
+  //       stopDetails = clientName ? (
+  //         <>
+  //           <div style={{ fontSize: 'larger' }}>{clientName}</div>
+  //           <div style={{ fontSize: 'smaller' }}>{address}</div>
+  //         </>
+  //       ) : (
+  //         <div>{address}</div>
+  //       );
+  //     }
+  //   } else {
+  //     //stopDetails = <div>{activeStop?.type ?? "Stop type not available"}</div>;
+  //     // I think we can let the renderCarouselContent handle
+  //     // non stop related actions, like Start, Break, and End. Otherwise
+  //     // we're kidn of duplicating information?
+  //     stopDetails = ''; 
+  //   }
+  
+  //   return (
+  //     <div>
+  //       {stopDetails}
+  //     </div>
+  //   );
+  // }
+
   const renderStopAddress = () => {
     const activeStop = routePlan?.stops[carouselIndex];
   
@@ -344,21 +365,39 @@ export const MobileDrawer = ({}: // snap,
       const job = jobsForRoute.find((job) => job.id === activeStop.jobId);
       if (job) {
         const clientName = job.client?.name;
+
         const address = job.address.formatted.split(',')[0] ?? "Address not available";
+        
+        const handleAddressClick = (e) => {  
+          e.preventDefault();
+          const encodedAddress = encodeURIComponent(
+            address + "Detroit, MI"
+          );
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+
+
+          window.open(mapsUrl, '_blank');
+        };
+
+
         stopDetails = clientName ? (
           <>
             <div style={{ fontSize: 'larger' }}>{clientName}</div>
-            <div style={{ fontSize: 'smaller' }}>{address}</div>
+            <div style={{ fontSize: 'smaller' }}>
+              <a href="#" onClick={handleAddressClick} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                {address}
+              </a>
+            </div>
           </>
         ) : (
-          <div>{address}</div>
+          <div>
+            <a href="#" onClick={handleAddressClick} style={{ color: 'inherit', textDecoration: 'underline' }}>
+              {address}
+            </a>
+          </div>
         );
       }
     } else {
-      //stopDetails = <div>{activeStop?.type ?? "Stop type not available"}</div>;
-      // I think we can let the renderCarouselContent handle
-      // non stop related actions, like Start, Break, and End. Otherwise
-      // we're kidn of duplicating information?
       stopDetails = ''; 
     }
   
@@ -392,246 +431,83 @@ export const MobileDrawer = ({}: // snap,
 
   return (
     <>
-    {/*className="flex w-full bg-white lg:hidden"*/}
-
+      {/* Driver top pane */}
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <div style={{ width: '10%', textAlign: 'left' }}>
-              <Button
-              className={cn(
-                locationMessage.error && "bg-red-150",
-                locationMessage.message.includes("timed") && "animate-pulse"
-              )}
-              variant={constantTracking ? "secondary" : "default"}
-              onClick={() => {
-                toggleConstantTracking()
-              }}
-            >
-              {exportLocationServiceMessage()}
-            </Button>
-          </div>
 
-
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            {renderStopAddress()}
-          </div>
-
-
-          <div style={{ width: '10%', textAlign: 'right' }}>
-            <Button
-              className=""
-              onClick={toggleFlyToTimer}
-            >
-            {flyToDriver ? <LocateFixedIcon/> : <LocateOffIcon />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Carousel */}
-        <div style={{ display: 'flex', width: '100%' }}>
-          <div style={{ width: '10%', textAlign: 'center'}}>
-            <Button
-              size={"lg"}
-              variant="ghost"
-              className="flex-1"
-            >
-              <ChevronLeftIcon
-                onClick={prevStop}
-                className="h-6 w-6 text-gray-600"
-              />
-            </Button>
-          </div>
-
-          <div style={{ flex: 1, textAlign: 'center'}}>
-            {renderCarouselContent()}
-          </div>
-          <div style={{ width: '10%', textAlign: 'center'}}>
-            <Button
-              size={"lg"}
-              variant="ghost"
-              className="flex-1"
-            >
-              <ChevronRightIcon
-                onClick={nextStop}
-                className="h-6 w-6 text-gray-600"
-              />
-            </Button>
-          </div>
-          <div style={{ width: '10%', textAlign: 'center'}}>
-            <button>
-              <MapIcon/>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full bg-white lg:hidden"> 
-
-
-
-        {/* <Button
-          size={"lg"}
-          variant="ghost"
-          className="flex-1"
-          onClick={() => setOpen(true)}
-        >
- 
-          <p className="text-sm font-normal text-muted-foreground">
-            Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
-            {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
-            {route?.stops?.length} stops •{" "}
-            {Math.round(metersToMiles(route?.distance ?? 0))}mi
-          </p>
-
-        </Button> */}
-
-        {/* <FieldJobSearch isIcon={true} />{" "} */}
-
-
-
-      </div>
-      <Drawer
-        snapPoints={[0.1, 0.25, 0.75, 1]}
-        activeSnapPoint={snap}
-        setActiveSnapPoint={setSnap}
-        open={isDesktop ? false : open}
-        // dismissible={false}
-        modal={false}
-        onOpenChange={setOpen}
-      >
-        <DrawerContent
-          className="h-screen"
-          onInteractOutside={(e) => e.preventDefault()}
-        >
-          <div className="mx-auto w-full max-w-sm">
-
-
-            <DrawerHeader className="flex flex-1 items-center justify-between">
-              {snap === 0.1 ? (
-                <>
-                  <p className="text-sm font-normal text-muted-foreground">
-                    Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
-                    {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
-                    {route?.stops?.length} stops •{" "}
-                    {Math.round(metersToMiles(route?.distance ?? 0))}mi
-                  </p>
-                  <FieldJobSearch isIcon={true} />{" "}
-
-                </>
-              ) : (
-                <FieldJobSearch isIcon={false} />
-              )}
-              {/* <FieldJobSearch isIcon={false} /> */}
-
-              {/* <Button
-                size="icon"
-                variant={"ghost"}
-                className="font-normal text-muted-foreground "
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button> */}
-            </DrawerHeader>
-
-            <div
-              className={cn(
-                "mx-auto flex h-[50vh] w-full max-w-md flex-col px-4  pb-4",
-                {
-                  "overflow-y-auto": snap === 1,
-                  "overflow-hidden": snap !== 1,
-                }
-              )}
-            >
-              <p className="text-xs font-normal text-muted-foreground">
-                Shift: {unixSecondsToStandardTime(route?.startTime ?? 0)} -{" "}
-                {unixSecondsToStandardTime(route?.endTime ?? 0)} •{" "}
-                {route?.stops?.length} stops •{" "}
-                {Math.round(metersToMiles(route?.distance ?? 0))}mi
-              </p>
-              <h2 className="text-xl font-semibold">
-                {optimizedRoutePlan.routeDetails?.deliveryAt.toDateString() ??
-                  ""}
-              </h2>
-              <div className="flex py-1">
-                {/* <Button className="flex items-center gap-2" variant={"outline"}>
-                  <Car />
-                  Load vehicle
-                </Button> */}
-
-
-                {/* 
-<Button
-              className="flex flex-1 gap-2"
-              variant={"outline"}
-              onClick={() => driverBundles.message(data.vehicleId)}
-            >
-              <MessageCircle /> Send Message to {driver?.driver?.name}
-            </Button> */}
-
+        {/* Address pane */}
+        <section className="flex flex-1 flex-col max-md:h-full lg:flex-row">
+          <div className="flex w-full">
+              {/* Column 1 - 10% width */}
+              <div className="flex-1" style={{ flexBasis: '10%' }}>
                 <Button
-                  variant="outline"
-                  className="px-3 shadow-none"
-                  disabled={!driver?.driver?.email}
-                  onClick={() => {
-                    console.log(driver?.driver?.email);
-                    if (!driver?.driver?.email) return;
-                    solidarityMessaging.messageDepot(driver?.driver?.email);
-                  }}
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Open Messaging
-                </Button>
+                className={cn(
+                  locationMessage.error && "bg-red-150",
+                  locationMessage.message.includes("timed") && "animate-pulse"
+                )}
+                variant={constantTracking ? "secondary" : "default"}
+                onClick={() => {
+                  toggleConstantTracking()
+                }}
+              >
+                {exportLocationServiceMessage()}
+              </Button>
               </div>
 
-              <Separator className="my-4" />
-              {optimizedRoutePlan.data && (
-                <RouteBreakdown
-                  className="h-96 flex-none pb-5"
-                  steps={optimizedRoutePlan.data.stops as OptimizedStop[]}
-                  driver={driver}
-                  color={
-                    getColor(cuidToIndex(optimizedRoutePlan.data.vehicleId))
-                      .background
-                  }
-                />
-              )}
-            </div>
+              {/* Column 2 - 40% width */}
+              <div className="flex items-center justify-center" style={{ flexBasis: '80%' }}>
+                {renderStopAddress()}
+              </div>
 
-            <DrawerFooter>
-              {optimizedRoutePlan?.data?.status === RouteStatus.NOT_STARTED && (
-                <Button
-                  onClick={() => {
-                    if (optimizedRoutePlan?.data?.id)
-                      optimizedRoutePlan.updateRoutePathStatus({
-                        pathId: optimizedRoutePlan.data.id,
-                        state: RouteStatus.IN_PROGRESS,
-                      });
-                  }}
-                >
-                  Start route
+              {/* Column 3 - 10% width */}
+              <div className="flex items-center justify-end" style={{ flexBasis: '10%' }}>
+                  <Button
+                    onClick={toggleFlyToTimer}>
+                  {flyToDriver ? <LocateFixedIcon/> : <LocateOffIcon />}
                 </Button>
-              )}
 
-              {optimizedRoutePlan?.data?.status === RouteStatus.IN_PROGRESS && (
-                <Button
-                  onClick={() => {
-                    if (optimizedRoutePlan?.data?.id)
-                      optimizedRoutePlan.updateRoutePathStatus({
-                        pathId: optimizedRoutePlan.data.id,
-                        state: RouteStatus.COMPLETED,
-                      });
-                  }}
-                >
-                  <Check /> Mark route as complete
-                </Button>
-              )}
-
-              <DrawerClose asChild>
-                <Button variant="outline">Close</Button>
-              </DrawerClose>
-            </DrawerFooter>
+              </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </section>
+        {/* END Address */}
+
+        {/* Carousel pane */}
+        <section className="flex flex-1 flex-col max-md:h-full lg:flex-row">
+          <div className="flex w-full">
+              {/* Column 1 - 10% width */}
+              <div className="flex-1" style={{ flexBasis: '10%' }}>
+                <Button
+                    size={"lg"}
+                    variant="ghost"
+                  >
+                    <ChevronLeftIcon
+                      onClick={nextStop}
+                      className="h-6 w-6 text-gray-600"
+                    />
+                  </Button>
+              </div>
+
+              {/* Column 2 - 40% width */}
+              <div className="flex items-center justify-center" style={{ flexBasis: '80%' }}>
+                {renderCarouselContent()}
+              </div>
+
+              {/* Column 3 - 10% width */}
+              <div className="flex items-center justify-end" style={{ flexBasis: '10%' }}>
+                <Button
+                  size={"lg"}
+                  variant="ghost"
+                >
+                  <ChevronRightIcon
+                    onClick={nextStop}
+                    className="h-6 w-6 text-gray-600"
+                  />
+                </Button>
+              </div>
+          </div>
+        </section>
+        {/* END Carousel */}
+    </div>
+    {/* END Driver top pane */}
     </>
   );
 };
