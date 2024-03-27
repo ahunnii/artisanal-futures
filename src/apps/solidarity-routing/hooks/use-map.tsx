@@ -163,6 +163,7 @@ const useMap = ({
         }
 
         if (pathId &&  useThisLatitude && !locationMessage.error && constantTracking){
+          console.log("\t...calling update-user-location")
               void axios.post("/api/routing/update-user-location", {
                 latitude: useThisLatitude,
                 longitude: useThisLongitude,
