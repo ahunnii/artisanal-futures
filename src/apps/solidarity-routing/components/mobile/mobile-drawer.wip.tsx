@@ -240,10 +240,17 @@ export const MobileDrawer = ({}: // snap,
       <>
 {activeStop?.type === 'break' ? (
   
-  <div>
-    <span className="text-sm font-medium text-gray-700 text-center w-full">
-      <button onClick={() => handleStopUpdate('COMPLETED')}>Take a Break</button>
-    </span>
+  <div className="flex flex-1 justify-center">
+    <Button 
+      size={"lg"}
+      variant="ghost"
+      className="w-full"
+      onClick={() => handleStopUpdate('COMPLETED')}
+    >
+      <span className="text-sm font-medium text-gray-700 text-center w-full">
+        Take a Break
+      </span>
+    </Button>
   </div>
 
 ) : activeStop?.type === 'start' ? (
@@ -253,22 +260,19 @@ export const MobileDrawer = ({}: // snap,
       size={"lg"}
       variant="ghost"
       className="w-full"
+      onClick={(e) => {
+        e.preventDefault();
+        if (optimizedRoutePlan?.data?.id) {
+          optimizedRoutePlan.updateRoutePathStatus({
+            pathId: optimizedRoutePlan.data.id,
+            state: RouteStatus.IN_PROGRESS,
+          });
+          setTimeout(() => nextStop(), 500);
+        }
+      }}
     >
       <span className="text-sm font-medium text-gray-700 text-center w-full">
-       <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            if (optimizedRoutePlan?.data?.id) {
-              optimizedRoutePlan.updateRoutePathStatus({
-                pathId: optimizedRoutePlan.data.id,
-                state: RouteStatus.IN_PROGRESS,
-              });
-            }
-          }}
-        >
         Start Driving
-        </a>
       </span>
     </Button>
   </div>
@@ -311,7 +315,7 @@ export const MobileDrawer = ({}: // snap,
       variant="ghost"
       className="border border-gray-200"
       style={{ backgroundColor: selectedButton[carouselIndex] === 'failed' ? 'tomato' : 'initial' }}
-      onClick={() => handleStopUpdate('FAILED')}      
+      onClick={() => handleStopUpdate('FAILED')}
     >
       <ThumbsDownIcon />
     </Button>
