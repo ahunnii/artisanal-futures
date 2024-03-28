@@ -349,35 +349,43 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       let text_overlay = "/"
 
       const mode = urlParams.get('mode') ?? undefined;
+      console.log(
+        associatedStop.address,
+        mode,
+        lassoed,
+        optimized
+      )
+
       if (mode === "plan") {
         if (!lassoed && !optimized) {
           color = "#0000003a" // Gray, transparent
           text_overlay = "."
         } else if (lassoed && !optimized) {
-          color = "#90F4005a" // return "Lime green, transparent";
+          color = "#90F4005a" // Change to yellow, transparent
           text_overlay = "+"
         } else if (!lassoed && optimized){
-          color = "#FFFF00"
+          color = "#FFFF00" // Bright Yellow, not possible
           text_overlay = "LABEL ERROR"
-          //return "Bright Yellow"; // Error, not possible scenario
         } else if (lassoed && optimized) {
-          color = "#FF10106a" //return "Lime Green";
-          text_overlay = "-"
+          color = "#90F4005a" // return "Lime green, transparent";
+          text_overlay = "+" // ... this also shouldn't be possible but ... whatevs
         }
       }
-      // } else if (mode === "calc") {
-      //   if (!lassoed && !optimized) {
-      //     return "Gray, transparent";
-      //   } else if (lassoed && !optimized) {
-      //     return "Gray, transparent";
-      //   } else if (lassoed && optimized) {
-      //     return associatedVehicleId; // Use driver color
-      //   } else {
-      //     return "Bright Yellow"; // Error, not possible scenario
-      //   }
-      // } else {
-      //   return "Error: Invalid Mode";
-      // }
+      if (mode === "calculate") {
+        if (!lassoed && !optimized) {
+          color = "#0000003a" // Remains Gray, transparent
+          text_overlay = "."
+        } else if (lassoed && !optimized) {
+          color = "#6699CC5a" // Warning, this stop not routed
+          text_overlay = "-"
+        } else if (!lassoed && optimized){
+          color = "#FFFF00" // Bright Yellow, not possible
+          text_overlay = "LABEL ERROR"
+        } else if (lassoed && optimized) {
+          color = associatedStop.color //cuidToIndex(stop.job.driverId)  // Match to driver color
+          text_overlay = "$"
+        }
+      }
 
       return StopIcon(
         color,
