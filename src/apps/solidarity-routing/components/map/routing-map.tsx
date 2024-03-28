@@ -381,8 +381,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         } else if (!lassoed && optimized){
           color = "#FFFF00" // Bright Yellow, not possible
           text_overlay = "LABEL ERROR"
-        } else if (lassoed && optimized) {
-          color = associatedStop.color //cuidToIndex(stop.job.driverId)  // Match to driver color
+        } else if (lassoed && optimized) { // Note I just let the assigned layer use it's color=...
+          // this is untested
+          color = associatedStop.color
           text_overlay = "$"
         }
       }
