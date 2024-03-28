@@ -98,7 +98,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
               driver={driver}
             />
             <SheetFooter className="flex flex-row gap-2">
-              <Button
+              {/* <Button
                 className="flex flex-1 gap-2"
                 variant={"outline"}
                 disabled={!driver?.driver?.email}
@@ -108,7 +108,7 @@ export const AssignedJobSheet: FC<Props> = ({ data }) => {
                 }}
               >
                 <MessageCircle /> Send Message to {driver?.driver?.name}
-              </Button>
+              </Button> */}
 
               <Link
                 href={`/tools/solidarity-pathways/${depotId}/route/${data.routeId}/path/${data.id}?driverId=${data.vehicleId}&pc=${passcode}`}

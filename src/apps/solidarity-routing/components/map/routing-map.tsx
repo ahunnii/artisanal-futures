@@ -11,8 +11,6 @@ import {
 //import { useSearchParams } from "next/navigation";
 //import { useRouter } from 'next/router';
 
-console.log("trying to crash here")
-5/0
 
 import type L from "leaflet";
 
@@ -226,7 +224,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       assignedMapPoints = [];
       unassignedMapPoints = [...stopMapPoints];
 
-      console.log("\n\t XOXOXOXO", routeGeoJsonList, selectedJobIds);
       //routeGeoJsonList = []
     };
 
@@ -343,19 +340,36 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
     const urlParams = new URLSearchParams(window.location.search);// useSearchparams or router seems to block leaflet from loading ???
 
+    const getJobStatusColor = (stop: Stop) => {
+      let color = stop.color;
+      const jobStatus = routePlans.optimized.flatMap(route => 
+        route.stops.filter(aStop => aStop.jobId === stop.id)
+      ).map(stop => stop.status)[0];
+
+
+      // Determine the color based on the job's status
+      switch (jobStatus) {
+        case "COMPLETED":
+          color = "#00FF00";
+        case "FAILED":
+          color = "#FF0000";
+      }
+
+      console.log(
+        "status is", jobStatus, stop.id, color
+      )
+
+
+      return color;
+    };
+
+    
     const assignAnIcon2 = (lassoed: boolean, optimized: boolean, associatedStop: MapPoint) => {
 
       let color = "#0000003a" // Gray, transparent
-      let text_overlay = "/"
+      let text_overlay = "!!!" // a subtle marker that something is wrong color wise
 
       const mode = urlParams.get('mode') ?? undefined;
-      console.log(
-        associatedStop.address,
-        mode,
-        lassoed,
-        optimized
-      )
-
       if (mode === "plan") {
         if (!lassoed && !optimized) {
           color = "#0000003a" // Gray, transparent
@@ -376,16 +390,20 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
           color = "#0000003a" // Remains Gray, transparent
           text_overlay = "."
         } else if (lassoed && !optimized) {
-          color = "#6699CC5a" // Warning, this stop not routed
+          color = "#F3CA403a" //"#6699CC8a" // Warning, this stop not routed
           text_overlay = "-"
         } else if (!lassoed && optimized){
           color = "#FFFF00" // Bright Yellow, not possible
           text_overlay = "LABEL ERROR"
         } else if (lassoed && optimized) { // Note I just let the assigned layer use it's color=...
           // this is untested
-          color = associatedStop.color
+          color = Number(associatedStop.color)
           text_overlay = "$"
         }
+      }
+      // Then we're in the driver screen 
+      if (!mode) {
+        text_overlay= ""
       }
 
       return StopIcon(
@@ -393,31 +411,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         text_overlay
       )
     }
-
-    // Stop Color | wasSelected   | Marker Assignment
-    // --------------------------------------------
-    //      TODO fill in this chart??
-    // * Stop Color -1 means the stop hasn't been assigned to a route, the
-    // default state.
-
-    const assignAnIcon = (stop, stopColor, wasSelected, id) => {
-      // Case Unlassoed and we tried to route but couldn't (?)
-      if (stopColor === "-1" && wasSelected === false) {
-        return StopIcon("#FF10106a", "-");
-      }
-
-      // Case Lasso'ed and unrouted --> drivers can't reach those customers
-      if (stopColor === "-1" && wasSelected === true) {
-        return StopIcon("#90F4005a", "+");
-      }
-
-      // Case Unlassoed & Unrouted
-      if (stopColor !== "-1" && wasSelected === false) {
-        return StopIcon("#0000003a", "");
-      }
-
-      return StopIcon("#000000", "ERROR COLORING THIS STOP!");
-    };
 
     const { currentDepot } = useDepot();
     let useThisCenter = MAP_DATA.center;
@@ -569,8 +562,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           variant="stop"
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
-                          color={Number(stop.color)}
-                          // LET DEFAULT color assign icon!
+                          color={
+                            getJobStatusColor(stop)
+                          }
                         >
                           <MapPopup
                             name={stop.name}

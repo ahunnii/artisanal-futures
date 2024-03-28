@@ -161,11 +161,15 @@ const SingleRoutePage = () => {
   }, []);
 
   const calculateOptimalPaths = () => {
-    updateUrlParams({
-      key: "mode",
-      value: "calculate",
-    });
-    void routePlans.calculate(selectedJobIds);
+    if (selectedJobIds.length > 0) {
+      updateUrlParams({
+        key: "mode",
+        value: "calculate",
+      });
+      void routePlans.calculate(selectedJobIds);
+    } else {
+      alert("Please select one or more stops before calculating optimal paths.");
+    }
   };
 
   const [loadingImportClient, setLoadingImportClient] = useState(false);
