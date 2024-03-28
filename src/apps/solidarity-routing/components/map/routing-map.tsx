@@ -224,6 +224,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
     useEffect(() => {
       pusherClient.subscribe("map");
       pusherClient.bind("evt::clear-route", handleClearRoute);
+      pusherClient.bind("evt::update-location", setActiveDriverIcons);
 
       return () => {
         pusherClient.unsubscribe("map");
