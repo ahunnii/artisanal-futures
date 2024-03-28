@@ -346,21 +346,19 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
         route.stops.filter(aStop => aStop.jobId === stop.id)
       ).map(stop => stop.status)[0];
 
-
       // Determine the color based on the job's status
-      switch (jobStatus) {
-        case "COMPLETED":
-          color = "#00FF00";
-        case "FAILED":
-          color = "#FF0000";
+      if (jobStatus === "COMPLETED") {
+        color = -20//"#00FF00";
+      } else if (jobStatus === "FAILED") {
+        color = -10//"#FF0000";
       }
-
       console.log(
         "status is", jobStatus, stop.id, color
       )
 
 
-      return color;
+      //return color;
+      return color;//stop.color
     };
 
     
@@ -563,7 +561,7 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
                           color={
-                            getJobStatusColor(stop)
+                            getJobStatusColor(stop)// stop.color//
                           }
                         >
                           <MapPopup
