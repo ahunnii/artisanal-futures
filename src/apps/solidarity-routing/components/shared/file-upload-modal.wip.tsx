@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Button } from "~/components/ui/button";
 import {
@@ -25,6 +26,7 @@ import { Switch } from "~/components/ui/switch";
 import type { UploadOptions } from "../../types.wip";
 
 export const FileUploadModal = <T,>({
+  isOpen,  
   handleOnClick,
   handleAccept,
   parseHandler,
@@ -32,6 +34,7 @@ export const FileUploadModal = <T,>({
   currentData,
   children,
 }: UploadOptions<T> & {
+  isOpen?: boolean;
   children: ReactNode;
   handleOnClick?: () => void;
 }) => {
@@ -79,6 +82,12 @@ export const FileUploadModal = <T,>({
     if (!value) handleOnClear();
     setOpen(value);
   };
+
+  useEffect(() => {
+    if (isOpen !== undefined) setOpen(isOpen);
+  }, [isOpen]);  
+
+
 
   return (
     <>
