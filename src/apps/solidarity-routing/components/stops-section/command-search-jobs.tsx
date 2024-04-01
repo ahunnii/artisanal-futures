@@ -48,14 +48,13 @@ export function CommandSearchJobs() {
   const [value, setValue] = React.useState("");
   const apiContext = api.useContext();
   const [selectedJobs, setSelectedJobs] = React.useState<SearchJob[]>([]);
-
-  const { routeId } = useSolidarityState();
+  const { routeId, depotId } = useSolidarityState();
 
   const listRef = React.useRef(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const getAllJobs = api.jobs.searchForJobs.useQuery(
-    { queryString: value },
+    { depotId: depotId, queryString: value },
     { enabled: false }
   );
 

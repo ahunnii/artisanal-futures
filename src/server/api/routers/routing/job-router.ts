@@ -540,13 +540,18 @@ export const jobRouter = createTRPCRouter({
     }),
 
   searchForJobs: protectedProcedure
-    .input(z.object({ queryString: z.string() }))
+    .input(z.object({ depotId: z.string(), queryString: z.string() }))
     .query(async ({ ctx, input }) => {
       if (input.queryString === "") return [];
 
+      console.log(
+        "\n\t 1/0",
+        "query is ", input.queryString
+      )
+
       const jobs = await ctx.prisma.job.findMany({
         where: {
-          depotId: "clss4zhwb006ab5o24skoi3gh",
+          depotId: input.depotId, //"clss4zhwb006ab5o24skoi3gh",
           OR: [
             { notes: { contains: input.queryString } },
             { order: { contains: input.queryString } },
