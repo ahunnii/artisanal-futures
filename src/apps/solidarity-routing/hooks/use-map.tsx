@@ -69,7 +69,7 @@ const useMap = ({
     const geoJson = formatGeometryString(matchedGeoJson, vehicleId);
     matchedPlanLatLng.current = geoJson.coordinates;
   } else {
-    if(driverId) console.error(`Error: No matching plan found for vehicleId: ${vehicleId}`);
+    //if(driverId) console.error(`Error: No matching plan found for vehicleId: ${vehicleId}`);
   }
   const locationUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 

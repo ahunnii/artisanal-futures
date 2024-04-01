@@ -484,7 +484,7 @@ export const MobileDrawer = ({}: // snap,
                     variant="ghost"
                   >
                     <ChevronLeftIcon
-                      onClick={nextStop}
+                      onClick={prevStop}
                       className="h-6 w-6 text-gray-600"
                     />
                   </Button>

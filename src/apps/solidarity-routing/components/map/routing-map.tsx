@@ -8,9 +8,12 @@ import {
   type MouseEventHandler,
 } from "react";
 
+//import { useSearchParams } from "next/navigation";
+//import { useRouter } from 'next/router';
+
+
 import type L from "leaflet";
 
-//import "leaflet-lasso"
 interface LassoControlOptionsData {
   title?: string;
 }
@@ -53,7 +56,7 @@ import { getStyle } from "~/apps/solidarity-routing/utils/generic/color-handling
 
 import useMap from "~/apps/solidarity-routing/hooks/use-map";
 
-import type { GeoJsonData } from "~/apps/solidarity-routing/types";
+import type { GeoJsonData, Stop } from "~/apps/solidarity-routing/types";
 
 import { MapPopup } from "~/apps/solidarity-routing/components/map/map-popup.wip";
 import { MAP_DATA } from "~/apps/solidarity-routing/data/map-data";
@@ -99,6 +102,10 @@ export type MapPoint = {
 };
 
 type CoordMap = Record<string, { lat: number; lng: number }>;
+
+//const searchParams = useSearchParams();
+//const router = useRouter(); // can use on both client and server side
+//const searchParams = router.query;
 
 const isDriverFromURL = window.location.href.includes("driverId");
 
@@ -217,7 +224,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       assignedMapPoints = [];
       unassignedMapPoints = [...stopMapPoints];
 
-      console.log("\n\t XOXOXOXO", routeGeoJsonList, selectedJobIds);
       //routeGeoJsonList = []
     };
 
@@ -231,40 +237,20 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       };
     }, []);
 
+
+    // WARNING
+    //
+    // There's some kind of interaction between lasso, Job Ids and Layers
+    // Where if the markers involved are assigned a new layer the ids "become different"
+    // and the selection breaks where it'll select other stops on additive select
+    // This can happen if the market moves to the assigned layer
+    // 
+    // I haven't tracked down why this happens but I may be conflating id names
+    // and, for example, stop.ids may be differnt from job.ids in a non-stable manner
+    //
+    //
     // LASSO Effects
     const LIGHTBLUE = "#0000003a";
-    // useEffect(() => {
-    //   if (mapRef.current && !isDriverFromURL) {
-    //     import("leaflet-lasso").then(() => {
-    //       if (!mapRef.current) return;
-
-    //       L.control.lasso().addTo(mapRef.current);
-
-    //       // Listen for lasso.finished event to get selected layers
-    //       mapRef.current.on("lasso.finished", (event) => {
-    //         if (assignedMapPoints.length > 0) {
-    //           console.log("Can't lasso after establishing a route!");
-    //           return;
-    //         } // lasso'ing after assignment screws up route logic; need to wipe route first
-    //         const tempSelectedJobIds: string[] = [];
-
-    //         event.layers.forEach((layer) => {
-    //           const { address, id, kind, name } =
-    //             layer.options?.children.props.children.props;
-    //           console.log(id, address, kind, name);
-    //           tempSelectedJobIds.push(id);
-    //         });
-    //         setSelectedJobIds(tempSelectedJobIds);
-    //       });
-    //     });
-    //   }
-    //   // Cleanup
-    //   return () => {
-    //     if (mapRef.current) {
-    //       mapRef.current.off("lasso.finished");
-    //     }
-    //   };
-    // }, [mapRef.current]);
 
     useEffect(() => {
       if (mapRef.current && !isDriverFromURL) {
@@ -280,10 +266,6 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
 
           // Listen for lasso.finished event to get selected layers
           mapRef.current.on("lasso.finished", (event) => {
-            // if (assignedMapPoints.length > 0) {
-            //   console.log("Can't lasso after establishing a route!");
-            //   return;
-            // }
             if (event.layers.length === 0) {
               setSelectedJobIds([]);
               console.log("wiped all dis");
@@ -343,30 +325,90 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
       }));
     };
 
-    // Stop Color | wasSelected   | Marker Assignment
-    // --------------------------------------------
-    //      TODO fill in this chart??
-    // * Stop Color -1 means the stop hasn't been assigned to a route, the
-    // default state.
+    // Implments state tabel based coloring
+    //
+    // Mode    Lassoed Optimized   Color Result
+    // ----------------------------------
+    // Plan    No      No          Gray, transparent
+    // Plan    No      Yes         Bright Yellow # error, not possible
+    // Plan    Yes     No          Lime Green # part of the routing plan
+    // Plan    Yes     Yes         Lime Green # part of the routing plan
+    // Calc    No      No          Gray, transparent
+    // Calc    No      Yes         Bright Yellow # error, not possible
+    // Calc    Yes     No          Gray, transparent
+    // Calc    Yes     Yes         cuidToIndex # use driver color
 
-    const assignAnIcon = (stop, stopColor, wasSelected, id) => {
-      // Case Unlassoed and we tried to route but couldn't (?)
-      if (stopColor === "-1" && wasSelected === false) {
-        return StopIcon("#FF10106a", "-");
+    const urlParams = new URLSearchParams(window.location.search);// useSearchparams or router seems to block leaflet from loading ???
+
+    const getJobStatusColor = (stop: Stop) => {
+      let color = stop.color;
+      const jobStatus = routePlans.optimized.flatMap(route => 
+        route.stops.filter(aStop => aStop.jobId === stop.id)
+      ).map(stop => stop.status)[0];
+
+      // Determine the color based on the job's status
+      if (jobStatus === "COMPLETED") {
+        color = -20//"#00FF00";
+      } else if (jobStatus === "FAILED") {
+        color = -10//"#FF0000";
       }
+      console.log(
+        "status is", jobStatus, stop.id, color
+      )
 
-      // Case Lasso'ed and unrouted --> drivers can't reach those customers
-      if (stopColor === "-1" && wasSelected === true) {
-        return StopIcon("#90F4005a", "+");
-      }
 
-      // Case Unlassoed & Unrouted
-      if (stopColor !== "-1" && wasSelected === false) {
-        return StopIcon("#0000003a", "");
-      }
-
-      return StopIcon("#000000", "ERROR COLORING THIS STOP!");
+      //return color;
+      return color;//stop.color
     };
+
+    
+    const assignAnIcon2 = (lassoed: boolean, optimized: boolean, associatedStop: MapPoint) => {
+
+      let color = "#0000003a" // Gray, transparent
+      let text_overlay = "!!!" // a subtle marker that something is wrong color wise
+
+      const mode = urlParams.get('mode') ?? undefined;
+      if (mode === "plan") {
+        if (!lassoed && !optimized) {
+          color = "#0000003a" // Gray, transparent
+          text_overlay = "."
+        } else if (lassoed && !optimized) {
+          color = "#90F4005a" // Change to yellow, transparent
+          text_overlay = "+"
+        } else if (!lassoed && optimized){
+          color = "#FFFF00" // Bright Yellow, not possible
+          text_overlay = "LABEL ERROR"
+        } else if (lassoed && optimized) {
+          color = "#90F4005a" // return "Lime green, transparent";
+          text_overlay = "+" // ... this also shouldn't be possible but ... whatevs
+        }
+      }
+      if (mode === "calculate") {
+        if (!lassoed && !optimized) {
+          color = "#0000003a" // Remains Gray, transparent
+          text_overlay = "."
+        } else if (lassoed && !optimized) {
+          color = "#F3CA403a" //"#6699CC8a" // Warning, this stop not routed
+          text_overlay = "-"
+        } else if (!lassoed && optimized){
+          color = "#FFFF00" // Bright Yellow, not possible
+          text_overlay = "LABEL ERROR"
+        } else if (lassoed && optimized) { // Note I just let the assigned layer use it's color=...
+          // this is untested
+          color = Number(associatedStop.color)
+          text_overlay = "$"
+        }
+      }
+      // Then we're in the driver screen 
+      if (!mode) {
+        text_overlay= ""
+      }
+
+      return StopIcon(
+        color,
+        text_overlay
+      )
+    }
 
     const { currentDepot } = useDepot();
     let useThisCenter = MAP_DATA.center;
@@ -518,8 +560,9 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           variant="stop"
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
-                          color={Number(stop.color)}
-                          // LET DEFAULT color assign icon!
+                          color={
+                            getJobStatusColor(stop)// stop.color//
+                          }
                         >
                           <MapPopup
                             name={stop.name}
@@ -553,13 +596,13 @@ const RoutingMap = forwardRef<MapRef, MapProps>(
                           variant="stop"
                           id={stop.id}
                           position={[stop.lat, stop.lng]}
-                          color={Number(stop.color)}
-                          useThisIconInstead={assignAnIcon(
-                            stop,
-                            stop.color,
-                            selectedJobIds.includes(stop.id),
-                            ""
-                          )}
+                          useThisIconInstead={
+                            assignAnIcon2(
+                              selectedJobIds.includes(stop.id), // lassoed
+                              false, // optimized
+                              stop // stopReference 
+                            )
+                          }
                         >
                           <MapPopup
                             name={stop.name}
