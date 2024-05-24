@@ -1,4 +1,7 @@
 // import { SignIn } from "@clerk/nextjs";
+
+import { serialize } from "cookie";
+
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -111,17 +114,42 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     return { redirect: { destination: "/password-protect" } };
 
   if (urlCode) {
-    const codeRes = await fetch(`${env.NEXTAUTH_URL}/api/password-protect`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password: urlCode }),
-    }).then((res) => res.json());
+    if (process.env.NEXT_PUBLIC_PASSWORD_PROTECT === urlCode) {
+      // const fiveMinutes = 60 * 5000;
+      // const fiveSeconds = 5 * 1000;
+      const twoMinutes = 60 * 2000;
 
-    if (!codeRes.success) {
+      const cookie = serialize("login", "true", {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + twoMinutes),
+      });
+
+      const cookieAlt = serialize("code", `${urlCode}`, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + twoMinutes),
+      });
+      // res.setHeader("Set-Cookie", cookie);
+      context.res.setHeader("Set-Cookie", [cookie, cookieAlt]);
+      // res.redirect(302, "/sign-in");
+    } else {
+      // if (!codeRes.success) {
       return { redirect: { destination: "/password-protect" } };
+      // }
     }
+
+    // const codeRes = await fetch(`${env.NODE_ENV}/api/password-protect`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ password: urlCode }),
+    // }).then((res) => res.json());
+
+    // if (!codeRes.success) {
+    //   return { redirect: { destination: "/password-protect" } };
+    // }
   }
 
   const providers = await getProviders();
