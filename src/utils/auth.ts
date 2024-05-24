@@ -5,6 +5,7 @@ import { authOptions } from "~/server/auth";
 
 export const authenticateSession = async (ctx: GetServerSidePropsContext) => {
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  console.log(session);
   if (!session) return redirectIfNoSession(ctx.resolvedUrl);
   return session;
 };

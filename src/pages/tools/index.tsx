@@ -13,8 +13,8 @@ export default function ToolsPage() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Body>
-        <h1 className="text-5xl font-semibold">Utilize Our Tools</h1>
-        <p className="lead mb-3 mt-2 text-2xl text-slate-400">
+        <h1 className="text-4xl font-semibold">Utilize Our Tools</h1>
+        <p className="mb-3 mt-2 text-xl text-muted-foreground">
           Browse our current selection of free and open source tools to power up
           your business workflow
         </p>

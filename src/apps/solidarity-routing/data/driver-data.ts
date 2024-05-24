@@ -1,20 +1,103 @@
 import { uniqueId } from "lodash";
 
-export const driverData = (lat: number, lng: number) => {
+import {
+  driverTypeSchema,
+  type DriverVehicleBundle,
+  type UploadOptions,
+} from "~/apps/solidarity-routing/types.wip";
+import { handleDriverSheetUpload } from "~/apps/solidarity-routing/utils/driver-vehicle/parse-drivers.wip";
+import {
+  milesToMeters,
+  militaryTimeToUnixSeconds,
+  minutesToSeconds,
+} from "~/apps/solidarity-routing/utils/generic/format-utils.wip";
+
+interface IUploadOptions {
+  drivers: DriverVehicleBundle[];
+  setDrivers: ({
+    drivers,
+    addToRoute,
+  }: {
+    drivers: DriverVehicleBundle[];
+    addToRoute?: boolean;
+  }) => void;
+}
+
+export const driverVehicleDataForNewLatLng = (
+  lat: number,
+  lng: number
+): DriverVehicleBundle => {
   return {
-    id: parseInt(uniqueId()),
-    name: "New Driver",
-    address: "Address via LatLng",
-    max_travel_time: 60,
-    time_window: { startTime: "09:00", endTime: "17:00" },
-    max_stops: 10,
-    break_slots: [
-      {
-        id: parseInt(uniqueId()),
-        time_windows: [{ startTime: "12:00", endTime: "13:00" }],
-        service: 30,
+    driver: {
+      type: "FULL_TIME",
+      id: uniqueId("driver_"),
+      name: "New Driver",
+      email: "",
+      phone: "",
+
+      address: {
+        formatted: "Address via LatLng",
+        latitude: lat,
+        longitude: lng,
       },
-    ],
-    coordinates: { latitude: lat, longitude: lng },
+    },
+    vehicle: {
+      id: uniqueId("vehicle_"),
+      startAddress: {
+        formatted: "Address via LatLng",
+        latitude: lat,
+        longitude: lng,
+      },
+      endAddress: {
+        formatted: "Address via LatLng",
+        latitude: lat,
+        longitude: lng,
+      },
+      type: driverTypeSchema.parse("TEMP"),
+      shiftStart: driverVehicleDefaults.shiftStart,
+      shiftEnd: driverVehicleDefaults.shiftEnd,
+      breaks: driverVehicleDefaults.breaks,
+      capacity: driverVehicleDefaults.capacity,
+      maxTravelTime: driverVehicleDefaults.maxTravelTime,
+      maxTasks: driverVehicleDefaults.maxTasks,
+      maxDistance: driverVehicleDefaults.maxDistance,
+
+      notes: "",
+      cargo: "",
+    },
   };
 };
+
+export const driverVehicleDefaults = {
+  shiftStart: militaryTimeToUnixSeconds("09:00"),
+  shiftEnd: militaryTimeToUnixSeconds("17:00"),
+  breaks: [
+    {
+      id: parseInt(uniqueId()),
+      duration: minutesToSeconds(30),
+      start: militaryTimeToUnixSeconds("09:00"),
+      end: militaryTimeToUnixSeconds("09:00"),
+    },
+  ],
+  capacity: 10,
+  maxTravelTime: minutesToSeconds(60),
+  maxTasks: 10,
+  maxDistance: milesToMeters(100),
+  notes: "",
+  cargo: "",
+};
+
+export const driverVehicleUploadOptions = ({
+  drivers,
+  setDrivers,
+}: IUploadOptions): UploadOptions<DriverVehicleBundle> => ({
+  type: "driver" as keyof DriverVehicleBundle,
+  parseHandler: handleDriverSheetUpload,
+  handleAccept: ({ data }) => {
+    setDrivers({
+      drivers: data,
+      addToRoute: false,
+    });
+  },
+  currentData: drivers,
+});

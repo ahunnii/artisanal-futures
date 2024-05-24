@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
+import Head from "next/head";
 import Link from "next/link";
 import Container from "~/components/ui/container";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+  const year = new Date().getFullYear();
   return (
     <main className="flex min-h-screen flex-col">
       <Container>
@@ -28,7 +30,7 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
         <footer className="mt-16 ">
           <div className="mx-auto py-10">
             <p className=" text-sm text-black">
-              &copy; 2023 Artisanal Futures. All rights reserved.
+              &copy; {year} Artisanal Futures. All rights reserved.
             </p>
           </div>
         </footer>{" "}

@@ -12,8 +12,9 @@ export default function ToastNotificationProvider() {
   // const params = notificationService.getToastParams();
   return (
     <>
+      {" "}
+      <SonnerToaster richColors theme="light" />
       <HotToast />
-      <SonnerToaster />
       <Toaster />
     </>
   );

@@ -2,10 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as Papa from "papaparse";
-import {
-  parseDriver,
-  parseStop,
-} from "~/apps/solidarity-routing/libs/file-handling";
+
 import { supabase } from "~/server/supabase/client";
 
 const dbFetchHandler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -26,11 +23,11 @@ const dbFetchHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           dynamicTyping: true,
           skipEmptyLines: true,
           complete: (result) => {
-            const parsedData = result.data.map(
-              (row: unknown) => parseStop(row as any) as any
-            );
+            // const parsedData = result.data.map(
+            //   (row: unknown) => parseStop(row as any) as any
+            // );
 
-            res.status(200).json(parsedData);
+            res.status(200).json(result);
           },
         });
       }
@@ -48,11 +45,11 @@ const dbFetchHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           dynamicTyping: true,
           skipEmptyLines: true,
           complete: (result) => {
-            const parsedData = result.data.map(
-              (row: unknown) => parseDriver(row as any) as any
-            );
+            // const parsedData = result.data.map(
+            //   (row: unknown) => parseDriver(row as any) as any
+            // );
 
-            res.status(200).json(parsedData);
+            res.status(200).json(result);
           },
         });
       }

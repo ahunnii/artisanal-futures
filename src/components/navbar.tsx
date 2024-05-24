@@ -58,7 +58,7 @@ const Navbar = () => {
 
           <div className="ml-auto flex items-center space-x-6">
             <NavbarActions />
-            <Sheet>
+            {/* <Sheet>
               <SheetTrigger asChild className="block lg:hidden">
                 <HamburgerMenuIcon className="h-5 w-5" />
               </SheetTrigger>
@@ -87,10 +87,10 @@ const Navbar = () => {
                     />
                   )}
 
-                  {/* <NavbarActions /> */}
+              
                 </div>
               </SheetContent>
-            </Sheet>
+            </Sheet> */}
           </div>
         </div>
       </Container>

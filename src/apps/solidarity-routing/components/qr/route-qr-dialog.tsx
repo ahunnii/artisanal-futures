@@ -1,15 +1,11 @@
 import Link from "next/link";
-import { useMemo, useState, type FC } from "react";
+import { useState, type FC } from "react";
 
-import { ArrowRight } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { QrCode } from "lucide-react";
 
 import "react-phone-number-input/style.css";
 
-import QRCode from "~/apps/solidarity-routing/components/qr/route-qr-code";
-import type { ExpandedRouteData } from "~/apps/solidarity-routing/types";
-
-import LoadingIndicator from "~/apps/solidarity-routing/components/solutions/loading-indicator";
+import LoadingIndicator from "~/apps/solidarity-routing/components/route-plan-section/loading-indicator";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -20,99 +16,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
 
-import { env } from "~/env.mjs";
-import { api } from "~/utils/api";
-import { sendEmail } from "~/utils/email";
+import QRCode from "qrcode.react";
 
-type TProps = { data: ExpandedRouteData };
+import { useSolidarityState } from "../../hooks/optimized-data/use-solidarity-state";
 
-export const RouteQRDialog: FC<TProps> = ({ data }) => {
-  const { name: driverName } = JSON.parse(data.description ?? "{}");
+type Props = { pathId: string };
+
+export const RouteQRDialog: FC<Props> = ({ pathId }) => {
+  const { depotId, routeId } = useSolidarityState();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [emailAddress, setEmailAddress] = useState<string | undefined>(
-    undefined
-  );
-  const [fileID, setFileID] = useState<string>("");
 
-  const emailPayload = useMemo(() => {
-    return {
-      email: emailAddress,
-      message: `Here is your route for today: ${env.NEXT_PUBLIC_APP_URL}/tools/routing/${fileID}`,
-      endpoint: "/api/routing/send-route",
-      success: () => toast.success("Message was sent successfully!"),
-      error: (data: unknown) => {
-        console.error(data);
-        toast.error("There seems to be an error. Please try again later.");
-      },
-    };
-  }, [fileID, emailAddress]);
-
-  const { mutate } = api.finalizedRoutes.createFinalizedRoute.useMutation({
-    onError: (error) => {
-      toast.error(error.message);
-      console.error("Error uploading files:", error.message);
-      setFileID("");
-      setIsOpen(false);
-    },
-
-    onSuccess: (data) => {
-      if (!data?.id) return;
-      setFileID(data.id);
-      setIsOpen(true);
-    },
-  });
-
-  const openModal = () => {
-    if (!data) return;
-    mutate(data);
-  };
+  const finalizedURL = `/tools/solidarity-pathways/${depotId}/route/${routeId}/path/${pathId}`;
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button type="button" onClick={openModal} className="gap-2 ">
-            Send to Driver <ArrowRight />
+          <Button type="button" size="icon" className="gap-2 ">
+            <QrCode />
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle> Route QR Code for {driverName}</DialogTitle>
+            <DialogTitle>QR code</DialogTitle>
             <DialogDescription>
-              <Link
-                href={`/tools/routing/${encodeURIComponent(fileID)}`}
-                target="_blank"
-              >
+              <Link href={finalizedURL} target="_blank">
                 Link to generated route
               </Link>
             </DialogDescription>
-          </DialogHeader>{" "}
+          </DialogHeader>
           <div className="mt-2 h-full w-full">
-            {fileID ? <QRCode url={fileID} /> : <LoadingIndicator />}
-          </div>
-          <div className="py-5">
-            <label className="block py-2 text-lg font-medium text-slate-700">
-              Driver&apos;s Email
-            </label>
-
-            <div className=" flex w-full flex-row gap-4 rounded-md text-lg sm:text-sm">
-              <Input
-                className="flex flex-1 text-sm"
-                placeholder="Enter email address"
-                type="email"
-                value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
+            {finalizedURL ? (
+              <QRCode
+                value={finalizedURL}
+                renderAs="svg"
+                className="h-full w-full"
               />
-              <Button
-                className="rounded bg-green-500 px-2 font-semibold text-white"
-                onClick={() => void sendEmail(emailPayload)}
-              >
-                Send Link
-              </Button>
-            </div>
+            ) : (
+              <LoadingIndicator />
+            )}
           </div>
         </DialogContent>
       </Dialog>
