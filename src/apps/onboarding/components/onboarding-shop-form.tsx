@@ -23,6 +23,7 @@ import { Input } from "~/components/ui/input";
 
 import { useSession } from "next-auth/react";
 import { toast } from "~/apps/notifications/libs/toast";
+import { EditSection } from "~/components/sections/edit-section.admin";
 import LogoUpload from "~/components/ui/logo-upload";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/utils/api";
@@ -146,7 +147,12 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
           onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
           className="w-full space-y-8"
         >
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          {" "}
+          <EditSection
+            title="Shop Information"
+            description="Provide basic info on your shop"
+          >
+            {" "}
             <FormField
               control={form.control}
               name="shopName"
@@ -219,6 +225,8 @@ export const OnboardingShopForm: React.FC<SettingsFormProps> = ({
                 </FormItem>
               )}
             />{" "}
+          </EditSection>
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <FormField
               control={form.control}
               name="bio"
