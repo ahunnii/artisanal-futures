@@ -39,11 +39,11 @@ const ProfileCard: FC<IProps> = ({
       <Image
         width={200}
         height={160}
-        src={ownerPhoto! ?? logoPhoto! ?? ""}
+        src={logoPhoto ?? ownerPhoto ?? "/placeholder-image.webp"}
         alt="Artisan logo or profile photo"
         className="aspect-[3/4] w-4/12 rounded-md object-cover shadow-md"
         priority
-        blurDataURL={ownerPhoto! ?? logoPhoto! ?? ""}
+        blurDataURL={logoPhoto ?? ownerPhoto ?? "/placeholder-image.webp"}
         placeholder="blur"
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
