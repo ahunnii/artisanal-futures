@@ -97,6 +97,11 @@ const UserNav = () => {
               <Link href="/profile/survey" className="w-full">
                 Survey
               </Link>
+            </DropdownMenuItem>{" "}
+            <DropdownMenuItem>
+              <Link href="/onboarding" className="w-full">
+                Onboarding
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

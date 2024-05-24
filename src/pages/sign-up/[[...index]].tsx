@@ -112,7 +112,24 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const isLoggedIn = context.req.cookies.login;
 
-  if (!isLoggedIn) return { redirect: { destination: "/password-protect" } };
+  const urlCode = context.query?.code;
+
+  if (!isLoggedIn && !urlCode)
+    return { redirect: { destination: "/password-protect" } };
+
+  if (urlCode) {
+    const codeRes = await fetch(`${env.NEXTAUTH_URL}/api/password-protect`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password: urlCode }),
+    }).then((res) => res.json());
+
+    if (!codeRes.success) {
+      return { redirect: { destination: "/password-protect" } };
+    }
+  }
 
   const providers = await getProviders();
   const errorMessage: Record<string, string> = {
