@@ -14,6 +14,9 @@
 
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+
+import { serialize } from "cookie";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -32,6 +35,8 @@ import { prisma } from "~/server/db";
 // }
 interface CreateContextOptions {
   session: Session | null;
+  req: NextApiRequest;
+  res: NextApiResponse;
   // auth: SignedInAuthObject | SignedOutAuthObject;
 }
 
@@ -45,11 +50,17 @@ interface CreateContextOptions {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = ({ session }: CreateContextOptions) => {
+const createInnerTRPCContext = ({
+  session,
+  req,
+  res,
+}: CreateContextOptions) => {
   return {
     session,
     // auth,
     prisma,
+    req,
+    res,
   };
 };
 
@@ -65,7 +76,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the server using the getServerSession wrapper function
   const session = await getServerAuthSession({ req, res });
 
-  return createInnerTRPCContext({ session });
+  return createInnerTRPCContext({ session, req, res });
 };
 
 /**
@@ -117,6 +128,37 @@ export const publicProcedure = t.procedure;
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const isAuthed = t.middleware(({ ctx, next }) => {
+  const verifiedDriver = ctx.req.cookies.verifiedDriver;
+
+  if (ctx.session?.user) {
+    ctx.res.setHeader("Set-Cookie", [
+      serialize("verifiedDriver", "", {
+        maxAge: -1,
+        path: "/",
+      }),
+    ]);
+
+    // Assume that if it is an authed user, they don't need a verifiedDriver cookie
+
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  }
+
+  if (verifiedDriver) {
+    return next({
+      ctx: {
+        session: {
+          ...ctx.session,
+          user: { role: "DRIVER", id: "0", name: "Driver" },
+        },
+      },
+    });
+  }
+
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }

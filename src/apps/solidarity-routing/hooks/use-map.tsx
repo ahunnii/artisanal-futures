@@ -1,22 +1,15 @@
-import polyline from "@mapbox/polyline";
 import L, { type LatLngExpression, type Map } from "leaflet";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  Coordinates,
-  ExpandedRouteData,
-  GeoJsonData,
-  Polyline,
-  RouteData,
-  StepData,
-  VroomResponse,
-} from "~/apps/solidarity-routing/types";
+import type { Coordinates } from "~/apps/solidarity-routing/types";
 
-import { useDrivers } from "./use-drivers";
+import axios from "axios";
 
-import { getCurrentLocation } from "~/apps/solidarity-routing/libs/realtime-utils";
-import { useDriverRoute } from "./use-driver-routes";
-import { useFinalizedRoutes } from "./use-finalized-routes";
-import { useStops } from "./use-stops";
+import { getCurrentLocation } from "~/apps/solidarity-routing/utils/get-current-location";
+import useInterval from "~/hooks/use-interval";
+import { useDriverVehicleBundles } from "./drivers/use-driver-vehicle-bundles";
+import { useClientJobBundles } from "./jobs/use-client-job-bundles";
+import { useOptimizedRoutePlan } from "./optimized-data/use-optimized-route-plan";
+import { useSolidarityState } from "./optimized-data/use-solidarity-state";
 
 type TUseMapProps = {
   mapRef: Map;
@@ -28,14 +21,42 @@ type TUseMapProps = {
 
 const useMap = ({
   mapRef,
-  trackingEnabled = false,
+
   driverEnabled = false,
   constantUserTracking = false,
 }: TUseMapProps) => {
-  const { selectedRoute, routes } = useFinalizedRoutes((state) => state);
-  const { drivers, activeDriver } = useDrivers((state) => state);
-  const { locations, activeLocation } = useStops((state) => state);
-  const { stops, selectedStop } = useDriverRoute((state) => state);
+  const [initial, setInitial] = useState(true);
+
+  const [constantTracking, setConstantTracking] = useState(false);
+
+  const [status, setStatus] = useState<"idle" | "active">("idle");
+
+  const driverBundles = useDriverVehicleBundles();
+  const jobs = useClientJobBundles();
+
+  const { pathId } = useSolidarityState();
+
+  const optimizedRoutePlan = useOptimizedRoutePlan();
+
+  useInterval(
+    () => {
+      if (
+        !constantUserTracking &&
+        currentLocation.latitude === 0 &&
+        currentLocation.longitude === 0
+      )
+        return;
+      console.log(currentLocation);
+      getCurrentLocation(setCurrentLocation);
+      if (pathId && currentLocation)
+        void axios.post("/api/routing/update-user-location", {
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          pathId: pathId,
+        });
+    },
+    status === "active" ? 1000 : 5000
+  );
 
   const [currentLocation, setCurrentLocation] = useState<
     Partial<GeolocationCoordinates>
@@ -52,38 +73,6 @@ const useMap = ({
     [mapRef]
   );
 
-  const convertToGeoJSON = (
-    route?: RouteData | ExpandedRouteData | null,
-    geometry?: string,
-    color?: number
-  ) => {
-    const temp = polyline.toGeoJSON(route?.geometry ?? geometry!) as Polyline;
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          geometry: {
-            ...temp,
-            properties: { color: route?.vehicle ?? color! },
-          },
-        },
-      ],
-    } as GeoJsonData;
-  };
-
-  const convertSolutionToGeoJSON = (solution: VroomResponse) => {
-    return {
-      type: "FeatureCollection",
-      features: solution?.geometry.map((geometry: Polyline) => {
-        return {
-          type: "Feature",
-          geometry,
-        };
-      }),
-    };
-  };
-
   const flyToCurrentLocation = () => {
     if (currentLocation)
       flyTo(
@@ -95,120 +84,70 @@ const useMap = ({
       );
   };
 
-  const enableConstantTracking = () => {
-    setInterval(() => {
-      getCurrentLocation(setCurrentLocation);
-    }, 5000);
+  const toggleConstantTracking = () => {
+    if (pathId && currentLocation.latitude && currentLocation.longitude) {
+      setStatus((status) => (status === "active" ? "idle" : "active"));
+      setConstantTracking(!constantTracking);
+    }
   };
 
-  useEffect(() => {
-    console.log(currentLocation);
-  }, [currentLocation]);
-
-  useEffect(() => {
-    if (constantUserTracking) enableConstantTracking();
-  }, [constantUserTracking]);
-
-  useEffect(() => {
-    getCurrentLocation(setCurrentLocation);
-  }, [driverEnabled]);
-
-  //   Solutions to tracking map. Focuses on the selected route.
-  useEffect(() => {
-    if (selectedRoute && mapRef && trackingEnabled) {
-      const stepCoordinates = selectedRoute?.steps
-        ?.filter((step: StepData) => step.type !== "break")
-        .map(
-          (step: StepData) =>
-            [step?.location[1], step?.location[0]] as LatLngExpression
-        );
-
-      if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates);
-
-      mapRef.fitBounds(bounds);
-    }
-  }, [selectedRoute, mapRef, trackingEnabled]);
-
-  useEffect(() => {
-    if (mapRef && routes && trackingEnabled) {
-      const allSteps = routes.map((route) => route?.steps);
-      const stepCoordinates = allSteps
-        .flat(1)
-        ?.filter((step) => step.type !== "break")
-        .map(
-          (step) => [step?.location[1], step?.location[0]] as LatLngExpression
-        );
-
-      if (stepCoordinates.length === 0) return;
-      const bounds = L.latLngBounds(stepCoordinates);
-
-      mapRef.fitBounds(bounds);
-    }
-  }, [routes, mapRef, trackingEnabled]);
-
-  useEffect(() => {
-    if (activeDriver && mapRef) flyTo(activeDriver?.coordinates, 15);
-  }, [activeDriver, mapRef, flyTo]);
-
-  useEffect(() => {
-    if (activeLocation && mapRef) flyTo(activeLocation?.coordinates, 15);
-  }, [activeLocation, mapRef, flyTo]);
-
-  useEffect(() => {
+  const expandViewToFit = useCallback(() => {
     if (
-      ((locations && locations.length > 0) ||
-        (drivers && drivers.length > 0)) &&
+      ((jobs.data && jobs.data.length > 0) ||
+        (driverBundles && driverBundles.data.length > 0)) &&
       mapRef
     ) {
-      const bounds = L.latLngBounds(
-        [...locations, ...drivers].map(
-          (location) =>
-            [
-              location?.coordinates?.latitude,
-              location?.coordinates?.longitude,
-            ] as LatLngExpression
-        )
-      );
+      const driverBounds = pathId
+        ? optimizedRoutePlan.mapCoordinates.driver
+        : driverBundles.data.map(
+            (driver) =>
+              [
+                driver.vehicle.startAddress.latitude,
+                driver.vehicle.startAddress.longitude,
+              ] as LatLngExpression
+          );
+      const locationBounds = pathId
+        ? optimizedRoutePlan.mapCoordinates.jobs
+        : jobs.data.map(
+            (location) =>
+              [
+                location.job.address.latitude,
+                location.job.address.longitude,
+              ] as LatLngExpression
+          );
+      const bounds = L.latLngBounds([...driverBounds, ...locationBounds]);
 
       mapRef.fitBounds(bounds);
     }
-  }, [locations, drivers, mapRef]);
+  }, [mapRef, driverBundles, jobs, optimizedRoutePlan, pathId]);
 
   useEffect(() => {
-    if (mapRef && stops && driverEnabled) {
-      const stepMap = stops
-        .filter((step: StepData) => step.type !== "break")
-        .map((step: StepData) => [
-          step?.location?.[1] ?? 0,
-          step?.location?.[0] ?? 0,
-        ]);
-
-      const totalBounds = [
-        ...stepMap,
-        currentLocation
-          ? [currentLocation.latitude, currentLocation.longitude]
-          : [],
-      ];
-      const temp = L.latLngBounds(totalBounds as LatLngExpression[]).pad(0.15);
-      mapRef.fitBounds(temp);
-      mapRef.getBoundsZoom(temp);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stops, mapRef, driverEnabled]);
+    if (constantUserTracking) getCurrentLocation(setCurrentLocation);
+  }, [driverEnabled, constantUserTracking, status]);
 
   useEffect(() => {
-    if (selectedStop && mapRef && driverEnabled) {
-      mapRef.flyTo([selectedStop.location[1], selectedStop.location[0]], 15);
+    if (driverBundles.active && mapRef)
+      flyTo(driverBundles.active.vehicle.startAddress, 15);
+  }, [driverBundles.active, mapRef, flyTo]);
+
+  useEffect(() => {
+    if (jobs.active && mapRef) flyTo(jobs.active.job.address, 15);
+  }, [jobs.active, mapRef, flyTo]);
+
+  useEffect(() => {
+    if (initial && mapRef && driverBundles.data && jobs.data) {
+      expandViewToFit();
+      setInitial(false);
     }
-  }, [selectedStop, mapRef, driverEnabled]);
+  }, [expandViewToFit, mapRef, driverBundles.data, jobs.data, initial]);
 
   return {
+    expandViewToFit,
     flyTo,
-    convertToGeoJSON,
-    convertSolutionToGeoJSON,
     currentLocation,
     flyToCurrentLocation,
+    toggleConstantTracking,
+    constantTracking,
   };
 };
 

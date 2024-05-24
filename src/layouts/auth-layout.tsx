@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import Head from "next/head";
 import Link from "next/link";
-import Container from "~/components/ui/container";
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const year = new Date().getFullYear();
@@ -32,9 +32,17 @@ const AuthLayout = ({ children }: { children: React.ReactNode }) => {
               &copy; {year} Artisanal Futures. All rights reserved.
             </p>
           </div>
+        </div>
+        <div className="relative mx-auto flex  h-full  w-full max-w-7xl  flex-col-reverse p-2 px-4 max-md:overflow-auto md:flex-row lg:h-[calc(100vh-64px)]">
+          {children}
+        </div>
+        <footer className=" mx-auto w-full max-w-7xl px-4 py-10 max-md:text-center">
+          <p className=" text-sm text-black">
+            &copy; {year} Artisanal Futures. All rights reserved.
+          </p>
         </footer>{" "}
-      </Container>
-    </main>
+      </main>
+    </>
   );
 };
 export default AuthLayout;
