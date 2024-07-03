@@ -141,6 +141,26 @@ export const authOptions: NextAuthOptions = {
         secure: useSecureCookies,
       },
     },
+    callbackUrl: {
+      name: `__Secure-next-auth.callback-url`,
+      options: {
+        sameSite: "lax",
+        secure: true,
+        httpOnly: true,
+        path: "/",
+        domain: "." + hostName,
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        sameSite: "lax",
+        secure: true,
+        httpOnly: true,
+        path: "/",
+        domain: "." + hostName,
+      },
+    },
   },
 };
 
@@ -248,6 +268,26 @@ export const authWithContext = (ctx: {
           path: "/",
           domain: "." + hostName,
           secure: useSecureCookies,
+        },
+      },
+      callbackUrl: {
+        name: `__Secure-next-auth.callback-url`,
+        options: {
+          sameSite: "lax",
+          secure: true,
+          httpOnly: true,
+          path: "/",
+          domain: "." + hostName,
+        },
+      },
+      csrfToken: {
+        name: `next-auth.csrf-token`,
+        options: {
+          sameSite: "lax",
+          secure: true,
+          httpOnly: true,
+          path: "/",
+          domain: "." + hostName,
         },
       },
     },
