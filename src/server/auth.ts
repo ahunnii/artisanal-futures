@@ -17,7 +17,9 @@ import { prisma } from "~/server/db";
 
 const useSecureCookies = env.NEXTAUTH_URL.startsWith("https://");
 const cookiePrefix = useSecureCookies ? "__Secure-" : "";
-const hostName = new URL(env.NEXTAUTH_URL).hostname;
+const hostName = useSecureCookies
+  ? new URL(env.NEXTAUTH_URL).hostname
+  : env.HOSTNAME;
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

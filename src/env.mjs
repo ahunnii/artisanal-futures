@@ -56,6 +56,7 @@ export const env = createEnv({
     GOOGLE_API_KEY: z.string(),
 
     REDIS_URL: z.string().url().optional(),
+    HOSTNAME: z.string(),
   },
 
   /**
@@ -117,6 +118,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PUSHER_PORT: process.env.NEXT_PUBLIC_PUSHER_PORT,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
     REDIS_URL: process.env.REDIS_URL,
+    HOSTNAME: process.env.HOSTNAME,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
