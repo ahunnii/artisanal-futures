@@ -15,6 +15,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
+const useSecureCookies = env.NEXTAUTH_URL.startsWith("https://");
+const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+const hostName = new URL(env.NEXTAUTH_URL).hostname;
+
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -126,6 +130,18 @@ export const authOptions: NextAuthOptions = {
     signIn: "/sign-in",
     newUser: "/onboarding",
   },
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        domain: "." + hostName,
+        secure: useSecureCookies,
+      },
+    },
+  },
 };
 
 export const authWithContext = (ctx: {
@@ -222,6 +238,18 @@ export const authWithContext = (ctx: {
     pages: {
       signIn: "/sign-in",
       newUser: "/onboarding",
+    },
+    cookies: {
+      sessionToken: {
+        name: `${cookiePrefix}next-auth.session-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          domain: "." + hostName,
+          secure: useSecureCookies,
+        },
+      },
     },
   } as NextAuthOptions;
 };
