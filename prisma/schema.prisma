@@ -60,25 +60,27 @@ model Session {
 }
 
 model User {
-  id                String       @id @default(cuid())
-  name              String?
-  email             String?      @unique
-  emailVerified     DateTime?
-  image             String?
-  title             String?
-  accounts          Account[]
-  sessions          Session[]
-  posts             Post[]
-  likedPosts        LikedPosts[]
-  comments          Comment[]
-  role              Role         @default(USER)
-  depots            Depot[]
-  messagingProfile  Profile?
+  id                  String       @id @default(cuid())
+  name                String?
+  email               String?      @unique
+  emailVerified       DateTime?
+  image               String?
+  title               String?
+  accounts            Account[]
+  sessions            Session[]
+  posts               Post[]
+  likedPosts          LikedPosts[]
+  comments            Comment[]
+  role                Role         @default(USER)
+  depots              Depot[]
+  messagingProfile    Profile?
 
+  createdAt           DateTime              @default(now())
+  generatedImages     GeneratedImages[]
+  generationSurveys   GenerationSurvey[]
+  variations          Variation[]
+  modifications       Modification[]
 }
-
-
-
 
 model VerificationToken {
   identifier String
@@ -608,6 +610,54 @@ model DirectMessage {
   @@index([conversationId])
 }
 
-// Messaging Use Cases
-// Depot to Driver / Driver to Depot (Group Messaging)
-// Driver to Driver / Artisan to Artisan (Direct Messaging)
+
+//////////////////AI Agent Models//////////////////
+
+model GeneratedImages {
+  id            String @id @default(cuid())
+  userId        String
+  projectTitle  String
+  prompt        String
+  imageUrl      String
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model GenerationSurvey {
+  id                          String @id @default(cuid())
+  userId                      String
+  projectTitle                String
+  levelOfStatisfaction        String
+  directDigitalFabrication    String
+  user                        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Variation {
+  id              String @id @default(cuid())
+  userId          String
+  projectTitle    String
+  guidancePrompt  String
+  imageUrl        String
+  exceutionTime   String
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+model Modification {
+  id              String @id @default(cuid())
+  userId          String
+  projectTitle    String
+  guidanceScale   String
+  prompt          String
+  negativePrompt  String
+  exceutionTime   String
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
