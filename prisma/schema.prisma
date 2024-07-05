@@ -14,7 +14,7 @@ enum Role {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -110,7 +110,7 @@ model Shop {
   id          String   @id @default(cuid())
   shopName    String
   ownerName   String
-  bio         String?   @db.LongText
+  bio         String?   @db.Text
   description String?
   ownerPhoto  String?
   logoPhoto   String?
@@ -143,13 +143,13 @@ model Post {
 
   @@index([authorId])
   @@index([hidden, createdAt(sort: Desc)])
-  @@fulltext([title, content])
+
 }
 
 model LikedPosts {
-  post      Post     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  post      Post     @relation(fields: [postId], references: [id])
   postId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
 
